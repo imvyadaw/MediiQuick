@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediiQuick - Medicine Delivery in 30 Minutes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Header with location picker -->
+    <header class="header py-2 px-4 md:px-8">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png" alt="MedQuick logo with green cross medical symbol and bold typography" class="rounded-lg w-8 h-8">
+                <h1 class="text-lg font-bold text-gray-800">MediiQuick</h1>
+            </div>
+            
+            <div class="location-picker flex items-center gap-2 px-3 py-1 rounded-full w-full md:w-auto">
+                <i class="fas fa-map-marker-alt text-green-600"></i>
+                <div class="flex-1">
+                    <p class="text-xs text-gray-500">Your location</p>
+                    <div class="flex items-center gap-1">
+                        <input type="text" id="location-input" placeholder="Detecting your location..." class="border-none bg-transparent p-0 text-sm font-medium focus:outline-none w-full" readonly>
+                        <div id="location-loader" class="loader" style="display: none;"></div>
+                        <button id="location-change" class="text-green-600 font-medium text-sm ml-2">Change</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team leader -->
+            <!-- YE REHNE DO ✅ -->
+            <div class="hidden md:flex items-center gap-4">
+                <button onclick="window.location.href='login.html'"
+                    class="font-medium text-gray-700 hover:text-green-600">Login/Signup</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Hero section -->
+        <section class="mb-10">
+            <div class="rounded-2xl overflow-hidden relative">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/da0f498b-2a30-4602-a889-462a314cb182.png" alt="Medicine delivery service hero image showing delivery person with medical package" class="w-full h-64 md:h-96 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center p-8 md:p-16">
+                    <div class="max-w-lg">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Get Medicines in <span class="text-green-400">30 Minutes</span></h2>
+                        <p class="text-white text-lg mb-6">Find nearby pharmacies and get medicines delivered to your doorstep</p>
+                        
+                        <!-- Search bar -->
+                        <div class="search-container bg-white rounded-full overflow-hidden shadow-lg">
+                            <div class="flex items-center px-4 py-2">
+                                <i class="fas fa-search text-gray-400 mr-2"></i>
+                                <input type="text" id="medicine-search" placeholder="Search for medicines (e.g., Dolo 650, Azithromycin)" class="flex-1 focus:outline-none text-gray-700">
+                                <button onclick="searchMedicines()" class="bg-green-600 text-white px-6 py-3 rounded-full font-medium ml-2">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Quick categories -->
+        <section class="mb-10">
+            <h3 class="text-xl font-bold mb-6">Shop by Category</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-capsules text-green-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Fever & Pain</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-allergies text-blue-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Allergies</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-heartbeat text-yellow-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Heart Care</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-brain text-purple-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Brain & Nerves</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-lungs text-pink-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Respiratory</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center cursor-pointer transition hover:shadow-md">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-bone text-indigo-600 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium">Bone & Joint</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Popular medicines -->
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Popular Medicines</h3>
+                <a href="all-medicines.html" class="text-green-600 font-medium">View All</a>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">  
+                <!-- Medicine card 1 -->
+                <div class="medicine-card" onclick="window.location.href='medicine-details.html?medicine=dolo650'">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/57f027b1-22a8-40e3-86c8-1563b68a175d.png" alt="Dolo 650 tablet strip with 10 white tablets in blister packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Dolo 650</h4>
+                        <p class="text-sm text-gray-500">Paracetamol 650mg</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹25 <span class="text-xs text-gray-500 line-through">₹30</span></span>
+                            <span class="badge-sale text-xs rounded">20% OFF</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicine card 2 -->
+                <div class="medicine-card">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/05b7f467-6d9b-430f-a179-20ceb9c8ec95.png" alt="Azithromycin 500mg tablet strip with 3 tablets in blue packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Azee 500</h4>
+                        <p class="text-sm text-gray-500">Azithromycin 500mg</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹90 <span class="text-xs text-gray-500 line-through">₹100</span></span>
+                            <span class="badge-sale text-xs rounded">10% OFF</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicine card 3 -->
+                <div class="medicine-card">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/20230244-5806-43d3-aade-5e017b8b2695.png" alt="Combiflam strip with 10 tablets in red and white packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                            <span class="badge-trending absolute text-xs rounded -top-6 right-2">TRENDING</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Combiflam</h4>
+                        <p class="text-sm text-gray-500">Pain Relief</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹65</span>
+                            <span class="text-xs text-gray-500"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicine card 4 -->
+                <div class="medicine-card">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b6c2ce53-f43e-47cd-91c1-d4427620e319.png" alt="Vitamin D3 60K IU sachet strip in orange and white packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Uprise D3 60K</h4>
+                        <p class="text-sm text-gray-500">Vitamin D3 60K IU</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹125 <span class="text-xs text-gray-500 line-through">₹150</span></span>
+                            <span class="badge-sale text-xs rounded">16% OFF</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicine card 5 -->
+                <div class="medicine-card">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5e13bba1-8727-4c39-87ed-0b73268eca2f.png" alt="Cetirizine 10mg tablet strip in blue and white packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Cetrizine</h4>
+                        <p class="text-sm text-gray-500">Anti-Allergy</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹30</span>
+                            <span class="text-xs text-gray-500"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicine card 6 -->
+                <div class="medicine-card">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3ad15d54-a127-4954-964e-9070e589765e.png" alt="Shelcal 500 tablet strip with calcium and vitamin D3 in green packaging" class="w-full h-40 object-contain bg-gray-100">
+                        <div class="absolute top-2 right-2">
+                            <span class="delivery-badge">30 min</span>
+                            <span class="badge-trending absolute text-xs rounded -top-6 right-2">TRENDING</span>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold">Shelcal 500</h4>
+                        <p class="text-sm text-gray-500">Calcium + Vitamin D3</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold">₹80 <span class="text-xs text-gray-500 line-through">₹95</span></span>
+                            <span class="badge-sale text-xs rounded">15% OFF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <!-- Health tips -->
+        <section class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-10">
+            <h3 class="text-xl font-bold mb-6">Health Tips</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Tip 1 -->
+                <div class="bg-white p-6 rounded-xl">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4713f598-dd96-4285-ae26-3ba4a87c4db3.png" alt="Doctor showing correct way to take medicine with glass of water" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="font-bold mb-2">How to Take Medicines Properly</h4>
+                    <p class="text-sm text-gray-600">Always take medicines as prescribed by your doctor. Some should be taken with food while others should be taken on an empty stomach.</p>
+                </div>
+                
+                <!-- Tip 2 -->
+                <div class="bg-white p-6 rounded-xl">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/82af876f-1b77-46dc-af11-f8bbca99cf12.png" alt="Well-organized medicine cabinet with first aid kit and properly labeled medicine boxes" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="font-bold mb-2">Medicine Storage Tips</h4>
+                    <p class="text-sm text-gray-600">Store medicines in a cool, dry place away from sunlight. Keep them out of reach of children and check expiration dates regularly.</p>
+                </div>
+                
+                <!-- Tip 3 -->
+                <div class="bg-white p-6 rounded-xl">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/90801c36-defd-452b-a04b-49b6283ae516.png" alt="Young woman reading medicine prescription with pharmacist in background" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="font-bold mb-2">Understanding Prescriptions</h4>
+                    <p class="text-sm text-gray-600">Always read the medicine label carefully. If you have any questions about dosage or side effects, consult your pharmacist or doctor.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- App section -->
+        <section class="bg-green-600 text-white rounded-2xl p-8 md:p-12 mb-10">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl md:text-3xl font-bold mb-4">Get the MedQuick App</h3>
+                    <p class="mb-6">Download our app for faster bookings, order tracking, exclusive offers, and 24/7 access to pharmacists.</p>
+                    <div class="flex gap-4">
+                        <button onclick="window.location.href='https://apps.apple.com/app/mediiquick'" class="bg-black text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+                            <i class="fab fa-apple"></i> App Store
+                        </button>
+                        <button onclick="window.location.href='https://play.google.com/store/apps/mediiquick'" class="bg-black text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+                            <i class="fab fa-google-play"></i> Play Store
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/993ef6f1-9e8a-4cfa-9b78-34891dc521fb.png" alt="Smartphone showing MedQuick app interface with medicine search and order tracking features" class="w-64 h-auto">
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4 md:px-8">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bfc1f536-3ece-41d8-a858-6d33cc6c97d6.png" alt="MedQuick logo in white" class="rounded-lg">
+                        <h3 class="text-xl font-bold">MediiQuick</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">Medicines delivered at your doorstep in 30 minutes</p>
+                    <div class="flex gap-4">
+                        <a href="https://www.facebook.com/mryuvrajdixit" class="text-white hover:text-green-400"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/Yuvraj_dixit__" class="text-white hover:text-green-400"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/mr_yuvraj_dixit__/" class="text-white hover:text-green-400"><i class="fab fa-instagram"></i></a>
+                        <a href=https://www.linkedin.com/in/yuvraj-dixit-3393422b5/" class="text-white hover:text-green-400"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-lg">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <!--<li><a href="#" class="text-gray-400 hover:text-white">Press</a></li>-->
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-lg">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Medicine Delivery</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Doctor Consult</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Lab Tests</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Health Care</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-lg">Contact Us</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-gray-400"><i class="fas fa-headset"></i> +91 **********</li>
+                        <li class="flex items-center gap-2 text-gray-400"><i class="fas fa-envelope"></i> Mediquick@gmail.com</li>
+                        <li class="flex items-center gap-2 text-gray-400"><i class="fas fa-map-marker-alt"></i> New Delhi, India</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-gray-400 text-sm">© 2026 MediiQuick . All rights reserved.</p>
+                    <div class="flex gap-6">
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Drugs Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Location detection
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationInput = document.getElementById('location-input');
+            const locationLoader = document.getElementById('location-loader');
+            const locationChange = document.getElementById('location-change');
+            
+            // Simulate location detection
+            locationLoader.style.display = 'block';
+            setTimeout(() => {
+                locationLoader.style.display = 'none';
+                locationInput.value = 'Sector 12, Dwarka, New Delhi'; // Default location (can be changed)
+            }, 1500);
+            
+            // Change location handler
+            locationChange.addEventListener('click', function() {
+                const newLocation = prompt('Enter your location:');
+                if (newLocation) {
+                    locationLoader.style.display = 'block';
+                    setTimeout(() => {
+                        locationLoader.style.display = 'none';
+                        locationInput.value = newLocation;
+                    }, 1000);
+                }
+            });
+            
+            // Medicine search handler
+            function searchMedicines() {
+                const query = document.getElementById('medicine-search').value;
+                if(query) {
+                    window.location.href = 'search-results.html?q=' + encodeURIComponent(query);
+                }
+            }
+
+            document.getElementById('medicine-search').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchMedicines();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

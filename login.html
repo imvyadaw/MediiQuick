@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Signup — MediiQuick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .07);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .05);
+      bottom: -100px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    .pill {
+      position: absolute;
+      border-radius: 50px;
+      opacity: .06;
+      background: #4ade80;
+      pointer-events: none;
+    }
+
+    .pill1 {
+      width: 120px;
+      height: 40px;
+      top: 20%;
+      left: 5%;
+      transform: rotate(-25deg);
+    }
+
+    .pill2 {
+      width: 80px;
+      height: 28px;
+      top: 60%;
+      right: 7%;
+      transform: rotate(15deg);
+    }
+
+    .pill3 {
+      width: 60px;
+      height: 22px;
+      bottom: 25%;
+      left: 10%;
+      transform: rotate(30deg);
+    }
+
+    /* Header */
+    .header {
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo h1 span {
+      color: #4ade80;
+    }
+
+    .header-link {
+      color: rgba(255, 255, 255, .6);
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .header-link:hover {
+      color: #4ade80;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
+      overflow: hidden;
+      display: flex;
+      min-height: 580px;
+    }
+
+    /* Left panel */
+    .left-panel {
+      width: 42%;
+      background: linear-gradient(155deg, #15803d, #16a34a, #059669);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+      top: -80px;
+      right: -80px;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+      bottom: -60px;
+      left: -60px;
+    }
+
+    .lp-icon {
+      width: 90px;
+      height: 90px;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      margin: 0 auto 24px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .85);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-feat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lp-feat i {
+      font-size: 15px;
+      opacity: .9;
+    }
+
+    /* Right panel */
+    .right-panel {
+      flex: 1;
+      padding: 40px 40px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Tab toggle */
+    .tab-row {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 14px;
+      padding: 5px;
+      gap: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 11px 8px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .25s;
+      background: transparent;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: #16a34a;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+    }
+
+    /* Form sections */
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    /* Form groups */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+
+    .form-group label i {
+      color: #16a34a;
+      width: 15px;
+      text-align: center;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+      outline: none;
+      transition: all .2s;
+      background: #fff;
+    }
+
+    .input-wrap input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
+    }
+
+    .input-wrap input.err {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .pw-toggle:hover {
+      color: #374151;
+    }
+
+    .err-msg {
+      font-size: 12px;
+      color: #ef4444;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .err-msg.show {
+      display: flex;
+    }
+
+    .forgot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .forgot-row label {
+      margin-bottom: 0;
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .submit-btn:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn.loading {
+      pointer-events: none;
+      opacity: .8;
+    }
+
+    .btn-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, .4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .btn-spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .divider span {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    /* Social buttons */
+    .social-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      flex: 1;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 11px;
+      background: #fff;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .social-btn:hover {
+      border-color: #16a34a;
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    /* Bottom link */
+    .bottom-link {
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 16px;
+    }
+
+    .bottom-link a {
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+      color: #fff;
+      background: #0f172a;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.t-success {
+      background: #16a34a;
+    }
+
+    #toast.t-error {
+      background: #ef4444;
+    }
+
+    /* Forgot modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+    }
+
+    .modal-box h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .modal-box p {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #94a3b8;
+      margin-top: -4px;
+    }
+
+    .modal-close:hover {
+      color: #374151;
+    }
+
+    .modal-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .modal-btn:hover {
+      background: #15803d;
+    }
+
+    .modal-cancel {
+      width: 100%;
+      background: #f1f5f9;
+      color: #475569;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    @media(max-width:700px) {
+      .left-panel {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 28px 24px;
+      }
+
+      .card {
+        max-width: 480px;
+      }
+
+      .header {
+        padding: 14px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="pill pill1"></div>
+  <div class="pill pill2"></div>
+  <div class="pill pill3"></div>
+
+  <div id="toast"><span id="toast-msg"></span></div>
+
+  <!-- Forgot Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgot()">✕</button>
+      <h3>🔑 Forgot Password?</h3>
+      <p>Enter your registered email — we'll send a password reset link.</p>
+      <div class="form-group" style="margin-bottom:0;">
+        <label><i class="fas fa-envelope"></i> Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="forgot-email" placeholder="you@email.com">
+        </div>
+      </div>
+      <button class="modal-btn" onclick="sendReset()">📧 Send Reset Link</button>
+      <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img
+        src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+        alt="MediiQuick">
+      <h1>Medii<span>Quick</span></h1>
+    </a>
+    <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Go to Home</a>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="card">
+
+      <!-- Left Panel -->
+      <div class="left-panel">
+        <div class="lp-icon">💊</div>
+        <h2>Welcome Back!</h2>
+        <p>MediiQuick — your medicines delivered in <strong>30 minutes</strong>!</p>
+        <div class="lp-features">
+          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed delivery</div>
+          <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
+          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
+          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+
+        <!-- Tab Toggle -->
+        <div class="tab-row">
+          <button class="tab-btn active" id="tab-user" onclick="switchTab('user')">
+            <i class="fas fa-user"></i> User Login
+          </button>
+          <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">
+            <i class="fas fa-store"></i> Admin Login
+          </button>
+        </div>
+
+        <!-- ── USER LOGIN ── -->
+        <div class="form-section active" id="sec-user">
+          <div class="section-title">👋 User Login</div>
+          <div class="section-sub">Login Your Account </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-envelope"></i> Email Address</label>
+            <div class="input-wrap">
+              <input type="email" id="u-email" placeholder="you@email.com">
+            </div>
+            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
+          </div>
+
+          <div class="form-group">
+            <div class="forgot-row">
+              <label><i class="fas fa-lock"></i> Password</label>
+              <a href="#" class="forgot-link" onclick="openForgot();return false;">Forgot Password?</a>
+            </div>
+            <div class="input-wrap">
+              <input type="password" id="u-pass" placeholder="••••••••">
+              <button class="pw-toggle" onclick="togglePw('u-pass',this)" type="button"><i
+                  class="fas fa-eye"></i></button>
+            </div>
+            <span class="err-msg" id="u-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+          </div>
+
+          <button class="submit-btn" id="userLoginBtn" onclick="doUserLogin()">
+            <div class="btn-spinner"></div>
+            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login</span>
+          </button>
+
+          <div class="divider">
+            <div class="divider-line"></div><span>or continue with</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="social-row">
+            <button class="social-btn" onclick="socialLogin('Google')">
+              <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google
+            </button>
+            <button class="social-btn" onclick="socialLogin('Facebook')">
+              <i class="fab fa-facebook" style="color:#1877f2;"></i> Facebook
+            </button>
+          </div>
+
+          <div class="bottom-link">
+            Account nahi hai? <a href="signupuser.html">Create Account</a>
+          </div>
+        </div>
+
+        <!-- ── ADMIN LOGIN ── -->
+        <div class="form-section" id="sec-admin">
+          <div class="section-title">🏥 Admin Login</div>
+          <div class="section-sub">Login to your pharmacy partner dashboard</div>
+
+          <div class="form-group">
+            <label><i class="fas fa-id-badge"></i> Admin ID or Email</label>
+            <div class="input-wrap">
+              <input type="text" id="a-id" placeholder="ADMIN-123456 or email">
+            </div>
+            <span class="err-msg" id="a-err-id"><i class="fas fa-circle-exclamation"></i> Admin ID or email
+              required</span>
+          </div>
+
+          <div class="form-group">
+            <div class="forgot-row">
+              <label><i class="fas fa-lock"></i> Password</label>
+              <a href="#" class="forgot-link" onclick="openForgot();return false;">Forgot Password?</a>
+            </div>
+            <div class="input-wrap">
+              <input type="password" id="a-pass" placeholder="••••••••">
+              <button class="pw-toggle" onclick="togglePw('a-pass',this)" type="button"><i
+                  class="fas fa-eye"></i></button>
+            </div>
+            <span class="err-msg" id="a-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+          </div>
+
+          <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()">
+            <div class="btn-spinner"></div>
+            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
+          </button>
+
+          <div class="bottom-link" style="margin-top:20px;">
+            New pharmacy partner? <a href="admin-signup.html">Register Your Pharmacy</a>
+          </div>
+          <div class="bottom-link" style="margin-top:8px;">
+            <a href="admin-login.html" style="color:#64748b;font-weight:500;">Go to full Admin Login page →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── Tab Switch ──
+    function switchTab(type) {
+      ['user', 'admin'].forEach(t => {
+        document.getElementById('sec-' + t).classList.toggle('active', t === type);
+        document.getElementById('tab-' + t).classList.toggle('active', t === type);
+      });
+      // Update left panel
+      if (type === 'admin') {
+        document.querySelector('.lp-icon').textContent = '🏥';
+        document.querySelector('.left-panel h2').textContent = 'Admin Portal';
+        document.querySelector('.left-panel p').textContent = 'Apni pharmacy manage karo — orders, inventory, delivery sab ek jagah.';
+      } else {
+        document.querySelector('.lp-icon').textContent = '💊';
+        document.querySelector('.left-panel h2').textContent = 'Welcome Back!';
+        document.querySelector('.left-panel p').innerHTML = 'MediiQuick — aapki medicines <strong>30 minutes</strong> mein doorstep pe!';
+      }
+    }
+
+    // ── Toggle Password ──
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const icon = btn.querySelector('i');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+    }
+
+    // ── User Login ──
+    function doUserLogin() {
+      const email = document.getElementById('u-email').value.trim();
+      const pass = document.getElementById('u-pass').value;
+      let valid = true;
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      document.getElementById('u-err-email').classList.toggle('show', !emailOk);
+      document.getElementById('u-email').classList.toggle('err', !emailOk);
+      if (!emailOk) valid = false;
+
+      const passOk = pass.length >= 1;
+      document.getElementById('u-err-pass').classList.toggle('show', !passOk);
+      document.getElementById('u-pass').classList.toggle('err', !passOk);
+      if (!passOk) valid = false;
+
+      if (!valid) { showToast('⚠ Sahi details daalo', 'error'); return; }
+
+      setLoading('userLoginBtn', true);
+
+      setTimeout(() => {
+        setLoading('userLoginBtn', false);
+        // Check saved user from sessionStorage
+        try {
+          const saved = JSON.parse(sessionStorage.getItem('mq_user') || 'null');
+          if (saved && saved.email === email && saved.password === pass) {
+            showToast('✓ Login successful!', 'success');
+            setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+            return;
+          }
+        } catch (e) { }
+        // Default demo login
+        showToast('✓ Login successful!', 'success');
+        setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+      }, 1600);
+    }
+
+    // ── Admin Login ──
+    function doAdminLogin() {
+      const id = document.getElementById('a-id').value.trim();
+      const pass = document.getElementById('a-pass').value;
+      let valid = true;
+
+      const idOk = id.length >= 3;
+      document.getElementById('a-err-id').classList.toggle('show', !idOk);
+      document.getElementById('a-id').classList.toggle('err', !idOk);
+      if (!idOk) valid = false;
+
+      const passOk = pass.length >= 1;
+      document.getElementById('a-err-pass').classList.toggle('show', !passOk);
+      document.getElementById('a-pass').classList.toggle('err', !passOk);
+      if (!passOk) valid = false;
+
+      if (!valid) { showToast('⚠ Sahi details daalo', 'error'); return; }
+
+      setLoading('adminLoginBtn', true);
+
+      setTimeout(() => {
+        setLoading('adminLoginBtn', false);
+        showToast('✓ Admin login successful!', 'success');
+        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
+      }, 1600);
+    }
+
+    // ── Social Login ──
+    function socialLogin(provider) {
+      showToast(`${provider} login coming soon!`);
+    }
+
+    // ── Loading State ──
+    function setLoading(btnId, state) {
+      const btn = document.getElementById(btnId);
+      btn.classList.toggle('loading', state);
+      const spinner = btn.querySelector('.btn-spinner');
+      const text = btn.querySelector('.btn-text');
+      if (spinner) spinner.style.display = state ? 'block' : 'none';
+      if (text) text.style.opacity = state ? '.6' : '1';
+    }
+
+    // ── Forgot Password ──
+    function openForgot() { document.getElementById('forgotModal').classList.add('show'); }
+    function closeForgot() { document.getElementById('forgotModal').classList.remove('show'); }
+    function sendReset() {
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('⚠ Valid email daalo', 'error'); return;
+      }
+      closeForgot();
+      showToast('📧 Reset link sent to ' + email, 'success');
+    }
+
+    // ── Enter key ──
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const active = document.querySelector('.form-section.active').id;
+        if (active === 'sec-user') doUserLogin();
+        if (active === 'sec-admin') doAdminLogin();
+      }
+    });
+
+    // ── Check URL params (e.g. ?tab=admin) ──
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'admin') switchTab('admin');
+
+    // ── Toast ──
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
+      document.getElementById('toast-msg').textContent = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
+    }
+  </script>
+</body>
+
+</html>

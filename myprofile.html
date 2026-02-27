@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediiQuick | My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --green-light: #f0fdf4;
+      --green-border: #bbf7d0;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --white: #ffffff;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 0;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .account-menu-wrap {
+      position: relative;
+    }
+
+    .account-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .account-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .account-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+      min-width: 180px;
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .account-dropdown.show {
+      display: block;
+    }
+
+    .account-dropdown a {
+      display: block;
+      padding: 12px 20px;
+      font-size: 14px;
+      color: #374151;
+      text-decoration: none;
+    }
+
+    .account-dropdown a:hover {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .cart-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .cart-btn svg {
+      width: 36px;
+      height: 36px;
+      color: #374151;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+    }
+
+    @media(max-width:768px) {
+      .page-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 16px;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+    }
+
+    .user-avatar {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--green-border);
+    }
+
+    .avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .user-avatar .uname {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .user-avatar .uemail {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4b5563;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .nav-item.active {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .nav-item i {
+      width: 18px;
+      text-align: center;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #dc2626;
+      cursor: pointer;
+      border: none;
+      background: #fef2f2;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #fee2e2;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--green);
+    }
+
+    /* ── ACCOUNT FIELDS ── */
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media(max-width:600px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-card {
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 4px;
+    }
+
+    .field-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .edit-btn {
+      font-size: 12px;
+      color: var(--green);
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+    }
+
+    .edit-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* ── ORDERS ── */
+    .orders-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media(max-width:500px) {
+      .orders-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-card .stat-num {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .stat-card .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .order-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      transition: box-shadow 0.2s;
+    }
+
+    .order-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .order-id {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .order-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-confirmed {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status-packing {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-on_the_way {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .status-delivered {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .order-items {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .order-total {
+      font-weight: 700;
+      color: var(--green);
+      font-size: 15px;
+    }
+
+    .order-pay {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .track-link {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .track-link:hover {
+      text-decoration: underline;
+    }
+
+    .empty-orders {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-orders i {
+      font-size: 48px;
+      color: var(--green-border);
+      margin-bottom: 12px;
+    }
+
+    .empty-orders h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .empty-orders a {
+      display: inline-block;
+      margin-top: 12px;
+      background: var(--green);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* ── ADDRESS ── */
+    .addr-card {
+      border: 1.5px solid var(--green-border);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+      margin-bottom: 14px;
+      transition: box-shadow 0.2s;
+    }
+
+    .addr-card:hover {
+      box-shadow: 0 4px 16px rgba(22, 163, 74, 0.12);
+    }
+
+    .addr-card.default-addr {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+
+    .addr-type-badge {
+      display: inline-block;
+      background: var(--green);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .addr-name {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .addr-line {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .addr-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .addr-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .addr-btn-default {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .addr-btn-default:hover {
+      background: var(--green-dark);
+    }
+
+    .addr-btn-edit {
+      background: #f0fdf4;
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .addr-btn-edit:hover {
+      background: var(--green-light);
+    }
+
+    .addr-btn-delete {
+      background: #fff0f0;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .addr-btn-delete:hover {
+      background: #fee2e2;
+    }
+
+    .default-tag {
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .add-addr-btn {
+      width: 100%;
+      padding: 14px;
+      border: 2px dashed var(--green-border);
+      border-radius: 12px;
+      background: none;
+      cursor: pointer;
+      color: var(--green);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .add-addr-btn:hover {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+
+    /* Address Modal Form */
+    .addr-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media(max-width:480px) {
+      .addr-form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .addr-form-input {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    .addr-form-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .addr-form-full {
+      grid-column: span 2;
+    }
+
+    @media(max-width:480px) {
+      .addr-form-full {
+        grid-column: span 1;
+      }
+    }
+
+    /* ── SETTINGS ── */
+    .settings-card {
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .settings-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .settings-input {
+      width: 100%;
+      border: 1.5px solid var(--green-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      background: #fff;
+      margin-bottom: 10px;
+    }
+
+    .settings-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .settings-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .settings-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--green-border);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .toggle {
+      width: 40px;
+      height: 22px;
+      background: #d1d5db;
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.on {
+      background: var(--green);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: left 0.3s;
+    }
+
+    .toggle.on::after {
+      left: 21px;
+    }
+
+    /* ── EDIT MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .modal-input {
+      width: 100%;
+      border: 1.5px solid var(--green-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .modal-select {
+      width: 100%;
+      border: 1.5px solid var(--green-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-cancel {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .modal-save {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--green);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .modal-save:hover {
+      background: var(--green-dark);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--green);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(22, 163, 74, 0.35);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 999;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img
+          src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+          alt="MediiQuick" />
+        <h1>Medii<span>Quick</span></h1>
+      </a>
+
+      <div class="header-right">
+        <div class="account-menu-wrap">
+          <button class="account-btn" id="accountBtn">
+            <i class="fas fa-user"></i> My Account <i class="fas fa-chevron-down" style="font-size:11px;"></i>
+          </button>
+          <div class="account-dropdown" id="accountDropdown">
+            <a href="#" onclick="showSection('account'); closeDropdown()"><i class="fas fa-user"
+                style="width:18px;color:var(--green);"></i> Profile</a>
+            <a href="#" onclick="showSection('orders'); closeDropdown()"><i class="fas fa-box"
+                style="width:18px;color:var(--green);"></i> My Orders</a>
+            <a href="my_order.html"><i class="fas fa-truck" style="width:18px;color:var(--green);"></i> Track Order</a>
+            <a href="#" onclick="logout()" style="color:#dc2626;"><i class="fas fa-sign-out-alt"
+                style="width:18px;"></i> Logout</a>
+          </div>
+        </div>
+
+        <button class="cart-btn" onclick="window.location.href='profile.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m5-9l2 9" />
+          </svg>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ══ ADDRESS MODAL ══ -->
+  <div class="modal-overlay" id="addressModal">
+    <div class="modal-box" style="max-width:500px;width:95%;">
+      <div class="modal-title" id="addrModalTitle">Naya Address Add Karo</div>
+      <input type="hidden" id="editAddrIndex" value="-1" />
+      <div class="addr-form-grid">
+        <div class="addr-form-full">
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Address Type</label>
+          <select class="addr-form-input" id="addrType" style="margin-top:4px;margin-bottom:10px;">
+            <option value="Home">🏠 Home</option>
+            <option value="Work">🏢 Work</option>
+            <option value="Other">📍 Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Full Name *</label>
+          <input class="addr-form-input" id="addrName" placeholder="Apna naam"
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Phone Number *</label>
+          <input class="addr-form-input" id="addrPhone" type="tel" placeholder="10-digit number"
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div class="addr-form-full">
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Street / Flat / Colony *</label>
+          <input class="addr-form-input" id="addrStreet" placeholder="Flat no, Colony, Street..."
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div class="addr-form-full">
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Landmark</label>
+          <input class="addr-form-input" id="addrLandmark" placeholder="Near school, temple..."
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">City *</label>
+          <input class="addr-form-input" id="addrCity" placeholder="City" style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">State *</label>
+          <input class="addr-form-input" id="addrState" placeholder="State"
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">PIN Code *</label>
+          <input class="addr-form-input" id="addrPin" type="number" placeholder="6-digit PIN"
+            style="margin-top:4px;margin-bottom:10px;" />
+        </div>
+      </div>
+      <div class="modal-btns" style="margin-top:6px;">
+        <button class="modal-cancel" onclick="closeAddressModal()">Cancel</button>
+        <button class="modal-save" onclick="saveAddress()"><i class="fas fa-check"></i> Save Address</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EDIT MODAL ══ -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-title" id="modalTitle">Edit</div>
+      <div id="modalInputWrap"></div>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-save" onclick="saveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TOAST ══ -->
+  <div class="toast" id="toast">✅ Saved!</div>
+
+  <!-- ══ PAGE ══ -->
+  <div class="page-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="user-avatar">
+        <div class="avatar-circle" id="avatarInitial">?</div>
+        <div class="uname" id="sidebarName">Loading...</div>
+        <div class="uemail" id="sidebarEmail">—</div>
+      </div>
+      <nav>
+        <button class="nav-item active" onclick="showSection('account')" id="nav-account">
+          <i class="fas fa-user"></i> My Account
+        </button>
+        <button class="nav-item" onclick="showSection('orders')" id="nav-orders">
+          <i class="fas fa-box"></i> My Orders
+          <span id="ordersBadge"
+            style="margin-left:auto;background:var(--green);color:#fff;font-size:11px;padding:1px 8px;border-radius:10px;display:none;"></span>
+        </button>
+        <button class="nav-item" onclick="showSection('wishlist')" id="nav-wishlist">
+          <i class="fas fa-heart"></i> Wishlist
+        </button>
+        <button class="nav-item" onclick="showSection('address')" id="nav-address">
+          <i class="fas fa-map-marker-alt"></i> My Address
+        </button>
+        <button class="nav-item" onclick="showSection('settings')" id="nav-settings">
+          <i class="fas fa-cog"></i> Settings
+        </button>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- ── MY ACCOUNT ── -->
+      <div id="account" class="section active">
+        <div class="section-title"><i class="fas fa-user-circle"></i> My Account</div>
+        <div class="field-grid">
+          <div class="field-card">
+            <div class="field-header">
+              <div class="field-label">Full Name</div>
+              <button class="edit-btn" onclick="openEdit('name')">✏️ Edit</button>
+            </div>
+            <div class="field-value" id="nameDisplay">—</div>
+          </div>
+          <div class="field-card">
+            <div class="field-header">
+              <div class="field-label">Email Address</div>
+              <button class="edit-btn" onclick="openEdit('email')">✏️ Edit</button>
+            </div>
+            <div class="field-value" id="emailDisplay">—</div>
+          </div>
+          <div class="field-card">
+            <div class="field-header">
+              <div class="field-label">Mobile Number</div>
+              <button class="edit-btn" onclick="openEdit('mobile')">✏️ Edit</button>
+            </div>
+            <div class="field-value" id="mobileDisplay">—</div>
+          </div>
+          <div class="field-card">
+            <div class="field-header">
+              <div class="field-label">Gender</div>
+              <button class="edit-btn" onclick="openEdit('gender')">✏️ Edit</button>
+            </div>
+            <div class="field-value" id="genderDisplay">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MY ORDERS ── -->
+      <div id="orders" class="section">
+        <div class="section-title"><i class="fas fa-box-open"></i> My Orders</div>
+
+        <!-- Stats -->
+        <div class="orders-stats">
+          <div class="stat-card">
+            <div class="stat-num" id="totalOrders">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="activeOrders">0</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="totalSpent">₹0</div>
+            <div class="stat-label">Total Spent</div>
+          </div>
+        </div>
+
+        <!-- Order list -->
+        <div id="ordersList"></div>
+      </div>
+
+      <!-- ── WISHLIST ── -->
+      <div id="wishlist" class="section">
+        <div class="section-title"><i class="fas fa-heart"></i> Wishlist</div>
+        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+          <i class="fas fa-heart"
+            style="font-size:40px;color:var(--green-border);margin-bottom:12px;display:block;"></i>
+          <p>No wishlist items yet.</p>
+          <a href="profile.html"
+            style="display:inline-block;margin-top:12px;background:var(--green);color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Browse
+            Medicines</a>
+        </div>
+      </div>
+
+      <!-- ── ADDRESS ── -->
+      <div id="address" class="section">
+        <div class="section-title"><i class="fas fa-map-marker-alt"></i> My Address</div>
+        <div id="addressSection">
+          <p style="color:var(--text-muted);font-size:14px;">Loading...</p>
+        </div>
+        <button class="add-addr-btn" onclick="openAddressModal(null)" style="margin-top:12px;">
+          <i class="fas fa-plus"></i> &nbsp;Save New Address
+        </button>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div id="settings" class="section">
+        <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+
+        <div class="settings-card">
+          <div class="settings-label">🔒 Change Password</div>
+          <input class="settings-input" type="password" id="newPassword" placeholder="Naya password..." />
+          <input class="settings-input" type="password" id="confirmPassword" placeholder="Password confirm karo..." />
+          <button class="settings-btn" onclick="changePassword()">Update Password</button>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-label">🔔 Notification Settings</div>
+          <div class="toggle-row">
+            <span class="toggle-label">Email Notifications</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">SMS Alerts</span>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">Order Updates</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <div class="settings-card" style="background:#fff0f0;border-color:#fecaca;">
+          <div class="settings-label" style="color:#dc2626;">⚠️ Danger Zone</div>
+          <button class="settings-btn" style="background:#dc2626;" onclick="logout()">Logout Account</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    //  LOAD USER DATA FROM LOCALSTORAGE
+    // ══════════════════════════════════════════════════════
+    let userData = {};
+
+    function loadUser() {
+      try {
+        // Try mediiquckUser (from signup)
+        const raw = localStorage.getItem('mediiquickUser') || localStorage.getItem('mq_user') || '{}';
+        userData = JSON.parse(raw);
+      } catch (e) { userData = {}; }
+
+      const name = userData.name || userData.fullName || 'Guest User';
+      const email = userData.email || '—';
+      const mobile = userData.mobile || userData.phone || '—';
+      const gender = userData.gender || '—';
+
+      // Sidebar
+      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('sidebarEmail').textContent = email;
+      document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+
+      // Account fields
+      document.getElementById('nameDisplay').textContent = name;
+      document.getElementById('emailDisplay').textContent = email;
+      document.getElementById('mobileDisplay').textContent = mobile;
+      document.getElementById('genderDisplay').textContent = gender;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  LOAD ORDERS FROM LOCALSTORAGE
+    // ══════════════════════════════════════════════════════
+    function getStatus(order) {
+      if (!order.placedAt) return order.status || 'delivered';
+      const mins = (Date.now() - order.placedAt) / 60000;
+      if (mins < 2) return 'confirmed';
+      if (mins < 5) return 'packing';
+      if (mins < 25) return 'on_the_way';
+      return 'delivered';
+    }
+
+    function statusLabel(s) {
+      return {
+        confirmed: '📋 Confirmed',
+        packing: '📦 Packing',
+        on_the_way: '🚴 On the Way',
+        delivered: '✅ Delivered',
+        cancelled: '❌ Cancelled'
+      }[s] || s;
+    }
+
+    function loadOrders() {
+      let orders = [];
+      try { orders = JSON.parse(localStorage.getItem('mq_orders') || '[]'); } catch (e) { }
+
+      const total = orders.length;
+      const active = orders.filter(o => ['confirmed', 'packing', 'on_the_way'].includes(getStatus(o))).length;
+      const spent = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+      document.getElementById('totalOrders').textContent = total;
+      document.getElementById('activeOrders').textContent = active;
+      document.getElementById('totalSpent').textContent = '₹' + spent.toLocaleString('en-IN');
+
+      // Badge on nav
+      if (active > 0) {
+        document.getElementById('ordersBadge').textContent = active;
+        document.getElementById('ordersBadge').style.display = 'inline-block';
+      }
+
+      const list = document.getElementById('ordersList');
+
+      if (orders.length === 0) {
+        list.innerHTML = `
+      <div class="empty-orders">
+        <i class="fas fa-box-open"></i>
+        <h3>Koi order nahi hai abhi</h3>
+        <p>Medicines order karo aur yahan track karo!</p>
+        <a href="profile.html">Order Now →</a>
+      </div>`;
+        return;
+      }
+
+      list.innerHTML = orders.map(o => {
+        const status = getStatus(o);
+        const items = (o.items || []).map(i => `${i.med?.name || i.name} × ${i.qty}`).join(', ');
+        const eta = o.placedAt ? Math.max(0, Math.round(30 - (Date.now() - o.placedAt) / 60000)) : null;
+        const addrText = o.deliveryAddr
+          ? `${o.deliveryAddr.street}, ${o.deliveryAddr.city}`
+          : (o.city || '');
+
+        return `
+    <div class="order-card">
+      <div class="order-head">
+        <div>
+          <div class="order-id">🛍️ ${o.orderId}</div>
+          <div class="order-date">${o.date || ''}${addrText ? ' · 📍 ' + addrText : ''}</div>
+        </div>
+        <span class="status-badge status-${status}">${statusLabel(status)}</span>
+      </div>
+      <div class="order-items">${items || 'Items loaded'}</div>
+      <div class="order-footer">
+        <div>
+          <div class="order-total">₹${o.total?.toLocaleString('en-IN') || 0}</div>
+          <div class="order-pay">${o.payMethod || ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          ${eta !== null && status !== 'delivered' ? `<span style="font-size:12px;color:var(--green);font-weight:600;">⏱ ${eta} min left</span>` : ''}
+          <a class="track-link" href="my_order.html"><i class="fas fa-map-marker-alt"></i> Track</a>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+
+      // Load addresses from localStorage (done by loadAddresses())
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  SECTION NAV
+    // ══════════════════════════════════════════════════════
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('nav-' + id)?.classList.add('active');
+      closeDropdown();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  EDIT MODAL
+    // ══════════════════════════════════════════════════════
+    let editField = '';
+
+    function openEdit(field) {
+      editField = field;
+      const labels = { name: 'Full Name', email: 'Email Address', mobile: 'Mobile Number', gender: 'Gender' };
+      document.getElementById('modalTitle').textContent = 'Edit ' + (labels[field] || field);
+
+      const wrap = document.getElementById('modalInputWrap');
+      const cur = document.getElementById(field + 'Display').textContent;
+
+      if (field === 'gender') {
+        wrap.innerHTML = `<select class="modal-select" id="editInput">
+      <option ${cur === 'Male' ? 'selected' : ''}>Male</option>
+      <option ${cur === 'Female' ? 'selected' : ''}>Female</option>
+      <option ${cur === 'Other' ? 'selected' : ''}>Other</option>
+    </select>`;
+      } else {
+        const type = field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text';
+        wrap.innerHTML = `<input class="modal-input" type="${type}" id="editInput" value="${cur === '—' ? '' : cur}"/>`;
+      }
+
+      document.getElementById('editModal').classList.add('show');
+      setTimeout(() => document.getElementById('editInput')?.focus(), 100);
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('show');
+    }
+
+    function saveEdit() {
+      const val = document.getElementById('editInput').value.trim();
+      if (!val) return;
+
+      document.getElementById(editField + 'Display').textContent = val;
+
+      // Update userData & sidebar
+      userData[editField] = val;
+      if (editField === 'name') {
+        document.getElementById('sidebarName').textContent = val;
+        document.getElementById('avatarInitial').textContent = val.charAt(0).toUpperCase();
+      }
+      if (editField === 'email') document.getElementById('sidebarEmail').textContent = val;
+
+      // Save back to localStorage
+      try {
+        const key = localStorage.getItem('mediiquickUser') ? 'mediiquickUser' : 'mq_user';
+        localStorage.setItem(key, JSON.stringify(userData));
+      } catch (e) { }
+
+      closeModal();
+      showToast('✅ ' + editField.charAt(0).toUpperCase() + editField.slice(1) + ' updated!');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  UTILS
+    // ══════════════════════════════════════════════════════
+    function changePassword() {
+      const np = document.getElementById('newPassword').value;
+      const cp = document.getElementById('confirmPassword').value;
+      if (!np || !cp) return showToast('⚠️ Dono fields bharo');
+      if (np !== cp) return showToast('⚠️ Passwords match nahi karte');
+      if (np.length < 6) return showToast('⚠️ Password 6+ characters ka hona chahiye');
+      userData.password = np;
+      try {
+        const key = localStorage.getItem('mediiquickUser') ? 'mediiquickUser' : 'mq_user';
+        localStorage.setItem(key, JSON.stringify(userData));
+      } catch (e) { }
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+      showToast('✅ Password updated!');
+    }
+
+    function logout() {
+      if (confirm('Logout karna chahte ho?')) {
+        localStorage.removeItem('mediiquickUser');
+        localStorage.removeItem('mq_user');
+        window.location.href = 'login.html';
+      }
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function closeDropdown() {
+      document.getElementById('accountDropdown').classList.remove('show');
+    }
+
+    // ── ACCOUNT DROPDOWN ──
+    document.getElementById('accountBtn').addEventListener('click', e => {
+      e.stopPropagation();
+      document.getElementById('accountDropdown').classList.toggle('show');
+    });
+    document.addEventListener('click', () => closeDropdown());
+
+    // ── MODAL ESC ──
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal(); closeAddressModal(); }
+    });
+
+
+    // ══════════════════════════════════════════════════════
+    //  ADDRESS MANAGEMENT
+    // ══════════════════════════════════════════════════════
+    function getSavedAddresses() {
+      try { return JSON.parse(localStorage.getItem('mq_addresses') || '[]'); } catch (e) { return []; }
+    }
+    function saveAddresses(list) {
+      localStorage.setItem('mq_addresses', JSON.stringify(list));
+    }
+
+    function loadAddresses() {
+      let addrs = getSavedAddresses();
+
+      // Also pull address from orders if none saved
+      if (addrs.length === 0) {
+        try {
+          const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+          const latest = orders.find(o => o.deliveryAddr);
+          if (latest?.deliveryAddr) {
+            addrs = [{ ...latest.deliveryAddr, isDefault: true }];
+            saveAddresses(addrs);
+          }
+        } catch (e) { }
+      }
+
+      const section = document.getElementById('addressSection');
+      if (!section) return;
+
+      if (addrs.length === 0) {
+        section.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">Koi saved address nahi hai. Neeche button se add karo!</p>`;
+        return;
+      }
+
+      section.innerHTML = addrs.map((a, i) => `
+    <div class="addr-card ${a.isDefault ? 'default-addr' : ''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span class="addr-type-badge">${a.type === 'Work' ? '🏢' : a.type === 'Other' ? '📍' : '🏠'} ${a.type || 'Home'}</span>
+        ${a.isDefault ? '<span class="default-tag">✅ Default</span>' : ''}
+      </div>
+      <div class="addr-name">${a.name || ''}</div>
+      <div class="addr-line">
+        ${a.street || ''}${a.landmark ? ', ' + a.landmark : ''}<br/>
+        ${a.city || ''}${a.state ? ', ' + a.state : ''} - ${a.pin || ''}
+      </div>
+      ${a.phone ? `<div class="addr-line" style="margin-top:4px;">📞 ${a.phone}</div>` : ''}
+      <div class="addr-actions">
+        ${!a.isDefault ? `<button class="addr-btn addr-btn-default" onclick="setDefault(${i})">✅ Default Set Karo</button>` : ''}
+        <button class="addr-btn addr-btn-edit" onclick="openAddressModal(${i})">✏️ Edit</button>
+        <button class="addr-btn addr-btn-delete" onclick="deleteAddress(${i})">🗑️ Delete</button>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function openAddressModal(index) {
+      const modal = document.getElementById('addressModal');
+      const addrs = getSavedAddresses();
+
+      if (index !== null && addrs[index]) {
+        const a = addrs[index];
+        document.getElementById('addrModalTitle').textContent = 'Address Edit Karo';
+        document.getElementById('editAddrIndex').value = index;
+        document.getElementById('addrType').value = a.type || 'Home';
+        document.getElementById('addrName').value = a.name || '';
+        document.getElementById('addrPhone').value = a.phone || '';
+        document.getElementById('addrStreet').value = a.street || '';
+        document.getElementById('addrLandmark').value = a.landmark || '';
+        document.getElementById('addrCity').value = a.city || '';
+        document.getElementById('addrState').value = a.state || '';
+        document.getElementById('addrPin').value = a.pin || '';
+      } else {
+        document.getElementById('addrModalTitle').textContent = 'Naya Address Add Karo';
+        document.getElementById('editAddrIndex').value = -1;
+        ['addrName', 'addrPhone', 'addrStreet', 'addrLandmark', 'addrCity', 'addrState', 'addrPin'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('addrType').value = 'Home';
+        // Pre-fill name & phone from user data
+        document.getElementById('addrName').value = userData.name || userData.fullName || '';
+        document.getElementById('addrPhone').value = userData.mobile || userData.phone || '';
+      }
+      modal.classList.add('show');
+    }
+
+    function closeAddressModal() {
+      document.getElementById('addressModal').classList.remove('show');
+    }
+
+    function saveAddress() {
+      const name = document.getElementById('addrName').value.trim();
+      const phone = document.getElementById('addrPhone').value.trim();
+      const street = document.getElementById('addrStreet').value.trim();
+      const city = document.getElementById('addrCity').value.trim();
+      const pin = document.getElementById('addrPin').value.trim();
+
+      if (!name || !phone || !street || !city || !pin) {
+        showToast('⚠️ Star (*) fields zaroori hain!');
+        return;
+      }
+      if (phone.length < 10) { showToast('⚠️ Valid phone number do!'); return; }
+      if (pin.length !== 6) { showToast('⚠️ 6-digit PIN code do!'); return; }
+
+      const newAddr = {
+        type: document.getElementById('addrType').value,
+        name, phone, street,
+        landmark: document.getElementById('addrLandmark').value.trim(),
+        city,
+        state: document.getElementById('addrState').value.trim(),
+        pin,
+        isDefault: false
+      };
+
+      const addrs = getSavedAddresses();
+      const idx = parseInt(document.getElementById('editAddrIndex').value);
+
+      if (idx >= 0) {
+        newAddr.isDefault = addrs[idx].isDefault;
+        addrs[idx] = newAddr;
+        showToast('✅ Address update ho gaya!');
+      } else {
+        if (addrs.length === 0) newAddr.isDefault = true;
+        addrs.push(newAddr);
+        showToast('✅ Naya address save ho gaya!');
+      }
+
+      saveAddresses(addrs);
+      closeAddressModal();
+      loadAddresses();
+    }
+
+    function setDefault(index) {
+      const addrs = getSavedAddresses();
+      addrs.forEach((a, i) => a.isDefault = (i === index));
+      saveAddresses(addrs);
+      loadAddresses();
+      showToast('✅ Default address set ho gaya!');
+    }
+
+    function deleteAddress(index) {
+      if (!confirm('Yeh address delete karna chahte ho?')) return;
+      const addrs = getSavedAddresses();
+      const wasDefault = addrs[index].isDefault;
+      addrs.splice(index, 1);
+      if (wasDefault && addrs.length > 0) addrs[0].isDefault = true;
+      saveAddresses(addrs);
+      loadAddresses();
+      showToast('🗑️ Address delete ho gaya!');
+    }
+
+    // ── INIT ──
+    loadUser();
+    loadOrders();
+    loadAddresses();
+
+    // Refresh orders every 30s for live status
+    setInterval(loadOrders, 30000);
+  </script>
+</body>
+
+</html>

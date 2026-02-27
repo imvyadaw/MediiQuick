@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Signup — MediiQuick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background decorative circles */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .07);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .05);
+      bottom: -100px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo h1 span {
+      color: #4ade80;
+    }
+
+    .header-link {
+      color: rgba(255, 255, 255, .6);
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .header-link:hover {
+      color: #4ade80;
+    }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .35);
+      overflow: hidden;
+    }
+
+    /* Card top strip */
+    .card-top {
+      background: linear-gradient(135deg, #16a34a, #059669);
+      padding: 32px 40px 28px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .card-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .card-top h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .card-top p {
+      font-size: 14px;
+      opacity: .85;
+    }
+
+    /* Steps indicator */
+    .steps {
+      display: flex;
+      gap: 0;
+      padding: 0 40px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .step-tab {
+      flex: 1;
+      padding: 18px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      position: relative;
+      transition: color .2s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .step-tab.active {
+      color: #16a34a;
+      border-bottom-color: #16a34a;
+    }
+
+    .step-tab .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .step-tab.active .step-num {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .step-tab.done .step-num {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .step-tab.done {
+      color: #16a34a;
+    }
+
+    .card-body {
+      padding: 32px 40px;
+      max-height: 60vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .card-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .card-body::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+
+    .card-body::-webkit-scrollbar-thumb {
+      background: #16a34a;
+      border-radius: 10px;
+    }
+
+    .card-body::-webkit-scrollbar-thumb:hover {
+      background: #15803d;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-grid.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .form-group label i {
+      color: #16a34a;
+      width: 15px;
+    }
+
+    .form-group input,
+    .form-group select {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+      outline: none;
+      transition: all .2s;
+      background: #fff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
+    }
+
+    .form-group input.err {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+    }
+
+    .form-group input.ok {
+      border-color: #16a34a;
+    }
+
+    .err-msg {
+      font-size: 12px;
+      color: #ef4444;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .err-msg.show {
+      display: flex;
+    }
+
+    /* Password wrapper */
+    .pw-wrap {
+      position: relative;
+    }
+
+    .pw-wrap input {
+      padding-right: 40px;
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .pw-toggle:hover {
+      color: #374151;
+    }
+
+    /* Password strength */
+    .pw-strength {
+      margin-top: 6px;
+    }
+
+    .pw-bars {
+      display: flex;
+      gap: 4px;
+      height: 3px;
+      margin-bottom: 4px;
+    }
+
+    .pw-bar {
+      flex: 1;
+      border-radius: 4px;
+      background: #e2e8f0;
+      transition: background .3s;
+    }
+
+    .pw-bar.weak {
+      background: #ef4444;
+    }
+
+    .pw-bar.medium {
+      background: #f59e0b;
+    }
+
+    .pw-bar.strong {
+      background: #16a34a;
+    }
+
+    .pw-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    /* GST hint */
+    .field-hint {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    /* Checkboxes */
+    .check-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .check-group input[type=checkbox] {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      accent-color: #16a34a;
+      flex-shrink: 0;
+    }
+
+    .check-group label {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .check-group label a {
+      color: #16a34a;
+      text-decoration: none;
+    }
+
+    .check-group label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-back {
+      flex: 1;
+      background: #f1f5f9;
+      color: #475569;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-back:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-next {
+      flex: 2;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-next:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(22, 163, 74, .35);
+    }
+
+    .btn-next:active {
+      transform: translateY(0);
+    }
+
+    /* Progress bottom text */
+    .card-footer {
+      padding: 0 40px 28px;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .footer-text a {
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* Success screen */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 32px;
+    }
+
+    .success-screen.show {
+      display: block;
+    }
+
+    .success-screen .tick-wrap {
+      width: 80px;
+      height: 80px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2.5rem;
+      animation: popIn .5s cubic-bezier(.175, .885, .32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-screen h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .success-screen p {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .success-id {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .success-id span {
+      font-size: 11px;
+      color: #16a34a;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .success-id strong {
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .goto-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .goto-btn:hover {
+      background: #15803d;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media(max-width:600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.span2 {
+        grid-column: span 1;
+      }
+
+      .card-body {
+        padding: 20px;
+      }
+
+      .card-top {
+        padding: 20px;
+      }
+
+      .steps {
+        padding: 0 16px;
+      }
+
+      .card-footer {
+        padding: 0 20px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toast"><span id="toast-msg"></span></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img
+        src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+        alt="MediiQuick">
+      <h1>Medii<span>Quick</span></h1>
+    </a>
+    <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="card">
+
+      <!-- Card Top -->
+      <div class="card-top">
+        <div class="card-icon">🏥</div>
+        <div>
+          <h2>Admin / Pharmacy Registration</h2>
+          <p>Register to become a MediiQuick pharmacy partner</p>
+        </div>
+      </div>
+
+      <!-- Step Tabs -->
+      <div class="steps">
+        <div class="step-tab active" id="tab1">
+          <div class="step-num">1</div><br>Shop Info
+        </div>
+        <div class="step-tab" id="tab2">
+          <div class="step-num">2</div><br>Contact
+        </div>
+        <div class="step-tab" id="tab3">
+          <div class="step-num">3</div><br>Security
+        </div>
+      </div>
+
+      <!-- Form Body -->
+      <div class="card-body">
+
+        <!-- ── STEP 1: Shop Information ── -->
+        <div class="form-section active" id="sec1">
+          <div class="section-label">📋 Shop / Pharmacy Details</div>
+          <div class="form-grid">
+
+            <div class="form-group span2">
+              <label><i class="fas fa-store"></i> Shop / Pharmacy Name *</label>
+              <input type="text" id="shop-name" placeholder="e.g. Sharma Medical Store">
+              <span class="err-msg" id="err-shop"><i class="fas fa-circle-exclamation"></i> Shop name required (min 3
+                chars)</span>
+            </div>
+
+            <div class="form-group span2">
+              <label><i class="fas fa-user"></i> Owner / Admin Full Name *</label>
+              <input type="text" id="admin-name" placeholder="e.g. Rakesh Sharma">
+              <span class="err-msg" id="err-name"><i class="fas fa-circle-exclamation"></i> Full name required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-map-marker-alt"></i> City *</label>
+              <input type="text" id="city" placeholder="e.g. Noida">
+              <span class="err-msg" id="err-city"><i class="fas fa-circle-exclamation"></i> City required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-location-dot"></i> PIN Code *</label>
+              <input type="text" id="pin" placeholder="6-digit PIN" maxlength="6">
+              <span class="err-msg" id="err-pin"><i class="fas fa-circle-exclamation"></i> Valid 6-digit PIN
+                required</span>
+            </div>
+
+            <div class="form-group span2">
+              <label><i class="fas fa-road"></i> Full Address *</label>
+              <input type="text" id="location" placeholder="e.g. Shop 12, Sector 18, Noida">
+              <span class="err-msg" id="err-location"><i class="fas fa-circle-exclamation"></i> Address required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-file-invoice"></i> GST Number *</label>
+              <input type="text" id="gst" placeholder="e.g. 09ABCDE1234F1Z5" maxlength="15">
+              <div class="field-hint">Format: 15-character alphanumeric</div>
+              <span class="err-msg" id="err-gst"><i class="fas fa-circle-exclamation"></i> Valid GST number
+                required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-certificate"></i> Drug License No. *</label>
+              <input type="text" id="drug-license" placeholder="e.g. UP-NO-12345">
+              <div class="field-hint">State pharmacy license number</div>
+              <span class="err-msg" id="err-drug"><i class="fas fa-circle-exclamation"></i> Drug license required</span>
+            </div>
+
+          </div>
+          <div class="btn-row">
+            <button class="btn-next" onclick="goStep(2)">Next: Contact Info <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- ── STEP 2: Contact Details ── -->
+        <div class="form-section" id="sec2">
+          <div class="section-label">📞 Contact Information</div>
+          <div class="form-grid">
+
+            <div class="form-group span2">
+              <label><i class="fas fa-envelope"></i> Email Address *</label>
+              <input type="email" id="email" placeholder="admin@yourshop.com">
+              <span class="err-msg" id="err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-phone"></i> Primary Mobile *</label>
+              <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10">
+              <span class="err-msg" id="err-mobile"><i class="fas fa-circle-exclamation"></i> Valid 10-digit number
+                required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-phone-volume"></i> Alternate Mobile</label>
+              <input type="tel" id="mobile2" placeholder="Optional" maxlength="10">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-clock"></i> Opening Time *</label>
+              <input type="time" id="open-time" value="09:00">
+              <span class="err-msg" id="err-opentime"><i class="fas fa-circle-exclamation"></i> Required</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-moon"></i> Closing Time *</label>
+              <input type="time" id="close-time" value="21:00">
+              <span class="err-msg" id="err-closetime"><i class="fas fa-circle-exclamation"></i> Required</span>
+            </div>
+
+            <div class="form-group span2">
+              <label><i class="fas fa-hospital"></i> Shop Type *</label>
+              <select id="shop-type">
+                <option value="">Select shop type</option>
+                <option value="pharmacy">🏥 Pharmacy / Medical Store</option>
+                <option value="hospital">🏨 Hospital Pharmacy</option>
+                <option value="clinic">🩺 Clinic Pharmacy</option>
+                <option value="wholesale">📦 Wholesale Distributor</option>
+                <option value="online">💻 Online + Physical</option>
+              </select>
+              <span class="err-msg" id="err-shoptype"><i class="fas fa-circle-exclamation"></i> Shop type
+                required</span>
+            </div>
+
+            <div class="form-group span2">
+              <label><i class="fas fa-route"></i> Delivery Radius (km) *</label>
+              <select id="delivery-radius">
+                <option value="">Select radius</option>
+                <option value="5">Within 5 km</option>
+                <option value="10">Within 10 km</option>
+                <option value="15" selected>Within 15 km (Recommended)</option>
+                <option value="20">Within 20 km</option>
+                <option value="25">Within 25 km</option>
+              </select>
+              <span class="err-msg" id="err-radius"><i class="fas fa-circle-exclamation"></i> Please select delivery
+                radius</span>
+            </div>
+
+          </div>
+          <div class="btn-row">
+            <button class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="btn-next" onclick="goStep(3)">Next: Set Password <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: Security ── -->
+        <div class="form-section" id="sec3">
+          <div class="section-label">🔐 Account Security</div>
+          <div class="form-grid full">
+
+            <div class="form-group">
+              <label><i class="fas fa-lock"></i> Password *</label>
+              <div class="pw-wrap">
+                <input type="password" id="password" placeholder="Min 8 characters" oninput="checkStrength(this.value)">
+                <button class="pw-toggle" onclick="togglePw('password', this)" type="button">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="pw-strength" id="pwStrength" style="display:none;">
+                <div class="pw-bars">
+                  <div class="pw-bar" id="bar1"></div>
+                  <div class="pw-bar" id="bar2"></div>
+                  <div class="pw-bar" id="bar3"></div>
+                  <div class="pw-bar" id="bar4"></div>
+                </div>
+                <div class="pw-label" id="pwLabel">Weak</div>
+              </div>
+              <span class="err-msg" id="err-pass"><i class="fas fa-circle-exclamation"></i> Min 8 characters, include a
+                number</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-lock-open"></i> Confirm Password *</label>
+              <div class="pw-wrap">
+                <input type="password" id="confirm-pass" placeholder="Re-enter password">
+                <button class="pw-toggle" onclick="togglePw('confirm-pass', this)" type="button">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <span class="err-msg" id="err-confirm"><i class="fas fa-circle-exclamation"></i> Passwords do not
+                match</span>
+            </div>
+
+            <!-- Terms -->
+            <div style="margin-top:8px;">
+              <div class="check-group">
+                <input type="checkbox" id="terms">
+                <label for="terms">I agree to MediiQuick's <a href="#">Terms of Service</a> and <a href="#">Pharmacy
+                    Partner Agreement</a></label>
+              </div>
+              <span class="err-msg" id="err-terms"><i class="fas fa-circle-exclamation"></i> You must accept the
+                terms</span>
+
+              <div class="check-group" style="margin-top:8px;">
+                <input type="checkbox" id="verify">
+                <label for="verify">I confirm that all provided information is accurate and my drug license is
+                  valid</label>
+              </div>
+              <span class="err-msg" id="err-verify"><i class="fas fa-circle-exclamation"></i> Please confirm your
+                information</span>
+            </div>
+
+          </div>
+          <div class="btn-row">
+            <button class="btn-back" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="btn-next" onclick="submitForm()"><i class="fas fa-check"></i> Register Now</button>
+          </div>
+        </div>
+
+        <!-- ── SUCCESS ── -->
+        <div class="success-screen" id="successScreen">
+          <div class="tick-wrap">✓</div>
+          <h3>Registration Successful! 🎉</h3>
+          <p>Aapki application MediiQuick team ke paas bhej di gayi hai.<br>Review ke baad aapko <strong>24-48
+              hours</strong> mein email aayegi.</p>
+          <div class="success-id">
+            <span>Your Admin ID</span>
+            <strong id="genAdminId">ADMIN-000000</strong>
+          </div>
+          <button class="goto-btn" onclick="window.location.href='adminpage.html'">
+            Go to Admin Dashboard →
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer" id="cardFooter">
+        <p class="footer-text">
+          Already registered? <a href="admin-login.html">Login to Dashboard</a>
+          &nbsp;•&nbsp;
+          <a href="index.html">Back to Home</a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    //  STEP NAVIGATION
+    // ══════════════════════════════════════════════════════════════
+    let currentStep = 1;
+
+    function goStep(n) {
+      if (n > currentStep && !validateStep(currentStep)) return;
+
+      currentStep = n;
+      [1, 2, 3].forEach(i => {
+        document.getElementById('sec' + i).classList.toggle('active', i === n);
+        const tab = document.getElementById('tab' + i);
+        tab.classList.toggle('active', i === n);
+        tab.classList.toggle('done', i < n);
+      });
+      // Scroll to top of card
+      document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  VALIDATION PER STEP
+    // ══════════════════════════════════════════════════════════════
+    function validateStep(step) {
+      let valid = true;
+
+      function check(id, errId, testFn) {
+        const el = document.getElementById(id);
+        const em = document.getElementById(errId);
+        const ok = testFn(el.value.trim());
+        el.classList.toggle('err', !ok);
+        el.classList.toggle('ok', ok);
+        if (em) em.classList.toggle('show', !ok);
+        if (!ok) valid = false;
+      }
+
+      if (step === 1) {
+        check('shop-name', 'err-shop', v => v.length >= 3);
+        check('admin-name', 'err-name', v => v.length >= 3);
+        check('city', 'err-city', v => v.length >= 2);
+        check('pin', 'err-pin', v => /^\d{6}$/.test(v));
+        check('location', 'err-location', v => v.length >= 8);
+        check('gst', 'err-gst', v => /^[0-9A-Z]{15}$/.test(v.toUpperCase()));
+        check('drug-license', 'err-drug', v => v.length >= 5);
+      }
+
+      if (step === 2) {
+        check('email', 'err-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+        check('mobile', 'err-mobile', v => /^[6-9]\d{9}$/.test(v));
+        check('open-time', 'err-opentime', v => v !== '');
+        check('close-time', 'err-closetime', v => v !== '');
+        check('shop-type', 'err-shoptype', v => v !== '');
+        check('delivery-radius', 'err-radius', v => v !== '');
+      }
+
+      if (step === 3) {
+        const pass = document.getElementById('password').value;
+        const conf = document.getElementById('confirm-pass').value;
+        const terms = document.getElementById('terms').checked;
+        const verify = document.getElementById('verify').checked;
+
+        // Password
+        const passOk = pass.length >= 8 && /\d/.test(pass);
+        document.getElementById('password').classList.toggle('err', !passOk);
+        document.getElementById('err-pass').classList.toggle('show', !passOk);
+        if (!passOk) valid = false;
+
+        // Confirm
+        const confOk = conf === pass && conf.length > 0;
+        document.getElementById('confirm-pass').classList.toggle('err', !confOk);
+        document.getElementById('err-confirm').classList.toggle('show', !confOk);
+        if (!confOk) valid = false;
+
+        // Terms
+        document.getElementById('err-terms').classList.toggle('show', !terms);
+        if (!terms) valid = false;
+
+        // Verify
+        document.getElementById('err-verify').classList.toggle('show', !verify);
+        if (!verify) valid = false;
+      }
+
+      if (!valid) showToast('⚠ Kuch fields sahi se bharo');
+      return valid;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  SUBMIT
+    // ══════════════════════════════════════════════════════════════
+    function submitForm() {
+      if (!validateStep(3)) return;
+
+      const adminId = 'ADMIN-' + Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('genAdminId').textContent = adminId;
+
+      // Collect all data
+      const data = {
+        adminId,
+        shopName: document.getElementById('shop-name').value.trim(),
+        adminName: document.getElementById('admin-name').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        pin: document.getElementById('pin').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        gst: document.getElementById('gst').value.trim().toUpperCase(),
+        drugLicense: document.getElementById('drug-license').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        mobile: document.getElementById('mobile').value.trim(),
+        mobile2: document.getElementById('mobile2').value.trim(),
+        openTime: document.getElementById('open-time').value,
+        closeTime: document.getElementById('close-time').value,
+        shopType: document.getElementById('shop-type').value,
+        deliveryRadius: document.getElementById('delivery-radius').value,
+        registeredAt: new Date().toISOString(),
+      };
+
+      console.log('✅ Admin Registered:', data);
+
+      // Save to sessionStorage
+      try { sessionStorage.setItem('mq_admin', JSON.stringify(data)); } catch (e) { }
+
+      // Show success
+      ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById('successScreen').classList.add('show');
+      document.getElementById('cardFooter').style.display = 'none';
+      [1, 2, 3].forEach(i => {
+        document.getElementById('tab' + i).classList.remove('active');
+        document.getElementById('tab' + i).classList.add('done');
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  PASSWORD STRENGTH
+    // ══════════════════════════════════════════════════════════════
+    function checkStrength(val) {
+      const wrap = document.getElementById('pwStrength');
+      if (!val) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/\d/.test(val)) score++;
+      if (/[!@#$%^&*]/.test(val)) score++;
+
+      const bars = [1, 2, 3, 4].map(i => document.getElementById('bar' + i));
+      const label = document.getElementById('pwLabel');
+      const levels = ['weak', 'weak', 'medium', 'strong'];
+      const labels = ['Weak', 'Fair', 'Good', 'Strong ✓'];
+      const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
+
+      bars.forEach((b, i) => {
+        b.className = 'pw-bar';
+        if (i < score) b.classList.add(levels[score - 1]);
+      });
+      label.textContent = labels[score - 1] || 'Weak';
+      label.style.color = colors[score - 1] || '#ef4444';
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  TOGGLE PASSWORD VISIBILITY
+    // ══════════════════════════════════════════════════════════════
+    function togglePw(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg) {
+      document.getElementById('toast-msg').textContent = msg;
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Auto-format GST to uppercase
+    document.getElementById('gst').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+    });
+
+    // Only allow digits for PIN and mobile
+    ['pin', 'mobile', 'mobile2'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+      });
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick — All Medicines</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 0;
+    }
+
+    .header-inner {
+      width: 100%;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .logo span {
+      color: #16a34a;
+    }
+
+    /* Search bar in header */
+    .header-search {
+      flex: 1;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      background: #f3f4f6;
+      border-radius: 50px;
+      padding: 8px 18px;
+      gap: 10px;
+    }
+
+    .header-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+    }
+
+    .header-search input::placeholder {
+      color: #9ca3af;
+    }
+
+    .header-search i {
+      color: #9ca3af;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f3f4f6;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .cart-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .cart-btn svg {
+      width: 36px;
+      height: 36px;
+      color: #374151;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Cart Drawer ── */
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+
+    .cart-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 360px;
+      background: #fff;
+      z-index: 400;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -8px 0 40px rgba(0, 0, 0, .15);
+    }
+
+    .cart-drawer.open {
+      transform: translateX(0);
+    }
+
+    .cart-header {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .cart-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6b7280;
+      line-height: 1;
+    }
+
+    .cart-items-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .cart-footer {
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .cart-total-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .cart-total-val {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .checkout-btn:hover {
+      background: #15803d;
+    }
+
+    /* ── Main ── */
+    main {
+      width: 100%;
+      padding: 32px 40px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .filter-bar h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .filter-bar .results-count {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      color: #374151;
+    }
+
+    .pill:hover,
+    .pill.active {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #fff;
+    }
+
+    /* Grid */
+    .medicines-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+
+    @media(max-width:1200px) {
+      .medicines-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media(max-width:800px) {
+      .medicines-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Med Card */
+    .med-card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, .06);
+      border: 1px solid #f3f4f6;
+      transition: box-shadow .2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .med-card:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .1);
+    }
+
+    .med-img-wrap {
+      position: relative;
+      background: #f8fafc;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .med-img-wrap img {
+      width: 100%;
+      height: 150px;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    .badge-30min {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #16a34a;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .badge-off {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #f97316;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .med-info {
+      padding: 13px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .med-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .med-sub {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .med-desc {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .med-price-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .med-price {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1a1a2e;
+    }
+
+    .med-mrp {
+      font-size: 11px;
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+
+    .med-off {
+      font-size: 11px;
+      color: #16a34a;
+      font-weight: 600;
+      background: #f0fdf4;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .med-actions {
+      margin-top: auto;
+    }
+
+    .add-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 9px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .add-btn:hover {
+      background: #15803d;
+    }
+
+    .qty-controls {
+      display: none;
+      width: 100%;
+      align-items: center;
+      border: 2px solid #16a34a;
+      border-radius: 8px;
+    }
+
+    .qty-controls.show {
+      display: flex;
+    }
+
+    .qty-btn {
+      background: #f0fdf4;
+      border: none;
+      min-width: 34px;
+      height: 34px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #16a34a;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .qty-btn:hover {
+      background: #dcfce7;
+    }
+
+    .qty-val {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1a1a2e;
+      font-family: 'Poppins', sans-serif;
+      display: block;
+    }
+
+    /* No results */
+    #no-results {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      background: #fff;
+      border-radius: 16px;
+    }
+
+    #no-results .icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1a2e;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Multi-Step Checkout Modal ── */
+    .co-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .co-overlay.show {
+      display: flex;
+    }
+
+    .co-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    }
+
+    .co-step {
+      display: none;
+    }
+
+    .co-step.active {
+      display: block;
+    }
+
+    /* Progress bar */
+    .co-progress {
+      display: flex;
+      align-items: center;
+      padding: 24px 28px 0;
+    }
+
+    .co-step-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all .3s;
+    }
+
+    .co-step-dot.done {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .co-step-dot.active {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .co-step-dot.pending {
+      background: #f3f4f6;
+      color: #9ca3af;
+    }
+
+    .co-step-line {
+      flex: 1;
+      height: 3px;
+      background: #f3f4f6;
+      margin: 0 6px;
+    }
+
+    .co-step-line.done {
+      background: #16a34a;
+    }
+
+    .co-step-label {
+      font-size: 10px;
+      color: #6b7280;
+      margin-top: 4px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .co-steps-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    /* Header inside modal */
+    .co-head {
+      padding: 20px 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .co-head h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .co-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: #6b7280;
+      line-height: 1;
+    }
+
+    .co-body {
+      padding: 20px 28px 28px;
+    }
+
+    /* Form */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color .2s;
+      background: #fff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #16a34a;
+    }
+
+    .form-group input.err,
+    .form-group select.err {
+      border-color: #dc2626;
+    }
+
+    .err-msg {
+      font-size: 11px;
+      color: #dc2626;
+      display: none;
+    }
+
+    .err-msg.show {
+      display: block;
+    }
+
+    /* Payment methods */
+    .pay-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .pay-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .pay-card:hover {
+      border-color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .pay-card.selected {
+      border-color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .pay-card .pay-icon {
+      font-size: 1.8rem;
+    }
+
+    .pay-card .pay-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .pay-card .pay-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* UPI input area */
+    .upi-area,
+    .card-area,
+    .nb-area {
+      display: none;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .upi-area.show,
+    .card-area.show,
+    .nb-area.show {
+      display: block;
+    }
+
+    .upi-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .upi-row input {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+    }
+
+    .upi-row input:focus {
+      border-color: #16a34a;
+    }
+
+    .upi-verify-btn {
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Bank list */
+    .bank-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .bank-item {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .bank-item:hover,
+    .bank-item.selected {
+      border-color: #16a34a;
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    /* Order summary inside modal */
+    .co-summary {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .co-summary-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    .co-summary-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 0;
+    }
+
+    .co-summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+
+    /* Buttons */
+    .co-btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .co-btn-back {
+      flex: 1;
+      background: #f3f4f6;
+      color: #374151;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .co-btn-back:hover {
+      background: #e5e7eb;
+    }
+
+    .co-btn-next {
+      flex: 2;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .co-btn-next:hover {
+      background: #15803d;
+    }
+
+    .co-btn-next:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    /* Success step */
+    .co-success {
+      text-align: center;
+      padding: 40px 28px;
+    }
+
+    .co-success .tick {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
+    }
+
+    .co-success h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .co-success p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .co-success .order-id {
+      font-size: 12px;
+      color: #9ca3af;
+      margin: 12px 0 24px;
+    }
+
+    .track-btn {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 13px 32px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .continue-btn {
+      background: #f3f4f6;
+      color: #374151;
+      border: none;
+      padding: 13px 32px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* Footer */
+    footer {
+      background: #111827;
+      color: #fff;
+      padding: 48px 0 24px;
+    }
+
+    .footer-inner {
+      width: 100%;
+      padding: 0 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    @media(max-width:700px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .footer-brand .brand-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-links a {
+      color: #9ca3af;
+      font-size: 16px;
+      transition: color .2s;
+    }
+
+    .social-links a:hover {
+      color: #4ade80;
+    }
+
+    footer h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    footer ul {
+      list-style: none;
+    }
+
+    footer ul li {
+      margin-bottom: 8px;
+    }
+
+    footer ul li a {
+      color: #9ca3af;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    footer ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-contact li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #9ca3af;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #1f2937;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-bottom p {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: #6b7280;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Toast -->
+  <div id="toast">✓ <span id="toast-msg">Added to cart!</span></div>
+
+  <!-- Cart Overlay & Drawer -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>🛒 Cart (<span id="cart-item-count">0</span> items)</h3>
+      <button class="cart-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-items-wrap" id="cart-items-wrap"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-val">₹<span id="cart-total">0</span></span>
+      </div>
+      <button class="checkout-btn" onclick="handleCheckout()">Proceed to Checkout →</button>
+    </div>
+  </div>
+
+  <!-- ══ MULTI-STEP CHECKOUT MODAL ══════════════════════════════ -->
+  <div class="co-overlay" id="coOverlay">
+    <div class="co-box">
+
+      <!-- Progress Indicator -->
+      <div class="co-progress" id="coProgress">
+        <div class="co-steps-wrap">
+          <div style="display:flex;align-items:center;width:100%;">
+            <div class="co-step-dot active" id="dot1">1</div>
+            <div class="co-step-line" id="line1"></div>
+            <div class="co-step-dot pending" id="dot2">2</div>
+            <div class="co-step-line" id="line2"></div>
+            <div class="co-step-dot pending" id="dot3">✓</div>
+          </div>
+          <div style="display:flex;width:100%;justify-content:space-between;margin-top:4px;">
+            <span class="co-step-label">Address</span>
+            <span class="co-step-label">Payment</span>
+            <span class="co-step-label">Done!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: DELIVERY ADDRESS ── -->
+      <div class="co-step active" id="coStep1">
+        <div class="co-head">
+          <h2>📍 Delivery Address</h2>
+          <button class="co-close" onclick="closeCheckout()">✕</button>
+        </div>
+        <div class="co-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="addr-name" placeholder="Yuvraj Dixit">
+              <span class="err-msg" id="err-name">Name required</span>
+            </div>
+            <div class="form-group">
+              <label>Mobile Number *</label>
+              <input type="tel" id="addr-phone" placeholder="10-digit number" maxlength="10">
+              <span class="err-msg" id="err-phone">Valid mobile required</span>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>House / Flat / Street *</label>
+              <input type="text" id="addr-street" placeholder="e.g. House 12, Sector 18">
+              <span class="err-msg" id="err-street">Address required</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" id="addr-city" placeholder="e.g. Noida">
+              <span class="err-msg" id="err-city">City required</span>
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <select id="addr-state">
+                <option value="">Select State</option>
+                <option>Uttar Pradesh</option>
+                <option>Delhi</option>
+                <option>Maharashtra</option>
+                <option>Karnataka</option>
+                <option>Tamil Nadu</option>
+                <option>West Bengal</option>
+                <option>Rajasthan</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Punjab</option>
+                <option>Madhya Pradesh</option>
+                <option>Bihar</option>
+                <option>Other</option>
+              </select>
+              <span class="err-msg" id="err-state">State required</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>PIN Code *</label>
+              <input type="text" id="addr-pin" placeholder="6-digit PIN" maxlength="6">
+              <span class="err-msg" id="err-pin">Valid PIN required</span>
+            </div>
+            <div class="form-group">
+              <label>Address Type</label>
+              <select id="addr-type">
+                <option value="Home">🏠 Home</option>
+                <option value="Office">🏢 Office</option>
+                <option value="Other">📍 Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Landmark (optional)</label>
+              <input type="text" id="addr-landmark" placeholder="e.g. Near Metro Station">
+            </div>
+          </div>
+
+          <!-- Mini order summary -->
+          <div class="co-summary" id="addrSummary"></div>
+
+          <div class="co-btn-row">
+            <button class="co-btn-back" onclick="closeCheckout()">Cancel</button>
+            <button class="co-btn-next" onclick="goToPayment()">Continue to Payment →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: PAYMENT ── -->
+      <div class="co-step" id="coStep2">
+        <div class="co-head">
+          <h2>💳 Payment Method</h2>
+          <button class="co-close" onclick="closeCheckout()">✕</button>
+        </div>
+        <div class="co-body">
+
+          <div class="pay-grid">
+            <div class="pay-card selected" id="pay-upi" onclick="selectPay('upi')">
+              <span class="pay-icon">📱</span>
+              <span class="pay-name">UPI</span>
+              <span class="pay-sub">GPay, PhonePe, Paytm</span>
+            </div>
+            <div class="pay-card" id="pay-card" onclick="selectPay('card')">
+              <span class="pay-icon">💳</span>
+              <span class="pay-name">Debit / Credit Card</span>
+              <span class="pay-sub">Visa, Mastercard, RuPay</span>
+            </div>
+            <div class="pay-card" id="pay-nb" onclick="selectPay('nb')">
+              <span class="pay-icon">🏦</span>
+              <span class="pay-name">Net Banking</span>
+              <span class="pay-sub">All major banks</span>
+            </div>
+            <div class="pay-card" id="pay-wallet" onclick="selectPay('wallet')">
+              <span class="pay-icon">👝</span>
+              <span class="pay-name">Wallet</span>
+              <span class="pay-sub">Paytm, Amazon Pay</span>
+            </div>
+            <div class="pay-card" id="pay-cod" onclick="selectPay('cod')" style="grid-column:span 2;">
+              <span class="pay-icon">💵</span>
+              <span class="pay-name">Cash on Delivery</span>
+              <span class="pay-sub">Pay when you receive</span>
+            </div>
+          </div>
+
+          <!-- UPI input -->
+          <div class="upi-area show" id="upiArea">
+            <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;">Enter UPI ID</p>
+            <div class="upi-row">
+              <input type="text" id="upi-id" placeholder="yourname@upi">
+              <button class="upi-verify-btn" onclick="verifyUPI()">Verify</button>
+            </div>
+            <p style="font-size:11px;color:#6b7280;margin-top:8px;">Or scan QR code at delivery</p>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              <span onclick="fillUPI('gpay')"
+                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">📱
+                GPay</span>
+              <span onclick="fillUPI('phonepe')"
+                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">📲
+                PhonePe</span>
+              <span onclick="fillUPI('paytm')"
+                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">💛
+                Paytm</span>
+            </div>
+          </div>
+
+          <!-- Card input -->
+          <div class="card-area" id="cardArea">
+            <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;">Card Details</p>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label>Card Number</label>
+              <input type="text" id="card-num" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
+                oninput="formatCard(this)">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="form-group">
+                <label>Expiry (MM/YY)</label>
+                <input type="text" id="card-exp" placeholder="MM/YY" maxlength="5" oninput="formatExp(this)">
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="password" id="card-cvv" placeholder="•••" maxlength="3">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:10px;">
+              <label>Name on Card</label>
+              <input type="text" id="card-name" placeholder="Yuvraj Dixit">
+            </div>
+          </div>
+
+          <!-- Net Banking -->
+          <div class="nb-area" id="nbArea">
+            <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;">Select Your Bank</p>
+            <div class="bank-list">
+              <div class="bank-item" onclick="selectBank(this)">SBI</div>
+              <div class="bank-item" onclick="selectBank(this)">HDFC</div>
+              <div class="bank-item" onclick="selectBank(this)">ICICI</div>
+              <div class="bank-item" onclick="selectBank(this)">Axis</div>
+              <div class="bank-item" onclick="selectBank(this)">PNB</div>
+              <div class="bank-item" onclick="selectBank(this)">BOB</div>
+              <div class="bank-item" onclick="selectBank(this)">Kotak</div>
+              <div class="bank-item" onclick="selectBank(this)">Yes Bank</div>
+              <div class="bank-item" onclick="selectBank(this)">Canara</div>
+            </div>
+          </div>
+
+          <!-- COD info -->
+          <div id="codArea"
+            style="display:none;background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:16px;">
+            <p style="font-size:13px;font-weight:600;color:#92400e;">💵 Cash on Delivery</p>
+            <p style="font-size:12px;color:#78350f;margin-top:4px;line-height:1.5;">Please keep exact change ready.
+              Delivery partner will accept cash at your door. ₹20 COD charge applies.</p>
+          </div>
+
+          <!-- Payment summary -->
+          <div class="co-summary" id="paymentSummary"></div>
+
+          <div class="co-btn-row">
+            <button class="co-btn-back" onclick="goToAddress()">← Back</button>
+            <button class="co-btn-next" id="payNowBtn" onclick="placeOrder()">Pay Now →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: SUCCESS ── -->
+      <div class="co-step" id="coStep3">
+        <div class="co-success">
+          <div class="tick">✓</div>
+          <h2>Order Placed! 🎉</h2>
+          <p>Aapki medicines <strong>30 minutes</strong> mein deliver ho jaayengi.</p>
+          <p id="successAddr" style="font-size:13px;color:#6b7280;margin-top:6px;"></p>
+          <div class="order-id" id="orderId"></div>
+          <div style="background:#f0fdf4;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;"
+            id="successSummary"></div>
+          <button class="track-btn" onclick="trackOrder()">📦 Track My Order</button>
+          <button class="continue-btn" onclick="finishOrder()">Continue Shopping</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ HEADER ══════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img
+          src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+          alt="MediiQuick">
+        <h1>Medii<span>Quick</span></h1>
+      </a>
+
+      <div class="header-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search from 20 medicines...">
+      </div>
+
+      <div class="header-right">
+        <a href="profile.html" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+        <button class="cart-btn" onclick="openCart()" aria-label="Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m5-9l2 9" />
+          </svg>
+          <span class="cart-badge" id="cart-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN ════════════════════════════════════════════════ -->
+  <main>
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div>
+        <h2>All Medicines</h2>
+        <p class="results-count" id="results-count">Showing 20 medicines</p>
+      </div>
+      <div class="filter-pills">
+        <button class="pill active" onclick="filterBy('all', this)">All</button>
+        <button class="pill" onclick="filterBy('pain', this)">Fever & Pain</button>
+        <button class="pill" onclick="filterBy('antibiotic', this)">Antibiotics</button>
+        <button class="pill" onclick="filterBy('chronic', this)">Chronic Care</button>
+        <button class="pill" onclick="filterBy('allergy', this)">Allergy</button>
+        <button class="pill" onclick="filterBy('mental', this)">Mental Health</button>
+      </div>
+    </div>
+
+    <!-- No results message -->
+    <div id="no-results">
+      <div class="icon">🔍</div>
+      <p style="font-weight:700;color:#374151;font-size:16px;margin-bottom:6px;">Koi medicine nahi mili</p>
+      <p style="color:#9ca3af;font-size:13px;">Dusra naam try karo</p>
+    </div>
+
+    <!-- Medicines Grid -->
+    <div class="medicines-grid" id="medicines-grid"></div>
+  </main>
+
+  <!-- ══ FOOTER ══════════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-name">💊 MediiQuick</div>
+          <p>Medicines delivered at your doorstep in 30 minutes.</p>
+          <div class="social-links">
+            <a href="https://www.facebook.com/mryuvrajdixit"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://x.com/Yuvraj_dixit__"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/mr_yuvraj_dixit__/"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.linkedin.com/in/yuvraj-dixit-3393422b5/"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#">Medicine Delivery</a></li>
+            <li><a href="#">Doctor Consult</a></li>
+            <li><a href="#">Lab Tests</a></li>
+            <li><a href="#">Health Care</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <ul class="footer-contact">
+            <li><i class="fas fa-headset" style="color:#4ade80;"></i> +91 7296068290</li>
+            <li><i class="fas fa-envelope" style="color:#4ade80;"></i> dixtyuvraj45@gmail.com</li>
+            <li><i class="fas fa-map-marker-alt" style="color:#4ade80;"></i> Greater Noida, UP, India</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 MediiQuick by Yuvii. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Drugs Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    //  MEDICINES DATABASE — 20 medicines with categories
+    // ══════════════════════════════════════════════════════════════
+    const ALL_MEDICINES = [
+      // Fever & Pain
+      { id: 'm1', name: 'Paracetamol', sub: 'Paracetamol 500mg', desc: 'Pain reliever & fever reducer', price: 40, mrp: 50, cat: 'pain' },
+      { id: 'm2', name: 'Ibuprofen 200', sub: 'Ibuprofen 200mg', desc: 'Anti-inflammatory pain relief', price: 64, mrp: 80, cat: 'pain' },
+      { id: 'm3', name: 'Combiflam', sub: 'Ibuprofen+Paracetamol', desc: 'Dual-action pain & fever relief', price: 55, mrp: 70, cat: 'pain', trending: true },
+      { id: 'm4', name: 'Nimesulide 100', sub: 'Nimesulide 100mg', desc: 'Fever & mild-moderate pain', price: 22, mrp: 28, cat: 'pain' },
+      // Antibiotics
+      { id: 'm5', name: 'Amoxicillin 500', sub: 'Amoxicillin 500mg', desc: 'Broad spectrum antibiotic', price: 96, mrp: 120, cat: 'antibiotic' },
+      { id: 'm6', name: 'Azithromycin 250', sub: 'Azithromycin 250mg', desc: 'Respiratory infections', price: 120, mrp: 150, cat: 'antibiotic', trending: true },
+      { id: 'm7', name: 'Ciprofloxacin 500', sub: 'Ciprofloxacin 500mg', desc: 'UTI & bacterial infections', price: 104, mrp: 130, cat: 'antibiotic' },
+      { id: 'm8', name: 'Doxycycline 100', sub: 'Doxycycline 100mg', desc: 'Broad-spectrum antibiotic', price: 48, mrp: 60, cat: 'antibiotic' },
+      // Chronic Care
+      { id: 'm9', name: 'Metformin 500', sub: 'Metformin 500mg', desc: 'Diabetes control', price: 72, mrp: 90, cat: 'chronic' },
+      { id: 'm10', name: 'Atorvastatin 20', sub: 'Atorvastatin 20mg', desc: 'Lowers bad cholesterol', price: 88, mrp: 110, cat: 'chronic' },
+      { id: 'm11', name: 'Losartan 50', sub: 'Losartan 50mg', desc: 'Blood pressure control', price: 80, mrp: 100, cat: 'chronic' },
+      { id: 'm12', name: 'Amlodipine 5', sub: 'Amlodipine 5mg', desc: 'Calcium channel blocker', price: 68, mrp: 85, cat: 'chronic' },
+      { id: 'm13', name: 'Omeprazole 20', sub: 'Omeprazole 20mg', desc: 'Stomach acid reducer', price: 56, mrp: 70, cat: 'chronic' },
+      { id: 'm14', name: 'Levothyroxine 50', sub: 'Levothyroxine 50mcg', desc: 'Thyroid hormone replacement', price: 128, mrp: 160, cat: 'chronic' },
+      // Allergy
+      { id: 'm15', name: 'Cetirizine 10', sub: 'Cetirizine 10mg', desc: 'Allergy & hay fever relief', price: 48, mrp: 60, cat: 'allergy' },
+      { id: 'm16', name: 'Montelukast 10', sub: 'Montelukast 10mg', desc: 'Asthma & allergy control', price: 112, mrp: 140, cat: 'allergy' },
+      { id: 'm17', name: 'Salbutamol Inhaler', sub: 'Salbutamol 100mcg', desc: 'Bronchospasm & asthma relief', price: 176, mrp: 220, cat: 'allergy', trending: true },
+      { id: 'm18', name: 'Prednisone 10', sub: 'Prednisone 10mg', desc: 'Anti-inflammatory steroid', price: 104, mrp: 130, cat: 'allergy' },
+      // Mental Health
+      { id: 'm19', name: 'Sertraline 50', sub: 'Sertraline 50mg', desc: 'Depression & anxiety treatment', price: 144, mrp: 180, cat: 'mental' },
+      { id: 'm20', name: 'Fluoxetine 20', sub: 'Fluoxetine 20mg', desc: 'Antidepressant', price: 136, mrp: 170, cat: 'mental' },
+    ];
+
+    // Real medicine images from GCS
+    const MED_IMG_MAP = {
+      m1: '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
+      m3: '20230244-5806-43d3-aade-5e017b8b2695.png',
+      m6: '05b7f467-6d9b-430f-a179-20ceb9c8ec95.png',
+      m10: 'b6c2ce53-f43e-47cd-91c1-d4427620e319.png',
+      m15: '5e13bba1-8727-4c39-87ed-0b73268eca2f.png',
+      m16: '3ad15d54-a127-4954-964e-9070e589765e.png',
+    };
+    const IMG_BASE = 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/';
+
+    // Category fallback images
+    const CAT_IMG = {
+      pain: '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
+      antibiotic: '05b7f467-6d9b-430f-a179-20ceb9c8ec95.png',
+      chronic: 'b6c2ce53-f43e-47cd-91c1-d4427620e319.png',
+      allergy: '5e13bba1-8727-4c39-87ed-0b73268eca2f.png',
+      mental: '20230244-5806-43d3-aade-5e017b8b2695.png',
+    };
+
+    function getMedImg(med) {
+      const file = MED_IMG_MAP[med.id] || CAT_IMG[med.cat] || '57f027b1-22a8-40e3-86c8-1563b68a175d.png';
+      return IMG_BASE + file;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  GLOBAL CART (in-memory, same session)
+    // ══════════════════════════════════════════════════════════════
+    let cart = {};
+
+    function getCartQty(id) { return cart[id] ? cart[id].qty : 0; }
+
+    function addToCart(id) {
+      const med = ALL_MEDICINES.find(m => m.id === id);
+      if (!med) return;
+      if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
+      updateAllCardsUI(id);
+      updateCartDrawer();
+      showToast('✓ Added: ' + med.name);
+    }
+
+    function changeQty(id, delta) {
+      if (!cart[id] && delta < 0) return;   // only block minus if not in cart
+      if (!cart[id]) {
+        const med = ALL_MEDICINES.find(m => m.id === id);
+        if (!med) return;
+        cart[id] = { med, qty: 0 };
+      }
+      cart[id].qty = Math.max(0, cart[id].qty + delta);
+      if (cart[id].qty === 0) delete cart[id];
+      updateAllCardsUI(id);
+      updateCartDrawer();
+    }
+
+    function removeFromCart(id) {
+      delete cart[id];
+      updateAllCardsUI(id);
+      updateCartDrawer();
+    }
+
+    function updateAllCardsUI(id) {
+      document.querySelectorAll(`[data-med-id="${id}"]`).forEach(card => {
+        const qty = getCartQty(id);
+        const addBtn = card.querySelector('.add-btn');
+        const qtyCtrl = card.querySelector('.qty-controls');
+        const qtySpan = card.querySelector('.qty-val');
+        if (qty === 0) {
+          addBtn.style.display = 'block';
+          qtyCtrl.classList.remove('show');
+        } else {
+          addBtn.style.display = 'none';
+          qtyCtrl.classList.add('show');
+          if (qtySpan) qtySpan.textContent = qty;
+        }
+      });
+      const totalQty = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+      document.getElementById('cart-badge').textContent = totalQty;
+      document.getElementById('cart-item-count').textContent = totalQty;
+    }
+
+    function updateCartDrawer() {
+      const items = Object.values(cart);
+      const totalQty = items.reduce((s, i) => s + i.qty, 0);
+      const totalPrice = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+
+      document.getElementById('cart-badge').textContent = totalQty;
+      document.getElementById('cart-item-count').textContent = totalQty;
+      document.getElementById('cart-total').textContent = totalPrice;
+
+      const wrap = document.getElementById('cart-items-wrap');
+
+      if (items.length === 0) {
+        wrap.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;">
+        <div style="font-size:3.5rem;margin-bottom:16px;">🛒</div>
+        <p style="font-weight:700;color:#374151;font-size:15px;margin-bottom:6px;">Cart khali hai!</p>
+        <p style="color:#9ca3af;font-size:13px;">Koi medicine add karo</p>
+      </div>`;
+        return;
+      }
+
+      wrap.innerHTML = items.map(({ med, qty }) => `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid #f3f4f6;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <p style="font-weight:700;font-size:14px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${med.name}</p>
+        <p style="font-size:11px;color:#6b7280;margin-top:2px;">${med.sub}</p>
+        <p style="font-size:12px;color:#6b7280;margin-top:4px;">₹${med.price} × ${qty} = <strong style="color:#16a34a;">₹${med.price * qty}</strong></p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
+        <button onclick="removeFromCart('${med.id}')" style="background:none;border:none;color:#f87171;font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;padding:0;">✕ Hataao</button>
+        <div style="display:flex;align-items:center;border:2px solid #16a34a;border-radius:8px;overflow:visible;">
+          <button onclick="changeQtyDrawer('${med.id}',-1)" style="background:#f0fdf4;border:none;width:30px;height:30px;font-size:18px;cursor:pointer;color:#16a34a;font-weight:700;display:flex;align-items:center;justify-content:center;">−</button>
+          <span style="width:30px;text-align:center;font-weight:700;font-size:14px;color:#1a1a2e;">${qty}</span>
+          <button onclick="changeQtyDrawer('${med.id}',1)" style="background:#f0fdf4;border:none;width:30px;height:30px;font-size:18px;cursor:pointer;color:#16a34a;font-weight:700;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function changeQtyDrawer(id, delta) { changeQty(id, delta); }
+
+    // ══════════════════════════════════════════════════════════════
+    //  RENDER CARD
+    // ══════════════════════════════════════════════════════════════
+    function renderCard(med) {
+      const off = Math.round((1 - med.price / med.mrp) * 100);
+      const qty = getCartQty(med.id);
+      return `
+    <div class="med-card" data-med-id="${med.id}">
+      <div class="med-img-wrap">
+        <img src="${getMedImg(med)}" alt="${med.name}" loading="lazy"
+             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x150/f0fdf4/16a34a?text=💊'">
+        <span class="badge-30min">30 min</span>
+        ${off > 0 ? `<span class="badge-off">${off}% OFF</span>` : ''}
+      </div>
+      <div class="med-info">
+        <div class="med-name" title="${med.name}">${med.name}</div>
+        <div class="med-sub" title="${med.sub}">${med.sub}</div>
+        <div class="med-desc">${med.desc}</div>
+        <div class="med-price-row">
+          <span class="med-price">₹${med.price}</span>
+          <span class="med-mrp">₹${med.mrp}</span>
+          ${off > 0 ? `<span class="med-off">${off}% OFF</span>` : ''}
+        </div>
+        <div class="med-actions">
+          <button class="add-btn" data-action="add" data-id="${med.id}"
+            style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
+          <div class="qty-controls ${qty > 0 ? 'show' : ''}">
+            <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
+            <span class="qty-val">${qty > 0 ? qty : 1}</span>
+            <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  FILTER & SEARCH
+    // ══════════════════════════════════════════════════════════════
+    let activeFilter = 'all';
+    let searchQuery = '';
+
+    function getFiltered() {
+      return ALL_MEDICINES.filter(m => {
+        const matchCat = activeFilter === 'all' || m.cat === activeFilter;
+        const matchSearch = !searchQuery ||
+          m.name.toLowerCase().includes(searchQuery) ||
+          m.sub.toLowerCase().includes(searchQuery) ||
+          m.desc.toLowerCase().includes(searchQuery);
+        return matchCat && matchSearch;
+      });
+    }
+
+    function renderGrid() {
+      const meds = getFiltered();
+      const grid = document.getElementById('medicines-grid');
+      const noRes = document.getElementById('no-results');
+      const count = document.getElementById('results-count');
+
+      if (meds.length === 0) {
+        grid.innerHTML = '';
+        noRes.style.display = 'block';
+        count.textContent = '0 medicines found';
+      } else {
+        noRes.style.display = 'none';
+        grid.innerHTML = meds.map(renderCard).join('');
+        count.textContent = `Showing ${meds.length} medicine${meds.length !== 1 ? 's' : ''}`;
+      }
+    }
+
+    function filterBy(cat, btn) {
+      activeFilter = cat;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid();
+    }
+
+    // Live search
+    document.getElementById('search-input').addEventListener('input', function () {
+      searchQuery = this.value.trim().toLowerCase();
+      renderGrid();
+    });
+
+    // ══════════════════════════════════════════════════════════════
+    //  CART DRAWER OPEN / CLOSE
+    // ══════════════════════════════════════════════════════════════
+    function openCart() {
+      updateCartDrawer();
+      document.getElementById('cartDrawer').classList.add('open');
+      document.getElementById('cartOverlay').classList.add('open');
+    }
+    function closeCart() {
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  CHECKOUT FLOW — Address → Payment → Success
+    // ══════════════════════════════════════════════════════════════
+    let selectedPayMethod = 'upi';
+    let selectedBank = '';
+
+    function handleCheckout() {
+      if (Object.keys(cart).length === 0) { showToast('⚠ Cart khali hai!'); return; }
+      closeCart();
+      buildSummaries();
+      setStep(1);
+      document.getElementById('coOverlay').classList.add('show');
+    }
+
+    function closeCheckout() {
+      document.getElementById('coOverlay').classList.remove('show');
+    }
+
+    function setStep(n) {
+      [1, 2, 3].forEach(i => {
+        document.getElementById('coStep' + i).classList.toggle('active', i === n);
+        const dot = document.getElementById('dot' + i);
+        if (i < n) { dot.className = 'co-step-dot done'; dot.textContent = '✓'; }
+        else if (i === n) { dot.className = 'co-step-dot active'; dot.textContent = i < 3 ? i : '✓'; }
+        else { dot.className = 'co-step-dot pending'; dot.textContent = i < 3 ? i : '✓'; }
+      });
+      [1, 2].forEach(i => {
+        const line = document.getElementById('line' + i);
+        if (line) line.classList.toggle('done', i < n);
+      });
+      document.getElementById('coProgress').style.display = n === 3 ? 'none' : 'flex';
+    }
+
+    function buildSummaries() {
+      const items = Object.values(cart);
+      const total = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+      const codCharge = selectedPayMethod === 'cod' ? 20 : 0;
+      const html = `
+    <div class="co-summary-title">Order Summary</div>
+    ${items.map(({ med, qty }) => `
+      <div class="co-summary-item">
+        <span>${med.name} × ${qty}</span>
+        <span>₹${med.price * qty}</span>
+      </div>`).join('')}
+    <div class="co-summary-item"><span style="color:#16a34a;">Delivery</span><span style="color:#16a34a;">FREE</span></div>
+    ${codCharge ? `<div class="co-summary-item"><span>COD Charge</span><span>₹${codCharge}</span></div>` : ''}
+    <div class="co-summary-total">
+      <span>Total Payable</span>
+      <span style="color:#16a34a;">₹${total + codCharge}</span>
+    </div>`;
+      const el1 = document.getElementById('addrSummary');
+      const el2 = document.getElementById('paymentSummary');
+      if (el1) el1.innerHTML = html;
+      if (el2) el2.innerHTML = html;
+    }
+
+    /* ── Step 1 Validation ── */
+    function goToPayment() {
+      const fields = [
+        { id: 'addr-name', err: 'err-name', test: v => v.trim().length >= 2 },
+        { id: 'addr-phone', err: 'err-phone', test: v => /^[6-9]\d{9}$/.test(v) },
+        { id: 'addr-street', err: 'err-street', test: v => v.trim().length >= 5 },
+        { id: 'addr-city', err: 'err-city', test: v => v.trim().length >= 2 },
+        { id: 'addr-state', err: 'err-state', test: v => v !== '' },
+        { id: 'addr-pin', err: 'err-pin', test: v => /^\d{6}$/.test(v) },
+      ];
+      let valid = true;
+      fields.forEach(({ id, err, test }) => {
+        const el = document.getElementById(id);
+        const em = document.getElementById(err);
+        const ok = test(el.value);
+        el.classList.toggle('err', !ok);
+        em.classList.toggle('show', !ok);
+        if (!ok) valid = false;
+      });
+      if (!valid) { showToast('⚠ Please fill all required fields correctly'); return; }
+      buildSummaries();
+      setStep(2);
+    }
+
+    function goToAddress() { setStep(1); }
+
+    /* ── Payment method selection ── */
+    function selectPay(method) {
+      selectedPayMethod = method;
+      ['upi', 'card', 'nb', 'wallet', 'cod'].forEach(m => {
+        document.getElementById('pay-' + m).classList.toggle('selected', m === method);
+      });
+      document.getElementById('upiArea').classList.toggle('show', method === 'upi');
+      document.getElementById('cardArea').classList.toggle('show', method === 'card');
+      document.getElementById('nbArea').classList.toggle('show', method === 'nb');
+      document.getElementById('codArea').style.display = method === 'cod' ? 'block' : 'none';
+      // wallet — no extra input needed
+      buildSummaries();
+      const btn = document.getElementById('payNowBtn');
+      btn.textContent = method === 'cod' ? 'Place Order (COD) →' : 'Pay Now →';
+    }
+
+    function fillUPI(app) {
+      const map = { gpay: '@okaxis', phonepe: '@ybl', paytm: '@paytm' };
+      const input = document.getElementById('upi-id');
+      const name = document.getElementById('addr-name').value.toLowerCase().replace(/\s+/g, '') || 'user';
+      input.value = name + map[app];
+    }
+
+    function verifyUPI() {
+      const val = document.getElementById('upi-id').value.trim();
+      if (!val.includes('@')) { showToast('⚠ Invalid UPI ID'); return; }
+      showToast('✓ UPI ID verified!');
+    }
+
+    function selectBank(el) {
+      document.querySelectorAll('.bank-item').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedBank = el.textContent;
+    }
+
+    function formatCard(el) {
+      let v = el.value.replace(/\D/g, '').substring(0, 16);
+      el.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+    function formatExp(el) {
+      let v = el.value.replace(/\D/g, '');
+      if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+      el.value = v;
+    }
+
+    /* ── Place Order ── */
+    function placeOrder() {
+      // Validate payment method specific fields
+      if (selectedPayMethod === 'upi') {
+        const upi = document.getElementById('upi-id').value.trim();
+        if (!upi.includes('@')) { showToast('⚠ UPI ID verify karo pehle'); return; }
+      }
+      if (selectedPayMethod === 'card') {
+        const num = document.getElementById('card-num').value.replace(/\s/g, '');
+        const exp = document.getElementById('card-exp').value;
+        const cvv = document.getElementById('card-cvv').value;
+        if (num.length < 16 || !exp.includes('/') || cvv.length < 3) {
+          showToast('⚠ Card details sahi se bharo'); return;
+        }
+      }
+      if (selectedPayMethod === 'nb' && !selectedBank) {
+        showToast('⚠ Bank select karo'); return;
+      }
+
+      // Build success screen
+      const items = Object.values(cart);
+      const total = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+      const codCharge = selectedPayMethod === 'cod' ? 20 : 0;
+      const orderId = 'MQ' + Date.now().toString().slice(-8);
+      const name = document.getElementById('addr-name').value;
+      const phone = document.getElementById('addr-phone').value;
+      const city = document.getElementById('addr-city').value;
+      const state = document.getElementById('addr-state').value;
+      const pin = document.getElementById('addr-pin').value;
+      const type = document.getElementById('addr-type').value;
+
+      document.getElementById('successAddr').textContent =
+        `📍 ${type}: ${document.getElementById('addr-street').value}, ${city}, ${state} - ${pin}`;
+      document.getElementById('orderId').textContent = `Order ID: ${orderId}  •  📞 ${phone}`;
+      document.getElementById('successSummary').innerHTML = `
+    <p style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Items Ordered</p>
+    ${items.map(({ med, qty }) => `
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;">
+        <span>${med.name} × ${qty}</span><span>₹${med.price * qty}</span>
+      </div>`).join('')}
+    <div style="border-top:1px solid #bbf7d0;margin-top:8px;padding-top:8px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;">
+      <span>Total Paid</span><span style="color:#16a34a;">₹${total + codCharge}</span>
+    </div>
+    <p style="font-size:11px;color:#6b7280;margin-top:6px;">Payment: ${getPayLabel()}</p>`;
+
+      // Save to order history
+      saveOrder({ orderId, name, city, items, total: total + codCharge, payMethod: getPayLabel(), date: new Date().toLocaleDateString('en-IN') });
+
+      // Clear cart
+      cart = {};
+      updateCartDrawer();
+      Object.keys(MEDICINES_FLAT || {}).forEach(id => updateAllCardsUI(id));
+      // also reset all visible cards
+      document.querySelectorAll('.qty-controls.show').forEach(c => {
+        c.classList.remove('show');
+        const add = c.closest('.med-card')?.querySelector('.add-btn');
+        if (add) add.style.display = 'block';
+      });
+      document.getElementById('cart-badge').textContent = '0';
+      document.getElementById('cart-item-count').textContent = '0';
+
+      setStep(3);
+    }
+
+    function getPayLabel() {
+      const map = { upi: 'UPI', card: 'Card', nb: selectedBank + ' Net Banking', wallet: 'Wallet', cod: 'Cash on Delivery' };
+      return map[selectedPayMethod] || selectedPayMethod;
+    }
+
+    function saveOrder(order) {
+      try {
+        let orders = JSON.parse(sessionStorage.getItem('mq_orders') || '[]');
+        orders.unshift(order);
+        sessionStorage.setItem('mq_orders', JSON.stringify(orders));
+      } catch (e) { }
+    }
+
+    function trackOrder() {
+      showToast('📦 Order tracking coming soon!');
+    }
+
+    function finishOrder() {
+      closeCheckout();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg) {
+      document.getElementById('toast-msg').textContent = msg;
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function () {
+      updateCartDrawer(); // init empty state
+      renderGrid();       // render all medicines
+
+      // ── Event Delegation: all medicine card buttons ──
+      document.getElementById('medicines-grid').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        if (action === 'add') addToCart(id);
+        if (action === 'plus') changeQty(id, 1);
+        if (action === 'minus') changeQty(id, -1);
+      });
+    });
+  </script>
+</body>
+
+</html>

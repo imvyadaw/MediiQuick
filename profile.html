@@ -1,0 +1,2612 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediiQuick - Medicine Delivery in 30 Minutes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 0;
+        }
+
+        .header-inner {
+            width: 100%;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .logo span {
+            color: #16a34a;
+        }
+
+        .location-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-radius: 50px;
+            padding: 6px 16px;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .location-bar i {
+            color: #16a34a;
+        }
+
+        .location-bar .loc-label {
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .location-bar .loc-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        #loc-loader {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #16a34a;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-btn {
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .account-btn:hover {
+            background: #15803d;
+        }
+
+        .cart-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .cart-btn svg {
+            width: 36px;
+            height: 36px;
+            color: #374151;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-menu-wrap {
+            position: relative;
+        }
+
+        .account-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+            min-width: 180px;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+        .account-dropdown.show {
+            display: block;
+        }
+
+        .account-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #374151;
+            text-decoration: none;
+            transition: background .15s;
+        }
+
+        .account-dropdown a:hover {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* Cart Drawer */
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s;
+        }
+
+        .cart-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .cart-drawer {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 360px;
+            background: #fff;
+            z-index: 400;
+            transform: translateX(100%);
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -8px 0 40px rgba(0, 0, 0, .15);
+        }
+
+        .cart-drawer.open {
+            transform: translateX(0);
+        }
+
+        .cart-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .cart-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            line-height: 1;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .cart-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+            margin-top: 60px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 12px;
+        }
+
+        .cart-item-info .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .cart-item-info .sub {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .cart-item-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            font-size: 14px;
+            color: #16a34a;
+            white-space: nowrap;
+        }
+
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: #f87171;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 2px;
+        }
+
+        .cart-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .cart-total-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .cart-total-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .checkout-btn:hover {
+            background: #15803d;
+        }
+
+        /* Main */
+        main {
+            width: 100%;
+            padding: 32px 40px;
+        }
+
+        @media(max-width:768px) {
+            main {
+                padding: 16px;
+            }
+        }
+
+        /* Search Hero */
+        .hero {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .7) 0%, transparent 70%);
+            display: flex;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .hero-content h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .hero-content p {
+            color: rgba(255, 255, 255, .85);
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .search-bar {
+            background: #fff;
+            border-radius: 50px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 6px 8px 6px 20px;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: #1a1a2e;
+        }
+
+        .search-bar input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-bar button {
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .search-bar button:hover {
+            background: #15803d;
+        }
+
+        /* Search Results */
+        #search-results-section {
+            display: none;
+            margin-bottom: 32px;
+        }
+
+        #search-results-section h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        #no-results {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: #9ca3af;
+            display: none;
+        }
+
+        /* Categories */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        @media(max-width:900px) {
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media(max-width:500px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .cat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            border: 2px solid transparent;
+        }
+
+        .cat-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+        }
+
+        .cat-card.active {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .cat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 22px;
+        }
+
+        .cat-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Category medicines panel */
+        #category-section {
+            display: none;
+            margin-bottom: 32px;
+        }
+
+        #cat-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #cat-back-btn {
+            background: #f3f4f6;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        #cat-back-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* Medicines Grid */
+        .medicines-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+
+        @media(max-width:1100px) {
+            .medicines-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media(max-width:700px) {
+            .medicines-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Medicine Card */
+        .med-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, .06);
+            transition: box-shadow .2s;
+            border: 1px solid #f3f4f6;
+        }
+
+        .med-card:hover {
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .1);
+        }
+
+        .med-img-wrap {
+            position: relative;
+            background: #f8fafc;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .med-img-wrap img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        .badge-30min {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #16a34a;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .badge-trending {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #f97316;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .med-info {
+            padding: 12px;
+        }
+
+        .med-name {
+            font-weight: 700;
+            font-size: 13px;
+            color: #1a1a2e;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .med-sub {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .med-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .med-price {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+        }
+
+        .med-mrp {
+            font-size: 11px;
+            color: #9ca3af;
+            text-decoration: line-through;
+            margin-left: 4px;
+        }
+
+        .med-off {
+            font-size: 11px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .med-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 9px 8px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background .2s;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover {
+            background: #15803d;
+        }
+
+        .qty-controls {
+            display: none;
+            width: 100%;
+            align-items: center;
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+        }
+
+        .qty-controls.show {
+            display: flex;
+        }
+
+        .qty-btn {
+            background: #f0fdf4;
+            border: none;
+            min-width: 32px;
+            height: 34px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #16a34a;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .qty-btn:hover {
+            background: #dcfce7;
+        }
+
+        .qty-val {
+            flex: 1;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+            font-family: 'Poppins', sans-serif;
+            display: block;
+        }
+
+        /* Popular section */
+        #popular-section {
+            margin-bottom: 32px;
+        }
+
+        /* Pharmacies */
+        .pharma-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media(max-width:700px) {
+            .pharma-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pharma-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, .06);
+            cursor: pointer;
+            transition: box-shadow .2s;
+        }
+
+        .pharma-card:hover {
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .1);
+        }
+
+        .pharma-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .pharma-info {
+            padding: 16px;
+        }
+
+        .pharma-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pharma-addr {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .pharma-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pharma-time {
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .pharma-dist {
+            font-size: 11px;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .view-btn {
+            border: 1.5px solid #16a34a;
+            color: #16a34a;
+            background: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Health Tips */
+        .tips-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media(max-width:700px) {
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tip-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .tip-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 14px;
+        }
+
+        .tip-card h4 {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .tip-card p {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .view-all {
+            color: #16a34a;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Footer */
+        footer {
+            background: #111827;
+            color: #fff;
+            padding: 48px 0 24px;
+        }
+
+        .footer-inner {
+            width: 100%;
+            padding: 0 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media(max-width:700px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .footer-brand .brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .footer-brand p {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            color: #9ca3af;
+            font-size: 16px;
+            transition: color .2s;
+        }
+
+        .social-links a:hover {
+            color: #4ade80;
+        }
+
+        footer h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        footer ul {
+            list-style: none;
+        }
+
+        footer ul li {
+            margin-bottom: 8px;
+        }
+
+        footer ul li a {
+            color: #9ca3af;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        footer ul li a:hover {
+            color: #fff;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #1f2937;
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-bottom p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #6b7280;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999;
+            transition: transform .3s;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #toast .toast-icon {
+            color: #4ade80;
+            margin-right: 6px;
+        }
+
+        /* ── Multi-Step Checkout Modal ── */
+        .co-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            z-index: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .co-overlay.show {
+            display: flex;
+        }
+
+        .co-box {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+        }
+
+        .co-step {
+            display: none;
+        }
+
+        .co-step.active {
+            display: block;
+        }
+
+        .co-progress {
+            display: flex;
+            align-items: center;
+            padding: 24px 28px 0;
+        }
+
+        .co-step-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all .3s;
+        }
+
+        .co-step-dot.done {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .co-step-dot.active {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .co-step-dot.pending {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        .co-step-line {
+            flex: 1;
+            height: 3px;
+            background: #f3f4f6;
+            margin: 0 6px;
+        }
+
+        .co-step-line.done {
+            background: #16a34a;
+        }
+
+        .co-step-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .co-steps-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .co-head {
+            padding: 20px 28px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .co-head h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .co-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #6b7280;
+            line-height: 1;
+        }
+
+        .co-body {
+            padding: 20px 28px 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .co-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .co-form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .co-form-group input,
+        .co-form-group select {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            color: #1a1a2e;
+            outline: none;
+            transition: border-color .2s;
+            background: #fff;
+        }
+
+        .co-form-group input:focus,
+        .co-form-group select:focus {
+            border-color: #16a34a;
+        }
+
+        .co-form-group input.err,
+        .co-form-group select.err {
+            border-color: #dc2626;
+        }
+
+        .co-err-msg {
+            font-size: 11px;
+            color: #dc2626;
+            display: none;
+        }
+
+        .co-err-msg.show {
+            display: block;
+        }
+
+        .pay-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .pay-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .pay-card:hover,
+        .pay-card.selected {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .pay-card .pay-icon {
+            font-size: 1.8rem;
+        }
+
+        .pay-card .pay-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .pay-card .pay-sub {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .upi-area,
+        .card-area,
+        .nb-area {
+            display: none;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .upi-area.show,
+        .card-area.show,
+        .nb-area.show {
+            display: block;
+        }
+
+        .upi-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .upi-row input {
+            flex: 1;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+        }
+
+        .upi-verify-btn {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .bank-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .bank-item {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .bank-item:hover,
+        .bank-item.selected {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .co-summary {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .co-summary-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 10px;
+        }
+
+        .co-summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+
+        .co-summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 700;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+            margin-top: 6px;
+        }
+
+        .co-btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .co-btn-back {
+            flex: 1;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .co-btn-back:hover {
+            background: #e5e7eb;
+        }
+
+        .co-btn-next {
+            flex: 2;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .co-btn-next:hover {
+            background: #15803d;
+        }
+
+        .co-success {
+            text-align: center;
+            padding: 40px 28px;
+        }
+
+        .co-success .tick {
+            width: 72px;
+            height: 72px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+
+        .co-success h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .co-success p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .co-success .order-id {
+            font-size: 12px;
+            color: #9ca3af;
+            margin: 12px 0 24px;
+        }
+
+        .track-btn {
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 13px 32px;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .continue-btn {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 13px 32px;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast -->
+    <div id="toast"><span class="toast-icon">✓</span><span id="toast-msg">Added to cart!</span></div>
+
+    <!-- Cart Overlay & Drawer -->
+    <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>🛒 Your Cart (<span id="cart-item-count">0</span> items)</h3>
+            <button class="cart-close" onclick="closeCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span class="cart-total-label">Total Amount</span>
+                <span class="cart-total-val">₹<span id="cart-total">0</span></span>
+            </div>
+            <button class="checkout-btn" onclick="handleCheckout()">Proceed to Checkout →</button>
+        </div>
+    </div>
+
+    <!-- ══ MULTI-STEP CHECKOUT MODAL ══════════════════════════════ -->
+    <div class="co-overlay" id="coOverlay">
+        <div class="co-box">
+            <div class="co-progress" id="coProgress">
+                <div class="co-steps-wrap">
+                    <div style="display:flex;align-items:center;width:100%;">
+                        <div class="co-step-dot active" id="dot1">1</div>
+                        <div class="co-step-line" id="line1"></div>
+                        <div class="co-step-dot pending" id="dot2">2</div>
+                        <div class="co-step-line" id="line2"></div>
+                        <div class="co-step-dot pending" id="dot3">✓</div>
+                    </div>
+                    <div style="display:flex;width:100%;justify-content:space-between;margin-top:4px;">
+                        <span class="co-step-label">Address</span>
+                        <span class="co-step-label">Payment</span>
+                        <span class="co-step-label">Done!</span>
+                    </div>
+                </div>
+            </div>
+            <!-- STEP 1 -->
+            <div class="co-step active" id="coStep1">
+                <div class="co-head">
+                    <h2>📍 Delivery Address</h2><button class="co-close" onclick="closeCheckout()">✕</button>
+                </div>
+                <div class="co-body">
+                    <!-- Saved addresses picker -->
+                    <div id="savedAddrPicker" style="margin-bottom:14px;"></div>
+
+                    <!-- New address form (hidden if saved exists) -->
+                    <div id="newAddrFormWrap">
+                        <div class="form-row">
+                            <div class="co-form-group"><label>Full Name *</label><input type="text" id="addr-name"
+                                    placeholder="Yuvraj Dixit"><span class="co-err-msg" id="err-name">Name
+                                    required</span>
+                            </div>
+                            <div class="co-form-group"><label>Mobile *</label><input type="tel" id="addr-phone"
+                                    placeholder="10-digit" maxlength="10"><span class="co-err-msg" id="err-phone">Valid
+                                    mobile required</span></div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="co-form-group"><label>House / Street *</label><input type="text"
+                                    id="addr-street" placeholder="e.g. House 12, Sector 18"><span class="co-err-msg"
+                                    id="err-street">Address
+                                    required</span></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="co-form-group"><label>City *</label><input type="text" id="addr-city"
+                                    placeholder="e.g. Noida"><span class="co-err-msg" id="err-city">City required</span>
+                            </div>
+                            <div class="co-form-group"><label>State *</label>
+                                <select id="addr-state">
+                                    <option value="">Select State</option>
+                                    <option>Uttar Pradesh</option>
+                                    <option>Delhi</option>
+                                    <option>Maharashtra</option>
+                                    <option>Karnataka</option>
+                                    <option>Tamil Nadu</option>
+                                    <option>West Bengal</option>
+                                    <option>Rajasthan</option>
+                                    <option>Gujarat</option>
+                                    <option>Haryana</option>
+                                    <option>Punjab</option>
+                                    <option>Bihar</option>
+                                    <option>Other</option>
+                                </select>
+                                <span class="co-err-msg" id="err-state">State required</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="co-form-group"><label>PIN Code *</label><input type="text" id="addr-pin"
+                                    placeholder="6-digit PIN" maxlength="6"><span class="co-err-msg" id="err-pin">Valid
+                                    PIN
+                                    required</span></div>
+                            <div class="co-form-group"><label>Address Type</label><select id="addr-type">
+                                    <option value="Home">🏠 Home</option>
+                                    <option value="Office">🏢 Office</option>
+                                    <option value="Other">📍 Other</option>
+                                </select></div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="co-form-group"><label>Landmark (optional)</label><input type="text"
+                                    id="addr-landmark" placeholder="e.g. Near Metro Station"></div>
+                        </div>
+                    </div><!-- /newAddrFormWrap -->
+
+                    <div class="co-summary" id="addrSummary"></div>
+                    <div class="co-btn-row">
+                        <button class="co-btn-back" onclick="closeCheckout()">Cancel</button>
+                        <button class="co-btn-next" onclick="goToPayment()">Continue to Payment →</button>
+                    </div>
+                </div>
+            </div>
+            <!-- STEP 2 -->
+            <div class="co-step" id="coStep2">
+                <div class="co-head">
+                    <h2>💳 Payment Method</h2><button class="co-close" onclick="closeCheckout()">✕</button>
+                </div>
+                <div class="co-body">
+                    <div class="pay-grid">
+                        <div class="pay-card selected" id="pay-upi" onclick="selectPay('upi')"><span
+                                class="pay-icon">📱</span><span class="pay-name">UPI</span><span class="pay-sub">GPay,
+                                PhonePe, Paytm</span></div>
+                        <div class="pay-card" id="pay-card" onclick="selectPay('card')"><span
+                                class="pay-icon">💳</span><span class="pay-name">Debit / Credit Card</span><span
+                                class="pay-sub">Visa, Mastercard, RuPay</span></div>
+                        <div class="pay-card" id="pay-nb" onclick="selectPay('nb')"><span
+                                class="pay-icon">🏦</span><span class="pay-name">Net Banking</span><span
+                                class="pay-sub">All major banks</span></div>
+                        <div class="pay-card" id="pay-wallet" onclick="selectPay('wallet')"><span
+                                class="pay-icon">👝</span><span class="pay-name">Wallet</span><span
+                                class="pay-sub">Paytm, Amazon Pay</span></div>
+                        <div class="pay-card" id="pay-cod" onclick="selectPay('cod')" style="grid-column:span 2;"><span
+                                class="pay-icon">💵</span><span class="pay-name">Cash on Delivery</span><span
+                                class="pay-sub">Pay when you receive</span></div>
+                    </div>
+                    <div class="upi-area show" id="upiArea">
+                        <p style="font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;">Enter UPI ID</p>
+                        <div class="upi-row"><input type="text" id="upi-id" placeholder="yourname@upi"><button
+                                class="upi-verify-btn" onclick="verifyUPI()">Verify</button></div>
+                        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                            <span onclick="fillUPI('gpay')"
+                                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">📱
+                                GPay</span>
+                            <span onclick="fillUPI('phonepe')"
+                                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">📲
+                                PhonePe</span>
+                            <span onclick="fillUPI('paytm')"
+                                style="background:#f3f4f6;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">💛
+                                Paytm</span>
+                        </div>
+                    </div>
+                    <div class="card-area" id="cardArea">
+                        <p style="font-size:12px;font-weight:700;margin-bottom:10px;">Card Details</p>
+                        <div class="co-form-group" style="margin-bottom:10px;"><label>Card Number</label><input
+                                type="text" id="card-num" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
+                                oninput="formatCard(this)"></div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div class="co-form-group"><label>Expiry (MM/YY)</label><input type="text" id="card-exp"
+                                    placeholder="MM/YY" maxlength="5" oninput="formatExp(this)"></div>
+                            <div class="co-form-group"><label>CVV</label><input type="password" id="card-cvv"
+                                    placeholder="•••" maxlength="3"></div>
+                        </div>
+                        <div class="co-form-group" style="margin-top:10px;"><label>Name on Card</label><input
+                                type="text" id="card-name" placeholder="Yuvraj Dixit"></div>
+                    </div>
+                    <div class="nb-area" id="nbArea">
+                        <p style="font-size:12px;font-weight:700;margin-bottom:10px;">Select Your Bank</p>
+                        <div class="bank-list">
+                            <div class="bank-item" onclick="selectBank(this)">SBI</div>
+                            <div class="bank-item" onclick="selectBank(this)">HDFC</div>
+                            <div class="bank-item" onclick="selectBank(this)">ICICI</div>
+                            <div class="bank-item" onclick="selectBank(this)">Axis</div>
+                            <div class="bank-item" onclick="selectBank(this)">PNB</div>
+                            <div class="bank-item" onclick="selectBank(this)">BOB</div>
+                            <div class="bank-item" onclick="selectBank(this)">Kotak</div>
+                            <div class="bank-item" onclick="selectBank(this)">Yes Bank</div>
+                            <div class="bank-item" onclick="selectBank(this)">Canara</div>
+                        </div>
+                    </div>
+                    <div id="codArea"
+                        style="display:none;background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:16px;">
+                        <p style="font-size:13px;font-weight:600;color:#92400e;">💵 Cash on Delivery</p>
+                        <p style="font-size:12px;color:#78350f;margin-top:4px;line-height:1.5;">Delivery partner ko cash
+                            dena hoga. ₹20 COD charge lagega.</p>
+                    </div>
+                    <div class="co-summary" id="paymentSummary"></div>
+                    <div class="co-btn-row">
+                        <button class="co-btn-back" onclick="goToAddress()">← Back</button>
+                        <button class="co-btn-next" id="payNowBtn" onclick="placeOrder()">Pay Now →</button>
+                    </div>
+                </div>
+            </div>
+            <!-- STEP 3 -->
+            <div class="co-step" id="coStep3">
+                <div class="co-success">
+                    <div class="tick">✓</div>
+                    <h2>Order Placed! 🎉</h2>
+                    <p>Aapki medicines <strong>30 minutes</strong> mein deliver ho jaayengi.</p>
+                    <p id="successAddr" style="font-size:13px;color:#6b7280;margin-top:6px;"></p>
+                    <div class="order-id" id="orderId"></div>
+                    <div style="background:#f0fdf4;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;"
+                        id="successSummary"></div>
+                    <button class="track-btn" onclick="window.location.href='my_order.html'">📦 Track My
+                        Order</button>
+                    <button class="continue-btn" onclick="finishOrder()">Continue Shopping</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+                    alt="MediiQuick">
+                <h1>Medii<span>Quick</span></h1>
+            </a>
+
+            <div class="location-bar" onclick="changeLocation()">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                    <div class="loc-label">Deliver to</div>
+                    <div class="loc-val" id="loc-display">
+                        <span id="loc-text">Detecting location...</span>
+                        <div id="loc-loader"></div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down" style="color:#16a34a;font-size:11px;margin-left:4px;"></i>
+            </div>
+
+            <div class="header-right">
+                <div class="account-menu-wrap">
+                    <button class="account-btn" id="accountBtn">👤 My Account</button>
+                    <div class="account-dropdown" id="accountDropdown">
+                        <a href="myprofile.html"><i class="fas fa-user"
+                                style="margin-right:8px;color:#16a34a;"></i>Profile</a>
+                        <a href="my_order.html"><i class="fas fa-box" style="margin-right:8px;color:#16a34a;"></i>My
+                            Orders</a>
+                        <a href="#"><i class="fas fa-heart" style="margin-right:8px;color:#16a34a;"></i>Wishlist</a>
+                        <a href="index.html" style="color:#dc2626;"><i class="fas fa-sign-out-alt"
+                                style="margin-right:8px;"></i>Logout</a>
+                    </div>
+                </div>
+                <button class="cart-btn" onclick="openCart()" aria-label="Cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m5-9l2 9" />
+                    </svg>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Search -->
+        <section class="hero">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/da0f498b-2a30-4602-a889-462a314cb182.png"
+                alt="Medicine Delivery">
+            <div class="hero-overlay">
+                <div class="hero-content">
+                    <h2>Medicines in <span style="color:#4ade80;">30 Minutes</span></h2>
+                    <p>Search from 1000+ medicines and get delivered at your doorstep</p>
+                    <div class="search-bar">
+                        <i class="fas fa-search" style="color:#9ca3af;margin-right:8px;"></i>
+                        <input type="text" id="medicine-search"
+                            placeholder="Search medicines e.g. Dolo 650, Paracetamol...">
+                        <button onclick="searchMedicines()">Search</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results -->
+        <section id="search-results-section">
+            <div class="section-header">
+                <h3 id="search-results-title">Search Results</h3>
+                <button onclick="clearSearch()"
+                    style="background:#f3f4f6;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;">✕
+                    Clear</button>
+            </div>
+            <div id="no-results">
+                <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+                <p style="font-weight:600;color:#374151;margin-bottom:6px;">No medicines found</p>
+                <p style="font-size:13px;">Try different keywords like "Paracetamol" or "Vitamin D"</p>
+            </div>
+            <div class="medicines-grid" id="search-results-grid"></div>
+        </section>
+
+        <!-- Shop by Category -->
+        <section>
+            <h3 class="section-title">Shop by Category</h3>
+            <div class="categories-grid">
+                <div class="cat-card" onclick="showCategory('fever')" id="cat-fever">
+                    <div class="cat-icon" style="background:#dcfce7;"><i class="fas fa-capsules"
+                            style="color:#16a34a;"></i></div>
+                    <div class="cat-name">Fever & Pain</div>
+                </div>
+                <div class="cat-card" onclick="showCategory('allergy')" id="cat-allergy">
+                    <div class="cat-icon" style="background:#dbeafe;"><i class="fas fa-allergies"
+                            style="color:#2563eb;"></i></div>
+                    <div class="cat-name">Allergies</div>
+                </div>
+                <div class="cat-card" onclick="showCategory('heart')" id="cat-heart">
+                    <div class="cat-icon" style="background:#fef9c3;"><i class="fas fa-heartbeat"
+                            style="color:#ca8a04;"></i></div>
+                    <div class="cat-name">Heart Care</div>
+                </div>
+                <div class="cat-card" onclick="showCategory('brain')" id="cat-brain">
+                    <div class="cat-icon" style="background:#f3e8ff;"><i class="fas fa-brain"
+                            style="color:#9333ea;"></i></div>
+                    <div class="cat-name">Brain & Nerves</div>
+                </div>
+                <div class="cat-card" onclick="showCategory('respiratory')" id="cat-respiratory">
+                    <div class="cat-icon" style="background:#fce7f3;"><i class="fas fa-lungs"
+                            style="color:#ec4899;"></i></div>
+                    <div class="cat-name">Respiratory</div>
+                </div>
+                <div class="cat-card" onclick="showCategory('bone')" id="cat-bone">
+                    <div class="cat-icon" style="background:#e0e7ff;"><i class="fas fa-bone" style="color:#4f46e5;"></i>
+                    </div>
+                    <div class="cat-name">Bone & Joint</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Medicines Section -->
+        <section id="category-section">
+            <div id="cat-section-title">
+                <button id="cat-back-btn" onclick="hideCategory()">← Back</button>
+                <span id="cat-title-text">Category Medicines</span>
+            </div>
+            <div class="medicines-grid" id="category-medicines-grid"></div>
+        </section>
+
+        <!-- Popular Medicines -->
+        <section id="popular-section">
+            <div class="section-header">
+                <h3 class="section-title" style="margin-bottom:0;">Popular Medicines</h3>
+                <a href="all-medicines.html" class="view-all">View All →</a>
+            </div>
+            <div class="medicines-grid" id="popular-grid"></div>
+        </section>
+
+
+        <!-- Health Tips -->
+        <section class="tips-section">
+            <h3 class="section-title">Health Tips</h3>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4713f598-dd96-4285-ae26-3ba4a87c4db3.png"
+                        alt="Tip 1">
+                    <h4>How to Take Medicines Properly</h4>
+                    <p>Always take medicines as prescribed. Some should be taken with food while others on an empty
+                        stomach. Never skip doses.</p>
+                </div>
+                <div class="tip-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/82af876f-1b77-46dc-af11-f8bbca99cf12.png"
+                        alt="Tip 2">
+                    <h4>Medicine Storage Tips</h4>
+                    <p>Store medicines in a cool, dry place away from sunlight. Keep them out of reach of children and
+                        check expiry dates regularly.</p>
+                </div>
+                <div class="tip-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/90801c36-defd-452b-a04b-49b6283ae516.png"
+                        alt="Tip 3">
+                    <h4>Understanding Prescriptions</h4>
+                    <p>Always read the medicine label carefully. If you have questions about dosage or side effects,
+                        consult your pharmacist.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-name">💊 MediiQuick</div>
+                    <p>Medicines delivered at your doorstep in 30 minutes. Trusted by thousands across India.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/mryuvrajdixit"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/Yuvraj_dixit__"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/mr_yuvraj_dixit__/"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/in/yuvraj-dixit-3393422b5/"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Medicine Delivery</a></li>
+                        <li><a href="#">Doctor Consult</a></li>
+                        <li><a href="#">Lab Tests</a></li>
+                        <li><a href="#">Health Care</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-headset" style="color:#4ade80;"></i> +91 **********</li>
+                        <li><i class="fas fa-envelope" style="color:#4ade80;"></i> <a href="/cdn-cgi/l/email-protection"
+                                class="__cf_email__"
+                                data-cfemail="c5a1acbdb1bcb0b3b7a4aff1f085a2a8a4aca9eba6aaa8">[email&#160;protected]</a>
+                        </li>
+                        <li><i class="fas fa-map-marker-alt" style="color:#4ade80;"></i> Greater Noida, UP, India</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MediiQuick . All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Drugs Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+        // ══════════════════════════════════════════════════════════════
+        //  MEDICINE DATABASE — 20 per category + 6 popular
+        // ══════════════════════════════════════════════════════════════
+        const MEDICINES = {
+            fever: [
+                { id: 'f1', name: 'Dolo 650', sub: 'Paracetamol 650mg', price: 25, mrp: 30, trending: true },
+                { id: 'f2', name: 'Calpol 500', sub: 'Paracetamol 500mg', price: 20, mrp: 25 },
+                { id: 'f3', name: 'Combiflam', sub: 'Ibuprofen+Paracetamol', price: 65, mrp: 75, trending: true },
+                { id: 'f4', name: 'Brufen 400', sub: 'Ibuprofen 400mg', price: 35, mrp: 42 },
+                { id: 'f5', name: 'Meftal Spas', sub: 'Mefenamic Acid 250mg', price: 55, mrp: 65 },
+                { id: 'f6', name: 'Voveran 50', sub: 'Diclofenac 50mg', price: 40, mrp: 50 },
+                { id: 'f7', name: 'Aspirin 75', sub: 'Aspirin 75mg', price: 15, mrp: 18 },
+                { id: 'f8', name: 'Nimesulide 100', sub: 'Nimesulide 100mg', price: 22, mrp: 28 },
+                { id: 'f9', name: 'Paracip 500', sub: 'Paracetamol 500mg', price: 18, mrp: 22 },
+                { id: 'f10', name: 'Sumo L', sub: 'Nimesulide+Paracetamol', price: 48, mrp: 55 },
+                { id: 'f11', name: 'Ketorol DT', sub: 'Ketorolac 10mg', price: 72, mrp: 85 },
+                { id: 'f12', name: 'Zerodol P', sub: 'Aceclofenac+Paracetamol', price: 55, mrp: 65 },
+                { id: 'f13', name: 'Nise Gel', sub: 'Nimesulide Gel 1%', price: 120, mrp: 145 },
+                { id: 'f14', name: 'Ibugesic Plus', sub: 'Ibuprofen+Paracetamol', price: 42, mrp: 50 },
+                { id: 'f15', name: 'Dolopar 500', sub: 'Paracetamol 500mg', price: 16, mrp: 20 },
+                { id: 'f16', name: 'Aceclo Plus', sub: 'Aceclofenac 100mg', price: 38, mrp: 45 },
+                { id: 'f17', name: 'Dicloran Plus', sub: 'Diclofenac+Paracetamol', price: 45, mrp: 55 },
+                { id: 'f18', name: 'Flexon', sub: 'Ibuprofen+Paracetamol', price: 50, mrp: 60 },
+                { id: 'f19', name: 'Pirox 20', sub: 'Piroxicam 20mg', price: 30, mrp: 36 },
+                { id: 'f20', name: 'Caldol 650', sub: 'Paracetamol 650mg', price: 22, mrp: 28 },
+            ],
+            allergy: [
+                { id: 'a1', name: 'Cetirizine 10', sub: 'Cetirizine 10mg', price: 30, mrp: 36 },
+                { id: 'a2', name: 'Allegra 120', sub: 'Fexofenadine 120mg', price: 95, mrp: 115, trending: true },
+                { id: 'a3', name: 'Montair LC', sub: 'Montelukast+Levocetirizine', price: 120, mrp: 140 },
+                { id: 'a4', name: 'Atarax 10', sub: 'Hydroxyzine 10mg', price: 55, mrp: 65 },
+                { id: 'a5', name: 'Avil 25', sub: 'Pheniramine 25mg', price: 18, mrp: 22 },
+                { id: 'a6', name: 'Benadryl Syrup', sub: 'Diphenhydramine Syrup', price: 75, mrp: 90 },
+                { id: 'a7', name: 'Loratadine 10', sub: 'Loratadine 10mg', price: 35, mrp: 42 },
+                { id: 'a8', name: 'Zyrtec 5mg', sub: 'Cetirizine 5mg', price: 28, mrp: 33 },
+                { id: 'a9', name: 'Telfast 180', sub: 'Fexofenadine 180mg', price: 110, mrp: 130 },
+                { id: 'a10', name: 'Nasivion Spray', sub: 'Oxymetazoline Nasal', price: 85, mrp: 100 },
+                { id: 'a11', name: 'Flonase Spray', sub: 'Fluticasone Nasal Spray', price: 245, mrp: 285 },
+                { id: 'a12', name: 'Omnacortil 5', sub: 'Prednisolone 5mg', price: 42, mrp: 50 },
+                { id: 'a13', name: 'Reactine 10', sub: 'Cetirizine 10mg', price: 32, mrp: 38 },
+                { id: 'a14', name: 'Cetcip 10', sub: 'Cetirizine 10mg', price: 28, mrp: 34 },
+                { id: 'a15', name: 'Histac 150', sub: 'Ranitidine 150mg', price: 40, mrp: 48 },
+                { id: 'a16', name: 'Deslor 5', sub: 'Desloratadine 5mg', price: 88, mrp: 105 },
+                { id: 'a17', name: 'Novaclor 4', sub: 'Chlorpheniramine 4mg', price: 12, mrp: 15 },
+                { id: 'a18', name: 'Montek LC', sub: 'Montelukast+Levocetirizine', price: 115, mrp: 135 },
+                { id: 'a19', name: 'Betacap Scalp', sub: 'Betamethasone Solution', price: 155, mrp: 185 },
+                { id: 'a20', name: 'Mometasone', sub: 'Mometasone Furoate', price: 195, mrp: 220 },
+            ],
+            heart: [
+                { id: 'h1', name: 'Ecosprin 75', sub: 'Aspirin 75mg (EC)', price: 22, mrp: 28 },
+                { id: 'h2', name: 'Atorva 10', sub: 'Atorvastatin 10mg', price: 75, mrp: 90, trending: true },
+                { id: 'h3', name: 'Telmisartan 40', sub: 'Telmisartan 40mg', price: 60, mrp: 72 },
+                { id: 'h4', name: 'Amlodipine 5', sub: 'Amlodipine 5mg', price: 45, mrp: 55 },
+                { id: 'h5', name: 'Metoprolol 25', sub: 'Metoprolol Succinate 25', price: 85, mrp: 100 },
+                { id: 'h6', name: 'Ramipril 5', sub: 'Ramipril 5mg', price: 68, mrp: 82 },
+                { id: 'h7', name: 'Losartan 50', sub: 'Losartan 50mg', price: 55, mrp: 65 },
+                { id: 'h8', name: 'Clopitab 75', sub: 'Clopidogrel 75mg', price: 90, mrp: 110 },
+                { id: 'h9', name: 'Rosuvas 10', sub: 'Rosuvastatin 10mg', price: 95, mrp: 115 },
+                { id: 'h10', name: 'Nitroglycerin SL', sub: 'Nitroglycerine 0.5mg', price: 35, mrp: 42 },
+                { id: 'h11', name: 'Cardace 2.5', sub: 'Ramipril 2.5mg', price: 58, mrp: 70 },
+                { id: 'h12', name: 'Telma 80', sub: 'Telmisartan 80mg', price: 78, mrp: 95 },
+                { id: 'h13', name: 'Betaloc 50', sub: 'Metoprolol 50mg', price: 72, mrp: 88 },
+                { id: 'h14', name: 'Aztor 20', sub: 'Atorvastatin 20mg', price: 88, mrp: 105 },
+                { id: 'h15', name: 'Sorbitrate 5', sub: 'Isosorbide Dinitrate 5mg', price: 28, mrp: 34 },
+                { id: 'h16', name: 'Cordarone 200', sub: 'Amiodarone 200mg', price: 145, mrp: 170 },
+                { id: 'h17', name: 'Digoxin 0.25', sub: 'Digoxin 0.25mg', price: 32, mrp: 38 },
+                { id: 'h18', name: 'Furosemide 40', sub: 'Furosemide 40mg', price: 25, mrp: 30 },
+                { id: 'h19', name: 'Spironolactone', sub: 'Spironolactone 25mg', price: 48, mrp: 58 },
+                { id: 'h20', name: 'Valsartan 80', sub: 'Valsartan 80mg', price: 92, mrp: 110 },
+            ],
+            brain: [
+                { id: 'b1', name: 'Encorate 200', sub: 'Sodium Valproate 200mg', price: 110, mrp: 130 },
+                { id: 'b2', name: 'Nexito 10', sub: 'Escitalopram 10mg', price: 95, mrp: 115, trending: true },
+                { id: 'b3', name: 'Piracetam 800', sub: 'Piracetam 800mg', price: 55, mrp: 65 },
+                { id: 'b4', name: 'Donep 5', sub: 'Donepezil 5mg', price: 185, mrp: 220 },
+                { id: 'b5', name: 'Sizopin 25', sub: 'Clozapine 25mg', price: 72, mrp: 88 },
+                { id: 'b6', name: 'Librium 10', sub: 'Chlordiazepoxide 10mg', price: 38, mrp: 46 },
+                { id: 'b7', name: 'Clonazepam 0.5', sub: 'Clonazepam 0.5mg', price: 28, mrp: 34 },
+                { id: 'b8', name: 'Pregabalin 75', sub: 'Pregabalin 75mg', price: 98, mrp: 118 },
+                { id: 'b9', name: 'Amitriptyline 10', sub: 'Amitriptyline 10mg', price: 22, mrp: 28 },
+                { id: 'b10', name: 'Olanzapine 5', sub: 'Olanzapine 5mg', price: 125, mrp: 150 },
+                { id: 'b11', name: 'Risperidone 2', sub: 'Risperidone 2mg', price: 108, mrp: 128 },
+                { id: 'b12', name: 'Sertraline 50', sub: 'Sertraline 50mg', price: 88, mrp: 105 },
+                { id: 'b13', name: 'Fluoxetine 20', sub: 'Fluoxetine 20mg', price: 62, mrp: 75 },
+                { id: 'b14', name: 'Veniz XR 75', sub: 'Venlafaxine 75mg', price: 142, mrp: 170 },
+                { id: 'b15', name: 'Gabapentin 300', sub: 'Gabapentin 300mg', price: 75, mrp: 90 },
+                { id: 'b16', name: 'Topamac 25', sub: 'Topiramate 25mg', price: 98, mrp: 118 },
+                { id: 'b17', name: 'Memantine 10', sub: 'Memantine 10mg', price: 165, mrp: 195 },
+                { id: 'b18', name: 'Zolpidem 10', sub: 'Zolpidem 10mg', price: 115, mrp: 138 },
+                { id: 'b19', name: 'Alprazolam 0.25', sub: 'Alprazolam 0.25mg', price: 18, mrp: 22 },
+                { id: 'b20', name: 'Quetiapine 25', sub: 'Quetiapine 25mg', price: 88, mrp: 105 },
+            ],
+            respiratory: [
+                { id: 'r1', name: 'Asthalin 100mcg', sub: 'Salbutamol Inhaler', price: 135, mrp: 160, trending: true },
+                { id: 'r2', name: 'Budecort 200', sub: 'Budesonide Inhaler', price: 285, mrp: 330 },
+                { id: 'r3', name: 'Levolin Inhaler', sub: 'Levosalbutamol', price: 145, mrp: 170 },
+                { id: 'r4', name: 'Montek 10', sub: 'Montelukast 10mg', price: 85, mrp: 100 },
+                { id: 'r5', name: 'Allegra 180', sub: 'Fexofenadine 180mg', price: 115, mrp: 135 },
+                { id: 'r6', name: 'Azee 500', sub: 'Azithromycin 500mg', price: 90, mrp: 110 },
+                { id: 'r7', name: 'Augmentin 625', sub: 'Amoxicillin+Clavulanate', price: 185, mrp: 220 },
+                { id: 'r8', name: 'Doxycycline 100', sub: 'Doxycycline 100mg', price: 48, mrp: 58 },
+                { id: 'r9', name: 'Benadryl DM', sub: 'Dextromethorphan Syrup', price: 78, mrp: 92 },
+                { id: 'r10', name: 'Grilinctus CD', sub: 'Codeine Cough Syrup', price: 85, mrp: 100 },
+                { id: 'r11', name: 'Prospan Syrup', sub: 'Ivy Leaf Extract', price: 155, mrp: 185 },
+                { id: 'r12', name: 'Otrivin Nasal', sub: 'Xylometazoline 0.1%', price: 75, mrp: 90 },
+                { id: 'r13', name: 'Ipravent Inhaler', sub: 'Ipratropium Bromide', price: 245, mrp: 285 },
+                { id: 'r14', name: 'Seroflo 250', sub: 'Salmeterol+Fluticasone', price: 425, mrp: 495 },
+                { id: 'r15', name: 'Deriphyllin', sub: 'Etofylline+Theophylline', price: 28, mrp: 34 },
+                { id: 'r16', name: 'Solvin LS Syrup', sub: 'Ambroxol Syrup', price: 65, mrp: 78 },
+                { id: 'r17', name: 'Chericof Syrup', sub: 'Codeine+Chlorpheniramine', price: 88, mrp: 105 },
+                { id: 'r18', name: 'Moxikind CV 625', sub: 'Amoxicillin+Clavulanate', price: 195, mrp: 230 },
+                { id: 'r19', name: 'Tiova Inhaler', sub: 'Tiotropium Bromide', price: 395, mrp: 455 },
+                { id: 'r20', name: 'Foracort 200', sub: 'Formoterol+Budesonide', price: 355, mrp: 415 },
+            ],
+            bone: [
+                { id: 'bo1', name: 'Uprise D3 60K', sub: 'Vitamin D3 60K IU', price: 125, mrp: 150, trending: true },
+                { id: 'bo2', name: 'Shelcal 500', sub: 'Calcium+Vitamin D3', price: 80, mrp: 95 },
+                { id: 'bo3', name: 'Calcimax Fort', sub: 'Calcium+Magnesium', price: 95, mrp: 115 },
+                { id: 'bo4', name: 'Osteocalcium', sub: 'Calcium Carbonate 500mg', price: 68, mrp: 82 },
+                { id: 'bo5', name: 'Zincovit', sub: 'Multivitamin+Zinc', price: 145, mrp: 170 },
+                { id: 'bo6', name: 'Evion 400', sub: 'Vitamin E 400 IU', price: 48, mrp: 58 },
+                { id: 'bo7', name: 'Proxyvon', sub: 'Propoxyphene', price: 55, mrp: 66 },
+                { id: 'bo8', name: 'Myospaz', sub: 'Chlorzoxazone+Diclofenac', price: 75, mrp: 90 },
+                { id: 'bo9', name: 'Moov Cream', sub: 'Pain Relief Cream', price: 95, mrp: 115 },
+                { id: 'bo10', name: 'Volini Spray', sub: 'Diclofenac Spray', price: 175, mrp: 205 },
+                { id: 'bo11', name: 'Ostocalcium', sub: 'Calcium Syrup', price: 88, mrp: 105 },
+                { id: 'bo12', name: 'Folvite 5mg', sub: 'Folic Acid 5mg', price: 22, mrp: 28 },
+                { id: 'bo13', name: 'Becosules', sub: 'B-Complex Capsules', price: 75, mrp: 90 },
+                { id: 'bo14', name: 'Ibuprofen Gel', sub: 'Ibuprofen 5% Gel', price: 95, mrp: 115 },
+                { id: 'bo15', name: 'Flexura D', sub: 'Methocarbamol+Diclofenac', price: 88, mrp: 105 },
+                { id: 'bo16', name: 'Renerve Plus', sub: 'B1+B6+B12+Alpha Lipoic', price: 145, mrp: 175 },
+                { id: 'bo17', name: 'Calnate D3', sub: 'Calcium+D3+Magnesium', price: 112, mrp: 135 },
+                { id: 'bo18', name: 'Rakshak Gold', sub: 'Calcium Supplement', price: 155, mrp: 185 },
+                { id: 'bo19', name: 'Ostofen 60mg', sub: 'Raloxifene 60mg', price: 245, mrp: 290 },
+                { id: 'bo20', name: 'Alendronate 70', sub: 'Alendronate Sodium 70mg', price: 195, mrp: 230 },
+            ]
+        };
+
+        // Popular = first 6 from different categories
+        const POPULAR = [
+            MEDICINES.fever[0], MEDICINES.allergy[1], MEDICINES.respiratory[5],
+            MEDICINES.bone[0], MEDICINES.allergy[0], MEDICINES.bone[1]
+        ];
+
+        // Medicine image: using placeholder icons based on category
+        const IMG_BASE = 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/';
+        const MED_IMAGES = {
+            'f1': '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
+            'f3': '20230244-5806-43d3-aade-5e017b8b2695.png',
+            'r6': '05b7f467-6d9b-430f-a179-20ceb9c8ec95.png',
+            'bo1': 'b6c2ce53-f43e-47cd-91c1-d4427620e319.png',
+            'a1': '5e13bba1-8727-4c39-87ed-0b73268eca2f.png',
+            'bo2': '3ad15d54-a127-4954-964e-9070e589765e.png',
+        };
+
+        function getMedImg(med) {
+            if (MED_IMAGES[med.id]) return IMG_BASE + MED_IMAGES[med.id];
+            // Generic placeholders by category prefix
+            const cat = med.id.charAt(0);
+            const placeholders = {
+                f: '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
+                a: '5e13bba1-8727-4c39-87ed-0b73268eca2f.png',
+                h: 'b6c2ce53-f43e-47cd-91c1-d4427620e319.png',
+                b: '20230244-5806-43d3-aade-5e017b8b2695.png',
+                r: '05b7f467-6d9b-430f-a179-20ceb9c8ec95.png',
+                'bo': '3ad15d54-a127-4954-964e-9070e589765e.png',
+            };
+            const key = med.id.startsWith('bo') ? 'bo' : cat;
+            return IMG_BASE + (placeholders[key] || '57f027b1-22a8-40e3-86c8-1563b68a175d.png');
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  GLOBAL CART — single source of truth
+        // ══════════════════════════════════════════════════════════════
+        let cart = {};  // { id: {med, qty} }
+
+        function getCartQty(id) { return cart[id] ? cart[id].qty : 0; }
+
+        function addToCart(id) {
+            const med = MEDICINES_FLAT[id];
+            if (!med) return;
+            if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
+            updateAllCartUIs(id);
+            updateCartDrawer();
+            showToast('✓ Added to cart: ' + med.name);
+        }
+
+        function changeQty(id, delta) {
+            if (!cart[id] && delta < 0) return;
+            if (!cart[id]) {
+                const med = MEDICINES_FLAT[id];
+                if (!med) return;
+                cart[id] = { med, qty: 0 };
+            }
+            cart[id].qty = Math.max(0, cart[id].qty + delta);
+            if (cart[id].qty <= 0) { delete cart[id]; }
+            updateAllCartUIs(id);
+            updateCartDrawer();
+        }
+
+        function removeFromCart(id) {
+            delete cart[id];
+            updateAllCartUIs(id);
+            updateCartDrawer();
+        }
+
+        function updateAllCartUIs(id) {
+            document.querySelectorAll(`[data-med-id="${id}"]`).forEach(card => {
+                const qty = getCartQty(id);
+                const addBtn = card.querySelector('.add-btn');
+                const qtyCtrl = card.querySelector('.qty-controls');
+                const qtySpan = card.querySelector('.qty-val');
+                if (qty === 0) {
+                    addBtn.style.display = 'block';
+                    qtyCtrl.classList.remove('show');
+                } else {
+                    addBtn.style.display = 'none';
+                    qtyCtrl.classList.add('show');
+                    if (qtySpan) qtySpan.textContent = qty;
+                }
+            });
+            const totalQty = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cart-badge').textContent = totalQty;
+            document.getElementById('cart-item-count').textContent = totalQty;
+        }
+
+        function updateCartDrawer() {
+            const items = Object.values(cart);
+            const totalQty = items.reduce((s, i) => s + i.qty, 0);
+            const totalPrice = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+
+            document.getElementById('cart-badge').textContent = totalQty;
+            document.getElementById('cart-item-count').textContent = totalQty;
+            document.getElementById('cart-total').textContent = totalPrice;
+
+            const container = document.getElementById('cart-items');
+
+            if (items.length === 0) {
+                container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;">
+        <div style="font-size:3.5rem;margin-bottom:16px;">🛒</div>
+        <p style="font-weight:700;color:#374151;font-size:15px;margin-bottom:6px;">Cart khali hai!</p>
+        <p style="color:#9ca3af;font-size:13px;">Koi medicine add karo</p>
+      </div>`;
+                return;
+            }
+
+            container.innerHTML = items.map(({ med, qty }) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <p style="font-weight:700;font-size:14px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${med.name}</p>
+        <p style="font-size:12px;color:#6b7280;margin-top:2px;">${med.sub}</p>
+        <p style="font-size:12px;color:#6b7280;margin-top:2px;">₹${med.price} × ${qty} = <strong style="color:#16a34a;">₹${med.price * qty}</strong></p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
+        <button onclick="removeFromCart('${med.id}')" style="background:none;border:none;color:#f87171;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;padding:0;">✕ Remove</button>
+        <div style="display:flex;align-items:center;border:2px solid #16a34a;border-radius:8px;overflow:hidden;">
+          <button onclick="changeQtyDrawer('${med.id}',-1)" style="background:#f0fdf4;border:none;width:30px;height:30px;font-size:18px;cursor:pointer;color:#16a34a;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;">−</button>
+          <span style="width:32px;text-align:center;font-weight:700;font-size:14px;color:#1a1a2e;">${qty}</span>
+          <button onclick="changeQtyDrawer('${med.id}',1)" style="background:#f0fdf4;border:none;width:30px;height:30px;font-size:18px;cursor:pointer;color:#16a34a;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;">+</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+        }
+
+        function changeQtyDrawer(id, delta) {
+            changeQty(id, delta);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  RENDER MEDICINE CARD
+        // ══════════════════════════════════════════════════════════════
+        function renderCard(med) {
+            const off = med.mrp ? Math.round((1 - med.price / med.mrp) * 100) : 0;
+            const imgSrc = getMedImg(med);
+            const qty = getCartQty(med.id);
+            return `
+    <div class="med-card" data-med-id="${med.id}">
+      <div class="med-img-wrap">
+        <img src="${imgSrc}" alt="${med.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
+        <span class="badge-30min">30 min</span>
+        ${med.trending ? '<span class="badge-trending">TRENDING</span>' : ''}
+      </div>
+      <div class="med-info">
+        <div class="med-name" title="${med.name}">${med.name}</div>
+        <div class="med-sub" title="${med.sub}">${med.sub}</div>
+        <div class="med-price-row">
+          <div>
+            <span class="med-price">₹${med.price}</span>
+            ${med.mrp ? `<span class="med-mrp">₹${med.mrp}</span>` : ''}
+          </div>
+          ${off > 0 ? `<span class="med-off">${off}% OFF</span>` : ''}
+        </div>
+        <div class="med-actions">
+          <button class="add-btn" data-action="add" data-id="${med.id}"
+            style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
+          <div class="qty-controls ${qty > 0 ? 'show' : ''}">
+            <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
+            <span class="qty-val">${qty > 0 ? qty : 1}</span>
+            <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+        }
+
+        // Flat lookup for all medicines
+        const MEDICINES_FLAT = {};
+        Object.values(MEDICINES).forEach(arr => arr.forEach(m => MEDICINES_FLAT[m.id] = m));
+        POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
+
+        // ══════════════════════════════════════════════════════════════
+        //  CATEGORY SECTION
+        // ══════════════════════════════════════════════════════════════
+        const CAT_NAMES = {
+            fever: 'Fever & Pain', allergy: 'Allergies', heart: 'Heart Care',
+            brain: 'Brain & Nerves', respiratory: 'Respiratory', bone: 'Bone & Joint'
+        };
+        let activeCategory = null;
+
+        function showCategory(cat) {
+            activeCategory = cat;
+            // highlight active cat card
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('cat-' + cat).classList.add('active');
+
+            const meds = MEDICINES[cat];
+            document.getElementById('cat-title-text').textContent = CAT_NAMES[cat] + ' (' + meds.length + ' medicines)';
+            document.getElementById('category-medicines-grid').innerHTML = meds.map(renderCard).join('');
+            document.getElementById('category-section').style.display = 'block';
+            document.getElementById('category-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideCategory() {
+            document.getElementById('category-section').style.display = 'none';
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            activeCategory = null;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SEARCH
+        // ══════════════════════════════════════════════════════════════
+        function searchMedicines() {
+            const q = document.getElementById('medicine-search').value.trim().toLowerCase();
+            if (!q) return;
+            const allMeds = Object.values(MEDICINES_FLAT);
+            const results = allMeds.filter(m =>
+                m.name.toLowerCase().includes(q) || m.sub.toLowerCase().includes(q)
+            );
+            // Remove duplicates
+            const seen = new Set();
+            const unique = results.filter(m => { if (seen.has(m.id)) return false; seen.add(m.id); return true; });
+
+            const sec = document.getElementById('search-results-section');
+            const grid = document.getElementById('search-results-grid');
+            const noRes = document.getElementById('no-results');
+            document.getElementById('search-results-title').textContent = `Search results for "${q}" (${unique.length} found)`;
+
+            if (unique.length === 0) {
+                grid.innerHTML = '';
+                noRes.style.display = 'block';
+            } else {
+                noRes.style.display = 'none';
+                grid.innerHTML = unique.map(renderCard).join('');
+            }
+            sec.style.display = 'block';
+            sec.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearSearch() {
+            document.getElementById('search-results-section').style.display = 'none';
+            document.getElementById('medicine-search').value = '';
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  CART DRAWER
+        // ══════════════════════════════════════════════════════════════
+        function openCart() {
+            updateCartDrawer(); // refresh content first
+            document.getElementById('cartDrawer').classList.add('open');
+            document.getElementById('cartOverlay').classList.add('open');
+        }
+
+        function closeCart() {
+            document.getElementById('cartDrawer').classList.remove('open');
+            document.getElementById('cartOverlay').classList.remove('open');
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  CHECKOUT FLOW
+        // ══════════════════════════════════════════════════════════════
+        let selectedPayMethod = 'upi';
+        let selectedBank = '';
+
+        // ── SAVED ADDRESS HELPERS ──
+        function getSavedAddresses() {
+            try { return JSON.parse(localStorage.getItem('mq_addresses') || '[]'); } catch (e) { return []; }
+        }
+
+        let selectedAddrIndex = -1; // -1 = new address
+
+        function renderAddrPicker() {
+            const addrs = getSavedAddresses();
+            const picker = document.getElementById('savedAddrPicker');
+            const formWrap = document.getElementById('newAddrFormWrap');
+            if (!picker) return;
+
+            if (addrs.length === 0) {
+                picker.innerHTML = '';
+                if (formWrap) formWrap.style.display = 'block';
+                selectedAddrIndex = -1;
+                return;
+            }
+
+            // Render saved address cards
+            let html = '<div style="margin-bottom:10px;font-size:13px;font-weight:600;color:#374151;">📍 Saved Addresses</div>';
+            html += addrs.map((a, i) => `
+                <div onclick="selectAddr(${i})" id="addrOption${i}" style="
+                    border:2px solid ${(a.isDefault && selectedAddrIndex === -1) || selectedAddrIndex === i ? '#16a34a' : '#e5e7eb'};
+                    border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
+                    background:${(a.isDefault && selectedAddrIndex === -1) || selectedAddrIndex === i ? '#f0fdf4' : '#fff'};
+                    transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="background:${(a.isDefault && selectedAddrIndex === -1) || selectedAddrIndex === i ? '#16a34a' : '#6b7280'};color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">${a.type || 'Home'}</span>
+                        ${a.isDefault ? '<span style="font-size:10px;color:#16a34a;font-weight:700;">✅ Default</span>' : ''}
+                    </div>
+                    <div style="font-weight:600;font-size:13px;">${a.name}</div>
+                    <div style="font-size:12px;color:#6b7280;line-height:1.5;">${a.street}${a.landmark ? ', ' + a.landmark : ''}, ${a.city}, ${a.state} - ${a.pin}</div>
+                    <div style="font-size:12px;color:#6b7280;">📞 ${a.phone}</div>
+                </div>`).join('');
+
+            // New address option
+            html += `<div onclick="selectAddr(-1)" id="addrOptionNew" style="
+                border:2px dashed ${selectedAddrIndex === -1 && addrs.length > 0 && !addrs.some(a => a.isDefault) ? '#16a34a' : (selectedAddrIndex === -1 && !addrs.some(a => a.isDefault) ? '#16a34a' : '#d1d5db')};
+                border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
+                text-align:center;color:#16a34a;font-weight:600;font-size:13px;
+                background:${selectedAddrIndex === -2 ? '#f0fdf4' : '#fff'};
+                transition:all 0.2s;">
+                <i class="fas fa-plus"></i> &nbsp; Naya Address Use Karo
+            </div>`;
+
+            picker.innerHTML = html;
+
+            // Set default selection
+            const defIdx = addrs.findIndex(a => a.isDefault);
+            if (selectedAddrIndex === -1 && defIdx >= 0) {
+                selectAddr(defIdx);
+            } else if (selectedAddrIndex >= 0) {
+                selectAddr(selectedAddrIndex);
+            } else {
+                selectAddr(-2); // new address
+            }
+        }
+
+        function selectAddr(index) {
+            const addrs = getSavedAddresses();
+            const formWrap = document.getElementById('newAddrFormWrap');
+            selectedAddrIndex = index;
+
+            // Refresh border styles
+            addrs.forEach((a, i) => {
+                const el = document.getElementById('addrOption' + i);
+                if (el) {
+                    el.style.border = i === index ? '2px solid #16a34a' : '2px solid #e5e7eb';
+                    el.style.background = i === index ? '#f0fdf4' : '#fff';
+                }
+            });
+            const newEl = document.getElementById('addrOptionNew');
+            if (newEl) {
+                newEl.style.border = index === -2 ? '2px dashed #16a34a' : '2px dashed #d1d5db';
+                newEl.style.background = index === -2 ? '#f0fdf4' : '#fff';
+            }
+
+            if (index >= 0 && addrs[index]) {
+                // Fill form with saved address (hidden)
+                const a = addrs[index];
+                if (document.getElementById('addr-name')) document.getElementById('addr-name').value = a.name || '';
+                if (document.getElementById('addr-phone')) document.getElementById('addr-phone').value = a.phone || '';
+                if (document.getElementById('addr-street')) document.getElementById('addr-street').value = a.street || '';
+                if (document.getElementById('addr-city')) document.getElementById('addr-city').value = a.city || '';
+                if (document.getElementById('addr-state')) document.getElementById('addr-state').value = a.state || '';
+                if (document.getElementById('addr-pin')) document.getElementById('addr-pin').value = a.pin || '';
+                if (document.getElementById('addr-type')) document.getElementById('addr-type').value = a.type || 'Home';
+                if (document.getElementById('addr-landmark')) document.getElementById('addr-landmark').value = a.landmark || '';
+                if (formWrap) formWrap.style.display = 'none';
+            } else {
+                // Show new address form
+                ['addr-name', 'addr-phone', 'addr-street', 'addr-city', 'addr-pin', 'addr-landmark'].forEach(id => {
+                    const el = document.getElementById(id); if (el) el.value = '';
+                });
+                if (document.getElementById('addr-state')) document.getElementById('addr-state').value = '';
+                if (document.getElementById('addr-type')) document.getElementById('addr-type').value = 'Home';
+                if (formWrap) formWrap.style.display = 'block';
+            }
+        }
+
+        function handleCheckout() {
+            if (Object.keys(cart).length === 0) { showToast('⚠ Cart khali hai!'); return; }
+            closeCart();
+            buildSummaries();
+            selectedAddrIndex = -1; // reset
+            setStep(1);
+            document.getElementById('coOverlay').classList.add('show');
+            // Render saved address picker
+            setTimeout(() => renderAddrPicker(), 50);
+        }
+        function closeCheckout() { document.getElementById('coOverlay').classList.remove('show'); }
+        function finishOrder() { closeCheckout(); }
+
+        function setStep(n) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById('coStep' + i).classList.toggle('active', i === n);
+                const dot = document.getElementById('dot' + i);
+                if (i < n) { dot.className = 'co-step-dot done'; dot.textContent = '✓'; }
+                else if (i === n) { dot.className = 'co-step-dot active'; dot.textContent = i < 3 ? i : '✓'; }
+                else { dot.className = 'co-step-dot pending'; dot.textContent = i < 3 ? i : '✓'; }
+            });
+            [1, 2].forEach(i => { const l = document.getElementById('line' + i); if (l) l.classList.toggle('done', i < n); });
+            document.getElementById('coProgress').style.display = n === 3 ? 'none' : 'flex';
+        }
+
+        function buildSummaries() {
+            const items = Object.values(cart);
+            const total = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+            const cod = selectedPayMethod === 'cod' ? 20 : 0;
+            const html = `<div class="co-summary-title">Order Summary</div>
+    ${items.map(({ med, qty }) => `<div class="co-summary-item"><span>${med.name} × ${qty}</span><span>₹${med.price * qty}</span></div>`).join('')}
+    <div class="co-summary-item"><span style="color:#16a34a;">Delivery</span><span style="color:#16a34a;">FREE</span></div>
+    ${cod ? `<div class="co-summary-item"><span>COD Charge</span><span>₹${cod}</span></div>` : ''}
+    <div class="co-summary-total"><span>Total Payable</span><span style="color:#16a34a;">₹${total + cod}</span></div>`;
+            const a = document.getElementById('addrSummary'); const b = document.getElementById('paymentSummary');
+            if (a) a.innerHTML = html; if (b) b.innerHTML = html;
+        }
+
+        function goToPayment() {
+            const fields = [
+                { id: 'addr-name', err: 'err-name', test: v => v.trim().length >= 2 },
+                { id: 'addr-phone', err: 'err-phone', test: v => /^[6-9]\d{9}$/.test(v) },
+                { id: 'addr-street', err: 'err-street', test: v => v.trim().length >= 5 },
+                { id: 'addr-city', err: 'err-city', test: v => v.trim().length >= 2 },
+                { id: 'addr-state', err: 'err-state', test: v => v !== '' },
+                { id: 'addr-pin', err: 'err-pin', test: v => /^\d{6}$/.test(v) },
+            ];
+            let valid = true;
+            fields.forEach(({ id, err, test }) => {
+                const el = document.getElementById(id); const em = document.getElementById(err);
+                const ok = test(el.value); el.classList.toggle('err', !ok);
+                if (em) em.classList.toggle('show', !ok); if (!ok) valid = false;
+            });
+            if (!valid) { showToast('⚠ Please fill all fields correctly'); return; }
+            buildSummaries(); setStep(2);
+        }
+        function goToAddress() { setStep(1); }
+
+        function selectPay(m) {
+            selectedPayMethod = m;
+            ['upi', 'card', 'nb', 'wallet', 'cod'].forEach(x => document.getElementById('pay-' + x).classList.toggle('selected', x === m));
+            document.getElementById('upiArea').classList.toggle('show', m === 'upi');
+            document.getElementById('cardArea').classList.toggle('show', m === 'card');
+            document.getElementById('nbArea').classList.toggle('show', m === 'nb');
+            document.getElementById('codArea').style.display = m === 'cod' ? 'block' : 'none';
+            buildSummaries();
+            document.getElementById('payNowBtn').textContent = m === 'cod' ? 'Place Order (COD) →' : 'Pay Now →';
+        }
+        function fillUPI(app) {
+            const map = { gpay: '@okaxis', phonepe: '@ybl', paytm: '@paytm' };
+            const name = (document.getElementById('addr-name').value || 'user').toLowerCase().replace(/\s+/g, '');
+            document.getElementById('upi-id').value = name + map[app];
+        }
+        function verifyUPI() {
+            const v = document.getElementById('upi-id').value.trim();
+            if (!v.includes('@')) { showToast('⚠ Invalid UPI ID'); return; }
+            showToast('✓ UPI ID verified!');
+        }
+        function selectBank(el) {
+            document.querySelectorAll('.bank-item').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected'); selectedBank = el.textContent;
+        }
+        function formatCard(el) { let v = el.value.replace(/\D/g, '').substring(0, 16); el.value = v.replace(/(.{4})/g, '$1 ').trim(); }
+        function formatExp(el) { let v = el.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4); el.value = v; }
+
+        function placeOrder() {
+            // COD = no payment validation needed
+            if (selectedPayMethod !== 'cod') {
+                if (selectedPayMethod === 'upi' && !document.getElementById('upi-id').value.includes('@')) { showToast('UPI ID verify karo'); return; }
+                if (selectedPayMethod === 'card') {
+                    const n = document.getElementById('card-num').value.replace(/\s/g, '');
+                    if (n.length < 16 || !document.getElementById('card-exp').value.includes('/') || document.getElementById('card-cvv').value.length < 3) { showToast('Card details sahi se bharo'); return; }
+                }
+                if (selectedPayMethod === 'nb' && !selectedBank) { showToast('Bank select karo'); return; }
+            }
+            const items = Object.values(cart);
+            const total = items.reduce((s, i) => s + i.med.price * i.qty, 0);
+            const cod = selectedPayMethod === 'cod' ? 20 : 0;
+            const orderId = 'MQ' + Date.now().toString().slice(-8);
+            const addrName = document.getElementById('addr-name').value;
+            const addrPhone = document.getElementById('addr-phone').value;
+            const addrStreet = document.getElementById('addr-street').value;
+            const city = document.getElementById('addr-city').value;
+            const state = document.getElementById('addr-state').value;
+            const pin = document.getElementById('addr-pin').value;
+            const type = document.getElementById('addr-type').value;
+            const landmark = document.getElementById('addr-landmark') ? document.getElementById('addr-landmark').value : '';
+
+            document.getElementById('successAddr').textContent = type + ': ' + addrStreet + ', ' + city + ', ' + state + ' - ' + pin;
+            document.getElementById('orderId').textContent = 'Order ID: ' + orderId + '  •  ' + addrPhone;
+            document.getElementById('successSummary').innerHTML =
+                '<p style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:8px;">Items Ordered</p>' +
+                items.map(function (i) { return '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;"><span>' + i.med.name + ' x ' + i.qty + '</span><span>Rs.' + (i.med.price * i.qty) + '</span></div>'; }).join('') +
+                (cod ? '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:#92400e;"><span>COD Charge</span><span>+Rs.20</span></div>' : '') +
+                '<div style="border-top:1px solid #bbf7d0;margin-top:8px;padding-top:8px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;"><span>Total ' + (selectedPayMethod === 'cod' ? '(Pay on Delivery)' : 'Paid') + '</span><span style="color:#16a34a;">Rs.' + (total + cod) + '</span></div>' +
+                '<p style="font-size:11px;color:#6b7280;margin-top:6px;">Payment: ' + getPayLabel() + '</p>';
+
+            // Save to localStorage so my_order.html can read it
+            try {
+                var orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                orders.unshift({
+                    orderId: orderId,
+                    name: addrName,
+                    city: city,
+                    items: items,
+                    total: total + cod,
+                    codCharge: cod,
+                    payMethod: getPayLabel(),
+                    date: new Date().toLocaleDateString('en-IN'),
+                    placedAt: Date.now(),
+                    status: 'confirmed',
+                    deliveryAddr: { name: addrName, phone: addrPhone, street: addrStreet, city: city, state: state, pin: pin, type: type, landmark: landmark }
+                });
+                localStorage.setItem('mq_orders', JSON.stringify(orders));
+            } catch (e) { }
+
+            cart = {}; updateCartDrawer();
+            document.querySelectorAll('.qty-controls.show').forEach(function (c) { c.classList.remove('show'); var a = c.closest('.med-card') && c.closest('.med-card').querySelector('.add-btn'); if (a) a.style.display = 'block'; });
+            document.getElementById('cart-badge').textContent = '0';
+            document.getElementById('cart-item-count').textContent = '0';
+            setStep(3);
+        }
+        function getPayLabel() { return { upi: 'UPI', card: 'Card', nb: selectedBank + ' Net Banking', wallet: 'Wallet', cod: 'Cash on Delivery' }[selectedPayMethod] || selectedPayMethod; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  TOAST
+        // ══════════════════════════════════════════════════════════════
+        let toastTimer;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  ACCOUNT DROPDOWN
+        // ══════════════════════════════════════════════════════════════
+        document.getElementById('accountBtn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            document.getElementById('accountDropdown').classList.toggle('show');
+        });
+        document.addEventListener('click', function () {
+            document.getElementById('accountDropdown').classList.remove('show');
+        });
+
+        // ══════════════════════════════════════════════════════════════
+        //  LOCATION
+        // ══════════════════════════════════════════════════════════════
+        function changeLocation() {
+            const loc = prompt('Enter your delivery location:');
+            if (loc && loc.trim()) {
+                const loader = document.getElementById('loc-loader');
+                const text = document.getElementById('loc-text');
+                text.textContent = 'Updating...';
+                loader.style.display = 'inline-block';
+                setTimeout(() => { loader.style.display = 'none'; text.textContent = loc.trim(); }, 1000);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SEARCH ENTER KEY
+        // ══════════════════════════════════════════════════════════════
+        document.getElementById('medicine-search').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') searchMedicines();
+        });
+
+        // ══════════════════════════════════════════════════════════════
+        //  INIT — Render popular section
+        // ══════════════════════════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', function () {
+            // Location auto-detect
+            const loader = document.getElementById('loc-loader');
+            const text = document.getElementById('loc-text');
+            loader.style.display = 'inline-block';
+            setTimeout(() => { loader.style.display = 'none'; text.textContent = 'Sector 12, Dwarka, New Delhi'; }, 1500);
+
+            // Init cart empty state
+            updateCartDrawer();
+
+            // Render popular medicines
+            document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
+
+            // ── Event Delegation for all medicine grids ──
+            ['popular-grid', 'category-medicines-grid', 'search-results-grid'].forEach(function (gridId) {
+                const grid = document.getElementById(gridId);
+                if (!grid) return;
+                grid.addEventListener('click', function (e) {
+                    const btn = e.target.closest('[data-action]');
+                    if (!btn) return;
+                    const id = btn.dataset.id;
+                    const action = btn.dataset.action;
+                    if (action === 'add') addToCart(id);
+                    if (action === 'plus') changeQty(id, 1);
+                    if (action === 'minus') changeQty(id, -1);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

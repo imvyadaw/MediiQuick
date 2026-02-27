@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — MediiQuick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .07);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .05);
+      bottom: -100px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo h1 span {
+      color: #4ade80;
+    }
+
+    .header-link {
+      color: rgba(255, 255, 255, .6);
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .header-link:hover {
+      color: #4ade80;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Left panel */
+    .left-panel {
+      width: 40%;
+      background: linear-gradient(155deg, #15803d, #16a34a, #059669);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+      top: -80px;
+      right: -80px;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+      bottom: -60px;
+      left: -60px;
+    }
+
+    .lp-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 20px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .85);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-feat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    /* Right panel */
+    .right-panel {
+      flex: 1;
+      padding: 36px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .rp-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .rp-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 22px;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .form-group label i {
+      color: #16a34a;
+      width: 14px;
+      text-align: center;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+      outline: none;
+      transition: all .2s;
+    }
+
+    .input-wrap input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
+    }
+
+    .input-wrap input.err {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .pw-toggle:hover {
+      color: #374151;
+    }
+
+    .err-msg {
+      font-size: 11px;
+      color: #ef4444;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .err-msg.show {
+      display: flex;
+    }
+
+    /* Password strength */
+    .pw-bars {
+      display: flex;
+      gap: 4px;
+      height: 3px;
+      margin: 6px 0 2px;
+    }
+
+    .pw-bar {
+      flex: 1;
+      border-radius: 4px;
+      background: #e2e8f0;
+      transition: background .3s;
+    }
+
+    .pw-bar.weak {
+      background: #ef4444;
+    }
+
+    .pw-bar.medium {
+      background: #f59e0b;
+    }
+
+    .pw-bar.strong {
+      background: #16a34a;
+    }
+
+    .pw-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    /* Terms */
+    .check-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 10px 0 4px;
+    }
+
+    .check-group input[type=checkbox] {
+      width: 15px;
+      height: 15px;
+      margin-top: 2px;
+      accent-color: #16a34a;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .check-group label {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .check-group label a {
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .check-group label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit btn */
+    .submit-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .submit-btn:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn.loading {
+      pointer-events: none;
+      opacity: .8;
+    }
+
+    .btn-spinner {
+      width: 17px;
+      height: 17px;
+      border: 2px solid rgba(255, 255, 255, .4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .btn-spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .bottom-link {
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 14px;
+    }
+
+    .bottom-link a {
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Success */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .success-screen.show {
+      display: block;
+    }
+
+    .tick-wrap {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 2.2rem;
+      animation: popIn .5s cubic-bezier(.175, .885, .32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-screen h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .success-screen p {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .goto-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .goto-btn:hover {
+      background: #15803d;
+    }
+
+    .goto-btn.sec {
+      background: #f1f5f9;
+      color: #374151;
+    }
+
+    .goto-btn.sec:hover {
+      background: #e2e8f0;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+      color: #fff;
+      background: #0f172a;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.t-success {
+      background: #16a34a;
+    }
+
+    #toast.t-error {
+      background: #ef4444;
+    }
+
+    /* ── RESPONSIVE (Mobile) ── */
+    @media(max-width:700px) {
+      .header {
+        padding: 14px 16px;
+      }
+
+      .left-panel {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 28px 22px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        border-radius: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toast"><span id="toast-msg"></span></div>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img
+        src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+        alt="MediiQuick">
+      <h1>Medii<span>Quick</span></h1>
+    </a>
+    <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  </header>
+
+  <main class="main">
+    <div class="card">
+
+      <!-- Left Panel (Desktop only) -->
+      <div class="left-panel">
+        <div class="lp-icon">💊</div>
+        <h2>Join MediiQuick!</h2>
+        <p>India's fastest medicine delivery — <strong>30 minutes</strong> to your doorstep!</p>
+        <div class="lp-features">
+          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed delivery</div>
+          <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
+          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
+          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+
+        <!-- Form -->
+        <div id="formWrap">
+          <div class="rp-title">👤 Create Account</div>
+          <br>
+          <div class="form-grid">
+            <div class="form-group">
+              <label><i class="fas fa-user"></i> First Name *</label>
+              <div class="input-wrap">
+                <input type="text" id="fname" placeholder="Yuvraj">
+              </div>
+              <span class="err-msg" id="err-fname"><i class="fas fa-circle-exclamation"></i> Required</span>
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-user"></i> Last Name *</label>
+              <div class="input-wrap">
+                <input type="text" id="lname" placeholder="Dixit">
+              </div>
+              <span class="err-msg" id="err-lname"><i class="fas fa-circle-exclamation"></i> Required</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-envelope"></i> Email Address *</label>
+            <div class="input-wrap">
+              <input type="email" id="email" placeholder="you@email.com">
+            </div>
+            <span class="err-msg" id="err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-phone"></i> Mobile Number *</label>
+            <div class="input-wrap">
+              <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10">
+            </div>
+            <span class="err-msg" id="err-mobile"><i class="fas fa-circle-exclamation"></i> Valid 10-digit number
+              required</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Password *</label>
+            <div class="input-wrap">
+              <input type="password" id="password" placeholder="Min 8 characters" oninput="checkStrength(this.value)">
+              <button class="pw-toggle" onclick="togglePw('password',this)" type="button"><i
+                  class="fas fa-eye"></i></button>
+            </div>
+            <div id="pwStrength" style="display:none;">
+              <div class="pw-bars">
+                <div class="pw-bar" id="b1"></div>
+                <div class="pw-bar" id="b2"></div>
+                <div class="pw-bar" id="b3"></div>
+                <div class="pw-bar" id="b4"></div>
+              </div>
+              <div class="pw-label" id="pwLabel">Weak</div>
+            </div>
+            <span class="err-msg" id="err-pass"><i class="fas fa-circle-exclamation"></i> Min 8 chars, ek number
+              zaroor</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-lock-open"></i> Confirm Password *</label>
+            <div class="input-wrap">
+              <input type="password" id="cpassword" placeholder="Re-enter password">
+              <button class="pw-toggle" onclick="togglePw('cpassword',this)" type="button"><i
+                  class="fas fa-eye"></i></button>
+            </div>
+            <span class="err-msg" id="err-cpass"><i class="fas fa-circle-exclamation"></i> Passwords match nahi
+              karte</span>
+          </div>
+
+          <div class="check-group">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">
+              I agree to the <a href="#">Terms of Service</a> and
+              <a href="#">Privacy Policy</a>
+            </label>
+          </div>
+          <span class="err-msg" id="err-terms"><i class="fas fa-circle-exclamation"></i> Terms accept karo</span>
+
+          <button class="submit-btn" id="createBtn" onclick="createAccount()">
+            <div class="btn-spinner"></div>
+            <span class="btn-text"><i class="fas fa-user-plus"></i> Create Account</span>
+          </button>
+
+          <div class="bottom-link">Already have an account? <a href="login.html">Login here</a></div>
+        </div>
+
+        <!-- Success -->
+        <div class="success-screen" id="successScreen">
+          <div class="tick-wrap">✓</div>
+          <h3>Account Ban Gaya! 🎉</h3>
+          <p>Welcome to MediiQuick, <strong id="successName">User</strong>!<br>Ab aap medicines order kar sakte ho.</p>
+          <button class="goto-btn" onclick="window.location.href='index.html'">🏠 Go to Home</button>
+          <button class="goto-btn sec" onclick="window.location.href='login.html'">Login karo →</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const icon = btn.querySelector('i');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+    }
+
+    function checkStrength(val) {
+      const wrap = document.getElementById('pwStrength');
+      if (!val) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/\d/.test(val)) score++;
+      if (/[!@#$%^&*]/.test(val)) score++;
+      const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
+      const labels = ['Weak', 'Fair', 'Good', 'Strong ✓'];
+      const cls = ['weak', 'weak', 'medium', 'strong'];
+      [1, 2, 3, 4].forEach(i => {
+        const b = document.getElementById('b' + i);
+        b.className = 'pw-bar';
+        if (i <= score) b.classList.add(cls[score - 1] || 'weak');
+      });
+      document.getElementById('pwLabel').textContent = labels[score - 1] || 'Weak';
+      document.getElementById('pwLabel').style.color = colors[score - 1] || '#ef4444';
+    }
+
+    function createAccount() {
+      let valid = true;
+
+      function chk(id, errId, testFn) {
+        const el = document.getElementById(id);
+        const em = document.getElementById(errId);
+        const ok = testFn(el.value.trim());
+        el.classList.toggle('err', !ok);
+        if (em) em.classList.toggle('show', !ok);
+        if (!ok) valid = false;
+      }
+
+      chk('fname', 'err-fname', v => v.length >= 2);
+      chk('lname', 'err-lname', v => v.length >= 2);
+      chk('email', 'err-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+      chk('mobile', 'err-mobile', v => /^[6-9]\d{9}$/.test(v));
+
+      const pass = document.getElementById('password').value;
+      const passOk = pass.length >= 8 && /\d/.test(pass);
+      document.getElementById('password').classList.toggle('err', !passOk);
+      document.getElementById('err-pass').classList.toggle('show', !passOk);
+      if (!passOk) valid = false;
+
+      const conf = document.getElementById('cpassword').value;
+      const confOk = conf === pass && conf.length > 0;
+      document.getElementById('cpassword').classList.toggle('err', !confOk);
+      document.getElementById('err-cpass').classList.toggle('show', !confOk);
+      if (!confOk) valid = false;
+
+      const terms = document.getElementById('terms').checked;
+      document.getElementById('err-terms').classList.toggle('show', !terms);
+      if (!terms) valid = false;
+
+      if (!valid) { showToast('⚠ Kuch fields sahi se bharo', 'error'); return; }
+
+      const btn = document.getElementById('createBtn');
+      btn.classList.add('loading');
+      btn.querySelector('.btn-text').style.opacity = '.6';
+
+      setTimeout(() => {
+        const user = {
+          name: document.getElementById('fname').value.trim() + ' ' + document.getElementById('lname').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          mobile: document.getElementById('mobile').value.trim(),
+          password: pass,
+        };
+        try { sessionStorage.setItem('mq_user', JSON.stringify(user)); } catch (e) { }
+
+        document.getElementById('formWrap').style.display = 'none';
+        document.getElementById('successName').textContent = user.name.split(' ')[0];
+        document.getElementById('successScreen').classList.add('show');
+      }, 1600);
+    }
+
+    document.getElementById('mobile').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
+      document.getElementById('toast-msg').textContent = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+    }
+  </script>
+</body>
+
+</html>

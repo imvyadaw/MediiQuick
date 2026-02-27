@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediiQuick | Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --green-light: #f0fdf4;
+      --green-border: #bbf7d0;
+      --green2: #dcfce7;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --white: #fff;
+      --bg: #f5f7fa;
+      --card: #fff;
+      --shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      --radius: 14px;
+      --red: #dc2626;
+      --orange: #f59e0b;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--white);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .logo h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .admin-chip .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .4;
+      }
+    }
+
+    .header-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-btn:hover {
+      background: var(--green-dark);
+    }
+
+    /* ── SIDEBAR + LAYOUT ── */
+    .layout {
+      display: flex;
+      flex: 1;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: var(--white);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, .06);
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: sticky;
+      top: 65px;
+      height: calc(100vh - 65px);
+      overflow-y: auto;
+    }
+
+    @media(max-width:768px) {
+      .sidebar {
+        display: none;
+      }
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #4b5563;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all .2s;
+    }
+
+    .nav-item:hover {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .nav-item.active {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .nav-item i {
+      width: 16px;
+      text-align: center;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: #dc2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 12px 14px 4px;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-title i {
+      color: var(--green);
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-green:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--green);
+      border: 1.5px solid var(--green-border);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-outline:hover {
+      background: var(--green-light);
+    }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media(max-width:900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width:500px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform .2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.green {
+      background: #dcfce7;
+      color: var(--green);
+    }
+
+    .stat-icon.blue {
+      background: #dbeafe;
+      color: var(--blue);
+    }
+
+    .stat-icon.orange {
+      background: #fef3c7;
+      color: var(--orange);
+    }
+
+    .stat-icon.purple {
+      background: #f3e8ff;
+      color: var(--purple);
+    }
+
+    .stat-info .label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .stat-info .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-info .sub {
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: var(--green);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media(max-width:700px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media(max-width:800px) {
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      background: var(--green-light);
+    }
+
+    th {
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--green);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    /* ── STATUS BADGES ── */
+    .badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-confirmed {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .badge-packing {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-on_the_way {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .badge-delivered {
+      background: #bbf7d0;
+      color: #15803d;
+    }
+
+    .badge-cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .badge-pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .badge-processing {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-low {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .badge-ok {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .form-input {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .form-select {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media(max-width:500px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── ACTION BTNS ── */
+    .act-btn {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .act-edit {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .act-edit:hover {
+      background: #bfdbfe;
+    }
+
+    .act-del {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .act-del:hover {
+      background: #fecaca;
+    }
+
+    .act-view {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .act-view:hover {
+      background: var(--green-border);
+    }
+
+    .act-update {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .act-update:hover {
+      background: #fde68a;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+      animation: slideUp .25s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-box.wide {
+      max-width: 620px;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--red);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-cancel {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--green);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-save:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-danger {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--green);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(22, 163, 74, .35);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: #dc2626;
+    }
+
+    .toast.warning {
+      background: #f59e0b;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 180px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      margin-bottom: 8px;
+      transition: all .2s;
+    }
+
+    .quick-btn.green {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .quick-btn.green:hover {
+      background: var(--green-border);
+    }
+
+    .quick-btn.blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .quick-btn.blue:hover {
+      background: #bfdbfe;
+    }
+
+    .quick-btn.orange {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .quick-btn.orange:hover {
+      background: #fde68a;
+    }
+
+    /* ── LOW STOCK PROGRESS ── */
+    .stock-bar {
+      height: 6px;
+      background: #f3f4f6;
+      border-radius: 3px;
+      margin-top: 4px;
+    }
+
+    .stock-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+    }
+
+    .stock-fill.low {
+      background: #dc2626;
+    }
+
+    .stock-fill.mid {
+      background: #f59e0b;
+    }
+
+    /* ── ANALYTICS ── */
+    .rev-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+
+    .rev-row:last-child {
+      border: none;
+    }
+
+    .growth-up {
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    .growth-down {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    /* ── ORDER DETAIL ── */
+    .detail-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 110px;
+    }
+
+    .detail-val {
+      color: var(--text);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty i {
+      font-size: 40px;
+      color: var(--green-border);
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    /* ── PROFILE SECTION ── */
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+      font-weight: 700;
+      margin: 0 auto 12px;
+    }
+
+    .profile-name {
+      text-align: center;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .profile-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* mobile nav */
+    .mob-nav {
+      display: none;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 16px;
+      overflow-x: auto;
+    }
+
+    @media(max-width:768px) {
+      .mob-nav {
+        display: flex;
+        gap: 6px;
+      }
+    }
+
+    .mob-nav-btn {
+      white-space: nowrap;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .mob-nav-btn.active {
+      background: var(--green);
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
+        <h1>Medii<span>Quick</span></h1>
+      </a>
+      <div class="header-right">
+        <div class="admin-chip"><span class="dot"></span><span id="headerPharmacyName">Pharmacy Admin</span></div>
+        <button class="header-btn" onclick="showView('profile')">
+          <i class="fas fa-user-cog"></i> Profile
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav -->
+  <div class="mob-nav" id="mobNav">
+    <button class="mob-nav-btn active" onclick="showView('dashboard',this)"><i class="fas fa-th-large"></i>
+      Dashboard</button>
+    <button class="mob-nav-btn" onclick="showView('medicines',this)"><i class="fas fa-pills"></i> Medicines</button>
+    <button class="mob-nav-btn" onclick="showView('orders',this)"><i class="fas fa-box"></i> Orders</button>
+    <button class="mob-nav-btn" onclick="showView('analytics',this)"><i class="fas fa-chart-bar"></i> Analytics</button>
+    <button class="mob-nav-btn" onclick="showView('profile',this)"><i class="fas fa-user"></i> Profile</button>
+  </div>
+
+  <!-- ══ LAYOUT ══ -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+        <i class="fas fa-th-large"></i> Dashboard
+      </button>
+      <button class="nav-item" id="nav-medicines" onclick="showView('medicines')">
+        <i class="fas fa-pills"></i> Medicines
+        <span class="nav-badge" id="lowBadge" style="display:none;background:var(--orange);"></span>
+      </button>
+      <button class="nav-item" id="nav-orders" onclick="showView('orders')">
+        <i class="fas fa-box-open"></i> Orders
+        <span class="nav-badge" id="pendingBadge" style="display:none;"></span>
+      </button>
+      <div class="nav-section-label">Reports</div>
+      <button class="nav-item" id="nav-analytics" onclick="showView('analytics')">
+        <i class="fas fa-chart-bar"></i> Analytics
+      </button>
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" id="nav-profile" onclick="showView('profile')">
+        <i class="fas fa-user-cog"></i> Profile
+      </button>
+      <button class="nav-item" onclick="handleLogout()" style="color:#dc2626;margin-top:auto;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ════ DASHBOARD ════ -->
+      <div id="view-dashboard" class="view active">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-th-large"></i> Dashboard Overview</div>
+          <button class="btn-green" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-pills"></i></div>
+            <div class="stat-info">
+              <div class="label">Total Medicines</div>
+              <div class="value" id="statMeds">0</div>
+              <div class="sub" id="statLow">0 low stock</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-box-open"></i></div>
+            <div class="stat-info">
+              <div class="label">Total Orders</div>
+              <div class="value" id="statOrders">0</div>
+              <div class="sub" id="statPending">0 pending</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <div class="label">Customers</div>
+              <div class="value" id="statCustomers">0</div>
+              <div class="sub">Unique buyers</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-rupee-sign"></i></div>
+            <div class="stat-info">
+              <div class="label">Revenue</div>
+              <div class="value" id="statRevenue">₹0</div>
+              <div class="sub">Delivered orders</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px;">
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-title"><span><i class="fas fa-bolt"></i> Quick Actions</span></div>
+            <button class="quick-btn green" onclick="showView('medicines');openAddMedModal()">
+              <i class="fas fa-plus-circle"></i> Add New Medicine
+            </button>
+            <button class="quick-btn blue" onclick="showView('orders')">
+              <i class="fas fa-eye"></i> View All Orders
+            </button>
+            <button class="quick-btn orange" onclick="showView('analytics')">
+              <i class="fas fa-chart-bar"></i> View Analytics
+            </button>
+          </div>
+
+          <!-- Recent Orders -->
+          <div class="card">
+            <div class="card-title">
+              <span><i class="fas fa-history"></i> Recent Orders</span>
+              <button class="btn-outline" onclick="showView('orders')" style="font-size:12px;padding:5px 12px;">View
+                All</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrdersTbl"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Low Stock Alert -->
+        <div class="card">
+          <div class="card-title"><span><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Low Stock
+              Alert</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Medicine</th>
+                  <th>Stock</th>
+                  <th>Level</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="lowStockTbl"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ MEDICINES ════ -->
+      <div id="view-medicines" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-pills"></i> Medicine Management</div>
+          <button class="btn-green" onclick="openAddMedModal()"><i class="fas fa-plus"></i> Add Medicine</button>
+        </div>
+        <div class="card">
+          <div class="search-bar">
+            <input class="search-input" id="medSearch" placeholder="🔍 Medicine name search karo..."
+              oninput="renderMedicines()" />
+            <select class="form-select" id="medStockFilter" onchange="renderMedicines()" style="width:auto;">
+              <option value="all">All Stock</option>
+              <option value="low">Low Stock (&lt;10)</option>
+              <option value="ok">In Stock</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Medicine Name</th>
+                  <th>Quantity</th>
+                  <th>Price (₹)</th>
+                  <th>Stock Level</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="medTbl"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ ORDERS ════ -->
+      <div id="view-orders" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-box-open"></i> Order Management</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select class="form-select" id="orderStatusFilter" onchange="renderOrders()" style="width:auto;">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="packing">Packing</option>
+              <option value="on_the_way">On the Way</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="search-bar">
+            <input class="search-input" id="orderSearch" placeholder="🔍 Order ID ya customer name..."
+              oninput="renderOrders()" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Address</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orderTbl"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ ANALYTICS ════ -->
+      <div id="view-analytics" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-chart-bar"></i> Sales Analytics</div>
+        </div>
+        <!-- Analytics stats -->
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <div class="label">Delivered</div>
+              <div class="value" id="anDelivered">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+              <div class="label">Active Orders</div>
+              <div class="value" id="anActive">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+              <div class="label">Cancelled</div>
+              <div class="value" id="anCancelled">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-percent"></i></div>
+            <div class="stat-info">
+              <div class="label">Success Rate</div>
+              <div class="value" id="anRate">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Top Medicines -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-trophy"></i> Top Selling Medicines</div>
+            <div id="topMedsList"></div>
+          </div>
+          <!-- Revenue -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-rupee-sign"></i> Revenue Summary</div>
+            <div id="revSummary"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ PROFILE ════ -->
+      <div id="view-profile" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-user-cog"></i> Pharmacy Profile</div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="profile-avatar" id="profileInitial">P</div>
+            <div class="profile-name" id="profileName">Pharmacy</div>
+            <div class="profile-sub" id="profileLicense">License: —</div>
+            <hr style="margin:16px 0;border-color:#f3f4f6;" />
+            <form id="pharmacyForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Pharmacy Name</label>
+                  <input class="form-input" id="pName" placeholder="Pharmacy name" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Owner Name</label>
+                  <input class="form-input" id="pOwner" placeholder="Owner name" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Address</label>
+                <input class="form-input" id="pAddress" placeholder="Full address" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Phone</label>
+                  <input class="form-input" id="pPhone" type="tel" placeholder="+91 XXXXXXXXXX" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input class="form-input" id="pEmail" type="email" placeholder="email@pharmacy.com" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">License Number</label>
+                <input class="form-input" id="pLicense" placeholder="PHARM123456" />
+              </div>
+              <button type="button" class="btn-green" onclick="savePharmacyProfile()" style="width:100%;">
+                <i class="fas fa-save"></i> Save Changes
+              </button>
+            </form>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-title"><i class="fas fa-shield-alt"></i> Account Settings</div>
+              <button class="quick-btn green" onclick="openModal('pwModal')">
+                <i class="fas fa-lock"></i> Change Password
+              </button>
+              <button class="quick-btn blue" onclick="showToast('Notification settings coming soon!','warning')">
+                <i class="fas fa-bell"></i> Notifications
+              </button>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="fas fa-info-circle"></i> Admin Info</div>
+              <div style="font-size:13px;color:var(--muted);line-height:2;">
+                <div>👤 Login successful as Admin</div>
+                <div>🔑 Role: <strong style="color:var(--green);">Pharmacy Admin</strong></div>
+                <div>🏥 MediiQuick Partner</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══ TOAST ══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ══ ADD/EDIT MEDICINE MODAL ══ -->
+  <div class="modal-overlay" id="medModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="medModalTitle">Medicine Add Karo</div>
+        <button class="modal-close" onclick="closeModal('medModal')">✕</button>
+      </div>
+      <input type="hidden" id="medEditId" value="" />
+      <div class="form-group">
+        <label class="form-label">Medicine Name *</label>
+        <input class="form-input" id="medName" placeholder="e.g. Paracetamol 500mg" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Quantity *</label>
+          <input class="form-input" id="medQty" type="number" min="0" placeholder="e.g. 100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (₹) *</label>
+          <input class="form-input" id="medPrice" type="number" min="0" step="0.01" placeholder="e.g. 50" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('medModal')">Cancel</button>
+        <button class="btn-save" onclick="saveMedicine()">Save Medicine</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DELETE CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="delModal">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-head">
+      <div class="modal-title" style="color:#dc2626;">⚠️ Confirm Delete</div>
+      <button class="modal-close" onclick="closeModal('delModal')">✕</button>
+    </div>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px;">
+      Are you sure you want to delete <strong id="delMedName"></strong>?
+    </p>
+
+    <p style="font-size:12px;color:#dc2626;">
+      This action cannot be undone.
+    </p>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('delModal')">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ══ ORDER DETAIL MODAL ══ -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <div class="modal-title">📦 Order Details</div>
+        <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+      </div>
+      <div id="orderDetailContent"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('orderModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ UPDATE STATUS MODAL ══ -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal-box" style="max-width:360px;">
+      <div class="modal-head">
+        <div class="modal-title">Update Status</div>
+        <button class="modal-close" onclick="closeModal('statusModal')">✕</button>
+      </div>
+      <input type="hidden" id="statusOrderId" />
+      <div class="form-group">
+        <label class="form-label">
+          New status for Order <span id="statusOrderLabel"></span>
+        </label>
+        <select class="form-select" id="newStatusSelect">
+          <option value="pending">⏳ Pending</option>
+          <option value="confirmed">📋 Confirmed</option>
+          <option value="packing">📦 Packing</option>
+          <option value="on_the_way">🚴 On the Way</option>
+          <option value="delivered">✅ Delivered</option>
+          <option value="cancelled">❌ Cancelled</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('statusModal')">Cancel</button>
+        <button class="btn-save" onclick="confirmStatusUpdate()">Update Status</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ══ RESTOCK MODAL ══ -->
+  <div class="modal-overlay" id="restockModal">
+    <div class="modal-box" style="max-width:360px;">
+      <div class="modal-head">
+        <div class="modal-title">📦 Restock</div>
+        <button class="modal-close" onclick="closeModal('restockModal')">✕</button>
+      </div>
+      <input type="hidden" id="restockMedId" />
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">
+        How many units would you like to add to <strong id="restockMedName"></strong>?
+      </p>
+      <div class="form-group">
+        <label class="form-label">Add Quantity</label>
+        <input class="form-input" id="restockQty" type="number" min="1" value="20" placeholder="e.g. 50" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('restockModal')">Cancel</button>
+        <button class="btn-save" onclick="confirmRestock()">Restock</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ══ PASSWORD MODAL ══ -->
+  <div class="modal-overlay" id="pwModal">
+    <div class="modal-box" style="max-width:360px;">
+      <div class="modal-head">
+        <div class="modal-title">🔒 Change Password</div>
+        <button class="modal-close" onclick="closeModal('pwModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input class="form-input" id="pw1" type="password" placeholder="Minimum 6 characters" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-input" id="pw2" type="password" placeholder="Re-enter password" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('pwModal')">Cancel</button>
+        <button class="btn-save" onclick="changePassword()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════
+    //  DATA
+    // ══════════════════════════════════════════════════
+    let medicines = [];
+    let pendingDeleteId = null;
+
+    const SAMPLE_MEDICINES = [
+      { id: 1, name: 'Paracetamol 500mg', quantity: 120, price: 18 },
+      { id: 2, name: 'Dolo 650', quantity: 80, price: 25 },
+      { id: 3, name: 'Ibuprofen 400mg', quantity: 5, price: 35 },
+      { id: 4, name: 'Combiflam', quantity: 60, price: 65 },
+      { id: 5, name: 'Cetirizine 10mg', quantity: 3, price: 18 },
+      { id: 6, name: 'Azithromycin 500mg', quantity: 40, price: 105 },
+      { id: 7, name: 'Metformin 500mg', quantity: 90, price: 22 },
+      { id: 8, name: 'Atorvastatin 10mg', quantity: 7, price: 55 },
+      { id: 9, name: 'Amlodipine 5mg', quantity: 70, price: 38 },
+      { id: 10, name: 'Omeprazole 20mg', quantity: 2, price: 45 },
+    ];
+
+    // Load medicines from localStorage or use sample
+    function loadMedicines() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+        medicines = saved.length ? saved : SAMPLE_MEDICINES;
+      } catch (e) { medicines = SAMPLE_MEDICINES; }
+    }
+    function saveMedicinesLS() {
+      localStorage.setItem('mq_admin_medicines', JSON.stringify(medicines));
+    }
+
+    // Load orders from localStorage (from user orders)
+    function loadOrders() {
+      try { return JSON.parse(localStorage.getItem('mq_orders') || '[]'); } catch (e) { return []; }
+    }
+    function saveOrdersLS(orders) {
+      localStorage.setItem('mq_orders', JSON.stringify(orders));
+    }
+
+    // Load pharmacy profile
+    function loadProfile() {
+      try { return JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}'); } catch (e) { return {}; }
+    }
+
+    // ══════════════════════════════════════════════════
+    //  NAVIGATION
+    // ══════════════════════════════════════════════════
+    function showView(name, mobBtn) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('view-' + name).classList.add('active');
+      const nb = document.getElementById('nav-' + name);
+      if (nb) nb.classList.add('active');
+
+      // Mobile nav
+      if (mobBtn) {
+        document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+        mobBtn.classList.add('active');
+      }
+
+      // Refresh data for view
+      if (name === 'dashboard') renderDashboard();
+      if (name === 'medicines') renderMedicines();
+      if (name === 'orders') renderOrders();
+      if (name === 'analytics') renderAnalytics();
+      if (name === 'profile') renderProfile();
+    }
+
+    // ══════════════════════════════════════════════════
+    //  DASHBOARD
+    // ══════════════════════════════════════════════════
+    function renderDashboard() {
+      const orders = loadOrders();
+      const lowCount = medicines.filter(m => m.quantity < 10).length;
+      const pendingCount = orders.filter(o => ['pending', 'confirmed', 'packing', 'on_the_way'].includes(o.status)).length;
+      const revenue = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
+      const customers = new Set(orders.map(o => o.name || o.customer || 'Unknown')).size;
+
+      document.getElementById('statMeds').textContent = medicines.length;
+      document.getElementById('statLow').textContent = lowCount + ' low stock';
+      document.getElementById('statOrders').textContent = orders.length;
+      document.getElementById('statPending').textContent = pendingCount + ' active';
+      document.getElementById('statCustomers').textContent = customers;
+      document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+
+      // Badges
+      const lb = document.getElementById('lowBadge');
+      if (lowCount > 0) { lb.style.display = 'inline-block'; lb.textContent = lowCount; } else lb.style.display = 'none';
+      const pb = document.getElementById('pendingBadge');
+      if (pendingCount > 0) { pb.style.display = 'inline-block'; pb.textContent = pendingCount; } else pb.style.display = 'none';
+
+      // Recent orders
+      const recentTbl = document.getElementById('recentOrdersTbl');
+      const recent = [...orders].sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0)).slice(0, 5);
+      if (recent.length === 0) {
+        recentTbl.innerHTML = '<tr><td colspan="4" class="empty"><i class="fas fa-inbox"></i> Koi order nahi</td></tr>';
+      } else {
+        recentTbl.innerHTML = recent.map(o => `
+      <tr>
+        <td><strong>${o.orderId || ('#' + o.id)}</strong></td>
+        <td>${o.name || o.customer || 'Guest'}</td>
+        <td><strong style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</strong></td>
+        <td>${statusBadge(o.status)}</td>
+      </tr>`).join('');
+      }
+
+      // Low stock
+      const lowTbl = document.getElementById('lowStockTbl');
+      const lowMeds = medicines.filter(m => m.quantity < 10);
+      if (lowMeds.length === 0) {
+        lowTbl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);">✅ Koi low stock medicine nahi!</td></tr>';
+      } else {
+        lowTbl.innerHTML = lowMeds.map(m => {
+          const pct = Math.min(100, (m.quantity / 10) * 100);
+          return `<tr>
+        <td><strong>${m.name}</strong></td>
+        <td><span style="color:#dc2626;font-weight:700;">${m.quantity}</span> units</td>
+        <td>
+          <div class="stock-bar"><div class="stock-fill low" style="width:${pct}%;"></div></div>
+          <span style="font-size:11px;color:var(--muted);">${m.quantity}/10 min</span>
+        </td>
+        <td><button class="act-btn act-view" onclick="openRestockModal(${m.id})">📦 Restock</button></td>
+      </tr>`;
+        }).join('');
+      }
+    }
+
+    // ══════════════════════════════════════════════════
+    //  MEDICINES
+    // ══════════════════════════════════════════════════
+    function renderMedicines() {
+      const q = (document.getElementById('medSearch')?.value || '').toLowerCase();
+      const sf = document.getElementById('medStockFilter')?.value || 'all';
+      let list = medicines.filter(m => {
+        const matchQ = m.name.toLowerCase().includes(q);
+        const matchS = sf === 'all' || (sf === 'low' && m.quantity < 10) || (sf === 'ok' && m.quantity >= 10);
+        return matchQ && matchS;
+      });
+
+      const tbl = document.getElementById('medTbl');
+      if (list.length === 0) {
+        tbl.innerHTML = '<tr><td colspan="6" class="empty"><i class="fas fa-pills"></i> Koi medicine nahi mili</td></tr>';
+        return;
+      }
+      tbl.innerHTML = list.map((m, i) => {
+        const low = m.quantity < 10;
+        const pct = Math.min(100, (m.quantity / 100) * 100);
+        return `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${m.name}</strong></td>
+      <td>${m.quantity}</td>
+      <td>₹${m.price}</td>
+      <td>
+        <span class="badge ${low ? 'badge-low' : 'badge-ok'}">${low ? '⚠ Low' : '✅ OK'}</span>
+        <div class="stock-bar" style="margin-top:4px;width:80px;">
+          <div class="stock-fill ${low ? 'low' : m.quantity < 30 ? 'mid' : ''}" style="width:${pct}%;"></div>
+        </div>
+      </td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="act-btn act-edit" onclick="openEditMedModal(${m.id})">✏️ Edit</button>
+        <button class="act-btn act-del" onclick="openDeleteModal(${m.id})">🗑️ Del</button>
+        ${low ? `<button class="act-btn act-view" onclick="openRestockModal(${m.id})">📦</button>` : ''}
+      </td>
+    </tr>`;
+      }).join('');
+    }
+
+    function openAddMedModal() {
+      document.getElementById('medModalTitle').textContent = 'Naya Medicine Add Karo';
+      document.getElementById('medEditId').value = '';
+      document.getElementById('medName').value = '';
+      document.getElementById('medQty').value = '';
+      document.getElementById('medPrice').value = '';
+      openModal('medModal');
+    }
+
+    function openEditMedModal(id) {
+      const m = medicines.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('medModalTitle').textContent = 'Medicine Edit Karo';
+      document.getElementById('medEditId').value = id;
+      document.getElementById('medName').value = m.name;
+      document.getElementById('medQty').value = m.quantity;
+      document.getElementById('medPrice').value = m.price;
+      openModal('medModal');
+    }
+
+    function saveMedicine() {
+      const name = document.getElementById('medName').value.trim();
+      const qty = parseInt(document.getElementById('medQty').value);
+      const price = parseFloat(document.getElementById('medPrice').value);
+      if (!name || isNaN(qty) || qty < 0 || isNaN(price) || price < 0) {
+        showToast('⚠️ Sab fields sahi se bharo!', 'error'); return;
+      }
+      const editId = document.getElementById('medEditId').value;
+      if (editId) {
+        const m = medicines.find(x => x.id === parseInt(editId));
+        if (m) { m.name = name; m.quantity = qty; m.price = price; }
+        showToast('✅ Medicine update ho gayi!');
+      } else {
+        const newId = medicines.length ? Math.max(...medicines.map(x => x.id)) + 1 : 1;
+        medicines.push({ id: newId, name, quantity: qty, price });
+        showToast('✅ Medicine add ho gayi!');
+      }
+      saveMedicinesLS();
+      closeModal('medModal');
+      renderMedicines();
+      renderDashboard();
+    }
+
+    function openDeleteModal(id) {
+      const m = medicines.find(x => x.id === id);
+      if (!m) return;
+      pendingDeleteId = id;
+      document.getElementById('delMedName').textContent = m.name;
+      openModal('delModal');
+    }
+
+    function confirmDelete() {
+      medicines = medicines.filter(m => m.id !== pendingDeleteId);
+      saveMedicinesLS();
+      closeModal('delModal');
+      renderMedicines();
+      renderDashboard();
+      showToast('🗑️ Medicine delete ho gayi!');
+      pendingDeleteId = null;
+    }
+
+    function openRestockModal(id) {
+      const m = medicines.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('restockMedId').value = id;
+      document.getElementById('restockMedName').textContent = m.name;
+      document.getElementById('restockQty').value = 20;
+      openModal('restockModal');
+    }
+
+    function confirmRestock() {
+      const id = parseInt(document.getElementById('restockMedId').value);
+      const qty = parseInt(document.getElementById('restockQty').value);
+      if (isNaN(qty) || qty <= 0) { showToast('⚠️ Valid quantity do!', 'error'); return; }
+      const m = medicines.find(x => x.id === id);
+      if (!m) return;
+      m.quantity += qty;
+      saveMedicinesLS();
+      closeModal('restockModal');
+      renderMedicines();
+      renderDashboard();
+      showToast(`✅ ${m.name} mein ${qty} units add ho gayi! New stock: ${m.quantity}`);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  ORDERS
+    // ══════════════════════════════════════════════════
+    function statusBadge(s) {
+      const map = {
+        pending: 'badge-pending', confirmed: 'badge-confirmed', packing: 'badge-packing',
+        on_the_way: 'badge-on_the_way', delivered: 'badge-delivered', cancelled: 'badge-cancelled',
+        processing: 'badge-processing'
+      };
+      const labels = {
+        pending: '⏳ Pending', confirmed: '📋 Confirmed', packing: '📦 Packing',
+        on_the_way: '🚴 On the Way', delivered: '✅ Delivered', cancelled: '❌ Cancelled',
+        processing: '🔄 Processing'
+      };
+      const cls = map[s] || 'badge-pending';
+      return `<span class="badge ${cls}">${labels[s] || s}</span>`;
+    }
+
+    function renderOrders() {
+      const orders = loadOrders();
+      const q = (document.getElementById('orderSearch')?.value || '').toLowerCase();
+      const sf = document.getElementById('orderStatusFilter')?.value || 'all';
+
+      let list = orders.filter(o => {
+        const matchQ = !q || (o.orderId || '').toLowerCase().includes(q) || (o.name || '').toLowerCase().includes(q);
+        const matchS = sf === 'all' || o.status === sf;
+        return matchQ && matchS;
+      }).sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0));
+
+      const tbl = document.getElementById('orderTbl');
+      if (list.length === 0) {
+        tbl.innerHTML = '<tr><td colspan="9" class="empty"><i class="fas fa-box-open"></i> Koi order nahi mila</td></tr>';
+        return;
+      }
+      tbl.innerHTML = list.map(o => {
+        const items = (o.items || []).map(i => `${i.med?.name || i.name}×${i.qty}`).join(', ') || '—';
+        const addr = o.deliveryAddr ? `${o.deliveryAddr.city || ''}` : (o.city || '—');
+        return `<tr>
+      <td><strong>${o.orderId || '—'}</strong></td>
+      <td>${o.name || o.customer || 'Guest'}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${items}">${items}</td>
+      <td><strong style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</strong></td>
+      <td>${addr}</td>
+      <td>${o.payMethod || '—'}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:11px;">${o.date || '—'}</td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap;">
+        <button class="act-btn act-view" onclick="viewOrderDetail('${o.orderId}')">👁</button>
+        <button class="act-btn act-update" onclick="openStatusModal('${o.orderId}','${o.status}')">✏️</button>
+      </td>
+    </tr>`;
+      }).join('');
+    }
+
+    function viewOrderDetail(orderId) {
+      const orders = loadOrders();
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      const items = (o.items || []).map(i => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6;"><span>${i.med?.name || i.name} × ${i.qty}</span><span>₹${(i.med?.price || 0) * i.qty}</span></div>`).join('');
+      const addr = o.deliveryAddr;
+      document.getElementById('orderDetailContent').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Order ID:</span><span class="detail-val"><strong>${o.orderId}</strong></span></div>
+    <div class="detail-row"><span class="detail-label">Customer:</span><span class="detail-val">${o.name || 'Guest'}</span></div>
+    <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-val">${statusBadge(o.status)}</span></div>
+    <div class="detail-row"><span class="detail-label">Payment:</span><span class="detail-val">${o.payMethod || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Date:</span><span class="detail-val">${o.date || '—'}</span></div>
+    ${addr ? `<div class="detail-row"><span class="detail-label">Address:</span><span class="detail-val">${addr.street}, ${addr.city}, ${addr.state} - ${addr.pin}</span></div>
+    <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-val">${addr.phone || '—'}</span></div>` : ''}
+    <hr style="margin:12px 0;border-color:#f3f4f6;"/>
+    <div style="font-weight:700;margin-bottom:8px;font-size:13px;">Items Ordered:</div>
+    ${items}
+    <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;border-top:2px solid var(--green-border);margin-top:4px;">
+      <span>Total</span><span style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</span>
+    </div>`;
+      openModal('orderModal');
+    }
+
+    function openStatusModal(orderId, currentStatus) {
+      document.getElementById('statusOrderId').value = orderId;
+      document.getElementById('statusOrderLabel').textContent = orderId;
+      document.getElementById('newStatusSelect').value = currentStatus;
+      openModal('statusModal');
+    }
+
+    function confirmStatusUpdate() {
+      const orderId = document.getElementById('statusOrderId').value;
+      const newStatus = document.getElementById('newStatusSelect').value;
+      const orders = loadOrders();
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      o.status = newStatus;
+      saveOrdersLS(orders);
+      closeModal('statusModal');
+      renderOrders();
+      renderDashboard();
+      showToast(`✅ Order ${orderId} status → ${newStatus}`);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  ANALYTICS
+    // ══════════════════════════════════════════════════
+    function renderAnalytics() {
+      const orders = loadOrders();
+      const delivered = orders.filter(o => o.status === 'delivered').length;
+      const cancelled = orders.filter(o => o.status === 'cancelled').length;
+      const active = orders.filter(o => ['pending', 'confirmed', 'packing', 'on_the_way'].includes(o.status)).length;
+      const total = orders.length;
+      const rate = total ? Math.round((delivered / total) * 100) : 0;
+
+      document.getElementById('anDelivered').textContent = delivered;
+      document.getElementById('anActive').textContent = active;
+      document.getElementById('anCancelled').textContent = cancelled;
+      document.getElementById('anRate').textContent = rate + '%';
+
+      // Top medicines (count from orders)
+      const medCount = {};
+      orders.forEach(o => (o.items || []).forEach(i => {
+        const n = i.med?.name || i.name || '?';
+        medCount[n] = (medCount[n] || 0) + (i.qty || 1);
+      }));
+      const sorted = Object.entries(medCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const maxVal = sorted[0]?.[1] || 1;
+      document.getElementById('topMedsList').innerHTML = sorted.length ? sorted.map(([n, c], i) => `
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span>${i + 1}. ${n}</span><strong>${c} units</strong>
+      </div>
+      <div class="stock-bar"><div class="stock-fill" style="width:${(c / maxVal) * 100}%;"></div></div>
+    </div>`).join('') : '<div class="empty"><i class="fas fa-chart-bar"></i> Order data nahi hai</div>';
+
+      // Revenue summary
+      const revDelivered = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
+      const revTotal = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
+      const codOrders = orders.filter(o => o.payMethod?.includes('Cash') || o.payMethod?.includes('COD'));
+      document.getElementById('revSummary').innerHTML = `
+    <div class="rev-row"><span>💰 Total Revenue (Delivered)</span><strong style="color:var(--green);">₹${revDelivered.toLocaleString('en-IN')}</strong></div>
+    <div class="rev-row"><span>📦 Expected Revenue (All Active)</span><strong>₹${revTotal.toLocaleString('en-IN')}</strong></div>
+    <div class="rev-row"><span>🏦 Total Orders</span><strong>${total}</strong></div>
+    <div class="rev-row"><span>✅ Delivered Orders</span><strong style="color:var(--green);">${delivered}</strong></div>
+    <div class="rev-row"><span>❌ Cancelled Orders</span><strong style="color:#dc2626;">${cancelled}</strong></div>
+    <div class="rev-row"><span>💵 COD Orders</span><strong>${codOrders.length}</strong></div>
+    <div class="rev-row"><span>📈 Success Rate</span><strong style="color:var(--green);">${rate}%</strong></div>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    //  PROFILE
+    // ══════════════════════════════════════════════════
+    function renderProfile() {
+      const p = loadProfile();
+      const name = p.name || 'MediiQuick Pharmacy';
+      document.getElementById('profileInitial').textContent = name.charAt(0).toUpperCase();
+      document.getElementById('profileName').textContent = name;
+      document.getElementById('profileLicense').textContent = 'License: ' + (p.license || '—');
+      document.getElementById('headerPharmacyName').textContent = name;
+      document.getElementById('pName').value = p.name || '';
+      document.getElementById('pOwner').value = p.owner || '';
+      document.getElementById('pAddress').value = p.address || '';
+      document.getElementById('pPhone').value = p.phone || '';
+      document.getElementById('pEmail').value = p.email || '';
+      document.getElementById('pLicense').value = p.license || '';
+    }
+
+    function savePharmacyProfile() {
+      const p = {
+        name: document.getElementById('pName').value.trim(),
+        owner: document.getElementById('pOwner').value.trim(),
+        address: document.getElementById('pAddress').value.trim(),
+        phone: document.getElementById('pPhone').value.trim(),
+        email: document.getElementById('pEmail').value.trim(),
+        license: document.getElementById('pLicense').value.trim(),
+      };
+      localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
+      document.getElementById('headerPharmacyName').textContent = p.name || 'Pharmacy Admin';
+      renderProfile();
+      showToast('✅ Profile save ho gayi!');
+    }
+
+    function changePassword() {
+      const p1 = document.getElementById('pw1').value;
+      const p2 = document.getElementById('pw2').value;
+      if (!p1 || p1.length < 6) { showToast('⚠️ Password 6+ characters ka hona chahiye!', 'error'); return; }
+      if (p1 !== p2) { showToast('⚠️ Passwords match nahi karte!', 'error'); return; }
+      // Save to admin storage
+      const adminData = JSON.parse(localStorage.getItem('mediiquickAdmin') || '{}');
+      adminData.password = p1;
+      localStorage.setItem('mediiquickAdmin', JSON.stringify(adminData));
+      document.getElementById('pw1').value = '';
+      document.getElementById('pw2').value = '';
+      closeModal('pwModal');
+      showToast('✅ Password update ho gaya!');
+    }
+
+    function handleLogout() {
+      if (confirm('Admin logout karna chahte ho?')) {
+        localStorage.removeItem('mediiquickAdmin');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // ══════════════════════════════════════════════════
+    //  MODAL UTILS
+    // ══════════════════════════════════════════════════
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(ov => {
+      ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+    });
+
+    // ══════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (type ? ' ' + type : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  REFRESH
+    // ══════════════════════════════════════════════════
+    function refreshAll() {
+      loadMedicines();
+      renderDashboard();
+      showToast('🔄 Data refresh ho gaya!');
+    }
+
+    // ══════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════
+    loadMedicines();
+    renderDashboard();
+    renderProfile();
+
+    // Auto refresh every 30 sec
+    setInterval(() => {
+      const activeView = document.querySelector('.view.active')?.id;
+      if (activeView === 'view-dashboard') renderDashboard();
+      if (activeView === 'view-orders') renderOrders();
+    }, 30000);
+  </script>
+</body>
+
+</html>
