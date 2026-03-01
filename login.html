@@ -781,7 +781,7 @@
           </div>
 
           <div class="bottom-link">
-            Account nahi hai? <a href="signupuser.html">Create Account</a>
+            Don't have an account? <a href="signupuser.html">Create Account</a>
           </div>
         </div>
 
@@ -840,11 +840,11 @@
       if (type === 'admin') {
         document.querySelector('.lp-icon').textContent = '🏥';
         document.querySelector('.left-panel h2').textContent = 'Admin Portal';
-        document.querySelector('.left-panel p').textContent = 'Apni pharmacy manage karo — orders, inventory, delivery sab ek jagah.';
+        document.querySelector('.left-panel p').textContent = 'Manage your pharmacy — orders, inventory, and delivery all in one place.';
       } else {
         document.querySelector('.lp-icon').textContent = '💊';
         document.querySelector('.left-panel h2').textContent = 'Welcome Back!';
-        document.querySelector('.left-panel p').innerHTML = 'MediiQuick — aapki medicines <strong>30 minutes</strong> mein doorstep pe!';
+        document.querySelector('.left-panel p').innerHTML = 'MediiQuick — your medicines delivered in <strong>30 minutes</strong>!';
       }
     }
 
@@ -872,25 +872,31 @@
       document.getElementById('u-pass').classList.toggle('err', !passOk);
       if (!passOk) valid = false;
 
-      if (!valid) { showToast('⚠ Sahi details daalo', 'error'); return; }
+      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('userLoginBtn', true);
 
       setTimeout(() => {
         setLoading('userLoginBtn', false);
-        // Check saved user from sessionStorage
         try {
-          const saved = JSON.parse(sessionStorage.getItem('mq_user') || 'null');
-          if (saved && saved.email === email && saved.password === pass) {
+          const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
+          const matched = users.find(u => u.email === email && u.password === pass);
+          if (matched) {
+            localStorage.setItem('mq_user', JSON.stringify(matched));
             showToast('✓ Login successful!', 'success');
             setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
             return;
           }
-        } catch (e) { }
-        // Default demo login
-        showToast('✓ Login successful!', 'success');
-        setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
-      }, 1600);
+          const emailExists = users.find(u => u.email === email);
+          if (emailExists) {
+            showToast('⚠ Incorrect password. Please try again.', 'error');
+          } else {
+            showToast('⚠ No account found with this email.', 'error');
+          }
+        } catch (e) {
+          showToast('⚠ Login failed. Please try again.', 'error');
+        }
+      }, 1200);
     }
 
     // ── Admin Login ──
@@ -909,15 +915,32 @@
       document.getElementById('a-pass').classList.toggle('err', !passOk);
       if (!passOk) valid = false;
 
-      if (!valid) { showToast('⚠ Sahi details daalo', 'error'); return; }
+      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('adminLoginBtn', true);
 
       setTimeout(() => {
         setLoading('adminLoginBtn', false);
-        showToast('✓ Admin login successful!', 'success');
-        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
-      }, 1600);
+        try {
+          const saved = JSON.parse(localStorage.getItem('mq_admin') || 'null');
+          if (!saved) {
+            showToast('⚠ No admin account found. Please register first.', 'error');
+            return;
+          }
+          const idMatch = (saved.email === id || saved.adminId === id.toUpperCase());
+          if (idMatch && saved.password === pass) {
+            localStorage.setItem('mq_admin_session', JSON.stringify(saved));
+            showToast('✓ Admin login successful!', 'success');
+            setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
+          } else if (idMatch) {
+            showToast('⚠ Incorrect password.', 'error');
+          } else {
+            showToast('⚠ No admin account found with this ID or email.', 'error');
+          }
+        } catch (e) {
+          showToast('⚠ Login failed. Please try again.', 'error');
+        }
+      }, 1200);
     }
 
     // ── Social Login ──
@@ -941,7 +964,7 @@
     function sendReset() {
       const email = document.getElementById('forgot-email').value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('⚠ Valid email daalo', 'error'); return;
+        showToast('⚠ Please enter a valid email', 'error'); return;
       }
       closeForgot();
       showToast('📧 Reset link sent to ' + email, 'success');

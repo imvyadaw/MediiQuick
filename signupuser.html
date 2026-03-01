@@ -672,7 +672,7 @@
               <div class="pw-label" id="pwLabel">Weak</div>
             </div>
             <span class="err-msg" id="err-pass"><i class="fas fa-circle-exclamation"></i> Min 8 chars, ek number
-              zaroor</span>
+              required</span>
           </div>
 
           <div class="form-group">
@@ -693,7 +693,7 @@
               <a href="#">Privacy Policy</a>
             </label>
           </div>
-          <span class="err-msg" id="err-terms"><i class="fas fa-circle-exclamation"></i> Terms accept karo</span>
+          <span class="err-msg" id="err-terms"><i class="fas fa-circle-exclamation"></i> Please accept the Terms</span>
 
           <button class="submit-btn" id="createBtn" onclick="createAccount()">
             <div class="btn-spinner"></div>
@@ -706,10 +706,10 @@
         <!-- Success -->
         <div class="success-screen" id="successScreen">
           <div class="tick-wrap">✓</div>
-          <h3>Account Ban Gaya! 🎉</h3>
-          <p>Welcome to MediiQuick, <strong id="successName">User</strong>!<br>Ab aap medicines order kar sakte ho.</p>
+          <h3>Account Created! 🎉</h3>
+          <p>Welcome to MediiQuick, <strong id="successName">User</strong>!<br>You can now start ordering medicines.</p>
           <button class="goto-btn" onclick="window.location.href='index.html'">🏠 Go to Home</button>
-          <button class="goto-btn sec" onclick="window.location.href='login.html'">Login karo →</button>
+          <button class="goto-btn sec" onclick="window.location.href='login.html'">Go to Login →</button>
         </div>
 
       </div>
@@ -778,7 +778,7 @@
       document.getElementById('err-terms').classList.toggle('show', !terms);
       if (!terms) valid = false;
 
-      if (!valid) { showToast('⚠ Kuch fields sahi se bharo', 'error'); return; }
+      if (!valid) { showToast('⚠ Please fill all fields correctly', 'error'); return; }
 
       const btn = document.getElementById('createBtn');
       btn.classList.add('loading');
@@ -791,7 +791,13 @@
           mobile: document.getElementById('mobile').value.trim(),
           password: pass,
         };
-        try { sessionStorage.setItem('mq_user', JSON.stringify(user)); } catch (e) { }
+        try {
+          const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
+          const filtered = users.filter(u => u.email !== user.email);
+          filtered.push(user);
+          localStorage.setItem('mq_users', JSON.stringify(filtered));
+          localStorage.setItem('mq_user', JSON.stringify(user));
+        } catch (e) { }
 
         document.getElementById('formWrap').style.display = 'none';
         document.getElementById('successName').textContent = user.name.split(' ')[0];

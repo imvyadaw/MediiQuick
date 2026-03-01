@@ -875,8 +875,9 @@
         <div class="success-screen" id="successScreen">
           <div class="tick-wrap">✓</div>
           <h3>Registration Successful! 🎉</h3>
-          <p>Aapki application MediiQuick team ke paas bhej di gayi hai.<br>Review ke baad aapko <strong>24-48
-              hours</strong> mein email aayegi.</p>
+          <p>Your application has been submitted to the MediiQuick team.<br>You will receive a response within
+            <strong>24-48
+              hours</strong>.</p>
           <div class="success-id">
             <span>Your Admin ID</span>
             <strong id="genAdminId">ADMIN-000000</strong>
@@ -982,7 +983,7 @@
         if (!verify) valid = false;
       }
 
-      if (!valid) showToast('⚠ Kuch fields sahi se bharo');
+      if (!valid) showToast('⚠ Please fill all fields correctly');
       return valid;
     }
 
@@ -1017,8 +1018,9 @@
 
       console.log('✅ Admin Registered:', data);
 
-      // Save to sessionStorage
-      try { sessionStorage.setItem('mq_admin', JSON.stringify(data)); } catch (e) { }
+      // Save to localStorage so admin login can validate credentials
+      const adminData = { ...data, password: document.getElementById('password').value };
+      try { localStorage.setItem('mq_admin', JSON.stringify(adminData)); } catch (e) { }
 
       // Show success
       ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
