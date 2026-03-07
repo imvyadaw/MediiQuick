@@ -796,7 +796,7 @@
             </a>
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search from 20 medicines...">
+                <input type="text" placeholder="Search medicines...">
             </div>
             <div class="header-right">
                 <a href="all-medicines.html" class="back-btn"><i class="fas fa-pills"></i> Order Medicines</a>
@@ -804,7 +804,7 @@
             </div>
         </div>
     </header>
-    <!-- ---IM_VYADAW--- -->
+
     <main>
         <div class="page-title">My Orders 📦</div>
         <div class="page-sub">Track your medicines — delivered in 30 minutes ⚡</div>
@@ -876,8 +876,6 @@
 
         function getMed(id) { return ALL_MEDS.find(m => m.id === id) || {}; }
 
-        // Auto-advance status based on time since order placed
-        // 0–2 min = confirmed, 2–5 min = packing, 5–25 min = on_the_way, 25+ min = delivered
         function getStatus(order) {
             const min = (Date.now() - order.placedAt) / 60000;
             if (min < 2) return 'confirmed';
@@ -939,46 +937,46 @@
                 const done = i < sc.activeStep;
                 const active = i === sc.activeStep;
                 return `<div class="t-step ${done ? 'done' : active ? 'active' : ''}">
-        <div class="t-icon">${done ? '✓' : s.icon}</div>
-        <div class="t-label">${s.label}</div>
-      </div>`;
+                    <div class="t-icon">${done ? '✓' : s.icon}</div>
+                    <div class="t-label">${s.label}</div>
+                </div>`;
             }).join('');
 
             let etaBoxHTML = '';
             if (status === 'delivered') {
                 etaBoxHTML = `<div class="eta-box" style="background:#f0fdf4;border-color:#bbf7d0;">
-        <div class="eta-icon">✅</div>
-        <div>
-          <div class="eta-label" style="color:#15803d;">DELIVERED SUCCESSFULLY</div>
-          <div class="eta-time" style="color:#15803d;">In just 27 mins! ⚡</div>
-        </div>
-      </div>`;
+                    <div class="eta-icon">✅</div>
+                    <div>
+                        <div class="eta-label" style="color:#15803d;">DELIVERED SUCCESSFULLY</div>
+                        <div class="eta-time" style="color:#15803d;">In just 27 mins! ⚡</div>
+                    </div>
+                </div>`;
             } else {
                 etaBoxHTML = `<div class="eta-box" style="background:${sc.etaBg};border-color:${sc.etaBorder};">
-        <div class="eta-icon">${sc.etaIcon}</div>
-        <div>
-          <div class="eta-label" style="color:${sc.etaColor};">⏱ ${sc.etaLabel}</div>
-          <div class="eta-time" id="eta-${order.orderId}" style="color:${sc.etaColor};">${getEtaText(order)}</div>
-          <div class="eta-addr">📍 ${addrStr}</div>
-        </div>
-      </div>`;
+                    <div class="eta-icon">${sc.etaIcon}</div>
+                    <div>
+                        <div class="eta-label" style="color:${sc.etaColor};">⏱ ${sc.etaLabel}</div>
+                        <div class="eta-time" id="eta-${order.orderId}" style="color:${sc.etaColor};">${getEtaText(order)}</div>
+                        <div class="eta-addr">📍 ${addrStr}</div>
+                    </div>
+                </div>`;
             }
 
             const itemsHTML = items.map(({ med, qty }) => {
                 const m = getMed(med.id);
                 const off = Math.round((1 - (med.price / (m.mrp || med.price * 1.25))) * 100);
                 return `<div class="med-item">
-        <div class="med-img">💊<span class="med-off">${off}%</span></div>
-        <div class="med-info">
-          <div class="med-name">${med.name}</div>
-          <div class="med-sub">${m.sub || med.sub || ''}</div>
-        </div>
-        <div class="med-price">
-          <div class="curr">₹${med.price * qty}</div>
-          <div class="orig">₹${(m.mrp || Math.round(med.price * 1.25)) * qty}</div>
-          <div class="qty">Qty: ${qty}</div>
-        </div>
-      </div>`;
+                    <div class="med-img">💊<span class="med-off">${off}%</span></div>
+                    <div class="med-info">
+                        <div class="med-name">${med.name}</div>
+                        <div class="med-sub">${m.sub || med.sub || ''}</div>
+                    </div>
+                    <div class="med-price">
+                        <div class="curr">₹${med.price * qty}</div>
+                        <div class="orig">₹${(m.mrp || Math.round(med.price * 1.25)) * qty}</div>
+                        <div class="qty">Qty: ${qty}</div>
+                    </div>
+                </div>`;
             }).join('');
 
             let actionsHTML = '';
@@ -991,36 +989,36 @@
             }
 
             return `<div class="order-card" data-status="${status === 'delivered' ? 'delivered' : 'active'}">
-      <div class="order-top">
-        <div class="order-meta">
-          <span class="order-id-tag">${order.orderId}</span>
-          <div class="order-date">Placed: <strong>${timeStr}</strong></div>
-        </div>
-        <span class="badge ${sc.badge}"><span class="badge-dot"></span> ${sc.label}</span>
-      </div>
-      <div class="order-body">
-        <div class="order-left">
-          <div class="section-label">💊 Medicines Ordered</div>
-          ${itemsHTML}
-        </div>
-        <div class="order-right">
-          <div class="section-label">📍 Order Tracking</div>
-          ${etaBoxHTML}
-          <div class="tracker-steps">${stepsHTML}</div>
-          <div class="section-label">💰 Price Details</div>
-          <div class="price-box">
-            <div class="price-row"><span>MRP Total</span><span>₹${mrpTotal}</span></div>
-            <div class="price-row"><span>Discount</span><span class="save">-₹${Math.max(0, discount)}</span></div>
-            <div class="price-row"><span>Delivery</span><span class="save">FREE</span></div>
-            <div class="price-row total"><span>Amount Paid</span><span>₹${total}</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="order-actions">
-        <div class="order-total-tag">Total: <strong>₹${total}</strong> · ${order.payMethod || 'Paid'}</div>
-        <div class="action-btns">${actionsHTML}</div>
-      </div>
-    </div>`;
+                <div class="order-top">
+                    <div class="order-meta">
+                        <span class="order-id-tag">${order.orderId}</span>
+                        <div class="order-date">Placed: <strong>${timeStr}</strong></div>
+                    </div>
+                    <span class="badge ${sc.badge}"><span class="badge-dot"></span> ${sc.label}</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-left">
+                        <div class="section-label">💊 Medicines Ordered</div>
+                        ${itemsHTML}
+                    </div>
+                    <div class="order-right">
+                        <div class="section-label">📍 Order Tracking</div>
+                        ${etaBoxHTML}
+                        <div class="tracker-steps">${stepsHTML}</div>
+                        <div class="section-label">💰 Price Details</div>
+                        <div class="price-box">
+                            <div class="price-row"><span>MRP Total</span><span>₹${mrpTotal}</span></div>
+                            <div class="price-row"><span>Discount</span><span class="save">-₹${Math.max(0, discount)}</span></div>
+                            <div class="price-row"><span>Delivery</span><span class="${order.codCharge > 0 ? '' : 'save'}">${order.codCharge > 0 ? '+₹' + order.codCharge + ' (COD)' : 'FREE'}</span></div>
+                            <div class="price-row total"><span>Amount Paid</span><span>₹${total}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <div class="order-total-tag">Total: <strong>₹${total}</strong> · ${order.payMethod || 'Paid'}</div>
+                    <div class="action-btns">${actionsHTML}</div>
+                </div>
+            </div>`;
         }
 
         function renderAll() {
@@ -1044,13 +1042,22 @@
 
             const list = document.getElementById('ordersList');
             if (filtered.length === 0) {
-                const msgs = { all: 'Koi order nahi abhi tak', active: 'Koi active order nahi', delivered: 'Koi delivered order nahi' };
+                const msgs = {
+                    all: 'No orders yet',
+                    active: 'No active orders',
+                    delivered: 'No delivered orders'
+                };
+                const subs = {
+                    all: 'Place your first order and get medicines in 30 minutes!',
+                    active: 'You have no orders in progress right now.',
+                    delivered: 'Your completed orders will appear here.'
+                };
                 list.innerHTML = `<div class="empty-state">
-        <div class="ei">📋</div>
-        <h3>${msgs[currentTab]}</h3>
-        <p>Medicines order karo aur 30 minutes mein paao!</p>
-        <a href="all-medicines.html" class="shop-btn">💊 Order Medicines Now</a>
-      </div>`;
+                    <div class="ei">📋</div>
+                    <h3>${msgs[currentTab]}</h3>
+                    <p>${subs[currentTab]}</p>
+                    <a href="all-medicines.html" class="shop-btn">💊 Order Medicines Now</a>
+                </div>`;
                 return;
             }
 
@@ -1067,18 +1074,18 @@
         }
 
         function cancelOrder(orderId) {
-            if (!confirm('Order cancel karna chahte hain?')) return;
+            if (!confirm('Are you sure you want to cancel this order?')) return;
             try {
                 let stored = JSON.parse(localStorage.getItem('mq_orders') || '[]');
                 stored = stored.filter(o => o.orderId !== orderId);
                 localStorage.setItem('mq_orders', JSON.stringify(stored));
-                showToast('✓ Order cancel ho gaya!');
+                showToast('✓ Order cancelled successfully!');
                 renderAll();
             } catch (e) { }
         }
 
         function reorder(orderId) {
-            showToast('🛒 Medicines cart mein jaoge...');
+            showToast('🛒 Taking you to medicines...');
             setTimeout(() => window.location.href = 'all-medicines.html', 1200);
         }
 
@@ -1091,10 +1098,8 @@
             toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
         }
 
-        // Initial render
         renderAll();
 
-        // Update ETA timers every second (lightweight)
         setInterval(() => {
             loadOrders();
             orders.forEach(order => {
@@ -1103,7 +1108,6 @@
             });
         }, 1000);
 
-        // Full re-render every 30 seconds to advance status badges
         setInterval(renderAll, 30000);
     </script>
 </body>
