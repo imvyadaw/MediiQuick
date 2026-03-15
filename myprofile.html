@@ -1180,6 +1180,13 @@
   </div>
 
   <script>
+    // ── USER AUTH GUARD ──
+    (function() {
+      if (!localStorage.getItem('mq_user')) {
+        window.location.href = 'login.html';
+      }
+    })();
+
     // ══════════════════════════════════════════════════════
     //  LOAD USER DATA FROM LOCALSTORAGE
     // ══════════════════════════════════════════════════════
@@ -1187,8 +1194,7 @@
 
     function loadUser() {
       try {
-        // Try mediiquckUser (from signup)
-        const raw = localStorage.getItem('mediiquickUser') || localStorage.getItem('mq_user') || '{}';
+        const raw = localStorage.getItem('mq_user') || '{}';
         userData = JSON.parse(raw);
       } catch (e) { userData = {}; }
 
@@ -1213,12 +1219,8 @@
     //  LOAD ORDERS FROM LOCALSTORAGE
     // ══════════════════════════════════════════════════════
     function getStatus(order) {
-      if (!order.placedAt) return order.status || 'delivered';
-      const mins = (Date.now() - order.placedAt) / 60000;
-      if (mins < 2) return 'confirmed';
-      if (mins < 5) return 'packing';
-      if (mins < 25) return 'on_the_way';
-      return 'delivered';
+      if (order.status) return order.status;
+      return 'confirmed';
     }
 
     function statusLabel(s) {
@@ -1233,7 +1235,16 @@
 
     function loadOrders() {
       let orders = [];
-      try { orders = JSON.parse(localStorage.getItem('mq_orders') || '[]'); } catch (e) { }
+      try {
+        const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+        // STRICT email match — sirf is user ke orders
+        const userEmail = (userData.email || '').toLowerCase().trim();
+        if (!userEmail) return;
+        orders = allOrders.filter(o => {
+          const orderEmail = (o.customerEmail || '').toLowerCase().trim();
+          return orderEmail === userEmail;
+        });
+      } catch (e) { }
 
       const total = orders.length;
       const active = orders.filter(o => ['confirmed', 'packing', 'on_the_way'].includes(getStatus(o))).length;
@@ -1355,8 +1366,11 @@
 
       // Save back to localStorage
       try {
-        const key = localStorage.getItem('mediiquickUser') ? 'mediiquickUser' : 'mq_user';
-        localStorage.setItem(key, JSON.stringify(userData));
+        localStorage.setItem('mq_user', JSON.stringify(userData));
+        // Also update mq_users array
+        const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
+        const idx = users.findIndex(u => u.email === userData.email);
+        if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
       } catch (e) { }
 
       closeModal();
@@ -1374,8 +1388,10 @@
       if (np.length < 6) return showToast('⚠️ Password 6+ characters ka hona chahiye');
       userData.password = np;
       try {
-        const key = localStorage.getItem('mediiquickUser') ? 'mediiquickUser' : 'mq_user';
-        localStorage.setItem(key, JSON.stringify(userData));
+        localStorage.setItem('mq_user', JSON.stringify(userData));
+        const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
+        const idx = users.findIndex(u => u.email === userData.email);
+        if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
       } catch (e) { }
       document.getElementById('newPassword').value = '';
       document.getElementById('confirmPassword').value = '';
@@ -1570,8 +1586,8 @@
     loadOrders();
     loadAddresses();
 
-    // Refresh orders every 30s for live status
-    setInterval(loadOrders, 30000);
+    // Har 10s mein refresh — admin status turant dike
+    setInterval(loadOrders, 10000);
   </script>
 </body>
 

@@ -1699,8 +1699,7 @@
                         <a href="my_order.html"><i class="fas fa-box" style="margin-right:8px;color:#16a34a;"></i>My
                             Orders</a>
                         <a href="#"><i class="fas fa-heart" style="margin-right:8px;color:#16a34a;"></i>Wishlist</a>
-                        <a href="index.html" style="color:#dc2626;"><i class="fas fa-sign-out-alt"
-                                style="margin-right:8px;"></i>Logout</a>
+                        <a href="#" onclick="doLogout();return false;" style="color:#dc2626;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
                     </div>
                 </div>
                 <button class="cart-btn" onclick="openCart()" aria-label="Cart">
@@ -1826,9 +1825,17 @@
         <section id="popular-section">
             <div class="section-header">
                 <h3 class="section-title" style="margin-bottom:0;">Popular Medicines</h3>
-                <a href="all-medicines.html" class="view-all">View All →</a>
             </div>
             <div class="medicines-grid" id="popular-grid"></div>
+        </section>
+
+        <!-- Admin Added Medicines Section -->
+        <section id="admin-medicines-section" style="display:none;">
+            <div class="section-header">
+                <h3 class="section-title" style="margin-bottom:0;">🏥 Available at Our Pharmacy</h3>
+                <span id="admin-med-count" style="font-size:13px;color:#16a34a;font-weight:600;"></span>
+            </div>
+            <div class="medicines-grid" id="admin-medicines-grid"></div>
         </section>
 
 
@@ -1920,8 +1927,14 @@
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
         // ══════════════════════════════════════════════════════════════
-        //  MEDICINE DATABASE — 20 per category + 6 popular
+        //  AUTH GUARD — Bina login ke profile page nahi khulega
         // ══════════════════════════════════════════════════════════════
+        (function() {
+            const user = localStorage.getItem('mq_user');
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        })();
         const MEDICINES = {
             fever: [
                 { id: 'f1', name: 'Dolo 650', sub: 'Paracetamol 650mg', price: 25, mrp: 30, trending: true, img: 'images/medicines/f1.jpg' },
@@ -2811,6 +2824,10 @@
         function addToCart(id) {
             const med = MEDICINES_FLAT[id];
             if (!med) return;
+            if (med.outOfStock) {
+                showToast('❌ Ye medicine abhi out of stock hai');
+                return;
+            }
             if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
             updateAllCartUIs(id);
             updateCartDrawer();
@@ -2907,12 +2924,17 @@
             const off = med.mrp ? Math.round((1 - med.price / med.mrp) * 100) : 0;
             const imgSrc = getMedImg(med);
             const qty = getCartQty(med.id);
+            const isOutOfStock = med.outOfStock === true;
+
             return `
-    <div class="med-card" data-med-id="${med.id}">
+    <div class="med-card" data-med-id="${med.id}" style="${isOutOfStock ? 'opacity:0.65;' : ''}">
       <div class="med-img-wrap">
         <img src="${imgSrc}" alt="${med.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
-        <span class="badge-30min">30 min</span>
-        ${med.trending ? '<span class="badge-trending">TRENDING</span>' : ''}
+        ${isOutOfStock
+            ? '<span style="position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">OUT OF STOCK</span>'
+            : '<span class="badge-30min">30 min</span>'
+        }
+        ${med.trending && !isOutOfStock ? '<span class="badge-trending">TRENDING</span>' : ''}
       </div>
       <div class="med-info">
         <div class="med-name" title="${med.name}">${med.name}</div>
@@ -2925,13 +2947,15 @@
           ${off > 0 ? `<span class="med-off">${off}% OFF</span>` : ''}
         </div>
         <div class="med-actions">
-          <button class="add-btn" data-action="add" data-id="${med.id}"
-            style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
-          <div class="qty-controls ${qty > 0 ? 'show' : ''}">
-            <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
-            <span class="qty-val">${qty > 0 ? qty : 1}</span>
-            <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
-          </div>
+          ${isOutOfStock
+            ? `<button class="add-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed;">Out of Stock</button>`
+            : `<button class="add-btn" data-action="add" data-id="${med.id}" style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
+               <div class="qty-controls ${qty > 0 ? 'show' : ''}">
+                 <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
+                 <span class="qty-val">${qty > 0 ? qty : 1}</span>
+                 <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
+               </div>`
+          }
         </div>
       </div>
     </div>
@@ -2944,8 +2968,108 @@
         POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
 
         // ══════════════════════════════════════════════════════════════
-        //  CATEGORY SECTION
+        //  ADMIN MEDICINES SYNC
+        //  Admin ne jo price/stock change kiya ho woh apply karo
         // ══════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
+        //  Admin ne jo price/stock change kiya ho woh apply karo
+        //  + Admin ki nai medicines bhi show karo (category ke saath)
+        // ══════════════════════════════════════════════════════════════
+        function syncAdminMedicines() {
+            try {
+                const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+                const customCats = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+
+                // ── Step 1: Existing medicines ka price/stock update karo ──
+                adminMeds.forEach(adminMed => {
+                    const adminName = (adminMed.name || '').toLowerCase().trim();
+                    let matched = false;
+                    Object.values(MEDICINES_FLAT).forEach(med => {
+                        const medName = (med.name || '').toLowerCase().trim();
+                        if (medName === adminName || medName.includes(adminName) || adminName.includes(medName)) {
+                            if (adminMed.price && adminMed.price > 0) {
+                                med.price = adminMed.price;
+                                med.mrp = Math.round(adminMed.price * 1.1);
+                            }
+                            med.outOfStock = adminMed.quantity === 0;
+                            med.adminId = adminMed.id;
+                            matched = true;
+                        }
+                    });
+                    adminMed._isNew = !matched;
+                });
+
+                // ── Step 2: Nai medicines — category ke saath group karke show karo ──
+                const newMeds = adminMeds.filter(m => m._isNew && m.name && m.price > 0);
+                const section = document.getElementById('admin-medicines-section');
+                const grid = document.getElementById('admin-medicines-grid');
+                const countEl = document.getElementById('admin-med-count');
+
+                if (!section || !grid) return;
+
+                if (newMeds.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+
+                section.style.display = 'block';
+                if (countEl) countEl.textContent = newMeds.length + ' medicines available';
+
+                // MEDICINES_FLAT mein add karo + renderCard cards banao
+                let html = '';
+                newMeds.forEach(m => {
+                    const med = {
+                        id: 'adm_' + m.id,
+                        name: m.name,
+                        sub: m.category || 'Available at our pharmacy',
+                        price: m.price,
+                        mrp: Math.round(m.price * 1.15),
+                        outOfStock: m.quantity === 0,
+                        trending: false,
+                        _adminMed: true
+                    };
+                    MEDICINES_FLAT[med.id] = med;
+                    html += renderCard(med);
+                });
+                grid.innerHTML = html;
+
+            } catch(e) {
+                console.log('Admin sync error:', e);
+            }
+        }
+
+        // Page load pe sync karo
+        syncAdminMedicines();
+
+        // localStorage change detect karo — admin ne kuch update kiya to turant reflect karo
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'mq_admin_medicines' || e.key === 'mq_medicines_updated') {
+                syncAdminMedicines();
+                const popGrid = document.getElementById('popular-grid');
+                if (popGrid && popGrid.children.length > 0) {
+                    popGrid.innerHTML = POPULAR.map(renderCard).join('');
+                }
+                if (activeCategory) {
+                    document.getElementById('category-medicines-grid').innerHTML =
+                        MEDICINES[activeCategory].map(renderCard).join('');
+                }
+            }
+        });
+
+        // Har 15 seconds mein re-sync karo
+        setInterval(() => {
+            syncAdminMedicines();
+            const popGrid = document.getElementById('popular-grid');
+            if (popGrid && popGrid.children.length > 0) {
+                popGrid.innerHTML = POPULAR.map(renderCard).join('');
+            }
+            if (activeCategory) {
+                const catGrid = document.getElementById('category-medicines-grid');
+                if (catGrid && catGrid.children.length > 0) {
+                    catGrid.innerHTML = MEDICINES[activeCategory].map(renderCard).join('');
+                }
+            }
+        }, 15000);
         const CAT_NAMES = {
             fever: 'Fever & Pain', allergy: 'Allergies', heart: 'Heart Care',
             brain: 'Brain & Nerves', respiratory: 'Respiratory', bone: 'Bone & Joint',
@@ -3252,9 +3376,21 @@
             // Save to localStorage so my_order.html can read it
             try {
                 var orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                // Logged-in user ka email zaroori hai — my_order.html isi se filter karta hai
+                var currentUser = {};
+                try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) {}
+
+                // Agar user email nahi hai to order save mat karo
+                if (!currentUser.email) {
+                    showToast('⚠ Please login to place an order');
+                    return;
+                }
+
                 orders.unshift({
                     orderId: orderId,
                     name: addrName,
+                    customerName: currentUser.name || addrName,
+                    customerEmail: currentUser.email.toLowerCase().trim(), // always lowercase for consistent matching
                     city: city,
                     items: items,
                     total: total + cod,
@@ -3275,6 +3411,13 @@
             setStep(3);
         }
         function getPayLabel() { return { upi: 'UPI', card: 'Card', nb: selectedBank + ' Net Banking', wallet: 'Wallet', cod: 'Cash on Delivery' }[selectedPayMethod] || selectedPayMethod; }
+
+        function doLogout() {
+            if (confirm('Logout karna chahte ho?')) {
+                localStorage.removeItem('mq_user');
+                window.location.href = 'login.html';
+            }
+        }
 
         // ══════════════════════════════════════════════════════════════
         //  TOAST
@@ -3336,8 +3479,24 @@
             // Render popular medicines
             document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
 
+            // Load user name in account button
+            try {
+                const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                const accountBtn = document.getElementById('accountBtn');
+                if (user && user.name && accountBtn) {
+                    accountBtn.textContent = user.name.charAt(0).toUpperCase();
+                    accountBtn.style.background = '#16a34a';
+                    accountBtn.style.color = '#fff';
+                    accountBtn.style.borderRadius = '50%';
+                    accountBtn.style.width = '36px';
+                    accountBtn.style.height = '36px';
+                    accountBtn.style.fontSize = '14px';
+                    accountBtn.style.fontWeight = '700';
+                }
+            } catch(e) {}
+
             // ── Event Delegation for all medicine grids ──
-            ['popular-grid', 'category-medicines-grid', 'search-results-grid'].forEach(function (gridId) {
+            ['popular-grid', 'category-medicines-grid', 'search-results-grid', 'admin-medicines-grid'].forEach(function (gridId) {
                 const grid = document.getElementById(gridId);
                 if (!grid) return;
                 grid.addEventListener('click', function (e) {

@@ -702,9 +702,6 @@
                     <button class="lt-btn active" id="lt-email" onclick="switchType('email')">
                         <i class="fas fa-envelope"></i> Email
                     </button>
-                    <button class="lt-btn" id="lt-mobile" onclick="switchType('mobile')">
-                        <i class="fas fa-phone"></i> Mobile OTP
-                    </button>
                     <button class="lt-btn" id="lt-id" onclick="switchType('id')">
                         <i class="fas fa-id-badge"></i> Admin ID
                     </button>
@@ -739,50 +736,6 @@
                     </div>
                 </div>
 
-                <!-- Mobile OTP Login -->
-                <div id="form-mobile" style="display:none;">
-                    <div class="form-group">
-                        <label><i class="fas fa-phone"></i> Mobile Number</label>
-                        <div class="input-wrap" style="display:flex;gap:8px;">
-                            <input type="tel" id="login-mobile" placeholder="10-digit number" maxlength="10"
-                                style="flex:1;">
-                            <button onclick="sendOTP()"
-                                style="background:#16a34a;color:#fff;border:none;padding:0 18px;border-radius:12px;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;"
-                                id="send-otp-btn">Send OTP</button>
-                        </div>
-                        <span class="err-msg" id="err-mobile"><i class="fas fa-circle-exclamation"></i> Valid 10-digit
-                            mobile required</span>
-                    </div>
-
-                    <div class="form-group" id="otp-group" style="display:none;">
-                        <label><i class="fas fa-key"></i> Enter OTP</label>
-                        <div style="display:flex;gap:10px;">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                oninput="otpMove(this,1)" id="otp1">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                oninput="otpMove(this,2)" id="otp2">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                oninput="otpMove(this,3)" id="otp3">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                oninput="otpMove(this,4)" id="otp4">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                oninput="otpMove(this,5)" id="otp5">
-                            <input class="otp-box" type="text" maxlength="1"
-                                style="flex:1;text-align:center;font-size:1.4rem;font-weight:700;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 0;font-family:'Poppins',sans-serif;outline:none;"
-                                id="otp6">
-                        </div>
-                        <div style="font-size:12px;color:#94a3b8;margin-top:6px;">
-                            OTP nahi aaya? <a href="#" onclick="sendOTP();return false;"
-                                style="color:#16a34a;font-weight:600;">Resend</a>
-                            <span id="otp-timer" style="margin-left:8px;color:#ef4444;font-weight:600;"></span>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Admin ID Login -->
                 <div id="form-id" style="display:none;">
@@ -823,17 +776,6 @@
                     <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
                 </button>
 
-                <!-- Divider -->
-                <div class="divider">
-                    <div class="divider-line"></div>
-                    <span>or try demo</span>
-                    <div class="divider-line"></div>
-                </div>
-
-                <!-- Demo Fill -->
-                <button class="demo-btn" onclick="fillDemo()">
-                    <i class="fas fa-flask"></i> Fill Demo Credentials
-                </button>
 
             </div>
 
@@ -860,7 +802,7 @@
 
         function switchType(type) {
             activeType = type;
-            ['email', 'mobile', 'id'].forEach(t => {
+            ['email', 'id'].forEach(t => {
                 document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
                 document.getElementById('lt-' + t).classList.toggle('active', t === type);
             });
@@ -872,50 +814,6 @@
             const icon = btn.querySelector('i');
             input.type = input.type === 'password' ? 'text' : 'password';
             icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
-        }
-
-        // ── OTP Logic ──
-        let otpTimerInterval;
-        let demoOTP = '';
-
-        function sendOTP() {
-            const mobile = document.getElementById('login-mobile').value.trim();
-            if (!/^[6-9]\d{9}$/.test(mobile)) {
-                document.getElementById('err-mobile').classList.add('show');
-                return;
-            }
-            document.getElementById('err-mobile').classList.remove('show');
-            demoOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            showToast('📲 OTP sent: ' + demoOTP + ' (demo)', 'success');
-            document.getElementById('otp-group').style.display = 'block';
-            document.getElementById('send-otp-btn').textContent = 'Resend';
-            document.getElementById('otp1').focus();
-
-            // 30 sec timer
-            let secs = 30;
-            clearInterval(otpTimerInterval);
-            const timerEl = document.getElementById('otp-timer');
-            timerEl.textContent = `(${secs}s)`;
-            otpTimerInterval = setInterval(() => {
-                secs--;
-                timerEl.textContent = secs > 0 ? `(${secs}s)` : '';
-                if (secs <= 0) clearInterval(otpTimerInterval);
-            }, 1000);
-        }
-
-        function otpMove(el, boxNum) {
-            el.value = el.value.replace(/\D/g, '');
-            if (el.value && boxNum < 6) {
-                document.getElementById('otp' + (boxNum + 1)).focus();
-            }
-        }
-
-        // ── Fill Demo ──
-        function fillDemo() {
-            switchType('email');
-            document.getElementById('login-email').value = 'admin@mediiquick.com';
-            document.getElementById('login-pass').value = 'Admin@123';
-            showToast('✓ Demo credentials filled!', 'success');
         }
 
         // ── Validation ──
@@ -931,21 +829,6 @@
                 const passOk = pass.length >= 1;
                 document.getElementById('err-pass').classList.toggle('show', !passOk);
                 if (!passOk) valid = false;
-            }
-
-            if (activeType === 'mobile') {
-                const mobile = document.getElementById('login-mobile').value.trim();
-                const mobileOk = /^[6-9]\d{9}$/.test(mobile);
-                document.getElementById('err-mobile').classList.toggle('show', !mobileOk);
-                if (!mobileOk) valid = false;
-                // Check OTP
-                if (mobileOk) {
-                    const entered = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'].map(id => document.getElementById(id).value).join('');
-                    if (entered !== demoOTP) {
-                        showToast('⚠ Galat OTP daala hai', 'error');
-                        valid = false;
-                    }
-                }
             }
 
             if (activeType === 'id') {
@@ -969,7 +852,6 @@
                 return;
             }
 
-            // Loading state
             const btn = document.getElementById('loginBtn');
             btn.classList.add('loading');
             btn.querySelector('.btn-text').innerHTML = 'Logging in...';
@@ -978,9 +860,36 @@
                 btn.classList.remove('loading');
                 btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
 
-                showToast('✓ Login successful! Redirecting...', 'success');
-                setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
-            }, 1800);
+                try {
+                    const saved = JSON.parse(localStorage.getItem('mq_admin') || 'null');
+
+                    if (!saved) {
+                        showToast('⚠ Koi admin account nahi mila. Pehle register karein.', 'error');
+                        return;
+                    }
+
+                    let enteredId = '', enteredPass = '';
+
+                    if (activeType === 'email') {
+                        enteredId = document.getElementById('login-email').value.trim();
+                        enteredPass = document.getElementById('login-pass').value;
+                    } else if (activeType === 'id') {
+                        enteredId = document.getElementById('login-admin-id').value.trim().toUpperCase();
+                        enteredPass = document.getElementById('login-id-pass').value;
+                    const idMatch = (saved.email === enteredId || saved.adminId === enteredId);
+                    if (idMatch && saved.password === enteredPass) {
+                        localStorage.setItem('mq_admin_session', JSON.stringify(saved));
+                        showToast('✓ Login successful! Redirecting...', 'success');
+                        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
+                    } else if (idMatch) {
+                        showToast('⚠ Password galat hai.', 'error');
+                    } else {
+                        showToast('⚠ Admin ID ya email nahi mila.', 'error');
+                    }
+                } catch (e) {
+                    showToast('⚠ Login failed. Dobara try karein.', 'error');
+                }
+            }, 1200);
         }
 
         // ── Forgot Password Modal ──
@@ -998,11 +907,6 @@
         // ── Enter key support ──
         document.addEventListener('keydown', e => {
             if (e.key === 'Enter') doLogin();
-        });
-
-        // ── Mobile digits only ──
-        document.getElementById('login-mobile')?.addEventListener('input', function () {
-            this.value = this.value.replace(/\D/g, '');
         });
 
         // ── Toast ──

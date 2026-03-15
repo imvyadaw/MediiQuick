@@ -391,6 +391,15 @@
             background: #4ade80;
         }
 
+        .badge-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-red .badge-dot {
+            background: #dc2626;
+        }
+
         @keyframes blink {
 
             0%,
@@ -851,6 +860,13 @@
     </main>
 
     <script>
+        // ── USER AUTH GUARD ──
+        (function() {
+          if (!localStorage.getItem('mq_user')) {
+            window.location.href = 'login.html';
+          }
+        })();
+
         const ALL_MEDS = [
             { id: 'm1', name: 'Paracetamol', sub: 'Paracetamol 500mg', price: 40, mrp: 50 },
             { id: 'm2', name: 'Ibuprofen 200', sub: 'Ibuprofen 200mg', price: 64, mrp: 80 },
@@ -876,33 +892,146 @@
 
         function getMed(id) { return ALL_MEDS.find(m => m.id === id) || {}; }
 
-        function getStatus(order) {
+        // ── STATUS AUTO-FLOW (if admin does nothing, order auto-progresses in 29 min) ──
+        // Time breakdown from placedAt:
+        //   0-2 min   → pending
+        //   2-7 min   → confirmed
+        //   7-15 min  → packing
+        //  15-27 min  → on_the_way
+        //  27-29 min  → delivered
+
+        const AUTO_FLOW = [
+            { status: 'pending',    from: 0,  to: 2  },
+            { status: 'confirmed',  from: 2,  to: 7  },
+            { status: 'packing',    from: 7,  to: 15 },
+            { status: 'on_the_way', from: 15, to: 27 },
+            { status: 'delivered',  from: 27, to: 999 },
+        ];
+
+        function getAutoStatus(order) {
             const min = (Date.now() - order.placedAt) / 60000;
-            if (min < 2) return 'confirmed';
-            if (min < 5) return 'packing';
-            if (min < 25) return 'on_the_way';
+            for (const s of AUTO_FLOW) {
+                if (min >= s.from && min < s.to) return s.status;
+            }
             return 'delivered';
         }
 
+        function getStatus(order) {
+            // Cancelled — always show cancelled
+            if (order.status === 'cancelled') return 'cancelled';
+
+            // If admin manually set a status AFTER placing, use it
+            // But also check if auto-flow has progressed beyond admin status
+            const autoStatus = getAutoStatus(order);
+            const adminStatus = order.status || 'pending';
+
+            const statusOrder = ['pending','confirmed','packing','on_the_way','delivered'];
+            const autoIdx = statusOrder.indexOf(autoStatus);
+            const adminIdx = statusOrder.indexOf(adminStatus);
+
+            // Use whichever is further along
+            return autoIdx > adminIdx ? autoStatus : adminStatus;
+        }
+
         const STATUS_CONFIG = {
-            confirmed: { label: 'Order Confirmed', badge: 'badge-orange', activeStep: 1, etaIcon: '📋', etaLabel: 'Preparing your order', etaColor: '#c2410c', etaBg: 'linear-gradient(135deg,#fff7ed,#fffbeb)', etaBorder: '#fed7aa' },
-            packing: { label: 'Being Packed', badge: 'badge-orange', activeStep: 2, etaIcon: '📦', etaLabel: 'Packing your medicines', etaColor: '#c2410c', etaBg: 'linear-gradient(135deg,#fff7ed,#fffbeb)', etaBorder: '#fed7aa' },
-            on_the_way: { label: 'On the Way 🚴', badge: 'badge-green', activeStep: 3, etaIcon: '🚴', etaLabel: 'Arriving In', etaColor: '#15803d', etaBg: 'linear-gradient(135deg,#dcfce7,#f0fdf4)', etaBorder: '#bbf7d0' },
-            delivered: { label: 'Delivered ✓', badge: 'badge-check', activeStep: 4 },
+            pending:    {
+                label: 'Pending',
+                badge: 'badge-orange', activeStep: 0,
+                etaIcon: '⏳', etaLabel: 'Waiting for confirmation',
+                etaColor: '#c2410c', etaBg: 'linear-gradient(135deg,#fff7ed,#fffbeb)', etaBorder: '#fed7aa',
+                showTimer: true
+            },
+            confirmed:  {
+                label: 'Order Confirmed',
+                badge: 'badge-orange', activeStep: 1,
+                etaIcon: '📋', etaLabel: 'Order confirmed! Preparing medicines',
+                etaColor: '#c2410c', etaBg: 'linear-gradient(135deg,#fff7ed,#fffbeb)', etaBorder: '#fed7aa',
+                showTimer: true
+            },
+            packing:    {
+                label: 'Being Packed',
+                badge: 'badge-orange', activeStep: 2,
+                etaIcon: '📦', etaLabel: 'Packing your medicines',
+                etaColor: '#d97706', etaBg: 'linear-gradient(135deg,#fffbeb,#fef9c3)', etaBorder: '#fde68a',
+                showTimer: true
+            },
+            on_the_way: {
+                label: 'On the Way 🚴',
+                badge: 'badge-green',  activeStep: 3,
+                etaIcon: '🚴', etaLabel: 'Rider is on the way!',
+                etaColor: '#15803d', etaBg: 'linear-gradient(135deg,#dcfce7,#f0fdf4)', etaBorder: '#bbf7d0',
+                showTimer: true
+            },
+            delivered:  {
+                label: 'Delivered ✓',
+                badge: 'badge-check',  activeStep: 4,
+                showTimer: false
+            },
+            cancelled:  {
+                label: 'Cancelled',
+                badge: 'badge-red',    activeStep: 0,
+                etaIcon: '❌', etaLabel: 'This order has been cancelled',
+                etaColor: '#dc2626', etaBg: 'linear-gradient(135deg,#fee2e2,#fff1f2)', etaBorder: '#fecaca',
+                showTimer: false
+            },
         };
 
         let currentTab = 'all';
         let orders = [];
 
         function loadOrders() {
-            try { orders = JSON.parse(localStorage.getItem('mq_orders') || '[]'); }
-            catch (e) { orders = []; }
+            try {
+                const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+
+                // ALWAYS freshly read mq_user — har call pe nayi value
+                let currentUser = null;
+                try {
+                    const raw = localStorage.getItem('mq_user');
+                    if (!raw) { orders = []; return; }
+                    currentUser = JSON.parse(raw);
+                } catch(e) { orders = []; return; }
+
+                const userEmail = (currentUser.email || '').toLowerCase().trim();
+
+                // Email nahi hai — kuch mat dikhao
+                if (!userEmail) { orders = []; return; }
+
+                // STRICT match — sirf usi email ke orders
+                orders = allOrders.filter(o => {
+                    const orderEmail = (o.customerEmail || '').toLowerCase().trim();
+                    return orderEmail === userEmail;
+                });
+
+            } catch(e) { orders = []; }
         }
 
+        // Track current user — agar user switch ho jaye to page reload karo
+        let _currentUserEmail = '';
+        try {
+            const u = JSON.parse(localStorage.getItem('mq_user') || '{}');
+            _currentUserEmail = (u.email || '').toLowerCase().trim();
+        } catch(e) {}
+
+        // Storage event — dusre tab mein login/logout hua to reload
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'mq_user') {
+                window.location.reload();
+            }
+        });
+
         function getEtaText(order) {
-            const min = (Date.now() - order.placedAt) / 60000;
-            const rem = Math.max(0, 30 - min);
-            return `${Math.floor(rem)} min ${String(Math.floor((rem % 1) * 60)).padStart(2, '0')} sec`;
+            const status = getStatus(order);
+            if (status === 'cancelled' || status === 'delivered') return '';
+
+            // Remaining time = 29 min total from placedAt minus elapsed
+            const elapsedMin = (Date.now() - order.placedAt) / 60000;
+            const remMin = Math.max(0, 29 - elapsedMin);
+
+            if (remMin <= 0) return 'Arriving any moment!';
+
+            const mins = Math.floor(remMin);
+            const secs = Math.floor((remMin - mins) * 60);
+            return `${mins} min ${String(secs).padStart(2, '0')} sec`;
         }
 
         function renderCard(order) {
@@ -926,8 +1055,8 @@
                 placedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
             const STEP_DEFS = [
-                { icon: '✓', label: 'Placed' },
-                { icon: '✓', label: 'Confirmed' },
+                { icon: '🛒', label: 'Placed' },
+                { icon: '📋', label: 'Confirmed' },
                 { icon: '📦', label: 'Packing' },
                 { icon: '🚴', label: 'On the Way' },
                 { icon: '🏠', label: 'Delivered' },
@@ -944,19 +1073,34 @@
 
             let etaBoxHTML = '';
             if (status === 'delivered') {
+                const deliveredIn = order.statusUpdatedAt && order.placedAt
+                    ? Math.round((order.statusUpdatedAt - order.placedAt) / 60000)
+                    : Math.round((Date.now() - order.placedAt) / 60000);
+                const delivMsg = deliveredIn && deliveredIn < 60
+                    ? `Delivered in ${deliveredIn} min ⚡`
+                    : 'Delivered successfully!';
                 etaBoxHTML = `<div class="eta-box" style="background:#f0fdf4;border-color:#bbf7d0;">
                     <div class="eta-icon">✅</div>
                     <div>
                         <div class="eta-label" style="color:#15803d;">DELIVERED SUCCESSFULLY</div>
-                        <div class="eta-time" style="color:#15803d;">In just 27 mins! ⚡</div>
+                        <div class="eta-time" style="color:#15803d;">${delivMsg}</div>
+                    </div>
+                </div>`;
+            } else if (status === 'cancelled') {
+                etaBoxHTML = `<div class="eta-box" style="background:#fee2e2;border-color:#fecaca;">
+                    <div class="eta-icon">❌</div>
+                    <div>
+                        <div class="eta-label" style="color:#dc2626;">ORDER CANCELLED</div>
+                        <div class="eta-time" style="color:#dc2626;">This order has been cancelled</div>
                     </div>
                 </div>`;
             } else {
+                const etaText = getEtaText(order);
                 etaBoxHTML = `<div class="eta-box" style="background:${sc.etaBg};border-color:${sc.etaBorder};">
                     <div class="eta-icon">${sc.etaIcon}</div>
                     <div>
                         <div class="eta-label" style="color:${sc.etaColor};">⏱ ${sc.etaLabel}</div>
-                        <div class="eta-time" id="eta-${order.orderId}" style="color:${sc.etaColor};">${getEtaText(order)}</div>
+                        <div class="eta-time" id="eta-${order.orderId}" style="color:${sc.etaColor};">${etaText}</div>
                         <div class="eta-addr">📍 ${addrStr}</div>
                     </div>
                 </div>`;
@@ -982,13 +1126,16 @@
             let actionsHTML = '';
             if (status === 'delivered') {
                 actionsHTML = `<button class="btn btn-primary" onclick="reorder('${order.orderId}')">🔄 Reorder</button><button class="btn btn-outline">⭐ Rate Order</button>`;
-            } else if (status === 'confirmed') {
+            } else if (status === 'confirmed' || status === 'pending') {
                 actionsHTML = `<button class="btn btn-red" onclick="cancelOrder('${order.orderId}')">✕ Cancel Order</button>`;
             } else if (status === 'on_the_way') {
                 actionsHTML = `<button class="btn btn-outline" onclick="showToast('📞 Calling rider...')">📞 Call Rider</button>`;
+            } else if (status === 'cancelled') {
+                actionsHTML = `<button class="btn btn-primary" onclick="reorder('${order.orderId}')">🔄 Reorder</button>`;
             }
 
-            return `<div class="order-card" data-status="${status === 'delivered' ? 'delivered' : 'active'}">
+            const cardDataStatus = (status === 'delivered' || status === 'cancelled') ? status : 'active';
+            return `<div class="order-card" data-status="${cardDataStatus}">
                 <div class="order-top">
                     <div class="order-meta">
                         <span class="order-id-tag">${order.orderId}</span>
@@ -1024,9 +1171,9 @@
         function renderAll() {
             loadOrders();
 
-            const active = orders.filter(o => getStatus(o) !== 'delivered');
+            const active = orders.filter(o => !['delivered','cancelled'].includes(getStatus(o)));
             const delivered = orders.filter(o => getStatus(o) === 'delivered');
-            const spent = orders.reduce((s, o) => s + (o.total || 0), 0);
+            const spent = orders.filter(o => getStatus(o) === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
 
             document.getElementById('statTotal').textContent = orders.length;
             document.getElementById('statActive').textContent = active.length;
@@ -1048,7 +1195,7 @@
                     delivered: 'No delivered orders'
                 };
                 const subs = {
-                    all: 'Place your first order and get medicines in 30 minutes!',
+                    all: 'Place your first order and get medicines in 29 minutes!',
                     active: 'You have no orders in progress right now.',
                     delivered: 'Your completed orders will appear here.'
                 };
@@ -1056,7 +1203,7 @@
                     <div class="ei">📋</div>
                     <h3>${msgs[currentTab]}</h3>
                     <p>${subs[currentTab]}</p>
-                    <a href="all-medicines.html" class="shop-btn">💊 Order Medicines Now</a>
+                    <a href="profile.html" class="shop-btn">💊 Order Medicines Now</a>
                 </div>`;
                 return;
             }
@@ -1077,16 +1224,21 @@
             if (!confirm('Are you sure you want to cancel this order?')) return;
             try {
                 let stored = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-                stored = stored.filter(o => o.orderId !== orderId);
+                const o = stored.find(x => x.orderId === orderId);
+                if (o) {
+                    o.status = 'cancelled';
+                    o.cancelledAt = Date.now();
+                }
                 localStorage.setItem('mq_orders', JSON.stringify(stored));
                 showToast('✓ Order cancelled successfully!');
+                loadOrders();
                 renderAll();
             } catch (e) { }
         }
 
         function reorder(orderId) {
             showToast('🛒 Taking you to medicines...');
-            setTimeout(() => window.location.href = 'all-medicines.html', 1200);
+            setTimeout(() => window.location.href = 'profile.html', 1200);
         }
 
         let toastTimer;
@@ -1100,15 +1252,31 @@
 
         renderAll();
 
+        // Every 1 second — update countdown timers only for active orders
         setInterval(() => {
-            loadOrders();
             orders.forEach(order => {
+                const status = getStatus(order);
+                if (status === 'cancelled' || status === 'delivered') return;
                 const el = document.getElementById(`eta-${order.orderId}`);
                 if (el) el.textContent = getEtaText(order);
             });
         }, 1000);
 
-        setInterval(renderAll, 30000);
+        // Every 10 seconds — check user change + reload orders
+        setInterval(() => {
+            // Agar user switch ho gaya hai to turant reload
+            try {
+                const u = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                const nowEmail = (u.email || '').toLowerCase().trim();
+                if (nowEmail !== _currentUserEmail) {
+                    window.location.reload();
+                    return;
+                }
+            } catch(e) {}
+
+            loadOrders();
+            renderAll();
+        }, 10000);
     </script>
 </body>
 

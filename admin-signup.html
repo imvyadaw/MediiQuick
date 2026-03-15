@@ -891,8 +891,8 @@
                         <span>Your Admin ID</span>
                         <strong id="genAdminId">ADMIN-000000</strong>
                     </div>
-                    <button class="goto-btn" onclick="window.location.href='adminpage.html'">
-                        Go to Admin Dashboard →
+                    <button class="goto-btn" onclick="window.location.href='login.html'">
+                        Go to Admin Login →
                     </button>
                 </div>
 
@@ -1027,8 +1027,9 @@
 
             console.log('✅ Admin Registered:', data);
 
-            // Save to sessionStorage
-            try { sessionStorage.setItem('mq_admin', JSON.stringify(data)); } catch (e) { }
+            // Save to localStorage (password bhi include karein login ke liye)
+            const adminDataWithPass = { ...data, password: document.getElementById('password').value };
+            try { localStorage.setItem('mq_admin', JSON.stringify(adminDataWithPass)); } catch (e) { }
 
             // Show success
             ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));

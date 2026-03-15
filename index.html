@@ -1082,7 +1082,7 @@
                 </div>
             </div>
 
-            <!-- Right: Cart + Login -->
+            <!-- Right: Cart + Login/Account -->
             <div class="header-right">
                 <button class="cart-btn" onclick="openCart()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1092,7 +1092,9 @@
                     </svg>
                     <span class="cart-badge" id="cart-badge">0</span>
                 </button>
-                <button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>
+                <div id="headerAuthArea">
+                    <button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>
+                </div>
             </div>
         </div>
     </header>
@@ -1203,9 +1205,17 @@
         <section id="popular-section" style="margin-bottom:32px;">
             <div class="section-header">
                 <h3 class="section-title" style="margin-bottom:0;">Popular Medicines</h3>
-                <a href="all-medicines.html" class="view-all">View All →</a>
             </div>
             <div class="medicines-grid" id="popular-grid"></div>
+        </section>
+
+        <!-- Admin Added Medicines Section -->
+        <section id="admin-medicines-section" style="display:none;margin-bottom:32px;">
+            <div class="section-header">
+                <h3 class="section-title" style="margin-bottom:0;">🏥 Available at Our Pharmacy</h3>
+                <span id="admin-med-count" style="font-size:13px;color:#16a34a;font-weight:600;"></span>
+            </div>
+            <div class="medicines-grid" id="admin-medicines-grid"></div>
         </section>
 
         <!-- Health Tips -->
@@ -1291,7 +1301,7 @@
                     <h4>Contact Us</h4>
                     <ul class="footer-contact">
                         <li><i class="fas fa-headset" style="color:#4ade80;"></i> +91 **********</li>
-                        <li><i class="fas fa-envelope" style="color:#4ade80;"></i> support@mediiquick.in</li>
+                        <li><i class="fas fa-envelope" style="color:#4ade80;"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c5b6b0b5b5aab7b185a8a0a1acacb4b0aca6aeebacab">[email&#160;protected]</a></li>
                         <li><i class="fas fa-map-marker-alt" style="color:#4ade80;"></i> New Delhi, India</li>
                     </ul>
                 </div>
@@ -1307,7 +1317,7 @@
         </div>
     </footer>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ══════════════════════════════════════════════════════════════
         //  MEDICINE DATABASE
         // ══════════════════════════════════════════════════════════════
@@ -2183,15 +2193,102 @@
         Object.values(MEDICINES).forEach(arr => arr.forEach(m => MEDICINES_FLAT[m.id] = m));
         POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
 
-        // ══════════════════════════════════════════════════════════════
-        //  CART
-        // ══════════════════════════════════════════════════════════════
+        // Admin medicines sync
+        function syncAdminMedicines() {
+            try {
+                const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+                if (!adminMeds.length) {
+                    const sec = document.getElementById('admin-medicines-section');
+                    if (sec) sec.style.display = 'none';
+                    return;
+                }
+
+                // Step 1: Update existing medicine prices/stock
+                adminMeds.forEach(adminMed => {
+                    const adminName = (adminMed.name || '').toLowerCase().trim();
+                    let matched = false;
+                    Object.values(MEDICINES_FLAT).forEach(med => {
+                        const medName = (med.name || '').toLowerCase().trim();
+                        if (medName === adminName || medName.includes(adminName) || adminName.includes(medName)) {
+                            if (adminMed.price && adminMed.price > 0) {
+                                med.price = adminMed.price;
+                                med.mrp = Math.round(adminMed.price * 1.1);
+                            }
+                            med.outOfStock = adminMed.quantity === 0;
+                            med.adminId = adminMed.id;
+                            matched = true;
+                        }
+                    });
+                    adminMed._isNew = !matched;
+                });
+
+                // Step 2: Show new admin-added medicines
+                const newMeds = adminMeds.filter(m => m._isNew && m.name && m.price > 0);
+                const section = document.getElementById('admin-medicines-section');
+                const grid = document.getElementById('admin-medicines-grid');
+                const countEl = document.getElementById('admin-med-count');
+
+                if (!section || !grid) return;
+
+                if (newMeds.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+
+                section.style.display = 'block';
+                if (countEl) countEl.textContent = newMeds.length + ' medicines available';
+
+                const adminCards = newMeds.map(m => {
+                    const med = {
+                        id: 'adm_' + m.id,
+                        name: m.name,
+                        sub: m.category || 'Available at our pharmacy',
+                        price: m.price,
+                        mrp: Math.round(m.price * 1.15),
+                        outOfStock: m.quantity === 0,
+                        trending: false
+                    };
+                    MEDICINES_FLAT[med.id] = med;
+                    return renderCard(med);
+                });
+
+                grid.innerHTML = adminCards.join('');
+
+            } catch(e) {}
+        }
+        syncAdminMedicines();
+
+        // Storage event — dusre tab mein admin ne change kiya
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'mq_admin_medicines' || e.key === 'mq_medicines_updated') {
+                syncAdminMedicines();
+                document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
+                if (activeCategory) {
+                    document.getElementById('category-medicines-grid').innerHTML =
+                        MEDICINES[activeCategory].map(renderCard).join('');
+                }
+            }
+        });
+
+        setInterval(() => {
+            syncAdminMedicines();
+            const pg = document.getElementById('popular-grid');
+            if (pg && pg.children.length > 0) pg.innerHTML = POPULAR.map(renderCard).join('');
+            if (activeCategory) {
+                document.getElementById('category-medicines-grid').innerHTML =
+                    MEDICINES[activeCategory].map(renderCard).join('');
+            }
+        }, 15000);
         let cart = {};
         function getCartQty(id) { return cart[id] ? cart[id].qty : 0; }
 
         function addToCart(id) {
             const med = MEDICINES_FLAT[id];
             if (!med) return;
+            if (med.outOfStock) {
+                showToast('❌ Ye medicine abhi out of stock hai');
+                return;
+            }
             if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
             updateAllCartUIs(id);
             updateCartDrawer();
@@ -2271,7 +2368,7 @@
         //  CHECKOUT → LOGIN CHECK
         // ══════════════════════════════════════════════════════════════
         function handleCheckout() {
-            const isLoggedIn = localStorage.getItem('mq_logged_in') === 'true';
+            const isLoggedIn = !!localStorage.getItem('mq_user');
             if (!isLoggedIn) {
                 closeCart();
                 document.getElementById('loginModalOverlay').classList.add('show');
@@ -2295,12 +2392,16 @@
             const off = med.mrp ? Math.round((1 - med.price / med.mrp) * 100) : 0;
             const imgSrc = getMedImg(med);
             const qty = getCartQty(med.id);
+            const isOutOfStock = med.outOfStock === true;
             return `
-    <div class="med-card" data-med-id="${med.id}">
+    <div class="med-card" data-med-id="${med.id}" style="${isOutOfStock ? 'opacity:0.65;' : ''}">
         <div class="med-img-wrap">
             <img src="${imgSrc}" alt="${med.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
-            <span class="badge-30min">30 min</span>
-            ${med.trending ? '<span class="badge-trending">TRENDING</span>' : ''}
+            ${isOutOfStock
+                ? '<span style="position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">OUT OF STOCK</span>'
+                : '<span class="badge-30min">30 min</span>'
+            }
+            ${med.trending && !isOutOfStock ? '<span class="badge-trending">TRENDING</span>' : ''}
         </div>
         <div class="med-info">
             <div class="med-name" title="${med.name}">${med.name}</div>
@@ -2313,12 +2414,15 @@
                 ${off > 0 ? `<span class="med-off">${off}% OFF</span>` : ''}
             </div>
             <div class="med-actions">
-                <button class="add-btn" data-action="add" data-id="${med.id}" style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
-                <div class="qty-controls ${qty > 0 ? 'show' : ''}">
-                    <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
-                    <span class="qty-val">${qty > 0 ? qty : 1}</span>
-                    <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
-                </div>
+                ${isOutOfStock
+                    ? `<button class="add-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed;">Out of Stock</button>`
+                    : `<button class="add-btn" data-action="add" data-id="${med.id}" style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
+                       <div class="qty-controls ${qty > 0 ? 'show' : ''}">
+                           <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
+                           <span class="qty-val">${qty > 0 ? qty : 1}</span>
+                           <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
+                       </div>`
+                }
             </div>
         </div>
     </div>`;
@@ -2432,13 +2536,84 @@
             // Render popular medicines
             document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
             updateCartDrawer();
+
+            // Load user name in header if logged in
+            try {
+                const user = JSON.parse(localStorage.getItem('mq_user') || 'null');
+                const authArea = document.getElementById('headerAuthArea');
+                if (user && user.name && user.email) {
+                    // Logged in — show user avatar + dropdown
+                    authArea.innerHTML = `
+                        <div style="position:relative;">
+                            <button id="accountBtn"
+                                style="background:#16a34a;color:#fff;border:none;border-radius:50%;width:38px;height:38px;
+                                font-size:15px;font-weight:700;cursor:pointer;font-family:Poppins,sans-serif;">
+                                ${user.name.charAt(0).toUpperCase()}
+                            </button>
+                            <div id="accountDropdown" style="display:none;position:absolute;right:0;top:46px;
+                                background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);
+                                min-width:180px;z-index:200;overflow:hidden;border:1px solid #e5e7eb;">
+                                <div style="padding:12px 16px;border-bottom:1px solid #f3f4f6;">
+                                    <div style="font-weight:700;font-size:13px;">${user.name}</div>
+                                    <div style="font-size:11px;color:#6b7280;">${user.email}</div>
+                                </div>
+                                <a href="#" onclick="goToProtected('myprofile.html');return false;"
+                                    style="display:flex;align-items:center;gap:10px;padding:11px 16px;
+                                    font-size:13px;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;">
+                                    <i class="fas fa-user" style="color:#16a34a;width:14px;"></i> My Profile
+                                </a>
+                                <a href="#" onclick="goToProtected('my_order.html');return false;"
+                                    style="display:flex;align-items:center;gap:10px;padding:11px 16px;
+                                    font-size:13px;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;">
+                                    <i class="fas fa-box" style="color:#16a34a;width:14px;"></i> My Orders
+                                </a>
+                                <a href="#" onclick="doLogoutIndex();return false;"
+                                    style="display:flex;align-items:center;gap:10px;padding:11px 16px;
+                                    font-size:13px;color:#dc2626;text-decoration:none;">
+                                    <i class="fas fa-sign-out-alt" style="width:14px;"></i> Logout
+                                </a>
+                            </div>
+                        </div>`;
+
+                    // Dropdown toggle
+                    document.getElementById('accountBtn').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const dd = document.getElementById('accountDropdown');
+                        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                    });
+                    document.addEventListener('click', function() {
+                        const dd = document.getElementById('accountDropdown');
+                        if (dd) dd.style.display = 'none';
+                    });
+
+                } else {
+                    // Not logged in — show Login button only
+                    authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
+                }
+            } catch(e) {}
         });
 
-        // Search on Enter key
-        document.getElementById('medicine-search').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') searchMedicines();
-        });
+        // Navigate to protected pages — check login first
+        function goToProtected(page) {
+            const user = localStorage.getItem('mq_user');
+            if (!user) {
+                document.getElementById('loginModalOverlay').classList.add('show');
+            } else {
+                window.location.href = page;
+            }
+        }
+
+        // Logout from index
+        function doLogoutIndex() {
+            if (confirm('Logout karna chahte ho?')) {
+                localStorage.removeItem('mq_user');
+                window.location.reload();
+            }
+        }
+
+        // Intercept direct cart checkout — must be logged in
+        // (handleCheckout already checks, this is extra safety)
+
     </script>
 </body>
-
 </html>

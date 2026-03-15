@@ -993,6 +993,8 @@
       Dashboard</button>
     <button class="mob-nav-btn" onclick="showView('medicines',this)"><i class="fas fa-pills"></i> Medicines</button>
     <button class="mob-nav-btn" onclick="showView('orders',this)"><i class="fas fa-box"></i> Orders</button>
+    <button class="mob-nav-btn" onclick="showView('delivery',this)"><i class="fas fa-motorcycle"></i> Delivery</button>
+    <button class="mob-nav-btn" onclick="showView('customers',this)"><i class="fas fa-users"></i> Customers</button>
     <button class="mob-nav-btn" onclick="showView('analytics',this)"><i class="fas fa-chart-bar"></i> Analytics</button>
     <button class="mob-nav-btn" onclick="showView('profile',this)"><i class="fas fa-user"></i> Profile</button>
   </div>
@@ -1013,6 +1015,13 @@
       <button class="nav-item" id="nav-orders" onclick="showView('orders')">
         <i class="fas fa-box-open"></i> Orders
         <span class="nav-badge" id="pendingBadge" style="display:none;"></span>
+      </button>
+      <button class="nav-item" id="nav-delivery" onclick="showView('delivery')">
+        <i class="fas fa-motorcycle"></i> Delivery Boys
+        <span class="nav-badge" id="deliveryBadge" style="display:none;background:var(--orange);"></span>
+      </button>
+      <button class="nav-item" id="nav-customers" onclick="showView('customers')">
+        <i class="fas fa-users"></i> Customers
       </button>
       <div class="nav-section-label">Reports</div>
       <button class="nav-item" id="nav-analytics" onclick="showView('analytics')">
@@ -1069,6 +1078,42 @@
               <div class="label">Revenue</div>
               <div class="value" id="statRevenue">₹0</div>
               <div class="sub">Delivered orders</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2nd row stats -->
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card" style="cursor:pointer;" onclick="showView('delivery')">
+            <div class="stat-icon green"><i class="fas fa-motorcycle"></i></div>
+            <div class="stat-info">
+              <div class="label">Delivery Boys</div>
+              <div class="value" id="statDeliveryBoys">0</div>
+              <div class="sub" id="statAvailableDB">0 available</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+              <div class="label">Out of Range</div>
+              <div class="value" id="statOutRange" style="color:#dc2626;">0</div>
+              <div class="sub">Orders need review</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-truck"></i></div>
+            <div class="stat-info">
+              <div class="label">Active Deliveries</div>
+              <div class="value" id="statActiveDeliveries">0</div>
+              <div class="sub">On the way now</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+              <div class="label">Avg Delivery</div>
+              <div class="value" id="statAvgTime">~30 min</div>
+              <div class="sub">Target time</div>
             </div>
           </div>
         </div>
@@ -1153,6 +1198,7 @@
                 <tr>
                   <th>#</th>
                   <th>Medicine Name</th>
+                  <th>Category</th>
                   <th>Quantity</th>
                   <th>Price (₹)</th>
                   <th>Stock Level</th>
@@ -1192,9 +1238,10 @@
                 <tr>
                   <th>Order ID</th>
                   <th>Customer</th>
+                  <th>Phone</th>
                   <th>Items</th>
                   <th>Total</th>
-                  <th>Address</th>
+                  <th>City</th>
                   <th>Payment</th>
                   <th>Status</th>
                   <th>Date</th>
@@ -1298,6 +1345,20 @@
                 <label class="form-label">License Number</label>
                 <input class="form-input" id="pLicense" placeholder="PHARM123456" />
               </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">📍 Pharmacy City *</label>
+                  <input class="form-input" id="pCity" placeholder="e.g. Noida" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">🗺️ Delivery Radius (km)</label>
+                  <select class="form-select" id="pDeliveryRadius">
+                    <option value="10">10 km</option>
+                    <option value="15" selected>15 km (Recommended)</option>
+                    <option value="20">20 km</option>
+                  </select>
+                </div>
+              </div>
               <button type="button" class="btn-green" onclick="savePharmacyProfile()" style="width:100%;">
                 <i class="fas fa-save"></i> Save Changes
               </button>
@@ -1325,6 +1386,99 @@
         </div>
       </div>
 
+      <!-- ════ DELIVERY BOYS ════ -->
+      <div id="view-delivery" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-motorcycle"></i> Delivery Boys</div>
+          <button class="btn-green" onclick="openAddDeliveryModal()"><i class="fas fa-plus"></i> Add Delivery Boy</button>
+        </div>
+
+        <!-- Coverage area info -->
+        <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid var(--green-border);">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="font-size:2rem;">🗺️</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;color:var(--green);font-size:15px;">Delivery Coverage Zone</div>
+              <div style="font-size:13px;color:var(--muted);margin-top:3px;" id="coverageInfo">Pharmacy location set karein Profile mein — fir 10-15km radius mein delivery hogi.</div>
+            </div>
+            <button class="btn-outline" onclick="showView('profile')" style="font-size:12px;padding:6px 14px;">Set Location →</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-motorcycle"></i> Active Delivery Boys</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Name</th><th>Phone</th><th>Status</th>
+                <th>Active Orders</th><th>Total Delivered</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="deliveryTbl">
+                <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">
+                  <i class="fas fa-motorcycle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3;"></i>
+                  Koi delivery boy nahi — Add karo
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ CUSTOMERS ════ -->
+      <div id="view-customers" class="view">
+        <div class="page-head">
+          <div class="page-title"><i class="fas fa-users"></i> Customers</div>
+          <div style="font-size:13px;color:var(--muted);" id="custCount">Total: 0 customers</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <div class="label">Total Customers</div>
+              <div class="value" id="cs-total">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-repeat"></i></div>
+            <div class="stat-info">
+              <div class="label">Repeat Customers</div>
+              <div class="value" id="cs-repeat">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-rupee-sign"></i></div>
+            <div class="stat-info">
+              <div class="label">Avg Order Value</div>
+              <div class="value" id="cs-avg">₹0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="stat-info">
+              <div class="label">Top City</div>
+              <div class="value" id="cs-city" style="font-size:16px;">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="search-bar" style="margin-bottom:16px;">
+            <input class="search-input" id="custSearch" placeholder="🔍 Search by name, email or city..." oninput="renderCustomers()">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>#</th><th>Customer</th><th>Email</th><th>City</th>
+                <th>Orders</th><th>Total Spent</th><th>Last Order</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="custTbl"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -1333,16 +1487,51 @@
 
   <!-- ══ ADD/EDIT MEDICINE MODAL ══ -->
   <div class="modal-overlay" id="medModal">
-    <div class="modal-box">
+    <div class="modal-box wide">
       <div class="modal-head">
-        <div class="modal-title" id="medModalTitle">Medicine Add Karo</div>
+        <div class="modal-title" id="medModalTitle">Add Medicine</div>
         <button class="modal-close" onclick="closeModal('medModal')">✕</button>
       </div>
       <input type="hidden" id="medEditId" value="" />
+
+      <!-- Step 1: Medicine Basic Info -->
       <div class="form-group">
         <label class="form-label">Medicine Name *</label>
         <input class="form-input" id="medName" placeholder="e.g. Paracetamol 500mg" />
       </div>
+
+      <!-- Category Picker -->
+      <div class="form-group">
+        <label class="form-label">📂 Select Category *</label>
+        <div id="catPickerWrap">
+
+          <!-- Existing Categories Grid -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:10px;" id="catGrid">
+            <!-- Filled by JS -->
+          </div>
+
+          <!-- New Category Option -->
+          <div id="newCatOption"
+            onclick="selectCatOption('__new__')"
+            style="border:2px dashed #cbd5e1;border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:#64748b;transition:all .2s;"
+            onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'"
+            onmouseout="if(selectedCatKey!=='__new__'){this.style.borderColor='#cbd5e1';this.style.color='#64748b';}">
+            ➕ Create New Category
+          </div>
+
+          <!-- New Category Input (hidden until selected) -->
+          <div id="newCatInputWrap" style="display:none;margin-top:10px;">
+            <input class="form-input" id="newCatName" placeholder="Category name e.g. Eye Care, Dental, Skin" />
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;" id="newCatIconRow">
+              <!-- Icon picker filled by JS -->
+            </div>
+          </div>
+
+        </div>
+        <input type="hidden" id="medCategory" />
+        <span id="selectedCatDisplay" style="font-size:12px;color:#16a34a;font-weight:600;margin-top:4px;display:none;"></span>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Quantity *</label>
@@ -1353,6 +1542,7 @@
           <input class="form-input" id="medPrice" type="number" min="0" step="0.01" placeholder="e.g. 50" />
         </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('medModal')">Cancel</button>
         <button class="btn-save" onclick="saveMedicine()">Save Medicine</button>
@@ -1469,7 +1659,88 @@
     </div>
   </div>
 
+  <!-- ══ ADD DELIVERY BOY MODAL ══ -->
+  <div class="modal-overlay" id="addDeliveryModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-head">
+        <div class="modal-title">🏍️ Delivery Boy Add Karo</div>
+        <button class="modal-close" onclick="closeModal('addDeliveryModal')">✕</button>
+      </div>
+      <input type="hidden" id="dbEditId" value="">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input class="form-input" id="dbName" placeholder="e.g. Rahul Kumar">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone *</label>
+          <input class="form-input" id="dbPhone" type="tel" maxlength="10" placeholder="10-digit number">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vehicle Type</label>
+          <select class="form-select" id="dbVehicle">
+            <option value="bike">🏍️ Bike</option>
+            <option value="scooter">🛵 Scooter</option>
+            <option value="cycle">🚲 Cycle</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="dbStatus">
+            <option value="available">✅ Available</option>
+            <option value="busy">🔴 Busy</option>
+            <option value="offline">⚫ Offline</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('addDeliveryModal')">Cancel</button>
+        <button class="btn-save" onclick="saveDeliveryBoy()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CUSTOMER DETAIL MODAL ══ -->
+  <div class="modal-overlay" id="custDetailModal">
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <div class="modal-title">👤 Customer Details</div>
+        <button class="modal-close" onclick="closeModal('custDetailModal')">✕</button>
+      </div>
+      <div id="custDetailContent"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('custDetailModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUICK STATUS MODAL ══ -->
+  <div class="modal-overlay" id="quickStatusModal">
+    <div class="modal-box" style="max-width:400px;">
+      <div class="modal-head">
+        <div class="modal-title">⚡ Quick Actions</div>
+        <button class="modal-close" onclick="closeModal('quickStatusModal')">✕</button>
+      </div>
+      <div id="quickStatusContent"></div>
+    </div>
+  </div>
+
   <script>
+    // ── AUTH GUARD ──
+    (function() {
+      const session = localStorage.getItem('mq_admin_session');
+      if (!session) {
+        window.location.href = 'admin-login.html';
+      } else {
+        try {
+          const admin = JSON.parse(session);
+          const nameEl = document.getElementById('headerPharmacyName');
+          if (nameEl && admin.shopName) nameEl.textContent = admin.shopName;
+        } catch(e) {}
+      }
+    })();
     // ══════════════════════════════════════════════════
     //  DATA
     // ══════════════════════════════════════════════════
@@ -1498,6 +1769,8 @@
     }
     function saveMedicinesLS() {
       localStorage.setItem('mq_admin_medicines', JSON.stringify(medicines));
+      // Timestamp save karo taaki profile.html ko pata chale
+      localStorage.setItem('mq_medicines_updated', Date.now().toString());
     }
 
     // Load orders from localStorage (from user orders)
@@ -1535,6 +1808,8 @@
       if (name === 'orders') renderOrders();
       if (name === 'analytics') renderAnalytics();
       if (name === 'profile') renderProfile();
+      if (name === 'delivery') renderDeliveryBoys();
+      if (name === 'customers') renderCustomers();
     }
 
     // ══════════════════════════════════════════════════
@@ -1542,10 +1817,21 @@
     // ══════════════════════════════════════════════════
     function renderDashboard() {
       const orders = loadOrders();
+      const boys = getDeliveryBoys();
+      const profile = loadProfile();
       const lowCount = medicines.filter(m => m.quantity < 10).length;
       const pendingCount = orders.filter(o => ['pending', 'confirmed', 'packing', 'on_the_way'].includes(o.status)).length;
       const revenue = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
-      const customers = new Set(orders.map(o => o.name || o.customer || 'Unknown')).size;
+      const customers = new Set(orders.map(o => o.customerEmail || o.name || 'Unknown')).size;
+      const availableDB = boys.filter(b => b.status === 'available').length;
+      const activeDeliveries = orders.filter(o => o.status === 'on_the_way').length;
+
+      // Out of range check
+      const pharmCity = (profile.city || '').toLowerCase();
+      const outOfRange = pharmCity ? orders.filter(o => {
+        const custCity = (o.deliveryAddr?.city || o.city || '').toLowerCase();
+        return custCity && custCity !== pharmCity && ['confirmed','packing','on_the_way'].includes(o.status);
+      }).length : 0;
 
       document.getElementById('statMeds').textContent = medicines.length;
       document.getElementById('statLow').textContent = lowCount + ' low stock';
@@ -1553,6 +1839,10 @@
       document.getElementById('statPending').textContent = pendingCount + ' active';
       document.getElementById('statCustomers').textContent = customers;
       document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+      document.getElementById('statDeliveryBoys').textContent = boys.length;
+      document.getElementById('statAvailableDB').textContent = availableDB + ' available';
+      document.getElementById('statOutRange').textContent = outOfRange;
+      document.getElementById('statActiveDeliveries').textContent = activeDeliveries;
 
       // Badges
       const lb = document.getElementById('lowBadge');
@@ -1619,6 +1909,7 @@
         return `<tr>
       <td>${i + 1}</td>
       <td><strong>${m.name}</strong></td>
+      <td style="font-size:12px;color:var(--muted);">${m.category || '—'}</td>
       <td>${m.quantity}</td>
       <td>₹${m.price}</td>
       <td>
@@ -1636,23 +1927,169 @@
       }).join('');
     }
 
+    // ══════════════════════════════════════════════════
+    //  CATEGORY SYSTEM
+    // ══════════════════════════════════════════════════
+
+    // Built-in categories with icons
+    const BUILTIN_CATS = [
+      { key: 'fever',       label: 'Fever & Pain',    icon: '🌡️',  color: '#fee2e2', border: '#fca5a5' },
+      { key: 'allergy',     label: 'Allergies',       icon: '🤧',  color: '#dbeafe', border: '#93c5fd' },
+      { key: 'heart',       label: 'Heart Care',      icon: '❤️',  color: '#fce7f3', border: '#f9a8d4' },
+      { key: 'brain',       label: 'Brain & Nerves',  icon: '🧠',  color: '#f3e8ff', border: '#c4b5fd' },
+      { key: 'respiratory', label: 'Respiratory',     icon: '🫁',  color: '#e0f2fe', border: '#7dd3fc' },
+      { key: 'bone',        label: 'Bone & Joint',    icon: '🦴',  color: '#fef9c3', border: '#fde047' },
+      { key: 'cold',        label: 'Cold & Cough',    icon: '🤒',  color: '#f0fdf4', border: '#86efac' },
+      { key: 'bp',          label: 'BP & Heart',      icon: '💊',  color: '#fff7ed', border: '#fdba74' },
+      { key: 'diabetes',    label: 'Diabetes',        icon: '💉',  color: '#fdf4ff', border: '#e879f9' },
+      { key: 'other',       label: 'Other',           icon: '🔵',  color: '#f8fafc', border: '#cbd5e1' },
+    ];
+
+    // New category icons to pick from
+    const NEW_CAT_ICONS = ['💊','🩺','🧴','🩹','👁️','🦷','🧬','💪','🌿','🏥','🩻','💆','🧪','🫀','🩸','🌡️','🍃','⚡','🔬','🎯'];
+
+    let selectedCatKey = '';
+    let selectedNewCatIcon = '💊';
+
+    function getCustomCats() {
+      try { return JSON.parse(localStorage.getItem('mq_custom_categories') || '[]'); } catch(e) { return []; }
+    }
+    function saveCustomCats(cats) {
+      localStorage.setItem('mq_custom_categories', JSON.stringify(cats));
+    }
+
+    function getAllCats() {
+      return [...BUILTIN_CATS, ...getCustomCats()];
+    }
+
+    function renderCatGrid(selectedKey) {
+      const all = getAllCats();
+      const grid = document.getElementById('catGrid');
+      if (!grid) return;
+
+      grid.innerHTML = all.map(cat => {
+        const isSelected = cat.key === selectedKey;
+        return `<div
+          onclick="selectCatOption('${cat.key}')"
+          style="
+            border: 2px solid ${isSelected ? '#16a34a' : cat.border};
+            background: ${isSelected ? '#f0fdf4' : cat.color};
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .15s;
+            position: relative;
+          "
+          onmouseover="this.style.borderColor='#16a34a';this.style.transform='translateY(-1px)'"
+          onmouseout="if('${cat.key}'!==selectedCatKey){this.style.borderColor='${cat.border}';this.style.transform='none';}">
+          <div style="font-size:22px;margin-bottom:4px;">${cat.icon}</div>
+          <div style="font-size:11px;font-weight:700;color:#374151;line-height:1.3;">${cat.label}</div>
+          ${isSelected ? '<div style="position:absolute;top:4px;right:4px;background:#16a34a;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center;">✓</div>' : ''}
+        </div>`;
+      }).join('');
+
+      // New category option border
+      const newOpt = document.getElementById('newCatOption');
+      if (newOpt) {
+        const isNew = selectedKey === '__new__';
+        newOpt.style.borderColor = isNew ? '#16a34a' : '#cbd5e1';
+        newOpt.style.color = isNew ? '#16a34a' : '#64748b';
+        newOpt.style.background = isNew ? '#f0fdf4' : '#fff';
+      }
+    }
+
+    function selectCatOption(key) {
+      selectedCatKey = key;
+      renderCatGrid(key);
+
+      const newWrap = document.getElementById('newCatInputWrap');
+      const display = document.getElementById('selectedCatDisplay');
+
+      if (key === '__new__') {
+        if (newWrap) newWrap.style.display = 'block';
+        renderNewCatIcons();
+        if (display) display.style.display = 'none';
+        document.getElementById('medCategory').value = '';
+      } else {
+        if (newWrap) newWrap.style.display = 'none';
+        const cat = getAllCats().find(c => c.key === key);
+        if (cat) {
+          document.getElementById('medCategory').value = cat.label;
+          if (display) {
+            display.textContent = '✓ Selected: ' + cat.icon + ' ' + cat.label;
+            display.style.display = 'block';
+          }
+        }
+      }
+    }
+
+    function renderNewCatIcons() {
+      const row = document.getElementById('newCatIconRow');
+      if (!row) return;
+      row.innerHTML = NEW_CAT_ICONS.map(icon => `
+        <span
+          onclick="selectNewCatIcon('${icon}', this)"
+          style="
+            font-size:22px;cursor:pointer;padding:6px;border-radius:8px;
+            border: 2px solid ${icon === selectedNewCatIcon ? '#16a34a' : '#e5e7eb'};
+            background: ${icon === selectedNewCatIcon ? '#f0fdf4' : '#fff'};
+            transition: all .15s;
+          "
+          onmouseover="this.style.borderColor='#16a34a'"
+          onmouseout="if('${icon}'!==selectedNewCatIcon) this.style.borderColor='#e5e7eb'">
+          ${icon}
+        </span>`).join('');
+    }
+
+    function selectNewCatIcon(icon, el) {
+      selectedNewCatIcon = icon;
+      document.querySelectorAll('#newCatIconRow span').forEach(s => {
+        s.style.borderColor = '#e5e7eb';
+        s.style.background = '#fff';
+      });
+      el.style.borderColor = '#16a34a';
+      el.style.background = '#f0fdf4';
+    }
+
     function openAddMedModal() {
-      document.getElementById('medModalTitle').textContent = 'Naya Medicine Add Karo';
+      document.getElementById('medModalTitle').textContent = 'Add New Medicine';
       document.getElementById('medEditId').value = '';
       document.getElementById('medName').value = '';
+      document.getElementById('medCategory').value = '';
       document.getElementById('medQty').value = '';
       document.getElementById('medPrice').value = '';
+      document.getElementById('newCatInputWrap').style.display = 'none';
+      document.getElementById('selectedCatDisplay').style.display = 'none';
+      selectedCatKey = '';
+      selectedNewCatIcon = '💊';
+      renderCatGrid('');
       openModal('medModal');
     }
 
     function openEditMedModal(id) {
       const m = medicines.find(x => x.id === id);
       if (!m) return;
-      document.getElementById('medModalTitle').textContent = 'Medicine Edit Karo';
+      document.getElementById('medModalTitle').textContent = 'Edit Medicine';
       document.getElementById('medEditId').value = id;
       document.getElementById('medName').value = m.name;
+      document.getElementById('medCategory').value = m.category || '';
       document.getElementById('medQty').value = m.quantity;
       document.getElementById('medPrice').value = m.price;
+      document.getElementById('newCatInputWrap').style.display = 'none';
+
+      // Pre-select existing category
+      const catLabel = m.category || '';
+      const found = getAllCats().find(c => c.label === catLabel || c.key === catLabel);
+      selectedCatKey = found ? found.key : '';
+      selectedNewCatIcon = '💊';
+      renderCatGrid(selectedCatKey);
+
+      const display = document.getElementById('selectedCatDisplay');
+      if (found && display) {
+        display.textContent = '✓ Selected: ' + found.icon + ' ' + found.label;
+        display.style.display = 'block';
+      }
       openModal('medModal');
     }
 
@@ -1660,18 +2097,44 @@
       const name = document.getElementById('medName').value.trim();
       const qty = parseInt(document.getElementById('medQty').value);
       const price = parseFloat(document.getElementById('medPrice').value);
+
       if (!name || isNaN(qty) || qty < 0 || isNaN(price) || price < 0) {
-        showToast('⚠️ Sab fields sahi se bharo!', 'error'); return;
+        showToast('⚠️ Please fill name, quantity and price!', 'error'); return;
       }
+
+      // Resolve category
+      let finalCategory = '';
+      let finalCatKey = selectedCatKey;
+
+      if (selectedCatKey === '__new__') {
+        // Create new category
+        const newName = (document.getElementById('newCatName')?.value || '').trim();
+        if (!newName) { showToast('⚠️ Please enter a category name!', 'error'); return; }
+        const newKey = 'custom_' + Date.now();
+        const customCats = getCustomCats();
+        const newCat = { key: newKey, label: newName, icon: selectedNewCatIcon, color: '#f0fdf4', border: '#86efac' };
+        customCats.push(newCat);
+        saveCustomCats(customCats);
+        finalCategory = newName;
+        finalCatKey = newKey;
+        showToast('✅ New category "' + newName + '" created!');
+      } else if (selectedCatKey) {
+        const cat = getAllCats().find(c => c.key === selectedCatKey);
+        finalCategory = cat ? cat.label : document.getElementById('medCategory').value.trim();
+      } else {
+        finalCategory = document.getElementById('medCategory').value.trim() || 'Other';
+        finalCatKey = 'other';
+      }
+
       const editId = document.getElementById('medEditId').value;
       if (editId) {
         const m = medicines.find(x => x.id === parseInt(editId));
-        if (m) { m.name = name; m.quantity = qty; m.price = price; }
-        showToast('✅ Medicine update ho gayi!');
+        if (m) { m.name = name; m.category = finalCategory; m.catKey = finalCatKey; m.quantity = qty; m.price = price; }
+        showToast('✅ Medicine updated!');
       } else {
         const newId = medicines.length ? Math.max(...medicines.map(x => x.id)) + 1 : 1;
-        medicines.push({ id: newId, name, quantity: qty, price });
-        showToast('✅ Medicine add ho gayi!');
+        medicines.push({ id: newId, name, category: finalCategory, catKey: finalCatKey, quantity: qty, price });
+        showToast('✅ Medicine added! Visible to customers now.');
       }
       saveMedicinesLS();
       closeModal('medModal');
@@ -1757,9 +2220,17 @@
       tbl.innerHTML = list.map(o => {
         const items = (o.items || []).map(i => `${i.med?.name || i.name}×${i.qty}`).join(', ') || '—';
         const addr = o.deliveryAddr ? `${o.deliveryAddr.city || ''}` : (o.city || '—');
-        return `<tr>
-      <td><strong>${o.orderId || '—'}</strong></td>
-      <td>${o.name || o.customer || 'Guest'}</td>
+        const custName = o.customerName || o.name || o.customer || 'Guest';
+        const custEmail = o.customerEmail ? `<br><small style="color:#6b7280;">${o.customerEmail}</small>` : '';
+        const phone = o.deliveryAddr?.phone || '—';
+        const profile = loadProfile();
+        const pharmCity = (profile.city || '').toLowerCase();
+        const custCity = (o.deliveryAddr?.city || o.city || '').toLowerCase();
+        const outOfRange = pharmCity && custCity && custCity !== pharmCity;
+        return `<tr ${outOfRange ? 'style="background:#fff7f7;"' : ''}>
+      <td><strong>${o.orderId || '—'}</strong>${outOfRange ? '<br><span style="font-size:10px;background:#fee2e2;color:#dc2626;padding:1px 5px;border-radius:4px;font-weight:700;">OUT OF RANGE</span>' : ''}</td>
+      <td>${custName}${custEmail}</td>
+      <td style="font-size:12px;"><a href="tel:${phone}" style="color:var(--green);font-weight:600;">📞 ${phone}</a></td>
       <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${items}">${items}</td>
       <td><strong style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</strong></td>
       <td>${addr}</td>
@@ -1767,6 +2238,7 @@
       <td>${statusBadge(o.status)}</td>
       <td style="font-size:11px;">${o.date || '—'}</td>
       <td style="display:flex;gap:5px;flex-wrap:wrap;">
+        <button class="act-btn act-view" onclick="openQuickActions('${o.orderId}')" style="background:#dcfce7;color:#16a34a;" title="Quick Actions">⚡</button>
         <button class="act-btn act-view" onclick="viewOrderDetail('${o.orderId}')">👁</button>
         <button class="act-btn act-update" onclick="openStatusModal('${o.orderId}','${o.status}')">✏️</button>
       </td>
@@ -1782,7 +2254,8 @@
       const addr = o.deliveryAddr;
       document.getElementById('orderDetailContent').innerHTML = `
     <div class="detail-row"><span class="detail-label">Order ID:</span><span class="detail-val"><strong>${o.orderId}</strong></span></div>
-    <div class="detail-row"><span class="detail-label">Customer:</span><span class="detail-val">${o.name || 'Guest'}</span></div>
+    <div class="detail-row"><span class="detail-label">Customer:</span><span class="detail-val">${o.customerName || o.name || 'Guest'}</span></div>
+    ${o.customerEmail ? `<div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${o.customerEmail}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-val">${statusBadge(o.status)}</span></div>
     <div class="detail-row"><span class="detail-label">Payment:</span><span class="detail-val">${o.payMethod || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Date:</span><span class="detail-val">${o.date || '—'}</span></div>
@@ -1811,11 +2284,348 @@
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
       o.status = newStatus;
+      o.statusUpdatedAt = Date.now();
       saveOrdersLS(orders);
       closeModal('statusModal');
       renderOrders();
       renderDashboard();
       showToast(`✅ Order ${orderId} status → ${newStatus}`);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  QUICK ORDER ACTIONS (one-click status flow)
+    // ══════════════════════════════════════════════════
+    function openQuickActions(orderId) {
+      const orders = loadOrders();
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+
+      const flow = {
+        confirmed: { next: 'packing',    label: '📦 Start Packing',    cls: 'btn-green' },
+        packing:   { next: 'on_the_way', label: '🚴 Send for Delivery', cls: 'btn-green' },
+        on_the_way:{ next: 'delivered',  label: '✅ Mark Delivered',    cls: 'btn-green' },
+        pending:   { next: 'confirmed',  label: '📋 Confirm Order',     cls: 'btn-green' },
+      };
+
+      const dbList = getDeliveryBoys().filter(d => d.status === 'available');
+      const step = flow[o.status];
+      const profile = loadProfile();
+      const maxKm = parseInt(profile.deliveryRadius || 15);
+
+      // Distance warning (rough check by city match)
+      const custCity = (o.deliveryAddr?.city || o.city || '').toLowerCase();
+      const pharmCity = (profile.city || '').toLowerCase();
+      const outOfRange = pharmCity && custCity && custCity !== pharmCity;
+
+      document.getElementById('quickStatusContent').innerHTML = `
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Order</div>
+          <div style="font-weight:700;">${o.orderId}</div>
+          <div style="font-size:13px;color:var(--muted);">${o.customerName || o.name || 'Guest'} • ${o.deliveryAddr?.city || o.city || '—'}</div>
+          <div style="margin-top:6px;">${statusBadge(o.status)}</div>
+        </div>
+
+        ${outOfRange ? `
+        <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#dc2626;">
+          ⚠️ <strong>Out of Range Alert!</strong> Customer city (${o.deliveryAddr?.city || o.city}) aapki pharmacy city se alag lag rahi hai. Delivery radius ${maxKm}km hai.
+        </div>` : ''}
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${step ? `<button class="${step.cls}" onclick="quickStatusUpdate('${orderId}','${step.next}')"
+            style="padding:12px;border-radius:10px;font-family:Poppins,sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;">
+            ${step.label}
+          </button>` : `<div style="text-align:center;color:var(--green);font-weight:700;padding:12px;">✅ Order Complete</div>`}
+
+          ${o.status !== 'delivered' && o.status !== 'cancelled' ? `
+          <button onclick="quickStatusUpdate('${orderId}','cancelled')"
+            style="padding:11px;border-radius:10px;font-family:Poppins,sans-serif;font-weight:600;font-size:13px;border:none;cursor:pointer;background:#fee2e2;color:#dc2626;">
+            ❌ Cancel Order
+          </button>` : ''}
+
+          ${o.status === 'packing' && dbList.length > 0 ? `
+          <div style="margin-top:8px;">
+            <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Delivery Boy Assign</div>
+            ${dbList.map(d => `
+            <div onclick="assignDelivery('${orderId}','${d.id}')"
+              style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.borderColor='#16a34a'" onmouseout="this.style.borderColor='#e5e7eb'">
+              <div style="width:36px;height:36px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#16a34a;">${d.name.charAt(0)}</div>
+              <div>
+                <div style="font-weight:600;font-size:13px;">${d.name}</div>
+                <div style="font-size:11px;color:var(--muted);">${d.phone} • ${d.vehicle === 'bike' ? '🏍️' : d.vehicle === 'scooter' ? '🛵' : '🚲'}</div>
+              </div>
+            </div>`).join('')}
+          </div>` : ''}
+        </div>
+      `;
+      openModal('quickStatusModal');
+    }
+
+    function quickStatusUpdate(orderId, newStatus) {
+      const orders = loadOrders();
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      o.status = newStatus;
+      o.statusUpdatedAt = Date.now();
+      saveOrdersLS(orders);
+      closeModal('quickStatusModal');
+      renderOrders();
+      renderDashboard();
+      const labels = { packing: 'Packing shuru', on_the_way: 'Delivery pe nikla', delivered: 'Delivered!', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+      showToast(`✅ ${orderId}: ${labels[newStatus] || newStatus}`);
+    }
+
+    function assignDelivery(orderId, dbId) {
+      const boys = getDeliveryBoys();
+      const db = boys.find(x => x.id === dbId);
+      if (!db) return;
+      const orders = loadOrders();
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      o.deliveryBoy = { id: db.id, name: db.name, phone: db.phone };
+      o.status = 'on_the_way';
+      o.statusUpdatedAt = Date.now();
+      saveOrdersLS(orders);
+      // Mark delivery boy as busy
+      db.status = 'busy';
+      db.activeOrder = orderId;
+      saveDeliveryBoysLS(boys);
+      closeModal('quickStatusModal');
+      renderOrders();
+      renderDeliveryBoys();
+      showToast(`🚴 ${db.name} ko assign kiya — On the Way!`);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  DELIVERY BOYS
+    // ══════════════════════════════════════════════════
+    function getDeliveryBoys() {
+      try { return JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]'); } catch(e) { return []; }
+    }
+    function saveDeliveryBoysLS(boys) {
+      localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
+    }
+
+    function openAddDeliveryModal() {
+      document.getElementById('dbEditId').value = '';
+      document.getElementById('dbName').value = '';
+      document.getElementById('dbPhone').value = '';
+      document.getElementById('dbVehicle').value = 'bike';
+      document.getElementById('dbStatus').value = 'available';
+      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '🏍️ Delivery Boy Add Karo';
+      openModal('addDeliveryModal');
+    }
+
+    function saveDeliveryBoy() {
+      const name = document.getElementById('dbName').value.trim();
+      const phone = document.getElementById('dbPhone').value.trim();
+      const vehicle = document.getElementById('dbVehicle').value;
+      const status = document.getElementById('dbStatus').value;
+      const editId = document.getElementById('dbEditId').value;
+
+      if (!name || !/^[6-9]\d{9}$/.test(phone)) {
+        showToast('⚠️ Naam aur valid 10-digit phone number daalo!', 'error'); return;
+      }
+
+      const boys = getDeliveryBoys();
+      if (editId) {
+        const b = boys.find(x => x.id === editId);
+        if (b) { b.name = name; b.phone = phone; b.vehicle = vehicle; b.status = status; }
+        showToast('✅ Delivery boy update ho gaya!');
+      } else {
+        boys.push({ id: 'DB' + Date.now(), name, phone, vehicle, status, totalDelivered: 0, activeOrder: null, joinedAt: Date.now() });
+        showToast('✅ Delivery boy add ho gaya!');
+      }
+      saveDeliveryBoysLS(boys);
+      closeModal('addDeliveryModal');
+      renderDeliveryBoys();
+    }
+
+    function renderDeliveryBoys() {
+      const boys = getDeliveryBoys();
+      const orders = loadOrders();
+      const profile = loadProfile();
+
+      // Coverage info
+      if (profile.city) {
+        document.getElementById('coverageInfo').textContent =
+          `📍 ${profile.shopName || 'Aapki pharmacy'}, ${profile.city} — ${profile.deliveryRadius || 15}km radius mein delivery hogi.`;
+      }
+
+      // Badge
+      const busy = boys.filter(b => b.status === 'busy').length;
+      const badge = document.getElementById('deliveryBadge');
+      badge.textContent = busy;
+      badge.style.display = busy > 0 ? 'inline-block' : 'none';
+
+      const tbl = document.getElementById('deliveryTbl');
+      if (!boys.length) {
+        tbl.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">
+          <i class="fas fa-motorcycle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3;"></i>
+          Koi delivery boy nahi — Add karo
+        </td></tr>`;
+        return;
+      }
+
+      tbl.innerHTML = boys.map(b => {
+        const activeOrders = orders.filter(o => o.deliveryBoy?.id === b.id && o.status === 'on_the_way').length;
+        const delivered = orders.filter(o => o.deliveryBoy?.id === b.id && o.status === 'delivered').length;
+        const statusMap = { available: '<span class="badge badge-on_the_way">✅ Available</span>', busy: '<span class="badge badge-confirmed">🔴 Busy</span>', offline: '<span class="badge badge-cancelled">⚫ Offline</span>' };
+        const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
+        return `<tr>
+          <td><strong>${b.name}</strong><br><small style="color:var(--muted);">${vMap[b.vehicle] || b.vehicle}</small></td>
+          <td><a href="tel:${b.phone}" style="color:var(--green);font-weight:600;">📞 ${b.phone}</a></td>
+          <td>${statusMap[b.status] || b.status}</td>
+          <td style="text-align:center;">${activeOrders}</td>
+          <td style="text-align:center;">${delivered}</td>
+          <td style="display:flex;gap:5px;flex-wrap:wrap;">
+            <button class="act-btn act-edit" onclick="editDeliveryBoy('${b.id}')">✏️</button>
+            <button class="act-btn ${b.status === 'available' ? 'act-del' : 'act-view'}" onclick="toggleDBStatus('${b.id}')">
+              ${b.status === 'offline' ? '▶️' : '⏸️'}
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function editDeliveryBoy(id) {
+      const b = getDeliveryBoys().find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('dbEditId').value = id;
+      document.getElementById('dbName').value = b.name;
+      document.getElementById('dbPhone').value = b.phone;
+      document.getElementById('dbVehicle').value = b.vehicle;
+      document.getElementById('dbStatus').value = b.status;
+      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '✏️ Delivery Boy Edit Karo';
+      openModal('addDeliveryModal');
+    }
+
+    function toggleDBStatus(id) {
+      const boys = getDeliveryBoys();
+      const b = boys.find(x => x.id === id);
+      if (!b) return;
+      b.status = b.status === 'offline' ? 'available' : 'offline';
+      saveDeliveryBoysLS(boys);
+      renderDeliveryBoys();
+      showToast(`${b.name}: ${b.status}`);
+    }
+
+    // ══════════════════════════════════════════════════
+    //  CUSTOMERS
+    // ══════════════════════════════════════════════════
+    function renderCustomers() {
+      const orders = loadOrders();
+      const q = (document.getElementById('custSearch')?.value || '').toLowerCase();
+
+      // Build customer map from orders
+      const custMap = {};
+      orders.forEach(o => {
+        const email = o.customerEmail || ('guest_' + (o.name || 'unknown').replace(/\s/g,'').toLowerCase());
+        if (!custMap[email]) {
+          custMap[email] = {
+            name: o.customerName || o.name || 'Guest',
+            email: o.customerEmail || '—',
+            city: o.deliveryAddr?.city || o.city || '—',
+            orders: [], totalSpent: 0
+          };
+        }
+        custMap[email].orders.push(o);
+        custMap[email].totalSpent += o.total || 0;
+        // Keep most recent city
+        if (o.deliveryAddr?.city) custMap[email].city = o.deliveryAddr.city;
+      });
+
+      let customers = Object.values(custMap);
+
+      // Filter
+      if (q) customers = customers.filter(c =>
+        c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)
+      );
+
+      // Sort by total spent
+      customers.sort((a, b) => b.totalSpent - a.totalSpent);
+
+      // Stats
+      document.getElementById('cs-total').textContent = customers.length;
+      document.getElementById('cs-repeat').textContent = customers.filter(c => c.orders.length > 1).length;
+      const avgVal = customers.length ? Math.round(customers.reduce((s, c) => s + c.totalSpent, 0) / customers.reduce((s, c) => s + c.orders.length, 0)) : 0;
+      document.getElementById('cs-avg').textContent = '₹' + (isNaN(avgVal) ? 0 : avgVal);
+      document.getElementById('custCount').textContent = `Total: ${customers.length} customers`;
+
+      // Top city
+      const cityCount = {};
+      customers.forEach(c => { cityCount[c.city] = (cityCount[c.city] || 0) + c.orders.length; });
+      const topCity = Object.entries(cityCount).sort((a,b)=>b[1]-a[1])[0];
+      document.getElementById('cs-city').textContent = topCity ? topCity[0] : '—';
+
+      const tbl = document.getElementById('custTbl');
+      if (!customers.length) {
+        tbl.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Koi customer data nahi mila.</td></tr>`;
+        return;
+      }
+
+      tbl.innerHTML = customers.map((c, i) => {
+        const lastOrder = c.orders.sort((a,b)=>(b.placedAt||0)-(a.placedAt||0))[0];
+        const isRepeat = c.orders.length > 1;
+        return `<tr>
+          <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:32px;height:32px;background:var(--green2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:13px;">${c.name.charAt(0).toUpperCase()}</div>
+              <div>
+                <div style="font-weight:600;font-size:13px;">${c.name}</div>
+                ${isRepeat ? '<span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:10px;font-weight:700;">REPEAT</span>' : ''}
+              </div>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">${c.email}</td>
+          <td><i class="fas fa-map-marker-alt" style="color:var(--green);margin-right:4px;font-size:11px;"></i>${c.city}</td>
+          <td style="text-align:center;font-weight:700;">${c.orders.length}</td>
+          <td style="font-weight:700;color:var(--green);">₹${c.totalSpent.toLocaleString('en-IN')}</td>
+          <td style="font-size:12px;color:var(--muted);">${lastOrder?.date || '—'}</td>
+          <td><button class="act-btn act-view" onclick="viewCustomerDetail('${c.email}')">👁 View</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function viewCustomerDetail(email) {
+      const orders = loadOrders();
+      const custOrders = orders.filter(o => (o.customerEmail || ('guest_' + (o.name||'unknown').replace(/\s/g,'').toLowerCase())) === email)
+        .sort((a,b) => (b.placedAt||0) - (a.placedAt||0));
+
+      if (!custOrders.length) return;
+      const c = custOrders[0];
+      const name = c.customerName || c.name || 'Guest';
+      const totalSpent = custOrders.reduce((s,o) => s + (o.total||0), 0);
+
+      document.getElementById('custDetailContent').innerHTML = `
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <div style="width:56px;height:56px;background:var(--green2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:22px;">${name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:17px;font-weight:700;">${name}</div>
+            <div style="font-size:13px;color:var(--muted);">${c.customerEmail || '—'}</div>
+            <div style="font-size:13px;color:var(--muted);"><i class="fas fa-map-marker-alt" style="color:var(--green);"></i> ${c.deliveryAddr?.city || c.city || '—'}</div>
+          </div>
+          <div style="margin-left:auto;text-align:right;">
+            <div style="font-size:22px;font-weight:700;color:var(--green);">₹${totalSpent.toLocaleString('en-IN')}</div>
+            <div style="font-size:12px;color:var(--muted);">${custOrders.length} orders</div>
+          </div>
+        </div>
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;">Order History</div>
+        ${custOrders.map(o => `
+        <div style="border:1px solid #f3f4f6;border-radius:10px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <strong>${o.orderId}</strong>
+            ${statusBadge(o.status)}
+          </div>
+          <div style="font-size:12px;color:var(--muted);">${(o.items||[]).map(i=>`${i.med?.name||i.name}×${i.qty}`).join(', ')}</div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;">
+            <span style="color:var(--muted);">${o.date||'—'}</span>
+            <strong style="color:var(--green);">₹${o.total||0}</strong>
+          </div>
+        </div>`).join('')}
+      `;
+      openModal('custDetailModal');
     }
 
     // ══════════════════════════════════════════════════
@@ -1880,9 +2690,13 @@
       document.getElementById('pPhone').value = p.phone || '';
       document.getElementById('pEmail').value = p.email || '';
       document.getElementById('pLicense').value = p.license || '';
+      document.getElementById('pCity').value = p.city || '';
+      document.getElementById('pDeliveryRadius').value = p.deliveryRadius || '15';
     }
 
     function savePharmacyProfile() {
+      const city = document.getElementById('pCity').value.trim();
+      if (!city) { showToast('⚠️ City zaroori hai — delivery range check ke liye!', 'error'); return; }
       const p = {
         name: document.getElementById('pName').value.trim(),
         owner: document.getElementById('pOwner').value.trim(),
@@ -1890,11 +2704,15 @@
         phone: document.getElementById('pPhone').value.trim(),
         email: document.getElementById('pEmail').value.trim(),
         license: document.getElementById('pLicense').value.trim(),
+        city: city,
+        deliveryRadius: document.getElementById('pDeliveryRadius').value,
+        shopName: document.getElementById('pName').value.trim(),
       };
       localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
       document.getElementById('headerPharmacyName').textContent = p.name || 'Pharmacy Admin';
       renderProfile();
-      showToast('✅ Profile save ho gayi!');
+      renderDashboard();
+      showToast('✅ Profile save ho gayi! Delivery zone: ' + city + ' (' + p.deliveryRadius + 'km)');
     }
 
     function changePassword() {
@@ -1914,8 +2732,8 @@
 
     function handleLogout() {
       if (confirm('Admin logout karna chahte ho?')) {
-        localStorage.removeItem('mediiquickAdmin');
-        window.location.href = 'login.html';
+        localStorage.removeItem('mq_admin_session');
+        window.location.href = 'admin-login.html';
       }
     }
 
@@ -1957,16 +2775,76 @@
     // ══════════════════════════════════════════════════
     //  INIT
     // ══════════════════════════════════════════════════
+
+    // Admin signup data se pharmacy profile auto-fill karo (first time)
+    (function autoFillProfileFromSignup() {
+      const existing = loadProfile();
+      if (existing.name) return; // already saved
+      try {
+        const admin = JSON.parse(localStorage.getItem('mq_admin') || '{}');
+        if (admin.shopName) {
+          const p = {
+            name: admin.shopName || '',
+            owner: admin.adminName || '',
+            address: admin.location || '',
+            phone: admin.mobile || '',
+            email: admin.email || '',
+            license: admin.drugLicense || '',
+            city: admin.city || '',
+            deliveryRadius: admin.deliveryRadius || '15',
+            shopName: admin.shopName || '',
+          };
+          localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
+        }
+      } catch(e) {}
+    })();
+
     loadMedicines();
     renderDashboard();
     renderProfile();
 
-    // Auto refresh every 30 sec
+    // ── New Order Notification ──
+    let lastKnownOrderCount = loadOrders().length;
+
+    // Har 10 second mein check karo naya order aaya ki nahi
     setInterval(() => {
+      const orders = loadOrders();
+      const newCount = orders.length;
+
+      // Naya order aaya?
+      if (newCount > lastKnownOrderCount) {
+        const diff = newCount - lastKnownOrderCount;
+        showToast(`🔔 ${diff} naya order aaya!`);
+
+        // Browser notification (agar permission ho)
+        if (Notification.permission === 'granted') {
+          new Notification('MediiQuick — Naya Order!', {
+            body: `${diff} naya order aa gaya hai. Dashboard check karo.`,
+            icon: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png'
+          });
+        }
+
+        // Nav badge update karo
+        const pendingCount = orders.filter(o => o.status === 'confirmed').length;
+        const badge = document.getElementById('pendingBadge');
+        if (badge) {
+          badge.textContent = pendingCount;
+          badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+        }
+
+        lastKnownOrderCount = newCount;
+      }
+
+      // Active view refresh
       const activeView = document.querySelector('.view.active')?.id;
       if (activeView === 'view-dashboard') renderDashboard();
       if (activeView === 'view-orders') renderOrders();
-    }, 30000);
+    }, 10000);
+
+    // Browser notification permission maango
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   </script>
 </body>
 

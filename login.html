@@ -858,7 +858,7 @@
 
     // ── User Login ──
     function doUserLogin() {
-      const email = document.getElementById('u-email').value.trim();
+      const email = document.getElementById('u-email').value.trim().toLowerCase();
       const pass = document.getElementById('u-pass').value;
       let valid = true;
 
@@ -880,14 +880,17 @@
         setLoading('userLoginBtn', false);
         try {
           const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
-          const matched = users.find(u => u.email === email && u.password === pass);
+          // Case-insensitive email match
+          const matched = users.find(u => (u.email || '').toLowerCase() === email && u.password === pass);
           if (matched) {
+            // Save with lowercase email for consistent order filtering
+            matched.email = matched.email.toLowerCase();
             localStorage.setItem('mq_user', JSON.stringify(matched));
             showToast('✓ Login successful!', 'success');
             setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
             return;
           }
-          const emailExists = users.find(u => u.email === email);
+          const emailExists = users.find(u => (u.email || '').toLowerCase() === email);
           if (emailExists) {
             showToast('⚠ Incorrect password. Please try again.', 'error');
           } else {
