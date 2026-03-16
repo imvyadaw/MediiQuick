@@ -50,7 +50,6 @@
             pointer-events: none;
         }
 
-        /* Floating pills decoration */
         .pill {
             position: absolute;
             border-radius: 50px;
@@ -83,7 +82,6 @@
             transform: rotate(30deg);
         }
 
-        /* ── Header ── */
         .header {
             padding: 18px 40px;
             display: flex;
@@ -130,7 +128,6 @@
             color: #4ade80;
         }
 
-        /* ── Main ── */
         .main {
             flex: 1;
             display: flex;
@@ -150,7 +147,6 @@
             overflow: hidden;
         }
 
-        /* Card top */
         .card-top {
             background: linear-gradient(135deg, #16a34a, #059669);
             padding: 32px 40px;
@@ -212,12 +208,10 @@
             z-index: 1;
         }
 
-        /* Card body */
         .card-body {
             padding: 36px 40px;
         }
 
-        /* Login type toggle */
         .login-type {
             display: flex;
             background: #f1f5f9;
@@ -247,7 +241,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
         }
 
-        /* Form groups */
         .form-group {
             margin-bottom: 18px;
         }
@@ -325,7 +318,6 @@
             display: flex;
         }
 
-        /* Forgot password */
         .forgot-row {
             display: flex;
             justify-content: space-between;
@@ -348,7 +340,6 @@
             text-decoration: underline;
         }
 
-        /* Remember me */
         .remember-row {
             display: flex;
             align-items: center;
@@ -369,7 +360,6 @@
             cursor: pointer;
         }
 
-        /* Login btn */
         .login-btn {
             width: 100%;
             background: #16a34a;
@@ -429,7 +419,6 @@
             }
         }
 
-        /* Divider */
         .divider {
             display: flex;
             align-items: center;
@@ -450,7 +439,6 @@
             white-space: nowrap;
         }
 
-        /* Quick fill demo */
         .demo-btn {
             width: 100%;
             background: #f8fafc;
@@ -475,7 +463,6 @@
             color: #16a34a;
         }
 
-        /* Card footer */
         .card-footer {
             padding: 20px 40px 32px;
             text-align: center;
@@ -497,7 +484,6 @@
             text-decoration: underline;
         }
 
-        /* Security badge */
         .security-row {
             display: flex;
             align-items: center;
@@ -512,7 +498,6 @@
             color: #16a34a;
         }
 
-        /* Toast */
         #toast {
             position: fixed;
             bottom: 24px;
@@ -542,7 +527,6 @@
             background: #ef4444;
         }
 
-        /* Forgot password modal */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -648,32 +632,64 @@
 
 <body>
 
-    <!-- Decorative pills -->
     <div class="pill pill1"></div>
     <div class="pill pill2"></div>
     <div class="pill pill3"></div>
 
-    <!-- Toast -->
     <div id="toast"><span id="toast-msg"></span></div>
 
-    <!-- Forgot Password Modal -->
     <div class="modal-overlay" id="forgotModal">
         <div class="modal-box">
             <button class="modal-close" onclick="closeForgot()">✕</button>
-            <h3>🔑 Forgot Password?</h3>
-            <p>Please enter your registered email address. We will send you a password reset link.</p>
-            <div class="form-group" style="margin-bottom:0;">
-                <label><i class="fas fa-envelope"></i> Registered Email</label>
-                <div class="input-wrap">
-                    <input type="email" id="forgot-email" placeholder="admin@yourshop.com">
+            <h3>🔑 Password Reset</h3>
+
+            <div id="forgot-step1">
+                <p>Enter your registered email — we will send a 6-digit OTP.</p>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label><i class="fas fa-envelope"></i> Registered Email</label>
+                    <div class="input-wrap">
+                        <input type="email" id="forgot-email" placeholder="admin@yourshop.com">
+                    </div>
                 </div>
+                <button class="modal-btn" id="sendOtpBtn" onclick="sendResetLink()">📧 Send OTP</button>
+                <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
             </div>
-            <button class="modal-btn" onclick="sendResetLink()">📧 Send Reset Link</button>
-            <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
+
+            <div id="forgot-step2" style="display:none;">
+                <p>Check your email (or terminal in dev mode) and enter the 6-digit OTP.</p>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label><i class="fas fa-key"></i> Enter OTP</label>
+                    <div class="input-wrap">
+                        <input type="text" id="forgot-otp" placeholder="123456" maxlength="6"
+                            style="letter-spacing:10px;font-size:22px;font-weight:700;text-align:center;">
+                    </div>
+                </div>
+                <p id="otpTimer" style="font-size:12px;color:#16a34a;text-align:center;margin-bottom:10px;"></p>
+                <button class="modal-btn" id="verifyOtpBtn" onclick="verifyOtp()">✓ Verify OTP</button>
+                <button class="modal-cancel" onclick="resendOtp()" style="background:#f0fdf4;color:#16a34a;">🔄 Resend
+                    OTP</button>
+            </div>
+
+            <div id="forgot-step3" style="display:none;">
+                <p style="color:#16a34a;">✅ OTP verified! Set your new password.</p>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label><i class="fas fa-lock"></i> New Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="forgot-newpass" placeholder="Min 8 characters">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label><i class="fas fa-lock-open"></i> Confirm Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="forgot-confpass" placeholder="Re-enter new password">
+                    </div>
+                </div>
+                <button class="modal-btn" id="resetPassBtn" onclick="doResetPassword()">🔐 Reset Password</button>
+                <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
+            </div>
         </div>
     </div>
 
-    <!-- Header -->
     <header class="header">
         <a href="index.html" class="logo">
             <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
@@ -683,21 +699,17 @@
         <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
     </header>
 
-    <!-- Main -->
     <main class="main">
         <div class="card">
 
-            <!-- Top -->
             <div class="card-top">
                 <div class="top-icon">🔐</div>
                 <h2>Admin Login</h2>
                 <p>Log in to the MediiQuick pharmacy partner dashboard</p>
             </div>
 
-            <!-- Body -->
             <div class="card-body">
 
-                <!-- Login Type Toggle -->
                 <div class="login-type">
                     <button class="lt-btn active" id="lt-email" onclick="switchType('email')">
                         <i class="fas fa-envelope"></i> Email
@@ -707,7 +719,6 @@
                     </button>
                 </div>
 
-                <!-- Email Login -->
                 <div id="form-email">
                     <div class="form-group">
                         <div class="forgot-row">
@@ -736,8 +747,6 @@
                     </div>
                 </div>
 
-
-                <!-- Admin ID Login -->
                 <div id="form-id" style="display:none;">
                     <div class="form-group">
                         <label><i class="fas fa-id-badge"></i> Admin ID</label>
@@ -764,25 +773,21 @@
                     </div>
                 </div>
 
-                <!-- Remember Me -->
                 <div class="remember-row">
                     <input type="checkbox" id="remember" checked>
                     <label for="remember">Remember me on this device</label>
                 </div>
 
-                <!-- Login Button -->
                 <button class="login-btn" id="loginBtn" onclick="doLogin()">
                     <div class="btn-spinner"></div>
                     <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
                 </button>
 
-
             </div>
 
-            <!-- Footer -->
             <div class="card-footer">
                 <p class="footer-text">
-                    Account nahi hai? <a href="admin-signup.html">Register as Pharmacy Partner</a>
+                    Don't have an account? <a href="admin-signup.html">Register as Pharmacy Partner</a>
                 </p>
                 <div class="security-row">
                     <i class="fas fa-shield-halved"></i>
@@ -797,7 +802,7 @@
     </main>
 
     <script>
-        // ── Login Type Switch ──
+        const API = 'http://127.0.0.1:8000/api/v1';
         let activeType = 'email';
 
         function switchType(type) {
@@ -808,7 +813,6 @@
             });
         }
 
-        // ── Toggle Password ──
         function togglePw(id, btn) {
             const input = document.getElementById(id);
             const icon = btn.querySelector('i');
@@ -816,10 +820,8 @@
             icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
         }
 
-        // ── Validation ──
         function validate() {
             let valid = true;
-
             if (activeType === 'email') {
                 const email = document.getElementById('login-email').value.trim();
                 const pass = document.getElementById('login-pass').value;
@@ -830,86 +832,185 @@
                 document.getElementById('err-pass').classList.toggle('show', !passOk);
                 if (!passOk) valid = false;
             }
-
             if (activeType === 'id') {
                 const adminId = document.getElementById('login-admin-id').value.trim();
                 const pass = document.getElementById('login-id-pass').value;
-                const idOk = /^ADMIN-\d{6}$/.test(adminId.toUpperCase());
+                const idOk = adminId.length >= 3;
                 document.getElementById('err-admin-id').classList.toggle('show', !idOk);
                 if (!idOk) valid = false;
                 const passOk = pass.length >= 1;
                 document.getElementById('err-id-pass').classList.toggle('show', !passOk);
                 if (!passOk) valid = false;
             }
-
             return valid;
         }
 
-        // ── Do Login ──
-        function doLogin() {
-            if (!validate()) {
-                showToast('⚠ Sahi details daalo', 'error');
-                return;
+        async function doLogin() {
+            if (!validate()) { showToast('⚠ Please enter valid details', 'error'); return; }
+
+            let identifier = '';
+            let password = '';
+            if (activeType === 'email') {
+                identifier = document.getElementById('login-email').value.trim();
+                password = document.getElementById('login-pass').value;
+            } else {
+                identifier = document.getElementById('login-admin-id').value.trim().toUpperCase();
+                password = document.getElementById('login-id-pass').value;
             }
 
             const btn = document.getElementById('loginBtn');
             btn.classList.add('loading');
             btn.querySelector('.btn-text').innerHTML = 'Logging in...';
 
-            setTimeout(() => {
+            try {
+                const res = await fetch(`${API}/auth/admin/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, password })
+                });
+                const data = await res.json();
+
                 btn.classList.remove('loading');
                 btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
 
-                try {
-                    const saved = JSON.parse(localStorage.getItem('mq_admin') || 'null');
-
-                    if (!saved) {
-                        showToast('⚠ Koi admin account nahi mila. Pehle register karein.', 'error');
-                        return;
-                    }
-
-                    let enteredId = '', enteredPass = '';
-
-                    if (activeType === 'email') {
-                        enteredId = document.getElementById('login-email').value.trim();
-                        enteredPass = document.getElementById('login-pass').value;
-                    } else if (activeType === 'id') {
-                        enteredId = document.getElementById('login-admin-id').value.trim().toUpperCase();
-                        enteredPass = document.getElementById('login-id-pass').value;
-                    const idMatch = (saved.email === enteredId || saved.adminId === enteredId);
-                    if (idMatch && saved.password === enteredPass) {
-                        localStorage.setItem('mq_admin_session', JSON.stringify(saved));
-                        showToast('✓ Login successful! Redirecting...', 'success');
-                        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
-                    } else if (idMatch) {
-                        showToast('⚠ Password galat hai.', 'error');
-                    } else {
-                        showToast('⚠ Admin ID ya email nahi mila.', 'error');
-                    }
-                } catch (e) {
-                    showToast('⚠ Login failed. Dobara try karein.', 'error');
+                if (data.success) {
+                    localStorage.setItem('mq_access', data.tokens.access);
+                    localStorage.setItem('mq_refresh', data.tokens.refresh);
+                    localStorage.setItem('mq_admin_session', JSON.stringify(data.admin));
+                    showToast('✓ Login successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
+                } else {
+                    const e = data.errors || {};
+                    const msg = e.identifier?.[0] || e.password?.[0] || data.message || 'Login failed.';
+                    showToast('⚠ ' + msg, 'error');
                 }
-            }, 1200);
+            } catch (err) {
+                btn.classList.remove('loading');
+                btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
+                showToast('⚠ Cannot connect to server. Is Django running?', 'error');
+            }
         }
 
-        // ── Forgot Password Modal ──
-        function openForgot() { document.getElementById('forgotModal').classList.add('show'); }
-        function closeForgot() { document.getElementById('forgotModal').classList.remove('show'); }
-        function sendResetLink() {
+        let forgotEmail = '';
+        let otpCountdown;
+
+        function openForgot() {
+            forgotEmail = '';
+            document.getElementById('forgotModal').classList.add('show');
+            showForgotStep(1);
+        }
+        function closeForgot() {
+            document.getElementById('forgotModal').classList.remove('show');
+            clearInterval(otpCountdown);
+        }
+        function showForgotStep(n) {
+            [1, 2, 3].forEach(i => {
+                const el = document.getElementById('forgot-step' + i);
+                if (el) el.style.display = i === n ? 'block' : 'none';
+            });
+        }
+
+        async function sendResetLink() {
             const email = document.getElementById('forgot-email').value.trim();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showToast('⚠ Valid email daalo', 'error'); return;
+                showToast('⚠ Please enter a valid email', 'error'); return;
             }
-            closeForgot();
-            showToast('📧 Reset link sent to ' + email, 'success');
+            const btn = document.getElementById('sendOtpBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+            try {
+                const res = await fetch(`${API}/auth/forgot-password/`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (btn) { btn.disabled = false; btn.textContent = 'Send OTP'; }
+
+                if (data.success) {
+                    forgotEmail = email;
+                    showToast('📧 OTP sent! Check your terminal (dev mode).', 'success');
+                    showForgotStep(2);
+                    let secs = 600;
+                    const timerEl = document.getElementById('otpTimer');
+                    clearInterval(otpCountdown);
+                    otpCountdown = setInterval(() => {
+                        secs--;
+                        const m = Math.floor(secs / 60), s = secs % 60;
+                        if (timerEl) timerEl.textContent = `OTP valid for: ${m}:${String(s).padStart(2, '0')}`;
+                        if (secs <= 0) { clearInterval(otpCountdown); if (timerEl) timerEl.textContent = 'OTP expired. Please request a new one.'; }
+                    }, 1000);
+                } else {
+                    showToast('⚠ ' + (data.errors?.email?.[0] || data.message || 'Error.'), 'error');
+                }
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = 'Send OTP'; }
+                showToast('⚠ Server error. Is Django running?', 'error');
+            }
         }
 
-        // ── Enter key support ──
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter') doLogin();
-        });
+        async function verifyOtp() {
+            const otp = document.getElementById('forgot-otp').value.trim();
+            if (otp.length !== 6 || !/^\d+$/.test(otp)) { showToast('⚠ Please enter a 6-digit OTP', 'error'); return; }
+            const btn = document.getElementById('verifyOtpBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
 
-        // ── Toast ──
+            try {
+                const res = await fetch(`${API}/auth/verify-otp/`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, otp })
+                });
+                const data = await res.json();
+                if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP'; }
+                if (data.success) { showToast('✓ OTP verified!', 'success'); showForgotStep(3); }
+                else { showToast('⚠ ' + (data.message || 'Incorrect OTP.'), 'error'); }
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP'; }
+                showToast('⚠ Server error.', 'error');
+            }
+        }
+
+        async function doResetPassword() {
+            const otp = document.getElementById('forgot-otp').value.trim();
+            const np = document.getElementById('forgot-newpass').value;
+            const cp = document.getElementById('forgot-confpass').value;
+            if (np.length < 8) { showToast('⚠ Password must be at least 8 characters.', 'error'); return; }
+            if (np !== cp) { showToast('⚠ Passwords do not match.', 'error'); return; }
+            const btn = document.getElementById('resetPassBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Resetting...'; }
+
+            try {
+                const res = await fetch(`${API}/auth/reset-password/`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, otp, new_password: np, confirm_password: cp })
+                });
+                const data = await res.json();
+                if (btn) { btn.disabled = false; btn.textContent = 'Reset Password'; }
+                if (data.success) {
+                    clearInterval(otpCountdown);
+                    closeForgot();
+                    showToast('✅ Password reset successfully! Please log in.', 'success');
+                } else {
+                    showToast('⚠ ' + (data.errors?.new_password?.[0] || data.message || 'Error.'), 'error');
+                }
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = 'Reset Password'; }
+                showToast('⚠ Server error.', 'error');
+            }
+        }
+
+        async function resendOtp() {
+            if (!forgotEmail) return;
+            const res = await fetch(`${API}/auth/forgot-password/`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: forgotEmail })
+            });
+            const data = await res.json();
+            if (data.success) showToast('📧 New OTP sent!', 'success');
+            else showToast('⚠ ' + data.message, 'error');
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
         let toastTimer;
         function showToast(msg, type = '') {
             const t = document.getElementById('toast');

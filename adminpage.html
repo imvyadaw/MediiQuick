@@ -43,7 +43,7 @@
       flex-direction: column;
     }
 
-    /* ── HEADER ── */
+
     .header {
       background: var(--white);
       box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
@@ -148,7 +148,7 @@
       background: var(--green-dark);
     }
 
-    /* ── SIDEBAR + LAYOUT ── */
+
     .layout {
       display: flex;
       flex: 1;
@@ -225,7 +225,6 @@
       padding: 12px 14px 4px;
     }
 
-    /* ── MAIN ── */
     .main {
       flex: 1;
       padding: 24px;
@@ -240,7 +239,7 @@
       display: block;
     }
 
-    /* ── PAGE HEADER ── */
+
     .page-head {
       display: flex;
       align-items: center;
@@ -297,7 +296,7 @@
       background: var(--green-light);
     }
 
-    /* ── STAT CARDS ── */
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -381,7 +380,7 @@
       font-weight: 500;
     }
 
-    /* ── CARDS ── */
+
     .card {
       background: var(--card);
       border-radius: var(--radius);
@@ -427,7 +426,7 @@
       }
     }
 
-    /* ── TABLE ── */
+
     .table-wrap {
       overflow-x: auto;
     }
@@ -464,7 +463,7 @@
       background: #fafafa;
     }
 
-    /* ── STATUS BADGES ── */
+
     .badge {
       padding: 3px 10px;
       border-radius: 20px;
@@ -518,7 +517,7 @@
       color: #16a34a;
     }
 
-    /* ── FORM ── */
+
     .form-group {
       margin-bottom: 14px;
     }
@@ -569,7 +568,7 @@
       }
     }
 
-    /* ── ACTION BTNS ── */
+
     .act-btn {
       padding: 4px 12px;
       border-radius: 6px;
@@ -616,7 +615,7 @@
       background: #fde68a;
     }
 
-    /* ── MODAL ── */
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -730,7 +729,7 @@
       cursor: pointer;
     }
 
-    /* ── TOAST ── */
+
     .toast {
       position: fixed;
       bottom: 24px;
@@ -761,7 +760,7 @@
       background: #f59e0b;
     }
 
-    /* ── SEARCH BAR ── */
+
     .search-bar {
       display: flex;
       gap: 10px;
@@ -784,7 +783,7 @@
       border-color: var(--green);
     }
 
-    /* ── QUICK ACTIONS ── */
+
     .quick-btn {
       display: flex;
       align-items: center;
@@ -828,7 +827,7 @@
       background: #fde68a;
     }
 
-    /* ── LOW STOCK PROGRESS ── */
+
     .stock-bar {
       height: 6px;
       background: #f3f4f6;
@@ -850,7 +849,6 @@
       background: #f59e0b;
     }
 
-    /* ── ANALYTICS ── */
     .rev-row {
       display: flex;
       align-items: center;
@@ -874,7 +872,7 @@
       font-weight: 700;
     }
 
-    /* ── ORDER DETAIL ── */
+
     .detail-row {
       display: flex;
       gap: 6px;
@@ -892,7 +890,7 @@
       color: var(--text);
     }
 
-    /* ── EMPTY STATE ── */
+
     .empty {
       text-align: center;
       padding: 40px 20px;
@@ -906,7 +904,7 @@
       margin-bottom: 10px;
     }
 
-    /* ── PROFILE SECTION ── */
+
     .profile-avatar {
       width: 80px;
       height: 80px;
@@ -933,7 +931,7 @@
       color: var(--muted);
     }
 
-    /* mobile nav */
+
     .mob-nav {
       display: none;
       background: #fff;
@@ -971,7 +969,7 @@
 
 <body>
 
-  <!-- ══ HEADER ══ -->
+
   <header class="header">
     <div class="header-inner">
       <a href="#" class="logo">
@@ -987,7 +985,7 @@
     </div>
   </header>
 
-  <!-- Mobile Nav -->
+
   <div class="mob-nav" id="mobNav">
     <button class="mob-nav-btn active" onclick="showView('dashboard',this)"><i class="fas fa-th-large"></i>
       Dashboard</button>
@@ -999,10 +997,10 @@
     <button class="mob-nav-btn" onclick="showView('profile',this)"><i class="fas fa-user"></i> Profile</button>
   </div>
 
-  <!-- ══ LAYOUT ══ -->
+
   <div class="layout">
 
-    <!-- SIDEBAR -->
+
     <aside class="sidebar">
       <div class="nav-section-label">Main</div>
       <button class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
@@ -1036,17 +1034,17 @@
       </button>
     </aside>
 
-    <!-- MAIN -->
+
     <main class="main">
 
-      <!-- ════ DASHBOARD ════ -->
+
       <div id="view-dashboard" class="view active">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-th-large"></i> Dashboard Overview</div>
           <button class="btn-green" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
 
-        <!-- Stats -->
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-pills"></i></div>
@@ -1082,7 +1080,7 @@
           </div>
         </div>
 
-        <!-- 2nd row stats -->
+
         <div class="stats-grid" style="margin-bottom:20px;">
           <div class="stat-card" style="cursor:pointer;" onclick="showView('delivery')">
             <div class="stat-icon green"><i class="fas fa-motorcycle"></i></div>
@@ -1093,7 +1091,8 @@
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-exclamation-triangle"></i>
+            </div>
             <div class="stat-info">
               <div class="label">Out of Range</div>
               <div class="value" id="statOutRange" style="color:#dc2626;">0</div>
@@ -1119,7 +1118,7 @@
         </div>
 
         <div class="grid-2" style="margin-bottom:20px;">
-          <!-- Quick Actions -->
+
           <div class="card">
             <div class="card-title"><span><i class="fas fa-bolt"></i> Quick Actions</span></div>
             <button class="quick-btn green" onclick="showView('medicines');openAddMedModal()">
@@ -1133,7 +1132,7 @@
             </button>
           </div>
 
-          <!-- Recent Orders -->
+
           <div class="card">
             <div class="card-title">
               <span><i class="fas fa-history"></i> Recent Orders</span>
@@ -1156,7 +1155,7 @@
           </div>
         </div>
 
-        <!-- Low Stock Alert -->
+
         <div class="card">
           <div class="card-title"><span><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Low Stock
               Alert</span></div>
@@ -1176,7 +1175,7 @@
         </div>
       </div>
 
-      <!-- ════ MEDICINES ════ -->
+
       <div id="view-medicines" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-pills"></i> Medicine Management</div>
@@ -1184,7 +1183,7 @@
         </div>
         <div class="card">
           <div class="search-bar">
-            <input class="search-input" id="medSearch" placeholder="🔍 Medicine name search karo..."
+            <input class="search-input" id="medSearch" placeholder="🔍 Search by medicine name..."
               oninput="renderMedicines()" />
             <select class="form-select" id="medStockFilter" onchange="renderMedicines()" style="width:auto;">
               <option value="all">All Stock</option>
@@ -1211,7 +1210,7 @@
         </div>
       </div>
 
-      <!-- ════ ORDERS ════ -->
+
       <div id="view-orders" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-box-open"></i> Order Management</div>
@@ -1229,7 +1228,7 @@
         </div>
         <div class="card">
           <div class="search-bar">
-            <input class="search-input" id="orderSearch" placeholder="🔍 Order ID ya customer name..."
+            <input class="search-input" id="orderSearch" placeholder="🔍 Order ID or customer name..."
               oninput="renderOrders()" />
           </div>
           <div class="table-wrap">
@@ -1254,12 +1253,12 @@
         </div>
       </div>
 
-      <!-- ════ ANALYTICS ════ -->
+
       <div id="view-analytics" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-chart-bar"></i> Sales Analytics</div>
         </div>
-        <!-- Analytics stats -->
+
         <div class="stats-grid" style="margin-bottom:20px;">
           <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
@@ -1292,12 +1291,12 @@
         </div>
 
         <div class="grid-2">
-          <!-- Top Medicines -->
+
           <div class="card">
             <div class="card-title"><i class="fas fa-trophy"></i> Top Selling Medicines</div>
             <div id="topMedsList"></div>
           </div>
-          <!-- Revenue -->
+
           <div class="card">
             <div class="card-title"><i class="fas fa-rupee-sign"></i> Revenue Summary</div>
             <div id="revSummary"></div>
@@ -1305,7 +1304,7 @@
         </div>
       </div>
 
-      <!-- ════ PROFILE ════ -->
+
       <div id="view-profile" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-user-cog"></i> Pharmacy Profile</div>
@@ -1386,22 +1385,26 @@
         </div>
       </div>
 
-      <!-- ════ DELIVERY BOYS ════ -->
+
       <div id="view-delivery" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-motorcycle"></i> Delivery Boys</div>
-          <button class="btn-green" onclick="openAddDeliveryModal()"><i class="fas fa-plus"></i> Add Delivery Boy</button>
+          <button class="btn-green" onclick="openAddDeliveryModal()"><i class="fas fa-plus"></i> Add Delivery
+            Boy</button>
         </div>
 
-        <!-- Coverage area info -->
-        <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid var(--green-border);">
+
+        <div class="card"
+          style="margin-bottom:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid var(--green-border);">
           <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <div style="font-size:2rem;">🗺️</div>
             <div style="flex:1;">
               <div style="font-weight:700;color:var(--green);font-size:15px;">Delivery Coverage Zone</div>
-              <div style="font-size:13px;color:var(--muted);margin-top:3px;" id="coverageInfo">Pharmacy location set karein Profile mein — fir 10-15km radius mein delivery hogi.</div>
+              <div style="font-size:13px;color:var(--muted);margin-top:3px;" id="coverageInfo">Set your pharmacy
+                location in Profile to enable deliveries within a 10-15km radius.</div>
             </div>
-            <button class="btn-outline" onclick="showView('profile')" style="font-size:12px;padding:6px 14px;">Set Location →</button>
+            <button class="btn-outline" onclick="showView('profile')" style="font-size:12px;padding:6px 14px;">Set
+              Location →</button>
           </div>
         </div>
 
@@ -1409,29 +1412,37 @@
           <div class="card-title"><i class="fas fa-motorcycle"></i> Active Delivery Boys</div>
           <div class="table-wrap">
             <table>
-              <thead><tr>
-                <th>Name</th><th>Phone</th><th>Status</th>
-                <th>Active Orders</th><th>Total Delivered</th><th>Actions</th>
-              </tr></thead>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Active Orders</th>
+                  <th>Total Delivered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
               <tbody id="deliveryTbl">
-                <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">
-                  <i class="fas fa-motorcycle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3;"></i>
-                  Koi delivery boy nahi — Add karo
-                </td></tr>
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">
+                    <i class="fas fa-motorcycle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3;"></i>
+                    No delivery boys added yet
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ════ CUSTOMERS ════ -->
+
       <div id="view-customers" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-users"></i> Customers</div>
           <div style="font-size:13px;color:var(--muted);" id="custCount">Total: 0 customers</div>
         </div>
 
-        <!-- Stats -->
+
         <div class="stats-grid" style="margin-bottom:20px;">
           <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-users"></i></div>
@@ -1465,14 +1476,23 @@
 
         <div class="card">
           <div class="search-bar" style="margin-bottom:16px;">
-            <input class="search-input" id="custSearch" placeholder="🔍 Search by name, email or city..." oninput="renderCustomers()">
+            <input class="search-input" id="custSearch" placeholder="🔍 Search by name, email or city..."
+              oninput="renderCustomers()">
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr>
-                <th>#</th><th>Customer</th><th>Email</th><th>City</th>
-                <th>Orders</th><th>Total Spent</th><th>Last Order</th><th>Actions</th>
-              </tr></thead>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Customer</th>
+                  <th>Email</th>
+                  <th>City</th>
+                  <th>Orders</th>
+                  <th>Total Spent</th>
+                  <th>Last Order</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
               <tbody id="custTbl"></tbody>
             </table>
           </div>
@@ -1482,10 +1502,10 @@
     </main>
   </div>
 
-  <!-- ══ TOAST ══ -->
+
   <div class="toast" id="toast"></div>
 
-  <!-- ══ ADD/EDIT MEDICINE MODAL ══ -->
+
   <div class="modal-overlay" id="medModal">
     <div class="modal-box wide">
       <div class="modal-head">
@@ -1494,42 +1514,44 @@
       </div>
       <input type="hidden" id="medEditId" value="" />
 
-      <!-- Step 1: Medicine Basic Info -->
+
       <div class="form-group">
         <label class="form-label">Medicine Name *</label>
         <input class="form-input" id="medName" placeholder="e.g. Paracetamol 500mg" />
       </div>
 
-      <!-- Category Picker -->
+
       <div class="form-group">
         <label class="form-label">📂 Select Category *</label>
         <div id="catPickerWrap">
 
-          <!-- Existing Categories Grid -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:10px;" id="catGrid">
-            <!-- Filled by JS -->
+
+          <div
+            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:10px;"
+            id="catGrid">
+
           </div>
 
-          <!-- New Category Option -->
-          <div id="newCatOption"
-            onclick="selectCatOption('__new__')"
+
+          <div id="newCatOption" onclick="selectCatOption('__new__')"
             style="border:2px dashed #cbd5e1;border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:#64748b;transition:all .2s;"
             onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'"
             onmouseout="if(selectedCatKey!=='__new__'){this.style.borderColor='#cbd5e1';this.style.color='#64748b';}">
             ➕ Create New Category
           </div>
 
-          <!-- New Category Input (hidden until selected) -->
+
           <div id="newCatInputWrap" style="display:none;margin-top:10px;">
             <input class="form-input" id="newCatName" placeholder="Category name e.g. Eye Care, Dental, Skin" />
             <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;" id="newCatIconRow">
-              <!-- Icon picker filled by JS -->
+
             </div>
           </div>
 
         </div>
         <input type="hidden" id="medCategory" />
-        <span id="selectedCatDisplay" style="font-size:12px;color:#16a34a;font-weight:600;margin-top:4px;display:none;"></span>
+        <span id="selectedCatDisplay"
+          style="font-size:12px;color:#16a34a;font-weight:600;margin-top:4px;display:none;"></span>
       </div>
 
       <div class="form-row">
@@ -1550,30 +1572,30 @@
     </div>
   </div>
 
-  <!-- ══ DELETE CONFIRM MODAL ══ -->
-<div class="modal-overlay" id="delModal">
-  <div class="modal-box" style="max-width:380px;">
-    <div class="modal-head">
-      <div class="modal-title" style="color:#dc2626;">⚠️ Confirm Delete</div>
-      <button class="modal-close" onclick="closeModal('delModal')">✕</button>
-    </div>
 
-    <p style="font-size:14px;color:var(--muted);margin-bottom:8px;">
-      Are you sure you want to delete <strong id="delMedName"></strong>?
-    </p>
+  <div class="modal-overlay" id="delModal">
+    <div class="modal-box" style="max-width:380px;">
+      <div class="modal-head">
+        <div class="modal-title" style="color:#dc2626;">⚠️ Confirm Delete</div>
+        <button class="modal-close" onclick="closeModal('delModal')">✕</button>
+      </div>
 
-    <p style="font-size:12px;color:#dc2626;">
-      This action cannot be undone.
-    </p>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:8px;">
+        Are you sure you want to delete <strong id="delMedName"></strong>?
+      </p>
 
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('delModal')">Cancel</button>
-      <button class="btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+      <p style="font-size:12px;color:#dc2626;">
+        This action cannot be undone.
+      </p>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('delModal')">Cancel</button>
+        <button class="btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+      </div>
     </div>
   </div>
-</div>
 
-  <!-- ══ ORDER DETAIL MODAL ══ -->
+
   <div class="modal-overlay" id="orderModal">
     <div class="modal-box wide">
       <div class="modal-head">
@@ -1587,7 +1609,7 @@
     </div>
   </div>
 
-  <!-- ══ UPDATE STATUS MODAL ══ -->
+
   <div class="modal-overlay" id="statusModal">
     <div class="modal-box" style="max-width:360px;">
       <div class="modal-head">
@@ -1614,8 +1636,8 @@
       </div>
     </div>
   </div>
-  
-  <!-- ══ RESTOCK MODAL ══ -->
+
+
   <div class="modal-overlay" id="restockModal">
     <div class="modal-box" style="max-width:360px;">
       <div class="modal-head">
@@ -1636,8 +1658,8 @@
       </div>
     </div>
   </div>
-  
-  <!-- ══ PASSWORD MODAL ══ -->
+
+
   <div class="modal-overlay" id="pwModal">
     <div class="modal-box" style="max-width:360px;">
       <div class="modal-head">
@@ -1659,11 +1681,11 @@
     </div>
   </div>
 
-  <!-- ══ ADD DELIVERY BOY MODAL ══ -->
+
   <div class="modal-overlay" id="addDeliveryModal">
     <div class="modal-box" style="max-width:420px;">
       <div class="modal-head">
-        <div class="modal-title">🏍️ Delivery Boy Add Karo</div>
+        <div class="modal-title">🏍️ Add Delivery Boy</div>
         <button class="modal-close" onclick="closeModal('addDeliveryModal')">✕</button>
       </div>
       <input type="hidden" id="dbEditId" value="">
@@ -1702,7 +1724,6 @@
     </div>
   </div>
 
-  <!-- ══ CUSTOMER DETAIL MODAL ══ -->
   <div class="modal-overlay" id="custDetailModal">
     <div class="modal-box wide">
       <div class="modal-head">
@@ -1716,7 +1737,6 @@
     </div>
   </div>
 
-  <!-- ══ QUICK STATUS MODAL ══ -->
   <div class="modal-overlay" id="quickStatusModal">
     <div class="modal-box" style="max-width:400px;">
       <div class="modal-head">
@@ -1728,8 +1748,7 @@
   </div>
 
   <script>
-    // ── AUTH GUARD ──
-    (function() {
+    (function () {
       const session = localStorage.getItem('mq_admin_session');
       if (!session) {
         window.location.href = 'admin-login.html';
@@ -1738,12 +1757,10 @@
           const admin = JSON.parse(session);
           const nameEl = document.getElementById('headerPharmacyName');
           if (nameEl && admin.shopName) nameEl.textContent = admin.shopName;
-        } catch(e) {}
+        } catch (e) { }
       }
     })();
-    // ══════════════════════════════════════════════════
-    //  DATA
-    // ══════════════════════════════════════════════════
+
     let medicines = [];
     let pendingDeleteId = null;
 
@@ -1760,7 +1777,6 @@
       { id: 10, name: 'Omeprazole 20mg', quantity: 2, price: 45 },
     ];
 
-    // Load medicines from localStorage or use sample
     function loadMedicines() {
       try {
         const saved = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
@@ -1769,11 +1785,10 @@
     }
     function saveMedicinesLS() {
       localStorage.setItem('mq_admin_medicines', JSON.stringify(medicines));
-      // Timestamp save karo taaki profile.html ko pata chale
+
       localStorage.setItem('mq_medicines_updated', Date.now().toString());
     }
 
-    // Load orders from localStorage (from user orders)
     function loadOrders() {
       try { return JSON.parse(localStorage.getItem('mq_orders') || '[]'); } catch (e) { return []; }
     }
@@ -1781,14 +1796,10 @@
       localStorage.setItem('mq_orders', JSON.stringify(orders));
     }
 
-    // Load pharmacy profile
     function loadProfile() {
       try { return JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}'); } catch (e) { return {}; }
     }
 
-    // ══════════════════════════════════════════════════
-    //  NAVIGATION
-    // ══════════════════════════════════════════════════
     function showView(name, mobBtn) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1796,13 +1807,11 @@
       const nb = document.getElementById('nav-' + name);
       if (nb) nb.classList.add('active');
 
-      // Mobile nav
       if (mobBtn) {
         document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
         mobBtn.classList.add('active');
       }
 
-      // Refresh data for view
       if (name === 'dashboard') renderDashboard();
       if (name === 'medicines') renderMedicines();
       if (name === 'orders') renderOrders();
@@ -1812,9 +1821,6 @@
       if (name === 'customers') renderCustomers();
     }
 
-    // ══════════════════════════════════════════════════
-    //  DASHBOARD
-    // ══════════════════════════════════════════════════
     function renderDashboard() {
       const orders = loadOrders();
       const boys = getDeliveryBoys();
@@ -1826,11 +1832,10 @@
       const availableDB = boys.filter(b => b.status === 'available').length;
       const activeDeliveries = orders.filter(o => o.status === 'on_the_way').length;
 
-      // Out of range check
       const pharmCity = (profile.city || '').toLowerCase();
       const outOfRange = pharmCity ? orders.filter(o => {
         const custCity = (o.deliveryAddr?.city || o.city || '').toLowerCase();
-        return custCity && custCity !== pharmCity && ['confirmed','packing','on_the_way'].includes(o.status);
+        return custCity && custCity !== pharmCity && ['confirmed', 'packing', 'on_the_way'].includes(o.status);
       }).length : 0;
 
       document.getElementById('statMeds').textContent = medicines.length;
@@ -1844,17 +1849,15 @@
       document.getElementById('statOutRange').textContent = outOfRange;
       document.getElementById('statActiveDeliveries').textContent = activeDeliveries;
 
-      // Badges
       const lb = document.getElementById('lowBadge');
       if (lowCount > 0) { lb.style.display = 'inline-block'; lb.textContent = lowCount; } else lb.style.display = 'none';
       const pb = document.getElementById('pendingBadge');
       if (pendingCount > 0) { pb.style.display = 'inline-block'; pb.textContent = pendingCount; } else pb.style.display = 'none';
 
-      // Recent orders
       const recentTbl = document.getElementById('recentOrdersTbl');
       const recent = [...orders].sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0)).slice(0, 5);
       if (recent.length === 0) {
-        recentTbl.innerHTML = '<tr><td colspan="4" class="empty"><i class="fas fa-inbox"></i> Koi order nahi</td></tr>';
+        recentTbl.innerHTML = '<tr><td colspan="4" class="empty"><i class="fas fa-inbox"></i> No orders yet</td></tr>';
       } else {
         recentTbl.innerHTML = recent.map(o => `
       <tr>
@@ -1865,11 +1868,10 @@
       </tr>`).join('');
       }
 
-      // Low stock
       const lowTbl = document.getElementById('lowStockTbl');
       const lowMeds = medicines.filter(m => m.quantity < 10);
       if (lowMeds.length === 0) {
-        lowTbl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);">✅ Koi low stock medicine nahi!</td></tr>';
+        lowTbl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);">✅ No low stock medicines!</td></tr>';
       } else {
         lowTbl.innerHTML = lowMeds.map(m => {
           const pct = Math.min(100, (m.quantity / 10) * 100);
@@ -1886,9 +1888,6 @@
       }
     }
 
-    // ══════════════════════════════════════════════════
-    //  MEDICINES
-    // ══════════════════════════════════════════════════
     function renderMedicines() {
       const q = (document.getElementById('medSearch')?.value || '').toLowerCase();
       const sf = document.getElementById('medStockFilter')?.value || 'all';
@@ -1900,7 +1899,7 @@
 
       const tbl = document.getElementById('medTbl');
       if (list.length === 0) {
-        tbl.innerHTML = '<tr><td colspan="6" class="empty"><i class="fas fa-pills"></i> Koi medicine nahi mili</td></tr>';
+        tbl.innerHTML = '<tr><td colspan="6" class="empty"><i class="fas fa-pills"></i> No medicines found</td></tr>';
         return;
       }
       tbl.innerHTML = list.map((m, i) => {
@@ -1927,32 +1926,26 @@
       }).join('');
     }
 
-    // ══════════════════════════════════════════════════
-    //  CATEGORY SYSTEM
-    // ══════════════════════════════════════════════════
-
-    // Built-in categories with icons
     const BUILTIN_CATS = [
-      { key: 'fever',       label: 'Fever & Pain',    icon: '🌡️',  color: '#fee2e2', border: '#fca5a5' },
-      { key: 'allergy',     label: 'Allergies',       icon: '🤧',  color: '#dbeafe', border: '#93c5fd' },
-      { key: 'heart',       label: 'Heart Care',      icon: '❤️',  color: '#fce7f3', border: '#f9a8d4' },
-      { key: 'brain',       label: 'Brain & Nerves',  icon: '🧠',  color: '#f3e8ff', border: '#c4b5fd' },
-      { key: 'respiratory', label: 'Respiratory',     icon: '🫁',  color: '#e0f2fe', border: '#7dd3fc' },
-      { key: 'bone',        label: 'Bone & Joint',    icon: '🦴',  color: '#fef9c3', border: '#fde047' },
-      { key: 'cold',        label: 'Cold & Cough',    icon: '🤒',  color: '#f0fdf4', border: '#86efac' },
-      { key: 'bp',          label: 'BP & Heart',      icon: '💊',  color: '#fff7ed', border: '#fdba74' },
-      { key: 'diabetes',    label: 'Diabetes',        icon: '💉',  color: '#fdf4ff', border: '#e879f9' },
-      { key: 'other',       label: 'Other',           icon: '🔵',  color: '#f8fafc', border: '#cbd5e1' },
+      { key: 'fever', label: 'Fever & Pain', icon: '🌡️', color: '#fee2e2', border: '#fca5a5' },
+      { key: 'allergy', label: 'Allergies', icon: '🤧', color: '#dbeafe', border: '#93c5fd' },
+      { key: 'heart', label: 'Heart Care', icon: '❤️', color: '#fce7f3', border: '#f9a8d4' },
+      { key: 'brain', label: 'Brain & Nerves', icon: '🧠', color: '#f3e8ff', border: '#c4b5fd' },
+      { key: 'respiratory', label: 'Respiratory', icon: '🫁', color: '#e0f2fe', border: '#7dd3fc' },
+      { key: 'bone', label: 'Bone & Joint', icon: '🦴', color: '#fef9c3', border: '#fde047' },
+      { key: 'cold', label: 'Cold & Cough', icon: '🤒', color: '#f0fdf4', border: '#86efac' },
+      { key: 'bp', label: 'BP & Heart', icon: '💊', color: '#fff7ed', border: '#fdba74' },
+      { key: 'diabetes', label: 'Diabetes', icon: '💉', color: '#fdf4ff', border: '#e879f9' },
+      { key: 'other', label: 'Other', icon: '🔵', color: '#f8fafc', border: '#cbd5e1' },
     ];
 
-    // New category icons to pick from
-    const NEW_CAT_ICONS = ['💊','🩺','🧴','🩹','👁️','🦷','🧬','💪','🌿','🏥','🩻','💆','🧪','🫀','🩸','🌡️','🍃','⚡','🔬','🎯'];
+    const NEW_CAT_ICONS = ['💊', '🩺', '🧴', '🩹', '👁️', '🦷', '🧬', '💪', '🌿', '🏥', '🩻', '💆', '🧪', '🫀', '🩸', '🌡️', '🍃', '⚡', '🔬', '🎯'];
 
     let selectedCatKey = '';
     let selectedNewCatIcon = '💊';
 
     function getCustomCats() {
-      try { return JSON.parse(localStorage.getItem('mq_custom_categories') || '[]'); } catch(e) { return []; }
+      try { return JSON.parse(localStorage.getItem('mq_custom_categories') || '[]'); } catch (e) { return []; }
     }
     function saveCustomCats(cats) {
       localStorage.setItem('mq_custom_categories', JSON.stringify(cats));
@@ -1989,7 +1982,6 @@
         </div>`;
       }).join('');
 
-      // New category option border
       const newOpt = document.getElementById('newCatOption');
       if (newOpt) {
         const isNew = selectedKey === '__new__';
@@ -2078,7 +2070,6 @@
       document.getElementById('medPrice').value = m.price;
       document.getElementById('newCatInputWrap').style.display = 'none';
 
-      // Pre-select existing category
       const catLabel = m.category || '';
       const found = getAllCats().find(c => c.label === catLabel || c.key === catLabel);
       selectedCatKey = found ? found.key : '';
@@ -2102,12 +2093,10 @@
         showToast('⚠️ Please fill name, quantity and price!', 'error'); return;
       }
 
-      // Resolve category
       let finalCategory = '';
       let finalCatKey = selectedCatKey;
 
       if (selectedCatKey === '__new__') {
-        // Create new category
         const newName = (document.getElementById('newCatName')?.value || '').trim();
         if (!newName) { showToast('⚠️ Please enter a category name!', 'error'); return; }
         const newKey = 'custom_' + Date.now();
@@ -2156,7 +2145,7 @@
       closeModal('delModal');
       renderMedicines();
       renderDashboard();
-      showToast('🗑️ Medicine delete ho gayi!');
+      showToast('🗑️ Medicine deleted!');
       pendingDeleteId = null;
     }
 
@@ -2172,7 +2161,7 @@
     function confirmRestock() {
       const id = parseInt(document.getElementById('restockMedId').value);
       const qty = parseInt(document.getElementById('restockQty').value);
-      if (isNaN(qty) || qty <= 0) { showToast('⚠️ Valid quantity do!', 'error'); return; }
+      if (isNaN(qty) || qty <= 0) { showToast('⚠️ Please enter a valid quantity!', 'error'); return; }
       const m = medicines.find(x => x.id === id);
       if (!m) return;
       m.quantity += qty;
@@ -2180,12 +2169,9 @@
       closeModal('restockModal');
       renderMedicines();
       renderDashboard();
-      showToast(`✅ ${m.name} mein ${qty} units add ho gayi! New stock: ${m.quantity}`);
+      showToast(`✅ ${qty} units added to ${m.name}! New stock: ${m.quantity}`);
     }
 
-    // ══════════════════════════════════════════════════
-    //  ORDERS
-    // ══════════════════════════════════════════════════
     function statusBadge(s) {
       const map = {
         pending: 'badge-pending', confirmed: 'badge-confirmed', packing: 'badge-packing',
@@ -2214,7 +2200,7 @@
 
       const tbl = document.getElementById('orderTbl');
       if (list.length === 0) {
-        tbl.innerHTML = '<tr><td colspan="9" class="empty"><i class="fas fa-box-open"></i> Koi order nahi mila</td></tr>';
+        tbl.innerHTML = '<tr><td colspan="9" class="empty"><i class="fas fa-box-open"></i> No orders found</td></tr>';
         return;
       }
       tbl.innerHTML = list.map(o => {
@@ -2292,19 +2278,16 @@
       showToast(`✅ Order ${orderId} status → ${newStatus}`);
     }
 
-    // ══════════════════════════════════════════════════
-    //  QUICK ORDER ACTIONS (one-click status flow)
-    // ══════════════════════════════════════════════════
     function openQuickActions(orderId) {
       const orders = loadOrders();
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
 
       const flow = {
-        confirmed: { next: 'packing',    label: '📦 Start Packing',    cls: 'btn-green' },
-        packing:   { next: 'on_the_way', label: '🚴 Send for Delivery', cls: 'btn-green' },
-        on_the_way:{ next: 'delivered',  label: '✅ Mark Delivered',    cls: 'btn-green' },
-        pending:   { next: 'confirmed',  label: '📋 Confirm Order',     cls: 'btn-green' },
+        confirmed: { next: 'packing', label: '📦 Start Packing', cls: 'btn-green' },
+        packing: { next: 'on_the_way', label: '🚴 Send for Delivery', cls: 'btn-green' },
+        on_the_way: { next: 'delivered', label: '✅ Mark Delivered', cls: 'btn-green' },
+        pending: { next: 'confirmed', label: '📋 Confirm Order', cls: 'btn-green' },
       };
 
       const dbList = getDeliveryBoys().filter(d => d.status === 'available');
@@ -2312,7 +2295,6 @@
       const profile = loadProfile();
       const maxKm = parseInt(profile.deliveryRadius || 15);
 
-      // Distance warning (rough check by city match)
       const custCity = (o.deliveryAddr?.city || o.city || '').toLowerCase();
       const pharmCity = (profile.city || '').toLowerCase();
       const outOfRange = pharmCity && custCity && custCity !== pharmCity;
@@ -2327,7 +2309,7 @@
 
         ${outOfRange ? `
         <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#dc2626;">
-          ⚠️ <strong>Out of Range Alert!</strong> Customer city (${o.deliveryAddr?.city || o.city}) aapki pharmacy city se alag lag rahi hai. Delivery radius ${maxKm}km hai.
+          ⚠️ <strong>Out of Range Alert!</strong> Customer city (${o.deliveryAddr?.city || o.city}) is outside your pharmacy city. Delivery radius is ${maxKm}km.
         </div>` : ''}
 
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -2371,7 +2353,7 @@
       closeModal('quickStatusModal');
       renderOrders();
       renderDashboard();
-      const labels = { packing: 'Packing shuru', on_the_way: 'Delivery pe nikla', delivered: 'Delivered!', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+      const labels = { packing: 'Packing started', on_the_way: 'Out for delivery', delivered: 'Delivered!', confirmed: 'Confirmed', cancelled: 'Cancelled' };
       showToast(`✅ ${orderId}: ${labels[newStatus] || newStatus}`);
     }
 
@@ -2386,21 +2368,17 @@
       o.status = 'on_the_way';
       o.statusUpdatedAt = Date.now();
       saveOrdersLS(orders);
-      // Mark delivery boy as busy
       db.status = 'busy';
       db.activeOrder = orderId;
       saveDeliveryBoysLS(boys);
       closeModal('quickStatusModal');
       renderOrders();
       renderDeliveryBoys();
-      showToast(`🚴 ${db.name} ko assign kiya — On the Way!`);
+      showToast(`🚴 ${db.name} assigned — On the Way!`);
     }
 
-    // ══════════════════════════════════════════════════
-    //  DELIVERY BOYS
-    // ══════════════════════════════════════════════════
     function getDeliveryBoys() {
-      try { return JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]'); } catch(e) { return []; }
+      try { return JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]'); } catch (e) { return []; }
     }
     function saveDeliveryBoysLS(boys) {
       localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
@@ -2412,7 +2390,7 @@
       document.getElementById('dbPhone').value = '';
       document.getElementById('dbVehicle').value = 'bike';
       document.getElementById('dbStatus').value = 'available';
-      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '🏍️ Delivery Boy Add Karo';
+      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '🏍️ Add Delivery Boy';
       openModal('addDeliveryModal');
     }
 
@@ -2424,17 +2402,17 @@
       const editId = document.getElementById('dbEditId').value;
 
       if (!name || !/^[6-9]\d{9}$/.test(phone)) {
-        showToast('⚠️ Naam aur valid 10-digit phone number daalo!', 'error'); return;
+        showToast('⚠️ Please enter a name and a valid 10-digit phone number!', 'error'); return;
       }
 
       const boys = getDeliveryBoys();
       if (editId) {
         const b = boys.find(x => x.id === editId);
         if (b) { b.name = name; b.phone = phone; b.vehicle = vehicle; b.status = status; }
-        showToast('✅ Delivery boy update ho gaya!');
+        showToast('✅ Delivery boy updated!');
       } else {
         boys.push({ id: 'DB' + Date.now(), name, phone, vehicle, status, totalDelivered: 0, activeOrder: null, joinedAt: Date.now() });
-        showToast('✅ Delivery boy add ho gaya!');
+        showToast('✅ Delivery boy added!');
       }
       saveDeliveryBoysLS(boys);
       closeModal('addDeliveryModal');
@@ -2446,13 +2424,11 @@
       const orders = loadOrders();
       const profile = loadProfile();
 
-      // Coverage info
       if (profile.city) {
         document.getElementById('coverageInfo').textContent =
-          `📍 ${profile.shopName || 'Aapki pharmacy'}, ${profile.city} — ${profile.deliveryRadius || 15}km radius mein delivery hogi.`;
+          `📍 ${profile.shopName || 'Your pharmacy'}, ${profile.city} — deliveries within ${profile.deliveryRadius || 15}km radius.`;
       }
 
-      // Badge
       const busy = boys.filter(b => b.status === 'busy').length;
       const badge = document.getElementById('deliveryBadge');
       badge.textContent = busy;
@@ -2462,7 +2438,7 @@
       if (!boys.length) {
         tbl.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">
           <i class="fas fa-motorcycle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3;"></i>
-          Koi delivery boy nahi — Add karo
+          No delivery boys added yet
         </td></tr>`;
         return;
       }
@@ -2496,7 +2472,7 @@
       document.getElementById('dbPhone').value = b.phone;
       document.getElementById('dbVehicle').value = b.vehicle;
       document.getElementById('dbStatus').value = b.status;
-      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '✏️ Delivery Boy Edit Karo';
+      document.getElementById('addDeliveryModal').querySelector('.modal-title').textContent = '✏️ Edit Delivery Boy';
       openModal('addDeliveryModal');
     }
 
@@ -2510,17 +2486,13 @@
       showToast(`${b.name}: ${b.status}`);
     }
 
-    // ══════════════════════════════════════════════════
-    //  CUSTOMERS
-    // ══════════════════════════════════════════════════
     function renderCustomers() {
       const orders = loadOrders();
       const q = (document.getElementById('custSearch')?.value || '').toLowerCase();
 
-      // Build customer map from orders
       const custMap = {};
       orders.forEach(o => {
-        const email = o.customerEmail || ('guest_' + (o.name || 'unknown').replace(/\s/g,'').toLowerCase());
+        const email = o.customerEmail || ('guest_' + (o.name || 'unknown').replace(/\s/g, '').toLowerCase());
         if (!custMap[email]) {
           custMap[email] = {
             name: o.customerName || o.name || 'Guest',
@@ -2531,44 +2503,40 @@
         }
         custMap[email].orders.push(o);
         custMap[email].totalSpent += o.total || 0;
-        // Keep most recent city
+
         if (o.deliveryAddr?.city) custMap[email].city = o.deliveryAddr.city;
       });
 
       let customers = Object.values(custMap);
 
-      // Filter
       if (q) customers = customers.filter(c =>
         c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)
       );
 
-      // Sort by total spent
       customers.sort((a, b) => b.totalSpent - a.totalSpent);
 
-      // Stats
       document.getElementById('cs-total').textContent = customers.length;
       document.getElementById('cs-repeat').textContent = customers.filter(c => c.orders.length > 1).length;
       const avgVal = customers.length ? Math.round(customers.reduce((s, c) => s + c.totalSpent, 0) / customers.reduce((s, c) => s + c.orders.length, 0)) : 0;
       document.getElementById('cs-avg').textContent = '₹' + (isNaN(avgVal) ? 0 : avgVal);
       document.getElementById('custCount').textContent = `Total: ${customers.length} customers`;
 
-      // Top city
       const cityCount = {};
       customers.forEach(c => { cityCount[c.city] = (cityCount[c.city] || 0) + c.orders.length; });
-      const topCity = Object.entries(cityCount).sort((a,b)=>b[1]-a[1])[0];
+      const topCity = Object.entries(cityCount).sort((a, b) => b[1] - a[1])[0];
       document.getElementById('cs-city').textContent = topCity ? topCity[0] : '—';
 
       const tbl = document.getElementById('custTbl');
       if (!customers.length) {
-        tbl.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Koi customer data nahi mila.</td></tr>`;
+        tbl.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">No customer data found.</td></tr>`;
         return;
       }
 
       tbl.innerHTML = customers.map((c, i) => {
-        const lastOrder = c.orders.sort((a,b)=>(b.placedAt||0)-(a.placedAt||0))[0];
+        const lastOrder = c.orders.sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0))[0];
         const isRepeat = c.orders.length > 1;
         return `<tr>
-          <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+          <td style="color:var(--muted);font-size:12px;">${i + 1}</td>
           <td>
             <div style="display:flex;align-items:center;gap:8px;">
               <div style="width:32px;height:32px;background:var(--green2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:13px;">${c.name.charAt(0).toUpperCase()}</div>
@@ -2590,13 +2558,13 @@
 
     function viewCustomerDetail(email) {
       const orders = loadOrders();
-      const custOrders = orders.filter(o => (o.customerEmail || ('guest_' + (o.name||'unknown').replace(/\s/g,'').toLowerCase())) === email)
-        .sort((a,b) => (b.placedAt||0) - (a.placedAt||0));
+      const custOrders = orders.filter(o => (o.customerEmail || ('guest_' + (o.name || 'unknown').replace(/\s/g, '').toLowerCase())) === email)
+        .sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0));
 
       if (!custOrders.length) return;
       const c = custOrders[0];
       const name = c.customerName || c.name || 'Guest';
-      const totalSpent = custOrders.reduce((s,o) => s + (o.total||0), 0);
+      const totalSpent = custOrders.reduce((s, o) => s + (o.total || 0), 0);
 
       document.getElementById('custDetailContent').innerHTML = `
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
@@ -2618,19 +2586,16 @@
             <strong>${o.orderId}</strong>
             ${statusBadge(o.status)}
           </div>
-          <div style="font-size:12px;color:var(--muted);">${(o.items||[]).map(i=>`${i.med?.name||i.name}×${i.qty}`).join(', ')}</div>
+          <div style="font-size:12px;color:var(--muted);">${(o.items || []).map(i => `${i.med?.name || i.name}×${i.qty}`).join(', ')}</div>
           <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;">
-            <span style="color:var(--muted);">${o.date||'—'}</span>
-            <strong style="color:var(--green);">₹${o.total||0}</strong>
+            <span style="color:var(--muted);">${o.date || '—'}</span>
+            <strong style="color:var(--green);">₹${o.total || 0}</strong>
           </div>
         </div>`).join('')}
       `;
       openModal('custDetailModal');
     }
 
-    // ══════════════════════════════════════════════════
-    //  ANALYTICS
-    // ══════════════════════════════════════════════════
     function renderAnalytics() {
       const orders = loadOrders();
       const delivered = orders.filter(o => o.status === 'delivered').length;
@@ -2644,7 +2609,6 @@
       document.getElementById('anCancelled').textContent = cancelled;
       document.getElementById('anRate').textContent = rate + '%';
 
-      // Top medicines (count from orders)
       const medCount = {};
       orders.forEach(o => (o.items || []).forEach(i => {
         const n = i.med?.name || i.name || '?';
@@ -2658,9 +2622,8 @@
         <span>${i + 1}. ${n}</span><strong>${c} units</strong>
       </div>
       <div class="stock-bar"><div class="stock-fill" style="width:${(c / maxVal) * 100}%;"></div></div>
-    </div>`).join('') : '<div class="empty"><i class="fas fa-chart-bar"></i> Order data nahi hai</div>';
+    </div>`).join('') : '<div class="empty"><i class="fas fa-chart-bar"></i> No order data available</div>';
 
-      // Revenue summary
       const revDelivered = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
       const revTotal = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
       const codOrders = orders.filter(o => o.payMethod?.includes('Cash') || o.payMethod?.includes('COD'));
@@ -2674,9 +2637,6 @@
     <div class="rev-row"><span>📈 Success Rate</span><strong style="color:var(--green);">${rate}%</strong></div>`;
     }
 
-    // ══════════════════════════════════════════════════
-    //  PROFILE
-    // ══════════════════════════════════════════════════
     function renderProfile() {
       const p = loadProfile();
       const name = p.name || 'MediiQuick Pharmacy';
@@ -2696,7 +2656,7 @@
 
     function savePharmacyProfile() {
       const city = document.getElementById('pCity').value.trim();
-      if (!city) { showToast('⚠️ City zaroori hai — delivery range check ke liye!', 'error'); return; }
+      if (!city) { showToast('⚠️ City is required for delivery range verification!', 'error'); return; }
       const p = {
         name: document.getElementById('pName').value.trim(),
         owner: document.getElementById('pOwner').value.trim(),
@@ -2712,38 +2672,33 @@
       document.getElementById('headerPharmacyName').textContent = p.name || 'Pharmacy Admin';
       renderProfile();
       renderDashboard();
-      showToast('✅ Profile save ho gayi! Delivery zone: ' + city + ' (' + p.deliveryRadius + 'km)');
+      showToast('✅ Profile saved! Delivery zone: ' + city + ' (' + p.deliveryRadius + 'km)');
     }
 
     function changePassword() {
       const p1 = document.getElementById('pw1').value;
       const p2 = document.getElementById('pw2').value;
-      if (!p1 || p1.length < 6) { showToast('⚠️ Password 6+ characters ka hona chahiye!', 'error'); return; }
-      if (p1 !== p2) { showToast('⚠️ Passwords match nahi karte!', 'error'); return; }
-      // Save to admin storage
+      if (!p1 || p1.length < 6) { showToast('⚠️ Password must be at least 6 characters!', 'error'); return; }
+      if (p1 !== p2) { showToast('⚠️ Passwords do not match!', 'error'); return; }
       const adminData = JSON.parse(localStorage.getItem('mediiquickAdmin') || '{}');
       adminData.password = p1;
       localStorage.setItem('mediiquickAdmin', JSON.stringify(adminData));
       document.getElementById('pw1').value = '';
       document.getElementById('pw2').value = '';
       closeModal('pwModal');
-      showToast('✅ Password update ho gaya!');
+      showToast('✅ Password updated!');
     }
 
     function handleLogout() {
-      if (confirm('Admin logout karna chahte ho?')) {
+      if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('mq_admin_session');
         window.location.href = 'admin-login.html';
       }
     }
 
-    // ══════════════════════════════════════════════════
-    //  MODAL UTILS
-    // ══════════════════════════════════════════════════
     function openModal(id) { document.getElementById(id).classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-    // Close modal on overlay click
     document.querySelectorAll('.modal-overlay').forEach(ov => {
       ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
     });
@@ -2751,9 +2706,6 @@
       if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
     });
 
-    // ══════════════════════════════════════════════════
-    //  TOAST
-    // ══════════════════════════════════════════════════
     let toastTimer;
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
@@ -2763,23 +2715,15 @@
       toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // ══════════════════════════════════════════════════
-    //  REFRESH
-    // ══════════════════════════════════════════════════
     function refreshAll() {
       loadMedicines();
       renderDashboard();
-      showToast('🔄 Data refresh ho gaya!');
+      showToast('🔄 Data refreshed!');
     }
 
-    // ══════════════════════════════════════════════════
-    //  INIT
-    // ══════════════════════════════════════════════════
-
-    // Admin signup data se pharmacy profile auto-fill karo (first time)
     (function autoFillProfileFromSignup() {
       const existing = loadProfile();
-      if (existing.name) return; // already saved
+      if (existing.name) return;
       try {
         const admin = JSON.parse(localStorage.getItem('mq_admin') || '{}');
         if (admin.shopName) {
@@ -2796,35 +2740,30 @@
           };
           localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
         }
-      } catch(e) {}
+      } catch (e) { }
     })();
 
     loadMedicines();
     renderDashboard();
     renderProfile();
 
-    // ── New Order Notification ──
     let lastKnownOrderCount = loadOrders().length;
 
-    // Har 10 second mein check karo naya order aaya ki nahi
     setInterval(() => {
       const orders = loadOrders();
       const newCount = orders.length;
 
-      // Naya order aaya?
       if (newCount > lastKnownOrderCount) {
         const diff = newCount - lastKnownOrderCount;
-        showToast(`🔔 ${diff} naya order aaya!`);
+        showToast(`🔔 ${diff} new order(s) received!`);
 
-        // Browser notification (agar permission ho)
         if (Notification.permission === 'granted') {
-          new Notification('MediiQuick — Naya Order!', {
-            body: `${diff} naya order aa gaya hai. Dashboard check karo.`,
+          new Notification('MediiQuick — New Order!', {
+            body: `${diff} new order(s) received. Please check the dashboard.`,
             icon: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png'
           });
         }
 
-        // Nav badge update karo
         const pendingCount = orders.filter(o => o.status === 'confirmed').length;
         const badge = document.getElementById('pendingBadge');
         if (badge) {
@@ -2835,13 +2774,11 @@
         lastKnownOrderCount = newCount;
       }
 
-      // Active view refresh
       const activeView = document.querySelector('.view.active')?.id;
       if (activeView === 'view-dashboard') renderDashboard();
       if (activeView === 'view-orders') renderOrders();
     }, 10000);
 
-    // Browser notification permission maango
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }

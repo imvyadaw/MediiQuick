@@ -21,7 +21,6 @@
             color: #1a1a2e;
         }
 
-        /* Header */
         .header {
             background: #fff;
             box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
@@ -112,7 +111,7 @@
             align-items: center;
             gap: 12px;
         }
-        
+
         .account-btn {
             background: #16a34a;
             color: #fff;
@@ -126,7 +125,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(22,163,74,0.35);
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
         }
 
         .account-btn:hover {
@@ -198,7 +197,6 @@
             color: #16a34a;
         }
 
-        /* Cart Drawer */
         .cart-overlay {
             position: fixed;
             inset: 0;
@@ -352,7 +350,6 @@
             background: #15803d;
         }
 
-        /* Main */
         main {
             width: 100%;
             padding: 32px 40px;
@@ -364,7 +361,6 @@
             }
         }
 
-        /* Search Hero */
         .hero {
             border-radius: 20px;
             overflow: hidden;
@@ -443,7 +439,6 @@
             background: #15803d;
         }
 
-        /* Search Results */
         #search-results-section {
             display: none;
             margin-bottom: 32px;
@@ -464,7 +459,6 @@
             display: none;
         }
 
-        /* Categories */
         .section-title {
             font-size: 1.2rem;
             font-weight: 700;
@@ -525,7 +519,6 @@
             font-weight: 600;
         }
 
-        /* Category medicines panel */
         #category-section {
             display: none;
             margin-bottom: 32px;
@@ -556,7 +549,6 @@
             background: #e5e7eb;
         }
 
-        /* Medicines Grid */
         .medicines-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -575,7 +567,6 @@
             }
         }
 
-        /* Medicine Card */
         .med-card {
             background: #fff;
             border-radius: 14px;
@@ -745,12 +736,10 @@
             display: block;
         }
 
-        /* Popular section */
         #popular-section {
             margin-bottom: 32px;
         }
 
-        /* Pharmacies */
         .pharma-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -830,7 +819,6 @@
             cursor: pointer;
         }
 
-        /* Health Tips */
         .tips-section {
             background: #fff;
             border-radius: 20px;
@@ -876,7 +864,6 @@
             line-height: 1.6;
         }
 
-        /* Section header */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -891,7 +878,6 @@
             text-decoration: none;
         }
 
-        /* Footer */
         footer {
             background: #111827;
             color: #fff;
@@ -1007,7 +993,6 @@
             color: #fff;
         }
 
-        /* Toast */
         #toast {
             position: fixed;
             bottom: 24px;
@@ -1033,7 +1018,7 @@
             margin-right: 6px;
         }
 
-        /* ── Multi-Step Checkout Modal ── */
+
         .co-overlay {
             position: fixed;
             inset: 0;
@@ -1457,11 +1442,8 @@
 </head>
 
 <body>
-
-    <!-- Toast -->
     <div id="toast"><span class="toast-icon">✓</span><span id="toast-msg">Added to cart!</span></div>
 
-    <!-- Cart Overlay & Drawer -->
     <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
     <div class="cart-drawer" id="cartDrawer">
         <div class="cart-header">
@@ -1479,7 +1461,6 @@
         </div>
     </div>
 
-    <!-- ══ MULTI-STEP CHECKOUT MODAL ══════════════════════════════ -->
     <div class="co-overlay" id="coOverlay">
         <div class="co-box">
             <div class="co-progress" id="coProgress">
@@ -1498,16 +1479,15 @@
                     </div>
                 </div>
             </div>
-            <!-- STEP 1 -->
+
             <div class="co-step active" id="coStep1">
                 <div class="co-head">
                     <h2>📍 Delivery Address</h2><button class="co-close" onclick="closeCheckout()">✕</button>
                 </div>
                 <div class="co-body">
-                    <!-- Saved addresses picker -->
+
                     <div id="savedAddrPicker" style="margin-bottom:14px;"></div>
 
-                    <!-- New address form (hidden if saved exists) -->
                     <div id="newAddrFormWrap">
                         <div class="form-row">
                             <div class="co-form-group"><label>Full Name *</label><input type="text" id="addr-name"
@@ -1562,7 +1542,7 @@
                             <div class="co-form-group"><label>Landmark (optional)</label><input type="text"
                                     id="addr-landmark" placeholder="e.g. Near Metro Station"></div>
                         </div>
-                    </div><!-- /newAddrFormWrap -->
+                    </div>
 
                     <div class="co-summary" id="addrSummary"></div>
                     <div class="co-btn-row">
@@ -1571,7 +1551,7 @@
                     </div>
                 </div>
             </div>
-            <!-- STEP 2 -->
+
             <div class="co-step" id="coStep2">
                 <div class="co-head">
                     <h2>💳 Payment Method</h2><button class="co-close" onclick="closeCheckout()">✕</button>
@@ -1651,7 +1631,7 @@
                     </div>
                 </div>
             </div>
-            <!-- STEP 3 -->
+
             <div class="co-step" id="coStep3">
                 <div class="co-success">
                     <div class="tick">✓</div>
@@ -1669,7 +1649,6 @@
         </div>
     </div>
 
-    <!-- Header -->
     <header class="header">
         <div class="header-inner">
             <a href="#" class="logo">
@@ -1699,7 +1678,8 @@
                         <a href="my_order.html"><i class="fas fa-box" style="margin-right:8px;color:#16a34a;"></i>My
                             Orders</a>
                         <a href="#"><i class="fas fa-heart" style="margin-right:8px;color:#16a34a;"></i>Wishlist</a>
-                        <a href="#" onclick="doLogout();return false;" style="color:#dc2626;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
+                        <a href="#" onclick="doLogout();return false;" style="color:#dc2626;"><i
+                                class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
                     </div>
                 </div>
                 <button class="cart-btn" onclick="openCart()" aria-label="Cart">
@@ -1714,7 +1694,7 @@
     </header>
 
     <main>
-        <!-- Hero Search -->
+
         <section class="hero">
             <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/da0f498b-2a30-4602-a889-462a314cb182.png"
                 alt="Medicine Delivery">
@@ -1732,7 +1712,6 @@
             </div>
         </section>
 
-        <!-- Search Results -->
         <section id="search-results-section">
             <div class="section-header">
                 <h3 id="search-results-title">Search Results</h3>
@@ -1748,7 +1727,6 @@
             <div class="medicines-grid" id="search-results-grid"></div>
         </section>
 
-        <!-- Shop by Category -->
         <section>
             <h3 class="section-title">Shop by Category</h3>
             <div class="categories-grid">
@@ -1812,7 +1790,6 @@
                 </div>
         </section>
 
-        <!-- Category Medicines Section -->
         <section id="category-section">
             <div id="cat-section-title">
                 <button id="cat-back-btn" onclick="hideCategory()">← Back</button>
@@ -1821,7 +1798,6 @@
             <div class="medicines-grid" id="category-medicines-grid"></div>
         </section>
 
-        <!-- Popular Medicines -->
         <section id="popular-section">
             <div class="section-header">
                 <h3 class="section-title" style="margin-bottom:0;">Popular Medicines</h3>
@@ -1829,7 +1805,6 @@
             <div class="medicines-grid" id="popular-grid"></div>
         </section>
 
-        <!-- Admin Added Medicines Section -->
         <section id="admin-medicines-section" style="display:none;">
             <div class="section-header">
                 <h3 class="section-title" style="margin-bottom:0;">🏥 Available at Our Pharmacy</h3>
@@ -1838,8 +1813,6 @@
             <div class="medicines-grid" id="admin-medicines-grid"></div>
         </section>
 
-
-        <!-- Health Tips -->
         <section class="tips-section">
             <h3 class="section-title">Health Tips</h3>
             <div class="tips-grid">
@@ -1868,7 +1841,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-inner">
             <div class="footer-grid">
@@ -1926,10 +1898,8 @@
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
-        // ══════════════════════════════════════════════════════════════
-        //  AUTH GUARD — Bina login ke profile page nahi khulega
-        // ══════════════════════════════════════════════════════════════
-        (function() {
+
+        (function () {
             const user = localStorage.getItem('mq_user');
             if (!user) {
                 window.location.href = 'login.html';
@@ -2774,14 +2744,12 @@
             ],
         };
 
-        // Popular = first 6 from different categories
         const POPULAR = [
             MEDICINES.fever[0], MEDICINES.allergy[1], MEDICINES.respiratory[5],
             MEDICINES.bone[0], MEDICINES.allergy[0], MEDICINES.bone[1]
 
         ];
 
-        // Medicine image: using placeholder icons based on category
         const IMG_BASE = 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/';
         const MED_IMAGES = {
             'f1': '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
@@ -2791,12 +2759,10 @@
             'a1': '5e13bba1-8727-4c39-87ed-0b73268eca2f.png',
             'bo2': '3ad15d54-a127-4954-964e-9070e589765e.png',
 
-
         };
 
         function getMedImg(med) {
             if (MED_IMAGES[med.id]) return IMG_BASE + MED_IMAGES[med.id];
-            // Generic placeholders by category prefix
             const cat = med.id.charAt(0);
             const placeholders = {
                 f: '57f027b1-22a8-40e3-86c8-1563b68a175d.png',
@@ -2810,14 +2776,8 @@
             const key = med.id.startsWith('bo') ? 'bo' : cat;
             return IMG_BASE + (placeholders[key] || '57f027b1-22a8-40e3-86c8-1563b68a175d.png');
         }
-        // function getMedImg(med) {
-        //         return med.img;
-        //     }
 
-        // ══════════════════════════════════════════════════════════════
-        //  GLOBAL CART — single source of truth
-        // ══════════════════════════════════════════════════════════════
-        let cart = {};  // { id: {med, qty} }
+        let cart = {};
 
         function getCartQty(id) { return cart[id] ? cart[id].qty : 0; }
 
@@ -2825,7 +2785,7 @@
             const med = MEDICINES_FLAT[id];
             if (!med) return;
             if (med.outOfStock) {
-                showToast('❌ Ye medicine abhi out of stock hai');
+                showToast('❌ This medicine is currently out of stock');
                 return;
             }
             if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
@@ -2917,9 +2877,6 @@
             changeQty(id, delta);
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  RENDER MEDICINE CARD
-        // ══════════════════════════════════════════════════════════════
         function renderCard(med) {
             const off = med.mrp ? Math.round((1 - med.price / med.mrp) * 100) : 0;
             const imgSrc = getMedImg(med);
@@ -2931,9 +2888,9 @@
       <div class="med-img-wrap">
         <img src="${imgSrc}" alt="${med.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
         ${isOutOfStock
-            ? '<span style="position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">OUT OF STOCK</span>'
-            : '<span class="badge-30min">30 min</span>'
-        }
+                    ? '<span style="position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">OUT OF STOCK</span>'
+                    : '<span class="badge-30min">30 min</span>'
+                }
         ${med.trending && !isOutOfStock ? '<span class="badge-trending">TRENDING</span>' : ''}
       </div>
       <div class="med-info">
@@ -2948,39 +2905,29 @@
         </div>
         <div class="med-actions">
           ${isOutOfStock
-            ? `<button class="add-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed;">Out of Stock</button>`
-            : `<button class="add-btn" data-action="add" data-id="${med.id}" style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
+                    ? `<button class="add-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed;">Out of Stock</button>`
+                    : `<button class="add-btn" data-action="add" data-id="${med.id}" style="${qty > 0 ? 'display:none' : ''}">Add to Cart</button>
                <div class="qty-controls ${qty > 0 ? 'show' : ''}">
                  <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
                  <span class="qty-val">${qty > 0 ? qty : 1}</span>
                  <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
                </div>`
-          }
+                }
         </div>
       </div>
     </div>
   `;
         }
 
-        // Flat lookup for all medicines
         const MEDICINES_FLAT = {};
         Object.values(MEDICINES).forEach(arr => arr.forEach(m => MEDICINES_FLAT[m.id] = m));
         POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
 
-        // ══════════════════════════════════════════════════════════════
-        //  ADMIN MEDICINES SYNC
-        //  Admin ne jo price/stock change kiya ho woh apply karo
-        // ══════════════════════════════════════════════════════════════
-        // ══════════════════════════════════════════════════════════════
-        //  Admin ne jo price/stock change kiya ho woh apply karo
-        //  + Admin ki nai medicines bhi show karo (category ke saath)
-        // ══════════════════════════════════════════════════════════════
         function syncAdminMedicines() {
             try {
                 const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
                 const customCats = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
 
-                // ── Step 1: Existing medicines ka price/stock update karo ──
                 adminMeds.forEach(adminMed => {
                     const adminName = (adminMed.name || '').toLowerCase().trim();
                     let matched = false;
@@ -2999,7 +2946,6 @@
                     adminMed._isNew = !matched;
                 });
 
-                // ── Step 2: Nai medicines — category ke saath group karke show karo ──
                 const newMeds = adminMeds.filter(m => m._isNew && m.name && m.price > 0);
                 const section = document.getElementById('admin-medicines-section');
                 const grid = document.getElementById('admin-medicines-grid');
@@ -3015,7 +2961,6 @@
                 section.style.display = 'block';
                 if (countEl) countEl.textContent = newMeds.length + ' medicines available';
 
-                // MEDICINES_FLAT mein add karo + renderCard cards banao
                 let html = '';
                 newMeds.forEach(m => {
                     const med = {
@@ -3033,16 +2978,14 @@
                 });
                 grid.innerHTML = html;
 
-            } catch(e) {
+            } catch (e) {
                 console.log('Admin sync error:', e);
             }
         }
 
-        // Page load pe sync karo
         syncAdminMedicines();
 
-        // localStorage change detect karo — admin ne kuch update kiya to turant reflect karo
-        window.addEventListener('storage', function(e) {
+        window.addEventListener('storage', function (e) {
             if (e.key === 'mq_admin_medicines' || e.key === 'mq_medicines_updated') {
                 syncAdminMedicines();
                 const popGrid = document.getElementById('popular-grid');
@@ -3056,7 +2999,6 @@
             }
         });
 
-        // Har 15 seconds mein re-sync karo
         setInterval(() => {
             syncAdminMedicines();
             const popGrid = document.getElementById('popular-grid');
@@ -3082,7 +3024,6 @@
 
         function showCategory(cat) {
             activeCategory = cat;
-            // highlight active cat card
             document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
             document.getElementById('cat-' + cat).classList.add('active');
 
@@ -3099,9 +3040,6 @@
             activeCategory = null;
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  SEARCH
-        // ══════════════════════════════════════════════════════════════
         function searchMedicines() {
             const q = document.getElementById('medicine-search').value.trim().toLowerCase();
             if (!q) return;
@@ -3109,7 +3047,6 @@
             const results = allMeds.filter(m =>
                 m.name.toLowerCase().includes(q) || m.sub.toLowerCase().includes(q)
             );
-            // Remove duplicates
             const seen = new Set();
             const unique = results.filter(m => { if (seen.has(m.id)) return false; seen.add(m.id); return true; });
 
@@ -3134,11 +3071,8 @@
             document.getElementById('medicine-search').value = '';
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  CART DRAWER
-        // ══════════════════════════════════════════════════════════════
         function openCart() {
-            updateCartDrawer(); // refresh content first
+            updateCartDrawer();
             document.getElementById('cartDrawer').classList.add('open');
             document.getElementById('cartOverlay').classList.add('open');
         }
@@ -3148,18 +3082,14 @@
             document.getElementById('cartOverlay').classList.remove('open');
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  CHECKOUT FLOW
-        // ══════════════════════════════════════════════════════════════
         let selectedPayMethod = 'upi';
         let selectedBank = '';
 
-        // ── SAVED ADDRESS HELPERS ──
         function getSavedAddresses() {
             try { return JSON.parse(localStorage.getItem('mq_addresses') || '[]'); } catch (e) { return []; }
         }
 
-        let selectedAddrIndex = -1; // -1 = new address
+        let selectedAddrIndex = -1;
 
         function renderAddrPicker() {
             const addrs = getSavedAddresses();
@@ -3174,7 +3104,6 @@
                 return;
             }
 
-            // Render saved address cards
             let html = '<div style="margin-bottom:10px;font-size:13px;font-weight:600;color:#374151;">📍 Saved Addresses</div>';
             html += addrs.map((a, i) => `
                 <div onclick="selectAddr(${i})" id="addrOption${i}" style="
@@ -3191,7 +3120,6 @@
                     <div style="font-size:12px;color:#6b7280;">📞 ${a.phone}</div>
                 </div>`).join('');
 
-            // New address option
             html += `<div onclick="selectAddr(-1)" id="addrOptionNew" style="
                 border:2px dashed ${selectedAddrIndex === -1 && addrs.length > 0 && !addrs.some(a => a.isDefault) ? '#16a34a' : (selectedAddrIndex === -1 && !addrs.some(a => a.isDefault) ? '#16a34a' : '#d1d5db')};
                 border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
@@ -3203,14 +3131,13 @@
 
             picker.innerHTML = html;
 
-            // Set default selection
             const defIdx = addrs.findIndex(a => a.isDefault);
             if (selectedAddrIndex === -1 && defIdx >= 0) {
                 selectAddr(defIdx);
             } else if (selectedAddrIndex >= 0) {
                 selectAddr(selectedAddrIndex);
             } else {
-                selectAddr(-2); // new address
+                selectAddr(-2);
             }
         }
 
@@ -3219,7 +3146,6 @@
             const formWrap = document.getElementById('newAddrFormWrap');
             selectedAddrIndex = index;
 
-            // Refresh border styles
             addrs.forEach((a, i) => {
                 const el = document.getElementById('addrOption' + i);
                 if (el) {
@@ -3234,7 +3160,7 @@
             }
 
             if (index >= 0 && addrs[index]) {
-                // Fill form with saved address (hidden)
+
                 const a = addrs[index];
                 if (document.getElementById('addr-name')) document.getElementById('addr-name').value = a.name || '';
                 if (document.getElementById('addr-phone')) document.getElementById('addr-phone').value = a.phone || '';
@@ -3246,7 +3172,7 @@
                 if (document.getElementById('addr-landmark')) document.getElementById('addr-landmark').value = a.landmark || '';
                 if (formWrap) formWrap.style.display = 'none';
             } else {
-                // Show new address form
+
                 ['addr-name', 'addr-phone', 'addr-street', 'addr-city', 'addr-pin', 'addr-landmark'].forEach(id => {
                     const el = document.getElementById(id); if (el) el.value = '';
                 });
@@ -3260,10 +3186,10 @@
             if (Object.keys(cart).length === 0) { showToast('⚠ Your cart is empty!'); return; }
             closeCart();
             buildSummaries();
-            selectedAddrIndex = -1; // reset
+            selectedAddrIndex = -1;
             setStep(1);
             document.getElementById('coOverlay').classList.add('show');
-            // Render saved address picker
+
             setTimeout(() => renderAddrPicker(), 50);
         }
         function closeCheckout() { document.getElementById('coOverlay').classList.remove('show'); }
@@ -3342,12 +3268,11 @@
         function formatExp(el) { let v = el.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4); el.value = v; }
 
         function placeOrder() {
-            // COD = no payment validation needed
             if (selectedPayMethod !== 'cod') {
                 if (selectedPayMethod === 'upi' && !document.getElementById('upi-id').value.includes('@')) { showToast('Please enter a valid UPI ID'); return; }
                 if (selectedPayMethod === 'card') {
                     const n = document.getElementById('card-num').value.replace(/\s/g, '');
-                    if (n.length < 16 || !document.getElementById('card-exp').value.includes('/') || document.getElementById('card-cvv').value.length < 3) { showToast('Card details sahi se bharo'); return; }
+                    if (n.length < 16 || !document.getElementById('card-exp').value.includes('/') || document.getElementById('card-cvv').value.length < 3) { showToast('Please fill in your card details correctly'); return; }
                 }
                 if (selectedPayMethod === 'nb' && !selectedBank) { showToast('Please select a bank'); return; }
             }
@@ -3373,14 +3298,11 @@
                 '<div style="border-top:1px solid #bbf7d0;margin-top:8px;padding-top:8px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;"><span>Total ' + (selectedPayMethod === 'cod' ? '(Pay on Delivery)' : 'Paid') + '</span><span style="color:#16a34a;">Rs.' + (total + cod) + '</span></div>' +
                 '<p style="font-size:11px;color:#6b7280;margin-top:6px;">Payment: ' + getPayLabel() + '</p>';
 
-            // Save to localStorage so my_order.html can read it
             try {
                 var orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-                // Logged-in user ka email zaroori hai — my_order.html isi se filter karta hai
                 var currentUser = {};
-                try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) {}
+                try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch (e) { }
 
-                // Agar user email nahi hai to order save mat karo
                 if (!currentUser.email) {
                     showToast('⚠ Please login to place an order');
                     return;
@@ -3390,7 +3312,7 @@
                     orderId: orderId,
                     name: addrName,
                     customerName: currentUser.name || addrName,
-                    customerEmail: currentUser.email.toLowerCase().trim(), // always lowercase for consistent matching
+                    customerEmail: currentUser.email.toLowerCase().trim(),
                     city: city,
                     items: items,
                     total: total + cod,
@@ -3413,15 +3335,12 @@
         function getPayLabel() { return { upi: 'UPI', card: 'Card', nb: selectedBank + ' Net Banking', wallet: 'Wallet', cod: 'Cash on Delivery' }[selectedPayMethod] || selectedPayMethod; }
 
         function doLogout() {
-            if (confirm('Logout karna chahte ho?')) {
+            if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('mq_user');
                 window.location.href = 'login.html';
             }
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  TOAST
-        // ══════════════════════════════════════════════════════════════
         let toastTimer;
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -3431,9 +3350,6 @@
             toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  ACCOUNT DROPDOWN
-        // ══════════════════════════════════════════════════════════════
         document.getElementById('accountBtn').addEventListener('click', function (e) {
             e.stopPropagation();
             document.getElementById('accountDropdown').classList.toggle('show');
@@ -3442,9 +3358,6 @@
             document.getElementById('accountDropdown').classList.remove('show');
         });
 
-        // ══════════════════════════════════════════════════════════════
-        //  LOCATION
-        // ══════════════════════════════════════════════════════════════
         function changeLocation() {
             const loc = prompt('Enter your delivery location:');
             if (loc && loc.trim()) {
@@ -3456,30 +3369,20 @@
             }
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  SEARCH ENTER KEY
-        // ══════════════════════════════════════════════════════════════
         document.getElementById('medicine-search').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') searchMedicines();
         });
 
-        // ══════════════════════════════════════════════════════════════
-        //  INIT — Render popular section
-        // ══════════════════════════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', function () {
-            // Location auto-detect
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
             loader.style.display = 'inline-block';
             setTimeout(() => { loader.style.display = 'none'; text.textContent = 'Sector 12, Dwarka, New Delhi'; }, 1500);
 
-            // Init cart empty state
             updateCartDrawer();
 
-            // Render popular medicines
             document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
 
-            // Load user name in account button
             try {
                 const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
                 const accountBtn = document.getElementById('accountBtn');
@@ -3493,9 +3396,8 @@
                     accountBtn.style.fontSize = '14px';
                     accountBtn.style.fontWeight = '700';
                 }
-            } catch(e) {}
+            } catch (e) { }
 
-            // ── Event Delegation for all medicine grids ──
             ['popular-grid', 'category-medicines-grid', 'search-results-grid', 'admin-medicines-grid'].forEach(function (gridId) {
                 const grid = document.getElementById(gridId);
                 if (!grid) return;

@@ -36,7 +36,6 @@
       min-height: 100vh;
     }
 
-    /* ── HEADER ── */
     .header {
       background: #fff;
       box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
@@ -168,7 +167,6 @@
       justify-content: center;
     }
 
-    /* ── PAGE LAYOUT ── */
     .page-wrap {
       max-width: 1100px;
       margin: 32px auto;
@@ -184,7 +182,6 @@
       }
     }
 
-    /* ── SIDEBAR ── */
     .sidebar {
       background: var(--card);
       border-radius: var(--radius);
@@ -281,7 +278,6 @@
       background: #fee2e2;
     }
 
-    /* ── MAIN CONTENT ── */
     .main-content {
       background: var(--card);
       border-radius: var(--radius);
@@ -311,7 +307,6 @@
       color: var(--green);
     }
 
-    /* ── ACCOUNT FIELDS ── */
     .field-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -367,7 +362,6 @@
       text-decoration: underline;
     }
 
-    /* ── ORDERS ── */
     .orders-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -537,7 +531,6 @@
       font-size: 14px;
     }
 
-    /* ── ADDRESS ── */
     .addr-card {
       border: 1.5px solid var(--green-border);
       border-radius: 12px;
@@ -652,7 +645,6 @@
       background: var(--green-light);
     }
 
-    /* Address Modal Form */
     .addr-form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -690,7 +682,6 @@
       }
     }
 
-    /* ── SETTINGS ── */
     .settings-card {
       background: var(--green-light);
       border: 1px solid var(--green-border);
@@ -785,7 +776,6 @@
       left: 21px;
     }
 
-    /* ── EDIT MODAL ── */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -887,7 +877,6 @@
       background: var(--green-dark);
     }
 
-    /* ── TOAST ── */
     .toast {
       position: fixed;
       bottom: 28px;
@@ -914,7 +903,6 @@
 
 <body>
 
-  <!-- ══ HEADER ══ -->
   <header class="header">
     <div class="header-inner">
       <a href="index.html" class="logo">
@@ -951,11 +939,9 @@
     </div>
   </header>
 
-
-  <!-- ══ ADDRESS MODAL ══ -->
   <div class="modal-overlay" id="addressModal">
     <div class="modal-box" style="max-width:500px;width:95%;">
-      <div class="modal-title" id="addrModalTitle">Naya Address Add Karo</div>
+      <div class="modal-title" id="addrModalTitle">Add New Address</div>
       <input type="hidden" id="editAddrIndex" value="-1" />
       <div class="addr-form-grid">
         <div class="addr-form-full">
@@ -968,7 +954,7 @@
         </div>
         <div>
           <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Full Name *</label>
-          <input class="addr-form-input" id="addrName" placeholder="Apna naam"
+          <input class="addr-form-input" id="addrName" placeholder="Your name"
             style="margin-top:4px;margin-bottom:10px;" />
         </div>
         <div>
@@ -1008,7 +994,6 @@
     </div>
   </div>
 
-  <!-- ══ EDIT MODAL ══ -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <div class="modal-title" id="modalTitle">Edit</div>
@@ -1020,13 +1005,10 @@
     </div>
   </div>
 
-  <!-- ══ TOAST ══ -->
   <div class="toast" id="toast">✅ Saved!</div>
 
-  <!-- ══ PAGE ══ -->
   <div class="page-wrap">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="user-avatar">
         <div class="avatar-circle" id="avatarInitial">?</div>
@@ -1057,10 +1039,8 @@
       </nav>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
 
-      <!-- ── MY ACCOUNT ── -->
       <div id="account" class="section active">
         <div class="section-title"><i class="fas fa-user-circle"></i> My Account</div>
         <div class="field-grid">
@@ -1095,11 +1075,9 @@
         </div>
       </div>
 
-      <!-- ── MY ORDERS ── -->
       <div id="orders" class="section">
         <div class="section-title"><i class="fas fa-box-open"></i> My Orders</div>
 
-        <!-- Stats -->
         <div class="orders-stats">
           <div class="stat-card">
             <div class="stat-num" id="totalOrders">0</div>
@@ -1115,11 +1093,9 @@
           </div>
         </div>
 
-        <!-- Order list -->
         <div id="ordersList"></div>
       </div>
 
-      <!-- ── WISHLIST ── -->
       <div id="wishlist" class="section">
         <div class="section-title"><i class="fas fa-heart"></i> Wishlist</div>
         <div style="text-align:center;padding:40px;color:var(--text-muted);">
@@ -1132,7 +1108,6 @@
         </div>
       </div>
 
-      <!-- ── ADDRESS ── -->
       <div id="address" class="section">
         <div class="section-title"><i class="fas fa-map-marker-alt"></i> My Address</div>
         <div id="addressSection">
@@ -1143,14 +1118,13 @@
         </button>
       </div>
 
-      <!-- ── SETTINGS ── -->
       <div id="settings" class="section">
         <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
 
         <div class="settings-card">
           <div class="settings-label">🔒 Change Password</div>
-          <input class="settings-input" type="password" id="newPassword" placeholder="Naya password..." />
-          <input class="settings-input" type="password" id="confirmPassword" placeholder="Password confirm karo..." />
+          <input class="settings-input" type="password" id="newPassword" placeholder="New password..." />
+          <input class="settings-input" type="password" id="confirmPassword" placeholder="Confirm new password..." />
           <button class="settings-btn" onclick="changePassword()">Update Password</button>
         </div>
 
@@ -1180,16 +1154,12 @@
   </div>
 
   <script>
-    // ── USER AUTH GUARD ──
-    (function() {
+    (function () {
       if (!localStorage.getItem('mq_user')) {
         window.location.href = 'login.html';
       }
     })();
 
-    // ══════════════════════════════════════════════════════
-    //  LOAD USER DATA FROM LOCALSTORAGE
-    // ══════════════════════════════════════════════════════
     let userData = {};
 
     function loadUser() {
@@ -1203,21 +1173,16 @@
       const mobile = userData.mobile || userData.phone || '—';
       const gender = userData.gender || '—';
 
-      // Sidebar
       document.getElementById('sidebarName').textContent = name;
       document.getElementById('sidebarEmail').textContent = email;
       document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
 
-      // Account fields
       document.getElementById('nameDisplay').textContent = name;
       document.getElementById('emailDisplay').textContent = email;
       document.getElementById('mobileDisplay').textContent = mobile;
       document.getElementById('genderDisplay').textContent = gender;
     }
 
-    // ══════════════════════════════════════════════════════
-    //  LOAD ORDERS FROM LOCALSTORAGE
-    // ══════════════════════════════════════════════════════
     function getStatus(order) {
       if (order.status) return order.status;
       return 'confirmed';
@@ -1237,7 +1202,7 @@
       let orders = [];
       try {
         const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-        // STRICT email match — sirf is user ke orders
+
         const userEmail = (userData.email || '').toLowerCase().trim();
         if (!userEmail) return;
         orders = allOrders.filter(o => {
@@ -1254,7 +1219,6 @@
       document.getElementById('activeOrders').textContent = active;
       document.getElementById('totalSpent').textContent = '₹' + spent.toLocaleString('en-IN');
 
-      // Badge on nav
       if (active > 0) {
         document.getElementById('ordersBadge').textContent = active;
         document.getElementById('ordersBadge').style.display = 'inline-block';
@@ -1266,8 +1230,8 @@
         list.innerHTML = `
       <div class="empty-orders">
         <i class="fas fa-box-open"></i>
-        <h3>Koi order nahi hai abhi</h3>
-        <p>Medicines order karo aur yahan track karo!</p>
+        <h3>No orders yet</h3>
+        <p>Order medicines and track them here!</p>
         <a href="profile.html">Order Now →</a>
       </div>`;
         return;
@@ -1304,12 +1268,8 @@
     </div>`;
       }).join('');
 
-      // Load addresses from localStorage (done by loadAddresses())
     }
 
-    // ══════════════════════════════════════════════════════
-    //  SECTION NAV
-    // ══════════════════════════════════════════════════════
     function showSection(id) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1318,9 +1278,6 @@
       closeDropdown();
     }
 
-    // ══════════════════════════════════════════════════════
-    //  EDIT MODAL
-    // ══════════════════════════════════════════════════════
     let editField = '';
 
     function openEdit(field) {
@@ -1356,7 +1313,6 @@
 
       document.getElementById(editField + 'Display').textContent = val;
 
-      // Update userData & sidebar
       userData[editField] = val;
       if (editField === 'name') {
         document.getElementById('sidebarName').textContent = val;
@@ -1364,10 +1320,9 @@
       }
       if (editField === 'email') document.getElementById('sidebarEmail').textContent = val;
 
-      // Save back to localStorage
       try {
         localStorage.setItem('mq_user', JSON.stringify(userData));
-        // Also update mq_users array
+
         const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
         const idx = users.findIndex(u => u.email === userData.email);
         if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
@@ -1377,15 +1332,12 @@
       showToast('✅ ' + editField.charAt(0).toUpperCase() + editField.slice(1) + ' updated!');
     }
 
-    // ══════════════════════════════════════════════════════
-    //  UTILS
-    // ══════════════════════════════════════════════════════
     function changePassword() {
       const np = document.getElementById('newPassword').value;
       const cp = document.getElementById('confirmPassword').value;
-      if (!np || !cp) return showToast('⚠️ Dono fields bharo');
-      if (np !== cp) return showToast('⚠️ Passwords match nahi karte');
-      if (np.length < 6) return showToast('⚠️ Password 6+ characters ka hona chahiye');
+      if (!np || !cp) return showToast('⚠️ Please fill both fields');
+      if (np !== cp) return showToast('⚠️ Passwords do not match');
+      if (np.length < 6) return showToast('⚠️ Password must be at least 6 characters');
       userData.password = np;
       try {
         localStorage.setItem('mq_user', JSON.stringify(userData));
@@ -1399,7 +1351,7 @@
     }
 
     function logout() {
-      if (confirm('Logout karna chahte ho?')) {
+      if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('mediiquickUser');
         localStorage.removeItem('mq_user');
         window.location.href = 'login.html';
@@ -1419,22 +1371,16 @@
       document.getElementById('accountDropdown').classList.remove('show');
     }
 
-    // ── ACCOUNT DROPDOWN ──
     document.getElementById('accountBtn').addEventListener('click', e => {
       e.stopPropagation();
       document.getElementById('accountDropdown').classList.toggle('show');
     });
     document.addEventListener('click', () => closeDropdown());
 
-    // ── MODAL ESC ──
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') { closeModal(); closeAddressModal(); }
     });
 
-
-    // ══════════════════════════════════════════════════════
-    //  ADDRESS MANAGEMENT
-    // ══════════════════════════════════════════════════════
     function getSavedAddresses() {
       try { return JSON.parse(localStorage.getItem('mq_addresses') || '[]'); } catch (e) { return []; }
     }
@@ -1445,7 +1391,6 @@
     function loadAddresses() {
       let addrs = getSavedAddresses();
 
-      // Also pull address from orders if none saved
       if (addrs.length === 0) {
         try {
           const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
@@ -1461,7 +1406,7 @@
       if (!section) return;
 
       if (addrs.length === 0) {
-        section.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">Koi saved address nahi hai. Neeche button se add karo!</p>`;
+        section.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">No saved addresses. Click the button below to add one!</p>`;
         return;
       }
 
@@ -1492,7 +1437,7 @@
 
       if (index !== null && addrs[index]) {
         const a = addrs[index];
-        document.getElementById('addrModalTitle').textContent = 'Address Edit Karo';
+        document.getElementById('addrModalTitle').textContent = 'Edit Address';
         document.getElementById('editAddrIndex').value = index;
         document.getElementById('addrType').value = a.type || 'Home';
         document.getElementById('addrName').value = a.name || '';
@@ -1503,13 +1448,13 @@
         document.getElementById('addrState').value = a.state || '';
         document.getElementById('addrPin').value = a.pin || '';
       } else {
-        document.getElementById('addrModalTitle').textContent = 'Naya Address Add Karo';
+        document.getElementById('addrModalTitle').textContent = 'Add New Address';
         document.getElementById('editAddrIndex').value = -1;
         ['addrName', 'addrPhone', 'addrStreet', 'addrLandmark', 'addrCity', 'addrState', 'addrPin'].forEach(id => {
           document.getElementById(id).value = '';
         });
         document.getElementById('addrType').value = 'Home';
-        // Pre-fill name & phone from user data
+
         document.getElementById('addrName').value = userData.name || userData.fullName || '';
         document.getElementById('addrPhone').value = userData.mobile || userData.phone || '';
       }
@@ -1528,11 +1473,11 @@
       const pin = document.getElementById('addrPin').value.trim();
 
       if (!name || !phone || !street || !city || !pin) {
-        showToast('⚠️ Star (*) fields zaroori hain!');
+        showToast('⚠️ All starred (*) fields are required!');
         return;
       }
-      if (phone.length < 10) { showToast('⚠️ Valid phone number do!'); return; }
-      if (pin.length !== 6) { showToast('⚠️ 6-digit PIN code do!'); return; }
+      if (phone.length < 10) { showToast('⚠️ Please enter a valid phone number!'); return; }
+      if (pin.length !== 6) { showToast('⚠️ Please enter a 6-digit PIN code!'); return; }
 
       const newAddr = {
         type: document.getElementById('addrType').value,
@@ -1550,11 +1495,11 @@
       if (idx >= 0) {
         newAddr.isDefault = addrs[idx].isDefault;
         addrs[idx] = newAddr;
-        showToast('✅ Address update ho gaya!');
+        showToast('✅ Address updated!');
       } else {
         if (addrs.length === 0) newAddr.isDefault = true;
         addrs.push(newAddr);
-        showToast('✅ Naya address save ho gaya!');
+        showToast('✅ New address saved!');
       }
 
       saveAddresses(addrs);
@@ -1567,26 +1512,24 @@
       addrs.forEach((a, i) => a.isDefault = (i === index));
       saveAddresses(addrs);
       loadAddresses();
-      showToast('✅ Default address set ho gaya!');
+      showToast('✅ Default address set!');
     }
 
     function deleteAddress(index) {
-      if (!confirm('Yeh address delete karna chahte ho?')) return;
+      if (!confirm('Are you sure you want to delete this address?')) return;
       const addrs = getSavedAddresses();
       const wasDefault = addrs[index].isDefault;
       addrs.splice(index, 1);
       if (wasDefault && addrs.length > 0) addrs[0].isDefault = true;
       saveAddresses(addrs);
       loadAddresses();
-      showToast('🗑️ Address delete ho gaya!');
+      showToast('🗑️ Address deleted!');
     }
 
-    // ── INIT ──
     loadUser();
     loadOrders();
     loadAddresses();
 
-    // Har 10s mein refresh — admin status turant dike
     setInterval(loadOrders, 10000);
   </script>
 </body>

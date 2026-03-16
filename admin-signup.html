@@ -26,7 +26,7 @@
             overflow: hidden;
         }
 
-        /* Background decorative circles */
+
         body::before {
             content: '';
             position: absolute;
@@ -51,7 +51,7 @@
             pointer-events: none;
         }
 
-        /* ── Header ── */
+
         .header {
             padding: 18px 40px;
             display: flex;
@@ -98,7 +98,7 @@
             color: #4ade80;
         }
 
-        /* ── Main ── */
+
         .main {
             flex: 1;
             display: flex;
@@ -118,7 +118,7 @@
             overflow: hidden;
         }
 
-        /* Card top strip */
+
         .card-top {
             background: linear-gradient(135deg, #16a34a, #059669);
             padding: 32px 40px 28px;
@@ -151,7 +151,7 @@
             opacity: .85;
         }
 
-        /* Steps indicator */
+
         .steps {
             display: flex;
             gap: 0;
@@ -322,7 +322,7 @@
             display: flex;
         }
 
-        /* Password wrapper */
+
         .pw-wrap {
             position: relative;
         }
@@ -347,7 +347,7 @@
             color: #374151;
         }
 
-        /* Password strength */
+
         .pw-strength {
             margin-top: 6px;
         }
@@ -384,14 +384,14 @@
             color: #94a3b8;
         }
 
-        /* GST hint */
+
         .field-hint {
             font-size: 10px;
             color: #94a3b8;
             margin-top: 3px;
         }
 
-        /* Checkboxes */
+
         .check-group {
             display: flex;
             align-items: flex-start;
@@ -423,7 +423,7 @@
             text-decoration: underline;
         }
 
-        /* Buttons */
+
         .btn-row {
             display: flex;
             gap: 12px;
@@ -476,7 +476,7 @@
             transform: translateY(0);
         }
 
-        /* Progress bottom text */
+
         .card-footer {
             padding: 0 40px 28px;
             text-align: center;
@@ -497,7 +497,7 @@
             text-decoration: underline;
         }
 
-        /* Success screen */
+
         .success-screen {
             display: none;
             text-align: center;
@@ -585,7 +585,7 @@
             background: #15803d;
         }
 
-        /* Toast */
+
         #toast {
             position: fixed;
             bottom: 24px;
@@ -639,7 +639,7 @@
 
     <div id="toast"><span id="toast-msg"></span></div>
 
-    <!-- Header -->
+
     <header class="header">
         <a href="index.html" class="logo">
             <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
@@ -649,11 +649,11 @@
         <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
     </header>
 
-    <!-- Main -->
+
     <main class="main">
         <div class="card">
 
-            <!-- Card Top -->
+
             <div class="card-top">
                 <div class="card-icon">🏥</div>
                 <div>
@@ -662,7 +662,7 @@
                 </div>
             </div>
 
-            <!-- Step Tabs -->
+
             <div class="steps">
                 <div class="step-tab active" id="tab1">
                     <div class="step-num">1</div><br>Shop Info
@@ -675,10 +675,10 @@
                 </div>
             </div>
 
-            <!-- Form Body -->
+
             <div class="card-body">
 
-                <!-- ── STEP 1: Shop Information ── -->
+
                 <div class="form-section active" id="sec1">
                     <div class="section-label">📋 Shop / Pharmacy Details</div>
                     <div class="form-grid">
@@ -741,7 +741,7 @@
                     </div>
                 </div>
 
-                <!-- ── STEP 2: Contact Details ── -->
+
                 <div class="form-section" id="sec2">
                     <div class="section-label">📞 Contact Information</div>
                     <div class="form-grid">
@@ -815,7 +815,7 @@
                     </div>
                 </div>
 
-                <!-- ── STEP 3: Security ── -->
+
                 <div class="form-section" id="sec3">
                     <div class="section-label">🔐 Account Security</div>
                     <div class="form-grid full">
@@ -854,7 +854,7 @@
                                 do not match</span>
                         </div>
 
-                        <!-- Terms -->
+
                         <div style="margin-top:8px;">
                             <div class="check-group">
                                 <input type="checkbox" id="terms">
@@ -881,12 +881,12 @@
                     </div>
                 </div>
 
-                <!-- ── SUCCESS ── -->
+
                 <div class="success-screen" id="successScreen">
                     <div class="tick-wrap">✓</div>
                     <h3>Registration Successful! 🎉</h3>
-                    <p>Aapki application MediiQuick team ke paas bhej di gayi hai.<br>Review ke baad aapko <strong>24-48
-                            hours</strong> mein email aayegi.</p>
+                    <p>Your application has been submitted to the MediiQuick team.<br>You will receive a response within
+                        <strong>24-48 hours</strong>.</p>
                     <div class="success-id">
                         <span>Your Admin ID</span>
                         <strong id="genAdminId">ADMIN-000000</strong>
@@ -898,7 +898,7 @@
 
             </div>
 
-            <!-- Footer -->
+
             <div class="card-footer" id="cardFooter">
                 <p class="footer-text">
                     Already registered? <a href="admin-login.html">Login to Dashboard</a>
@@ -911,9 +911,7 @@
     </main>
 
     <script>
-        // ══════════════════════════════════════════════════════════════
-        //  STEP NAVIGATION
-        // ══════════════════════════════════════════════════════════════
+
         let currentStep = 1;
 
         function goStep(n) {
@@ -926,13 +924,9 @@
                 tab.classList.toggle('active', i === n);
                 tab.classList.toggle('done', i < n);
             });
-            // Scroll to top of card
             document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  VALIDATION PER STEP
-        // ══════════════════════════════════════════════════════════════
         function validateStep(step) {
             let valid = true;
 
@@ -971,41 +965,33 @@
                 const terms = document.getElementById('terms').checked;
                 const verify = document.getElementById('verify').checked;
 
-                // Password
                 const passOk = pass.length >= 8 && /\d/.test(pass);
                 document.getElementById('password').classList.toggle('err', !passOk);
                 document.getElementById('err-pass').classList.toggle('show', !passOk);
                 if (!passOk) valid = false;
 
-                // Confirm
                 const confOk = conf === pass && conf.length > 0;
                 document.getElementById('confirm-pass').classList.toggle('err', !confOk);
                 document.getElementById('err-confirm').classList.toggle('show', !confOk);
                 if (!confOk) valid = false;
 
-                // Terms
                 document.getElementById('err-terms').classList.toggle('show', !terms);
                 if (!terms) valid = false;
 
-                // Verify
                 document.getElementById('err-verify').classList.toggle('show', !verify);
                 if (!verify) valid = false;
             }
 
-            if (!valid) showToast('⚠ Kuch fields sahi se bharo');
+            if (!valid) showToast('⚠ Please fill all required fields');
             return valid;
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  SUBMIT
-        // ══════════════════════════════════════════════════════════════
         function submitForm() {
             if (!validateStep(3)) return;
 
             const adminId = 'ADMIN-' + Math.floor(100000 + Math.random() * 900000);
             document.getElementById('genAdminId').textContent = adminId;
 
-            // Collect all data
             const data = {
                 adminId,
                 shopName: document.getElementById('shop-name').value.trim(),
@@ -1027,11 +1013,9 @@
 
             console.log('✅ Admin Registered:', data);
 
-            // Save to localStorage (password bhi include karein login ke liye)
             const adminDataWithPass = { ...data, password: document.getElementById('password').value };
             try { localStorage.setItem('mq_admin', JSON.stringify(adminDataWithPass)); } catch (e) { }
 
-            // Show success
             ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById('successScreen').classList.add('show');
             document.getElementById('cardFooter').style.display = 'none';
@@ -1041,9 +1025,6 @@
             });
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  PASSWORD STRENGTH
-        // ══════════════════════════════════════════════════════════════
         function checkStrength(val) {
             const wrap = document.getElementById('pwStrength');
             if (!val) { wrap.style.display = 'none'; return; }
@@ -1069,9 +1050,6 @@
             label.style.color = colors[score - 1] || '#ef4444';
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  TOGGLE PASSWORD VISIBILITY
-        // ══════════════════════════════════════════════════════════════
         function togglePw(inputId, btn) {
             const input = document.getElementById(inputId);
             const icon = btn.querySelector('i');
@@ -1084,9 +1062,6 @@
             }
         }
 
-        // ══════════════════════════════════════════════════════════════
-        //  TOAST
-        // ══════════════════════════════════════════════════════════════
         let toastTimer;
         function showToast(msg) {
             document.getElementById('toast-msg').textContent = msg;
@@ -1096,12 +1071,10 @@
             toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
         }
 
-        // Auto-format GST to uppercase
         document.getElementById('gst').addEventListener('input', function () {
             this.value = this.value.toUpperCase();
         });
 
-        // Only allow digits for PIN and mobile
         ['pin', 'mobile', 'mobile2'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', function () {
                 this.value = this.value.replace(/\D/g, '');

@@ -82,7 +82,6 @@
       transform: rotate(30deg);
     }
 
-    /* Header */
     .header {
       padding: 18px 40px;
       display: flex;
@@ -129,7 +128,6 @@
       color: #4ade80;
     }
 
-    /* Main */
     .main {
       flex: 1;
       display: flex;
@@ -140,7 +138,6 @@
       z-index: 10;
     }
 
-    /* Card */
     .card {
       background: #fff;
       border-radius: 24px;
@@ -152,7 +149,6 @@
       min-height: 580px;
     }
 
-    /* Left panel */
     .left-panel {
       width: 42%;
       background: linear-gradient(155deg, #15803d, #16a34a, #059669);
@@ -248,7 +244,6 @@
       opacity: .9;
     }
 
-    /* Right panel */
     .right-panel {
       flex: 1;
       padding: 40px 40px;
@@ -257,7 +252,6 @@
       overflow-y: auto;
     }
 
-    /* Tab toggle */
     .tab-row {
       display: flex;
       background: #f1f5f9;
@@ -291,7 +285,6 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
     }
 
-    /* Form sections */
     .form-section {
       display: none;
     }
@@ -313,7 +306,6 @@
       margin-bottom: 24px;
     }
 
-    /* Form groups */
     .form-group {
       margin-bottom: 16px;
     }
@@ -412,7 +404,6 @@
       text-decoration: underline;
     }
 
-    /* Submit button */
     .submit-btn {
       width: 100%;
       background: #16a34a;
@@ -467,7 +458,6 @@
       }
     }
 
-    /* Divider */
     .divider {
       display: flex;
       align-items: center;
@@ -487,7 +477,6 @@
       font-weight: 600;
     }
 
-    /* Social buttons */
     .social-row {
       display: flex;
       gap: 10px;
@@ -517,7 +506,6 @@
       color: #16a34a;
     }
 
-    /* Bottom link */
     .bottom-link {
       text-align: center;
       font-size: 13px;
@@ -535,7 +523,6 @@
       text-decoration: underline;
     }
 
-    /* Toast */
     #toast {
       position: fixed;
       bottom: 24px;
@@ -565,7 +552,6 @@
       background: #ef4444;
     }
 
-    /* Forgot modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -677,7 +663,6 @@
 
   <div id="toast"><span id="toast-msg"></span></div>
 
-  <!-- Forgot Modal -->
   <div class="modal-overlay" id="forgotModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeForgot()">✕</button>
@@ -694,7 +679,6 @@
     </div>
   </div>
 
-  <!-- Header -->
   <header class="header">
     <a href="index.html" class="logo">
       <img
@@ -705,11 +689,9 @@
     <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Go to Home</a>
   </header>
 
-  <!-- Main -->
   <main class="main">
     <div class="card">
 
-      <!-- Left Panel -->
       <div class="left-panel">
         <div class="lp-icon">💊</div>
         <h2>Welcome Back!</h2>
@@ -722,10 +704,8 @@
         </div>
       </div>
 
-      <!-- Right Panel -->
       <div class="right-panel">
 
-        <!-- Tab Toggle -->
         <div class="tab-row">
           <button class="tab-btn active" id="tab-user" onclick="switchTab('user')">
             <i class="fas fa-user"></i> User Login
@@ -735,7 +715,7 @@
           </button>
         </div>
 
-        <!-- ── USER LOGIN ── -->
+
         <div class="form-section active" id="sec-user">
           <div class="section-title">👋 User Login</div>
           <div class="section-sub">Login Your Account </div>
@@ -785,7 +765,7 @@
           </div>
         </div>
 
-        <!-- ── ADMIN LOGIN ── -->
+
         <div class="form-section" id="sec-admin">
           <div class="section-title">🏥 Admin Login</div>
           <div class="section-sub">Login to your pharmacy partner dashboard</div>
@@ -830,13 +810,13 @@
   </main>
 
   <script>
-    // ── Tab Switch ──
+
     function switchTab(type) {
       ['user', 'admin'].forEach(t => {
         document.getElementById('sec-' + t).classList.toggle('active', t === type);
         document.getElementById('tab-' + t).classList.toggle('active', t === type);
       });
-      // Update left panel
+
       if (type === 'admin') {
         document.querySelector('.lp-icon').textContent = '🏥';
         document.querySelector('.left-panel h2').textContent = 'Admin Portal';
@@ -848,7 +828,6 @@
       }
     }
 
-    // ── Toggle Password ──
     function togglePw(id, btn) {
       const input = document.getElementById(id);
       const icon = btn.querySelector('i');
@@ -856,7 +835,6 @@
       icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
     }
 
-    // ── User Login ──
     function doUserLogin() {
       const email = document.getElementById('u-email').value.trim().toLowerCase();
       const pass = document.getElementById('u-pass').value;
@@ -880,10 +858,8 @@
         setLoading('userLoginBtn', false);
         try {
           const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
-          // Case-insensitive email match
           const matched = users.find(u => (u.email || '').toLowerCase() === email && u.password === pass);
           if (matched) {
-            // Save with lowercase email for consistent order filtering
             matched.email = matched.email.toLowerCase();
             localStorage.setItem('mq_user', JSON.stringify(matched));
             showToast('✓ Login successful!', 'success');
@@ -902,7 +878,6 @@
       }, 1200);
     }
 
-    // ── Admin Login ──
     function doAdminLogin() {
       const id = document.getElementById('a-id').value.trim();
       const pass = document.getElementById('a-pass').value;
@@ -946,12 +921,10 @@
       }, 1200);
     }
 
-    // ── Social Login ──
     function socialLogin(provider) {
       showToast(`${provider} login coming soon!`);
     }
 
-    // ── Loading State ──
     function setLoading(btnId, state) {
       const btn = document.getElementById(btnId);
       btn.classList.toggle('loading', state);
@@ -961,7 +934,6 @@
       if (text) text.style.opacity = state ? '.6' : '1';
     }
 
-    // ── Forgot Password ──
     function openForgot() { document.getElementById('forgotModal').classList.add('show'); }
     function closeForgot() { document.getElementById('forgotModal').classList.remove('show'); }
     function sendReset() {
@@ -973,7 +945,6 @@
       showToast('📧 Reset link sent to ' + email, 'success');
     }
 
-    // ── Enter key ──
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const active = document.querySelector('.form-section.active').id;
@@ -982,11 +953,9 @@
       }
     });
 
-    // ── Check URL params (e.g. ?tab=admin) ──
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'admin') switchTab('admin');
 
-    // ── Toast ──
     let toastTimer;
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
