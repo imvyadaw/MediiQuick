@@ -3206,7 +3206,7 @@
             [1, 2].forEach(i => { const l = document.getElementById('line' + i); if (l) l.classList.toggle('done', i < n); });
             document.getElementById('coProgress').style.display = n === 3 ? 'none' : 'flex';
         }
-
+    // IM_VYADAW
         function buildSummaries() {
             const items = Object.values(cart);
             const total = items.reduce((s, i) => s + i.med.price * i.qty, 0);

@@ -1751,7 +1751,7 @@
     (function () {
       const session = localStorage.getItem('mq_admin_session');
       if (!session) {
-        window.location.href = 'admin-login.html';
+        window.location.replace('login.html?tab=admin');
       } else {
         try {
           const admin = JSON.parse(session);
@@ -1760,7 +1760,7 @@
         } catch (e) { }
       }
     })();
-
+  // IM_VYADAW
     let medicines = [];
     let pendingDeleteId = null;
 
@@ -2148,7 +2148,7 @@
       showToast('🗑️ Medicine deleted!');
       pendingDeleteId = null;
     }
-
+  // IM_VYADAW
     function openRestockModal(id) {
       const m = medicines.find(x => x.id === id);
       if (!m) return;
@@ -2692,7 +2692,7 @@
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('mq_admin_session');
-        window.location.href = 'admin-login.html';
+        window.location.href = 'index.html';
       }
     }
 

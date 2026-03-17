@@ -654,6 +654,7 @@
                 <button class="modal-btn" id="sendOtpBtn" onclick="sendResetLink()">📧 Send OTP</button>
                 <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
             </div>
+            <!-- IM_VYADAW -->
 
             <div id="forgot-step2" style="display:none;">
                 <p>Check your email (or terminal in dev mode) and enter the 6-digit OTP.</p>
@@ -802,7 +803,6 @@
     </main>
 
     <script>
-        const API = 'http://127.0.0.1:8000/api/v1';
         let activeType = 'email';
 
         function switchType(type) {
@@ -819,7 +819,7 @@
             input.type = input.type === 'password' ? 'text' : 'password';
             icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
         }
-
+        // <<--IM_VYADAW-->>
         function validate() {
             let valid = true;
             if (activeType === 'email') {
@@ -845,13 +845,13 @@
             return valid;
         }
 
-        async function doLogin() {
+        function doLogin() {
             if (!validate()) { showToast('⚠ Please enter valid details', 'error'); return; }
 
             let identifier = '';
             let password = '';
             if (activeType === 'email') {
-                identifier = document.getElementById('login-email').value.trim();
+                identifier = document.getElementById('login-email').value.trim().toLowerCase();
                 password = document.getElementById('login-pass').value;
             } else {
                 identifier = document.getElementById('login-admin-id').value.trim().toUpperCase();
@@ -862,33 +862,45 @@
             btn.classList.add('loading');
             btn.querySelector('.btn-text').innerHTML = 'Logging in...';
 
-            try {
-                const res = await fetch(`${API}/auth/admin/login/`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identifier, password })
-                });
-                const data = await res.json();
+            setTimeout(() => {
+                try {
+                    const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
+                    let matched = false;
 
-                btn.classList.remove('loading');
-                btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
+                    if (activeType === 'email') {
+                        if (adminData.email && adminData.email.toLowerCase() === identifier && adminData.password === password) {
+                            matched = true;
+                        }
+                    } else {
+                        if (adminData.adminId && adminData.adminId.toUpperCase() === identifier && adminData.password === password) {
+                            matched = true;
+                        }
+                    }
 
-                if (data.success) {
-                    localStorage.setItem('mq_access', data.tokens.access);
-                    localStorage.setItem('mq_refresh', data.tokens.refresh);
-                    localStorage.setItem('mq_admin_session', JSON.stringify(data.admin));
-                    showToast('✓ Login successful! Redirecting...', 'success');
-                    setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
-                } else {
-                    const e = data.errors || {};
-                    const msg = e.identifier?.[0] || e.password?.[0] || data.message || 'Login failed.';
-                    showToast('⚠ ' + msg, 'error');
+                    btn.classList.remove('loading');
+                    btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
+
+                    if (matched) {
+                        localStorage.setItem('mq_admin_session', JSON.stringify({
+                            email: adminData.email || '',
+                            shopName: adminData.shopName || 'MediiQuick Pharmacy',
+                            adminName: adminData.adminName || 'Admin',
+                            adminId: adminData.adminId || ''
+                        }));
+                        showToast('✓ Login successful! Redirecting...', 'success');
+                        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
+                    } else if (!adminData.email && !adminData.adminId) {
+                        showToast('⚠ Koi admin account nahi mila! Pehle signup karein.', 'error');
+                        setTimeout(() => { window.location.href = 'admin-signup.html'; }, 2000);
+                    } else {
+                        showToast('⚠ Email/ID ya password galat hai!', 'error');
+                    }
+                } catch (err) {
+                    btn.classList.remove('loading');
+                    btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
+                    showToast('⚠ Login error. Please try again.', 'error');
                 }
-            } catch (err) {
-                btn.classList.remove('loading');
-                btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
-                showToast('⚠ Cannot connect to server. Is Django running?', 'error');
-            }
+            }, 600);
         }
 
         let forgotEmail = '';
@@ -915,98 +927,65 @@
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showToast('⚠ Please enter a valid email', 'error'); return;
             }
-            const btn = document.getElementById('sendOtpBtn');
-            if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
-
-            try {
-                const res = await fetch(`${API}/auth/forgot-password/`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                const data = await res.json();
-                if (btn) { btn.disabled = false; btn.textContent = 'Send OTP'; }
-
-                if (data.success) {
-                    forgotEmail = email;
-                    showToast('📧 OTP sent! Check your terminal (dev mode).', 'success');
-                    showForgotStep(2);
-                    let secs = 600;
-                    const timerEl = document.getElementById('otpTimer');
-                    clearInterval(otpCountdown);
-                    otpCountdown = setInterval(() => {
-                        secs--;
-                        const m = Math.floor(secs / 60), s = secs % 60;
-                        if (timerEl) timerEl.textContent = `OTP valid for: ${m}:${String(s).padStart(2, '0')}`;
-                        if (secs <= 0) { clearInterval(otpCountdown); if (timerEl) timerEl.textContent = 'OTP expired. Please request a new one.'; }
-                    }, 1000);
-                } else {
-                    showToast('⚠ ' + (data.errors?.email?.[0] || data.message || 'Error.'), 'error');
-                }
-            } catch (e) {
-                if (btn) { btn.disabled = false; btn.textContent = 'Send OTP'; }
-                showToast('⚠ Server error. Is Django running?', 'error');
+            const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
+            if (!adminData.email || adminData.email.toLowerCase() !== email.toLowerCase()) {
+                showToast('⚠ Ye email registered nahi hai!', 'error'); return;
             }
+            forgotEmail = email;
+            const otp = String(Math.floor(100000 + Math.random() * 900000));
+            localStorage.setItem('mq_reset_otp', JSON.stringify({ otp, email, expires: Date.now() + 600000 }));
+            showToast('✓ OTP: ' + otp + ' — Copy karke next box mein daalo!', 'success');
+            showForgotStep(2);
+            let secs = 600;
+            const timerEl = document.getElementById('otpTimer');
+            clearInterval(otpCountdown);
+            otpCountdown = setInterval(() => {
+                secs--;
+                const m = Math.floor(secs / 60), s = secs % 60;
+                if (timerEl) timerEl.textContent = `OTP valid for: ${m}:${String(s).padStart(2, '0')}`;
+                if (secs <= 0) { clearInterval(otpCountdown); if (timerEl) timerEl.textContent = 'OTP expired.'; }
+            }, 1000);
         }
 
         async function verifyOtp() {
             const otp = document.getElementById('forgot-otp').value.trim();
-            if (otp.length !== 6 || !/^\d+$/.test(otp)) { showToast('⚠ Please enter a 6-digit OTP', 'error'); return; }
-            const btn = document.getElementById('verifyOtpBtn');
-            if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
-
+            if (otp.length !== 6 || !/^\d+$/.test(otp)) { showToast('⚠ 6-digit OTP daalo', 'error'); return; }
             try {
-                const res = await fetch(`${API}/auth/verify-otp/`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: forgotEmail, otp })
-                });
-                const data = await res.json();
-                if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP'; }
-                if (data.success) { showToast('✓ OTP verified!', 'success'); showForgotStep(3); }
-                else { showToast('⚠ ' + (data.message || 'Incorrect OTP.'), 'error'); }
-            } catch (e) {
-                if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP'; }
-                showToast('⚠ Server error.', 'error');
-            }
+                const stored = JSON.parse(localStorage.getItem('mq_reset_otp') || '{}');
+                if (stored.otp === otp && stored.email === forgotEmail && Date.now() < stored.expires) {
+                    showToast('✓ OTP verified!', 'success'); showForgotStep(3);
+                } else {
+                    showToast('⚠ Galat ya expired OTP!', 'error');
+                }
+            } catch (e) { showToast('⚠ Error verifying OTP', 'error'); }
         }
 
         async function doResetPassword() {
             const otp = document.getElementById('forgot-otp').value.trim();
             const np = document.getElementById('forgot-newpass').value;
             const cp = document.getElementById('forgot-confpass').value;
-            if (np.length < 8) { showToast('⚠ Password must be at least 8 characters.', 'error'); return; }
-            if (np !== cp) { showToast('⚠ Passwords do not match.', 'error'); return; }
-            const btn = document.getElementById('resetPassBtn');
-            if (btn) { btn.disabled = true; btn.textContent = 'Resetting...'; }
-
+            if (np.length < 8) { showToast('⚠ Password kam se kam 8 characters ka hona chahiye.', 'error'); return; }
+            if (np !== cp) { showToast('⚠ Passwords match nahi kar rahe!', 'error'); return; }
             try {
-                const res = await fetch(`${API}/auth/reset-password/`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: forgotEmail, otp, new_password: np, confirm_password: cp })
-                });
-                const data = await res.json();
-                if (btn) { btn.disabled = false; btn.textContent = 'Reset Password'; }
-                if (data.success) {
-                    clearInterval(otpCountdown);
-                    closeForgot();
-                    showToast('✅ Password reset successfully! Please log in.', 'success');
-                } else {
-                    showToast('⚠ ' + (data.errors?.new_password?.[0] || data.message || 'Error.'), 'error');
+                const stored = JSON.parse(localStorage.getItem('mq_reset_otp') || '{}');
+                if (stored.otp !== otp || stored.email !== forgotEmail || Date.now() >= stored.expires) {
+                    showToast('⚠ OTP invalid ya expired!', 'error'); return;
                 }
-            } catch (e) {
-                if (btn) { btn.disabled = false; btn.textContent = 'Reset Password'; }
-                showToast('⚠ Server error.', 'error');
-            }
+                const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
+                adminData.password = np;
+                localStorage.setItem('mq_admin', JSON.stringify(adminData));
+                localStorage.removeItem('mq_reset_otp');
+                clearInterval(otpCountdown);
+                closeForgot();
+                showToast('✅ Password reset ho gaya! Ab login karein.', 'success');
+            } catch (e) { showToast('⚠ Error resetting password.', 'error'); }
         }
 
         async function resendOtp() {
             if (!forgotEmail) return;
-            const res = await fetch(`${API}/auth/forgot-password/`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: forgotEmail })
-            });
-            const data = await res.json();
-            if (data.success) showToast('📧 New OTP sent!', 'success');
-            else showToast('⚠ ' + data.message, 'error');
+            const otp = String(Math.floor(100000 + Math.random() * 900000));
+            localStorage.setItem('mq_reset_otp', JSON.stringify({ otp, email: forgotEmail, expires: Date.now() + 600000 }));
+            showToast('✓ Naya OTP: ' + otp + ' — Copy karke daalo!', 'success');
         }
 
         document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
