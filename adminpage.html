@@ -1121,7 +1121,7 @@
 
           <div class="card">
             <div class="card-title"><span><i class="fas fa-bolt"></i> Quick Actions</span></div>
-            <button class="quick-btn green" onclick="showView('medicines');openAddMedModal()">
+            <button class="quick-btn green" onclick="showView('medicines')">
               <i class="fas fa-plus-circle"></i> Add New Medicine
             </button>
             <button class="quick-btn blue" onclick="showView('orders')">
@@ -1179,7 +1179,11 @@
       <div id="view-medicines" class="view">
         <div class="page-head">
           <div class="page-title"><i class="fas fa-pills"></i> Medicine Management</div>
-          <button class="btn-green" onclick="openAddMedModal()"><i class="fas fa-plus"></i> Add Medicine</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-outline" onclick="openBulkImportModal()"><i class="fas fa-file-csv"></i> Bulk
+              Import</button>
+            <button class="btn-green" onclick="openAddMedModal()"><i class="fas fa-plus"></i> Add Medicine</button>
+          </div>
         </div>
         <div class="card">
           <div class="search-bar">
@@ -1747,11 +1751,171 @@
     </div>
   </div>
 
+  <!-- ===== BULK IMPORT MODAL ===== -->
+  <div class="modal-overlay" id="bulkImportModal">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-head">
+        <div class="modal-title">📦 Bulk Medicine Import</div>
+        <button class="modal-close" onclick="closeModal('bulkImportModal')">✕</button>
+      </div>
+
+      <!-- STEP 1: Category Select -->
+      <div id="bulkStep1">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#374151;">
+          Step 1: Medicines kis category mein add karni hain? 👇
+        </div>
+
+        <!-- Existing categories grid -->
+        <div
+          style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">
+          Existing Categories</div>
+        <div id="bulkCatGrid"
+          style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px;">
+        </div>
+
+        <!-- New category option -->
+        <div
+          style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">
+          Ya Naya Category Banao</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="bulkNewCatName" placeholder="Category name e.g. Vitamins, Skin Care..."
+            style="flex:1;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-family:Poppins,sans-serif;font-size:13px;min-width:180px;"
+            oninput="bulkSelectNewCat()">
+          <select id="bulkNewCatIcon" onchange="bulkSelectNewCat()"
+            style="border:1.5px solid #e5e7eb;border-radius:8px;padding:8px;font-size:16px;">
+            <option>💊</option>
+            <option>🩺</option>
+            <option>🧴</option>
+            <option>🩹</option>
+            <option>👁️</option>
+            <option>🦷</option>
+            <option>🧬</option>
+            <option>💪</option>
+            <option>🌿</option>
+            <option>🏥</option>
+            <option>🩻</option>
+            <option>🧪</option>
+            <option>🫀</option>
+            <option>🩸</option>
+            <option>🌡️</option>
+            <option>🍃</option>
+          </select>
+        </div>
+        <div id="bulkCatSelected"
+          style="display:none;margin-top:10px;padding:8px 12px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;font-size:13px;font-weight:600;color:#16a34a;">
+        </div>
+
+        <div style="margin-top:14px;text-align:right;">
+          <button class="btn-green" id="bulkStep1Next" onclick="goBulkStep2()" disabled style="opacity:0.5;">
+            Next: CSV Upload →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: CSV Input -->
+      <div id="bulkStep2" style="display:none;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <button onclick="goBulkStep1()"
+            style="background:#f1f5f9;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:Poppins,sans-serif;font-size:12px;font-weight:600;">←
+            Back</button>
+          <div id="bulkStep2CatLabel" style="font-size:13px;font-weight:700;color:#16a34a;"></div>
+        </div>
+
+        <div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:14px;">
+          <button id="bulkTab1" onclick="switchBulkTab(1)"
+            style="padding:7px 16px;border:none;background:none;font-family:Poppins,sans-serif;font-weight:600;font-size:13px;color:var(--green);border-bottom:2px solid var(--green);margin-bottom:-2px;cursor:pointer;">📋
+            Paste CSV</button>
+          <button id="bulkTab2" onclick="switchBulkTab(2)"
+            style="padding:7px 16px;border:none;background:none;font-family:Poppins,sans-serif;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;">📁
+            Upload File</button>
+        </div>
+
+        <div id="bulkTabContent1">
+          <div
+            style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;">
+            <strong>Format:</strong> <code>Name, Quantity, Price</code> — ek line mein ek medicine<br>
+            <span style="color:#6b7280;">Category automatically jo select ki hai wahi lagegi.</span><br>
+            Example: <code>Paracetamol 500mg, 100, 18</code>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button onclick="downloadBulkTemplate()"
+              style="background:#f0fdf4;color:var(--green);border:1.5px solid var(--green-border);padding:6px 14px;border-radius:7px;font-family:Poppins,sans-serif;font-size:12px;font-weight:600;cursor:pointer;">⬇️
+              Sample CSV</button>
+            <button onclick="clearBulkCSV()"
+              style="background:#fff;color:var(--muted);border:1.5px solid #e5e7eb;padding:6px 14px;border-radius:7px;font-family:Poppins,sans-serif;font-size:12px;font-weight:600;cursor:pointer;">🗑️
+              Clear</button>
+          </div>
+          <textarea id="bulkCsvText"
+            placeholder="Paracetamol 500mg, 100, 18&#10;Dolo 650, 80, 25&#10;Cetirizine 10mg, 50, 20&#10;Azithromycin 500mg, 40, 105"
+            style="width:100%;height:160px;border:1.5px solid #e5e7eb;border-radius:8px;padding:10px;font-family:monospace;font-size:13px;resize:vertical;"
+            oninput="previewBulk()"></textarea>
+        </div>
+
+        <div id="bulkTabContent2" style="display:none;">
+          <label
+            style="display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed #bbf7d0;border-radius:10px;padding:24px;cursor:pointer;background:#f0fdf4;gap:8px;"
+            for="bulkFileInput">
+            <span style="font-size:28px;">📁</span>
+            <span style="font-size:13px;font-weight:600;color:var(--green);">CSV File Select Karo</span>
+            <span style="font-size:11px;color:var(--muted);">Excel → Save As → CSV karke upload karo</span>
+            <input type="file" id="bulkFileInput" accept=".csv,.txt" style="display:none;"
+              onchange="handleBulkFile(event)">
+          </label>
+          <div id="fileStatus" style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center;"></div>
+        </div>
+
+        <!-- Preview -->
+        <div id="bulkPreviewWrap" style="display:none;margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="font-size:13px;">Preview</strong>
+            <span id="bulkPreviewCount" style="font-size:12px;color:var(--green);font-weight:700;"></span>
+          </div>
+          <div style="max-height:150px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;">
+            <table style="font-size:12px;width:100%;">
+              <thead>
+                <tr style="background:#f0fdf4;">
+                  <th style="padding:5px 10px;text-align:left;color:var(--green);">Name</th>
+                  <th style="padding:5px 10px;text-align:left;color:var(--green);">Qty</th>
+                  <th style="padding:5px 10px;text-align:left;color:var(--green);">Price ₹</th>
+                  <th style="padding:5px 10px;text-align:left;color:var(--green);">Status</th>
+                </tr>
+              </thead>
+              <tbody id="bulkPreviewTbl"></tbody>
+            </table>
+          </div>
+          <div id="bulkErrorWrap"
+            style="display:none;margin-top:8px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px;">
+            <strong style="font-size:12px;color:#dc2626;">⚠️ Errors:</strong>
+            <div id="bulkErrorList" style="font-size:12px;color:#dc2626;margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <div
+          style="display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px;background:#f8fafc;border-radius:8px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="bulkSkipDupes" checked style="accent-color:var(--green);"> Same naam skip karo
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="bulkUpdateDupes" style="accent-color:var(--green);"> Duplicate update karo
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('bulkImportModal')">Cancel</button>
+          <button class="btn-green" id="bulkImportBtn" onclick="executeBulkImport()" disabled style="opacity:0.5;">⬆
+            Import Medicines</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===== END BULK IMPORT MODAL ===== -->
+
   <script>
     (function () {
       const session = localStorage.getItem('mq_admin_session');
       if (!session) {
-        window.location.replace('login.html?tab=admin');
+        window.location.href = 'login.html?tab=admin';
       } else {
         try {
           const admin = JSON.parse(session);
@@ -1760,7 +1924,7 @@
         } catch (e) { }
       }
     })();
-  // IM_VYADAW
+
     let medicines = [];
     let pendingDeleteId = null;
 
@@ -2148,7 +2312,7 @@
       showToast('🗑️ Medicine deleted!');
       pendingDeleteId = null;
     }
-  // IM_VYADAW
+
     function openRestockModal(id) {
       const m = medicines.find(x => x.id === id);
       if (!m) return;
@@ -2692,7 +2856,7 @@
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('mq_admin_session');
-        window.location.href = 'index.html';
+        window.location.href = 'login.html?tab=admin';
       }
     }
 
@@ -2782,6 +2946,275 @@
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
+
+    // ========== BULK IMPORT WITH CATEGORY ==========
+    let bulkParsedData = [];
+    let bulkSelectedCat = null; // { key, label, icon, isNew }
+
+    const PROFILE_CATS = [
+      { key: 'fever', label: 'Fever & Pain', icon: '🌡️', color: '#fee2e2', border: '#fca5a5' },
+      { key: 'allergy', label: 'Allergies', icon: '🤧', color: '#dbeafe', border: '#93c5fd' },
+      { key: 'heart', label: 'Heart Care', icon: '❤️', color: '#fce7f3', border: '#f9a8d4' },
+      { key: 'brain', label: 'Brain & Nerves', icon: '🧠', color: '#f3e8ff', border: '#c4b5fd' },
+      { key: 'respiratory', label: 'Respiratory', icon: '🫁', color: '#e0f2fe', border: '#7dd3fc' },
+      { key: 'bone', label: 'Bone & Joint', icon: '🦴', color: '#fef9c3', border: '#fde047' },
+      { key: 'cold', label: 'Cold & Cough', icon: '🤒', color: '#f0fdf4', border: '#86efac' },
+      { key: 'bp', label: 'BP & Heart', icon: '💊', color: '#fff7ed', border: '#fdba74' },
+      { key: 'diabetes', label: 'Diabetes', icon: '💉', color: '#fdf4ff', border: '#e879f9' },
+      { key: 'other', label: 'Other Medicines', icon: '🔵', color: '#f8fafc', border: '#cbd5e1' },
+    ];
+
+     function getAllBulkCats() {
+        try { return [...PROFILE_CATS, ...JSON.parse(localStorage.getItem('mq_custom_categories') || '[]')]; }
+        catch (e) { return [...PROFILE_CATS]; }
+      }
+
+    function openBulkImportModal() {
+      bulkParsedData = [];
+      bulkSelectedCat = null;
+      document.getElementById('bulkStep1').style.display = 'block';
+      document.getElementById('bulkStep2').style.display = 'none';
+      document.getElementById('bulkNewCatName').value = '';
+      document.getElementById('bulkCatSelected').style.display = 'none';
+      document.getElementById('bulkStep1Next').disabled = true;
+      document.getElementById('bulkStep1Next').style.opacity = '0.5';
+      localStorage.removeItem('_bulk_cat_cache');
+      renderBulkCatGrid();
+      openModal('bulkImportModal');
+    }
+
+    function renderBulkCatGrid() {
+      const cats = getAllBulkCats();
+      document.getElementById('bulkCatGrid').innerHTML = cats.map(cat => `
+        <div onclick="bulkSelectExistingCat('${cat.key}')" id="bcat-${cat.key}"
+          style="border:2px solid ${cat.border};background:${cat.color};border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;transition:all .15s;">
+          <div style="font-size:20px;margin-bottom:3px;">${cat.icon}</div>
+          <div style="font-size:11px;font-weight:700;color:#374151;line-height:1.3;">${cat.label}</div>
+        </div>`).join('');
+    }
+
+    function bulkSelectExistingCat(key) {
+      const cat = getAllBulkCats().find(c => c.key === key);
+      if (!cat) return;
+      bulkSelectedCat = { key: cat.key, label: cat.label, icon: cat.icon, isNew: false };
+      document.getElementById('bulkNewCatName').value = '';
+      // Highlight selected
+      document.querySelectorAll('#bulkCatGrid > div').forEach(d => {
+        d.style.borderWidth = '2px';
+        d.style.transform = 'none';
+      });
+      const el = document.getElementById('bcat-' + key);
+      if (el) { el.style.borderColor = '#16a34a'; el.style.borderWidth = '2.5px'; el.style.transform = 'translateY(-2px)'; }
+      showBulkCatSelected();
+    }
+
+    function bulkSelectNewCat() {
+      const name = document.getElementById('bulkNewCatName').value.trim();
+      const icon = document.getElementById('bulkNewCatIcon').value;
+      if (name.length >= 2) {
+        bulkSelectedCat = { key: 'custom_bulk_' + Date.now(), label: name, icon: icon, isNew: true };
+        // Deselect grid
+        document.querySelectorAll('#bulkCatGrid > div').forEach(d => { d.style.borderWidth = '2px'; d.style.transform = 'none'; });
+        showBulkCatSelected();
+      } else {
+        bulkSelectedCat = null;
+        document.getElementById('bulkCatSelected').style.display = 'none';
+        document.getElementById('bulkStep1Next').disabled = true;
+        document.getElementById('bulkStep1Next').style.opacity = '0.5';
+      }
+    }
+
+    function showBulkCatSelected() {
+      if (!bulkSelectedCat) return;
+      const el = document.getElementById('bulkCatSelected');
+      el.style.display = 'block';
+      el.innerHTML = `✓ Selected: ${bulkSelectedCat.icon} <strong>${bulkSelectedCat.label}</strong>${bulkSelectedCat.isNew ? ' <span style="font-size:11px;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:10px;margin-left:6px;">New</span>' : ''}`;
+      document.getElementById('bulkStep1Next').disabled = false;
+      document.getElementById('bulkStep1Next').style.opacity = '1';
+    }
+
+    function goBulkStep2() {
+      if (!bulkSelectedCat) return;
+      document.getElementById('bulkStep1').style.display = 'none';
+      document.getElementById('bulkStep2').style.display = 'block';
+      document.getElementById('bulkStep2CatLabel').innerHTML = `📂 Category: ${bulkSelectedCat.icon} <strong>${bulkSelectedCat.label}</strong>`;
+      document.getElementById('bulkCsvText').value = '';
+      document.getElementById('bulkPreviewWrap').style.display = 'none';
+      document.getElementById('bulkImportBtn').disabled = true;
+      document.getElementById('bulkImportBtn').style.opacity = '0.5';
+      document.getElementById('bulkImportBtn').textContent = '⬆ Import Medicines';
+      document.getElementById('fileStatus').textContent = '';
+      switchBulkTab(1);
+    }
+
+    function goBulkStep1() {
+      document.getElementById('bulkStep2').style.display = 'none';
+      document.getElementById('bulkStep1').style.display = 'block';
+    }
+
+    function switchBulkTab(n) {
+      document.getElementById('bulkTabContent1').style.display = n === 1 ? 'block' : 'none';
+      document.getElementById('bulkTabContent2').style.display = n === 2 ? 'block' : 'none';
+      document.getElementById('bulkTab1').style.color = n === 1 ? 'var(--green)' : 'var(--muted)';
+      document.getElementById('bulkTab1').style.borderBottom = n === 1 ? '2px solid var(--green)' : '2px solid transparent';
+      document.getElementById('bulkTab2').style.color = n === 2 ? 'var(--green)' : 'var(--muted)';
+      document.getElementById('bulkTab2').style.borderBottom = n === 2 ? '2px solid var(--green)' : '2px solid transparent';
+    }
+
+    function clearBulkCSV() {
+      document.getElementById('bulkCsvText').value = '';
+      bulkParsedData = [];
+      document.getElementById('bulkPreviewWrap').style.display = 'none';
+      document.getElementById('bulkImportBtn').disabled = true;
+      document.getElementById('bulkImportBtn').style.opacity = '0.5';
+    }
+
+    function handleBulkFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      document.getElementById('fileStatus').textContent = '📂 Reading: ' + file.name;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('bulkCsvText').value = e.target.result;
+        document.getElementById('fileStatus').textContent = '✅ Loaded: ' + file.name;
+        parseBulkCSV(e.target.result);
+      };
+      reader.readAsText(file);
+    }
+
+    function previewBulk() {
+      parseBulkCSV(document.getElementById('bulkCsvText').value);
+    }
+
+    function parseBulkCSV(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const results = [], errors = [];
+
+      lines.forEach((line, idx) => {
+        // Skip header
+        if (idx === 0 && /^name/i.test(line)) return;
+        const parts = line.split(/[,|;]/).map(p => p.trim());
+
+        let name, qty, price;
+        // Support: Name, Qty, Price  OR  Name, Category(ignored), Qty, Price
+        if (parts.length >= 4) {
+          name = parts[0]; qty = parseInt(parts[2]); price = parseFloat(parts[3]);
+        } else if (parts.length === 3) {
+          name = parts[0]; qty = parseInt(parts[1]); price = parseFloat(parts[2]);
+        } else if (parts.length === 2) {
+          name = parts[0]; qty = 50; price = parseFloat(parts[1]);
+        } else {
+          errors.push(`Line ${idx + 1}: "${line}" — invalid`); return;
+        }
+
+        if (!name || name.length < 2) { errors.push(`Line ${idx + 1}: Name too short`); return; }
+        if (isNaN(qty) || qty < 0) { errors.push(`Line ${idx + 1}: "${name}" — Qty invalid`); return; }
+        if (isNaN(price) || price < 0) { errors.push(`Line ${idx + 1}: "${name}" — Price invalid`); return; }
+
+        results.push({ name, quantity: qty, price });
+      });
+
+      bulkParsedData = results;
+      showBulkPreview(results, errors);
+    }
+
+    function showBulkPreview(results, errors) {
+      const wrap = document.getElementById('bulkPreviewWrap');
+      const tbl = document.getElementById('bulkPreviewTbl');
+      const btn = document.getElementById('bulkImportBtn');
+
+      if (results.length === 0 && errors.length === 0) {
+        wrap.style.display = 'none'; btn.disabled = true; btn.style.opacity = '0.5'; return;
+      }
+
+      wrap.style.display = 'block';
+      document.getElementById('bulkPreviewCount').textContent = `✅ ${results.length} medicines`;
+
+      const existing = medicines.map(m => m.name.toLowerCase());
+      tbl.innerHTML = results.slice(0, 60).map(r => {
+        const isDupe = existing.includes(r.name.toLowerCase());
+        return `<tr style="background:${isDupe ? '#fffbeb' : '#fff'}">
+          <td style="padding:5px 10px;">${r.name}</td>
+          <td style="padding:5px 10px;">${r.quantity}</td>
+          <td style="padding:5px 10px;">₹${r.price}</td>
+          <td style="padding:5px 10px;">${isDupe
+            ? '<span style="color:#d97706;font-size:11px;font-weight:700;">⚠ Duplicate</span>'
+            : '<span style="color:var(--green);font-size:11px;font-weight:700;">✓ New</span>'}</td>
+        </tr>`;
+      }).join('');
+      if (results.length > 60) tbl.innerHTML += `<tr><td colspan="4" style="padding:6px 10px;text-align:center;color:var(--muted);font-size:12px;">...aur ${results.length - 60} medicines</td></tr>`;
+
+      const errWrap = document.getElementById('bulkErrorWrap');
+      if (errors.length > 0) {
+        errWrap.style.display = 'block';
+        document.getElementById('bulkErrorList').innerHTML = errors.slice(0, 8).map(e => `<div>• ${e}</div>`).join('');
+      } else errWrap.style.display = 'none';
+
+      if (results.length > 0) {
+        btn.disabled = false; btn.style.opacity = '1';
+        btn.textContent = `⬆ Import ${results.length} Medicines → ${bulkSelectedCat?.label}`;
+      } else { btn.disabled = true; btn.style.opacity = '0.5'; }
+    }
+
+    function executeBulkImport() {
+      if (!bulkParsedData.length || !bulkSelectedCat) return;
+      const skipDupes = document.getElementById('bulkSkipDupes').checked;
+      const updateDupes = document.getElementById('bulkUpdateDupes').checked;
+      let added = 0, updated = 0, skipped = 0;
+      let maxId = medicines.length ? Math.max(...medicines.map(x => x.id)) : 0;
+
+      // If new category, save it
+      if (bulkSelectedCat.isNew) {
+        const customCats = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+        const exists = customCats.find(c => c.label.toLowerCase() === bulkSelectedCat.label.toLowerCase());
+        if (!exists) {
+          customCats.push({ key: bulkSelectedCat.key, label: bulkSelectedCat.label, icon: bulkSelectedCat.icon, color: '#f0fdf4', border: '#86efac' });
+          localStorage.setItem('mq_custom_categories', JSON.stringify(customCats));
+        }
+      }
+
+      bulkParsedData.forEach(r => {
+        const existing = medicines.find(m => m.name.toLowerCase() === r.name.toLowerCase());
+        if (existing) {
+          if (updateDupes) {
+            existing.quantity = r.quantity; existing.price = r.price;
+            existing.category = bulkSelectedCat.label; existing.catKey = bulkSelectedCat.key;
+            updated++;
+          } else if (skipDupes) { skipped++; }
+          else {
+            maxId++;
+            medicines.push({ id: maxId, name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
+            added++;
+          }
+        } else {
+          maxId++;
+          medicines.push({ id: maxId, name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
+          added++;
+        }
+      });
+
+      saveMedicinesLS();
+      closeModal('bulkImportModal');
+      renderMedicines();
+      renderDashboard();
+
+      let msg = `✅ ${bulkSelectedCat.icon} ${bulkSelectedCat.label} mein Import Done! Added: ${added}`;
+      if (updated) msg += `, Updated: ${updated}`;
+      if (skipped) msg += `, Skipped: ${skipped}`;
+      showToast(msg);
+    }
+
+    function downloadBulkTemplate() {
+      const cat = bulkSelectedCat ? bulkSelectedCat.label : 'Category Name';
+      const csv = `Name,Quantity,Price\nParacetamol 500mg,100,18\nDolo 650,80,25\nCetirizine 10mg,50,20\nAzithromycin 500mg,40,105\nMetformin 500mg,90,22`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = 'medicines_' + (bulkSelectedCat?.key || 'template') + '.csv';
+      a.click();
+      showToast('📥 Template downloaded!');
+    }
+    // ========== END BULK IMPORT ==========
+
   </script>
 </body>
 

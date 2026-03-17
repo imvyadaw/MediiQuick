@@ -1161,11 +1161,8 @@
                             style="color:#ec4899;"></i></div>
                     <div class="cat-name">Diabetes</div>
                 </div>
-                <div class="cat-card" onclick="showCategory('other')" id="cat-other">
-                    <div class="cat-icon" style="background:#fff7ed;"><i class="fas fa-ellipsis-h"
-                            style="color:#f97316;"></i></div>
-                    <div class="cat-name">Other Medicines</div>
-                </div>
+                <!-- Dynamic custom categories -->
+                <div id="custom-cat-cards"></div>
             </div>
         </section>
 
@@ -1184,37 +1181,28 @@
             <div class="medicines-grid" id="popular-grid"></div>
         </section>
 
-        <section id="admin-medicines-section" style="display:none;margin-bottom:32px;">
-            <div class="section-header">
-                <h3 class="section-title" style="margin-bottom:0;">🏥 Available at Our Pharmacy</h3>
-                <span id="admin-med-count" style="font-size:13px;color:#16a34a;font-weight:600;"></span>
-            </div>
-            <div class="medicines-grid" id="admin-medicines-grid"></div>
-        </section>
+         
 
         <section class="tips-section">
             <h3 class="section-title">Health Tips</h3>
             <div class="tips-grid">
                 <div class="tip-card">
-                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4713f598-dd96-4285-ae26-3ba4a87c4db3.png"
-                        alt="Tip 1">
-                    <h4>How to Take Medicines Properly</h4>
-                    <p>Always take medicines as prescribed by your doctor. Some should be taken with food while others
-                        on an empty stomach.</p>
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=200&fit=crop" alt="Tip 1">
+                    <h4>💧 Drink 8 Glasses of Water Daily</h4>
+                    <p>Staying hydrated is the simplest yet most powerful health habit. Water keeps your kidneys, skin and
+                        digestion healthy. Start your morning with a glass of water.</p>
                 </div>
                 <div class="tip-card">
-                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/82af876f-1b77-46dc-af11-f8bbca99cf12.png"
-                        alt="Tip 2">
-                    <h4>Medicine Storage Tips</h4>
-                    <p>Store medicines in a cool, dry place away from sunlight. Keep them out of reach of children and
-                        check expiry dates regularly.</p>
+                    <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=200&fit=crop" alt="Tip 2">
+                    <h4>🥗 Eat Fruits & Vegetables Daily</h4>
+                    <p>Include at least 1 fruit and 2 vegetables in your daily diet. Citrus fruits like lemon and orange boost
+                        Vitamin C, strengthen immunity and keep diseases away.</p>
                 </div>
                 <div class="tip-card">
-                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/90801c36-defd-452b-a04b-49b6283ae516.png"
-                        alt="Tip 3">
-                    <h4>Understanding Prescriptions</h4>
-                    <p>Always read the medicine label carefully. Consult your pharmacist if you have questions about
-                        dosage or side effects.</p>
+                    <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&h=200&fit=crop" alt="Tip 3">
+                    <h4>🚶 Walk 30 Minutes Every Day</h4>
+                    <p>Just 30 minutes of walking daily controls blood pressure, prevents weight gain and improves your mood.
+                        Morning or evening — make it a daily habit.</p>
                 </div>
             </div>
         </section>
@@ -1889,248 +1877,7 @@
                 { id: 'db60', name: 'Teneligliptin + Metformin SR', sub: 'Combination', price: 130, mrp: 160, trending: true, img: 'images/medicines/db60.jpg' }
 
             ],
-            other: [
-
-                { id: 'ot1', name: 'Paracetamol 500mg', sub: 'Pain Reliever', price: 25, mrp: 35, trending: true, img: 'images/medicines/ot1.jpg' },
-                { id: 'ot2', name: 'Paracetamol 650mg', sub: 'Pain Reliever', price: 30, mrp: 40, trending: false, img: 'images/medicines/ot2.jpg' },
-                { id: 'ot3', name: 'Ibuprofen 400mg', sub: 'NSAID', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot3.jpg' },
-                { id: 'ot4', name: 'Diclofenac 50mg', sub: 'NSAID', price: 40, mrp: 55, trending: false, img: 'images/medicines/ot4.jpg' },
-                { id: 'ot5', name: 'Aceclofenac 100mg', sub: 'Pain Relief', price: 65, mrp: 80, trending: false, img: 'images/medicines/ot5.jpg' },
-
-                { id: 'ot6', name: 'Tramadol 50mg', sub: 'Pain Management', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot6.jpg' },
-                { id: 'ot7', name: 'Pantoprazole 40mg', sub: 'Acidity Control', price: 55, mrp: 70, trending: true, img: 'images/medicines/ot7.jpg' },
-                { id: 'ot8', name: 'Rabeprazole 20mg', sub: 'Acidity Control', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot8.jpg' },
-                { id: 'ot9', name: 'Omeprazole 20mg', sub: 'Acidity Control', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot9.jpg' },
-                { id: 'ot10', name: 'Domperidone 10mg', sub: 'Anti Vomiting', price: 35, mrp: 50, trending: false, img: 'images/medicines/ot10.jpg' },
-
-                { id: 'ot11', name: 'Ondansetron 4mg', sub: 'Anti Vomiting', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot11.jpg' },
-                { id: 'ot12', name: 'Metoclopramide 10mg', sub: 'Anti Vomiting', price: 30, mrp: 45, trending: false, img: 'images/medicines/ot12.jpg' },
-                { id: 'ot13', name: 'Loperamide 2mg', sub: 'Anti Diarrheal', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot13.jpg' },
-                { id: 'ot14', name: 'Racecadotril 100mg', sub: 'Anti Diarrheal', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot14.jpg' },
-                { id: 'ot15', name: 'ORS Powder', sub: 'Rehydration', price: 20, mrp: 30, trending: true, img: 'images/medicines/ot15.jpg' },
-
-                { id: 'ot16', name: 'Amoxicillin 500mg', sub: 'Antibiotic', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot16.jpg' },
-                { id: 'ot17', name: 'Azithromycin 500mg', sub: 'Antibiotic', price: 110, mrp: 135, trending: false, img: 'images/medicines/ot17.jpg' },
-                { id: 'ot18', name: 'Cefixime 200mg', sub: 'Antibiotic', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot18.jpg' },
-                { id: 'ot19', name: 'Ciprofloxacin 500mg', sub: 'Antibiotic', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot19.jpg' },
-                { id: 'ot20', name: 'Doxycycline 100mg', sub: 'Antibiotic', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot20.jpg' },
-
-                { id: 'ot21', name: 'Clarithromycin 500mg', sub: 'Antibiotic', price: 130, mrp: 160, trending: false, img: 'images/medicines/ot21.jpg' },
-                { id: 'ot22', name: 'Metronidazole 400mg', sub: 'Antibiotic', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot22.jpg' },
-                { id: 'ot23', name: 'Fluconazole 150mg', sub: 'Antifungal', price: 65, mrp: 80, trending: false, img: 'images/medicines/ot23.jpg' },
-                { id: 'ot24', name: 'Itraconazole 100mg', sub: 'Antifungal', price: 140, mrp: 170, trending: false, img: 'images/medicines/ot24.jpg' },
-                { id: 'ot25', name: 'Clotrimazole Cream', sub: 'Antifungal', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot25.jpg' },
-
-                { id: 'ot26', name: 'Ketoconazole Shampoo', sub: 'Antifungal', price: 180, mrp: 210, trending: false, img: 'images/medicines/ot26.jpg' },
-                { id: 'ot27', name: 'Mupirocin Ointment', sub: 'Antibacterial', price: 95, mrp: 115, trending: false, img: 'images/medicines/ot27.jpg' },
-                { id: 'ot28', name: 'Betadine Ointment', sub: 'Antiseptic', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot28.jpg' },
-                { id: 'ot29', name: 'Hydrocortisone Cream', sub: 'Steroid Cream', price: 70, mrp: 90, trending: false, img: 'images/medicines/ot29.jpg' },
-                { id: 'ot30', name: 'Calamine Lotion', sub: 'Skin Relief', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot30.jpg' },
-
-                { id: 'ot31', name: 'Cetirizine 10mg', sub: 'Antihistamine', price: 35, mrp: 45, trending: false, img: 'images/medicines/ot31.jpg' },
-                { id: 'ot32', name: 'Levocetirizine 5mg', sub: 'Antihistamine', price: 50, mrp: 65, trending: false, img: 'images/medicines/ot32.jpg' },
-                { id: 'ot33', name: 'Montelukast 10mg', sub: 'Anti Allergy', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot33.jpg' },
-                { id: 'ot34', name: 'Salbutamol Inhaler', sub: 'Bronchodilator', price: 150, mrp: 180, trending: false, img: 'images/medicines/ot34.jpg' },
-                { id: 'ot35', name: 'Ambroxol Syrup', sub: 'Mucolytic', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot35.jpg' },
-
-                { id: 'ot36', name: 'Bromhexine Syrup', sub: 'Mucolytic', price: 70, mrp: 85, trending: false, img: 'images/medicines/ot36.jpg' },
-                { id: 'ot37', name: 'Prednisolone 10mg', sub: 'Steroid', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot37.jpg' },
-                { id: 'ot38', name: 'Iron Folic Acid Tablet', sub: 'Supplement', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot38.jpg' },
-                { id: 'ot39', name: 'Calcium Carbonate 500mg', sub: 'Supplement', price: 40, mrp: 55, trending: false, img: 'images/medicines/ot39.jpg' },
-                { id: 'ot40', name: 'Vitamin B Complex', sub: 'Supplement', price: 30, mrp: 45, trending: false, img: 'images/medicines/ot40.jpg' },
-
-                { id: 'ot41', name: 'Vitamin C 500mg', sub: 'Supplement', price: 35, mrp: 50, trending: false, img: 'images/medicines/ot41.jpg' },
-                { id: 'ot42', name: 'Multivitamin Capsule', sub: 'Supplement', price: 55, mrp: 70, trending: true, img: 'images/medicines/ot42.jpg' },
-                { id: 'ot43', name: 'Zinc Sulphate 50mg', sub: 'Supplement', price: 28, mrp: 40, trending: false, img: 'images/medicines/ot43.jpg' },
-                { id: 'ot44', name: 'Lactulose Syrup', sub: 'Laxative', price: 110, mrp: 130, trending: false, img: 'images/medicines/ot44.jpg' },
-                { id: 'ot45', name: 'Bisacodyl 5mg', sub: 'Laxative', price: 20, mrp: 30, trending: false, img: 'images/medicines/ot45.jpg' },
-
-                { id: 'ot46', name: 'Glycerin Suppository', sub: 'Laxative', price: 30, mrp: 45, trending: false, img: 'images/medicines/ot46.jpg' },
-                { id: 'ot47', name: 'Insulin Syringe', sub: 'Medical Device', price: 15, mrp: 20, trending: false, img: 'images/medicines/ot47.jpg' },
-                { id: 'ot48', name: 'Blood Glucose Test Strip', sub: 'Medical Device', price: 550, mrp: 600, trending: false, img: 'images/medicines/ot48.jpg' },
-                { id: 'ot49', name: 'Digital Thermometer', sub: 'Medical Device', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot49.jpg' },
-                { id: 'ot50', name: 'BP Monitor', sub: 'Medical Device', price: 1500, mrp: 1700, trending: true, img: 'images/medicines/ot50.jpg' },
-
-                { id: 'ot51', name: 'Hand Sanitizer 500ml', sub: 'Hygiene', price: 90, mrp: 110, trending: false, img: 'images/medicines/ot51.jpg' },
-                { id: 'ot52', name: 'Surgical Mask Pack', sub: 'Hygiene', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot52.jpg' },
-                { id: 'ot53', name: 'Bandage Roll', sub: 'First Aid', price: 35, mrp: 45, trending: false, img: 'images/medicines/ot53.jpg' },
-                { id: 'ot54', name: 'Cotton Roll', sub: 'First Aid', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot54.jpg' },
-                { id: 'ot55', name: 'Antiseptic Liquid', sub: 'First Aid', price: 70, mrp: 90, trending: false, img: 'images/medicines/ot55.jpg' },
-
-                { id: 'ot56', name: 'Eye Drops Lubricant', sub: 'Ophthalmic', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot56.jpg' },
-                { id: 'ot57', name: 'Nasal Saline Spray', sub: 'Nasal Care', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot57.jpg' },
-                { id: 'ot58', name: 'Mouth Ulcer Gel', sub: 'Oral Care', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot58.jpg' },
-                { id: 'ot59', name: 'Antacid Gel', sub: 'Acidity Relief', price: 50, mrp: 65, trending: false, img: 'images/medicines/ot59.jpg' },
-                { id: 'ot60', name: 'ORS Apple Flavour', sub: 'Rehydration', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot60.jpg' },
-                { id: 'ot61', name: 'Naproxen 250mg', sub: 'NSAID', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot61.jpg' },
-                { id: 'ot62', name: 'Naproxen 500mg', sub: 'NSAID', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot62.jpg' },
-                { id: 'ot63', name: 'Mefenamic Acid 500mg', sub: 'Pain Relief', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot63.jpg' },
-                { id: 'ot64', name: 'Etodolac 400mg', sub: 'NSAID', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot64.jpg' },
-                { id: 'ot65', name: 'Piroxicam 20mg', sub: 'NSAID', price: 70, mrp: 90, trending: false, img: 'images/medicines/ot65.jpg' },
-
-                { id: 'ot66', name: 'Tizanidine 2mg', sub: 'Muscle Relaxant', price: 65, mrp: 80, trending: false, img: 'images/medicines/ot66.jpg' },
-                { id: 'ot67', name: 'Chlorzoxazone 500mg', sub: 'Muscle Relaxant', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot67.jpg' },
-                { id: 'ot68', name: 'Thiocolchicoside 4mg', sub: 'Muscle Relaxant', price: 95, mrp: 115, trending: false, img: 'images/medicines/ot68.jpg' },
-                { id: 'ot69', name: 'Baclofen 10mg', sub: 'Muscle Relaxant', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot69.jpg' },
-                { id: 'ot70', name: 'Cyclobenzaprine 10mg', sub: 'Muscle Relaxant', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot70.jpg' },
-
-                { id: 'ot71', name: 'Ranitidine 150mg', sub: 'Acidity Control', price: 35, mrp: 50, trending: false, img: 'images/medicines/ot71.jpg' },
-                { id: 'ot72', name: 'Esomeprazole 40mg', sub: 'Acidity Control', price: 95, mrp: 115, trending: false, img: 'images/medicines/ot72.jpg' },
-                { id: 'ot73', name: 'Sucralfate Suspension', sub: 'Ulcer Protection', price: 120, mrp: 145, trending: false, img: 'images/medicines/ot73.jpg' },
-                { id: 'ot74', name: 'Magaldrate Suspension', sub: 'Antacid', price: 75, mrp: 90, trending: false, img: 'images/medicines/ot74.jpg' },
-                { id: 'ot75', name: 'Simethicone Drops', sub: 'Gas Relief', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot75.jpg' },
-
-                { id: 'ot76', name: 'Albendazole 400mg', sub: 'Anthelmintic', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot76.jpg' },
-                { id: 'ot77', name: 'Mebendazole 100mg', sub: 'Anthelmintic', price: 30, mrp: 45, trending: false, img: 'images/medicines/ot77.jpg' },
-                { id: 'ot78', name: 'Ivermectin 12mg', sub: 'Antiparasitic', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot78.jpg' },
-                { id: 'ot79', name: 'Nitazoxanide 500mg', sub: 'Antiparasitic', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot79.jpg' },
-                { id: 'ot80', name: 'Praziquantel 600mg', sub: 'Antiparasitic', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot80.jpg' },
-
-                { id: 'ot81', name: 'Luliconazole Cream', sub: 'Antifungal', price: 160, mrp: 190, trending: false, img: 'images/medicines/ot81.jpg' },
-                { id: 'ot82', name: 'Terbinafine 250mg', sub: 'Antifungal', price: 140, mrp: 170, trending: false, img: 'images/medicines/ot82.jpg' },
-                { id: 'ot83', name: 'Terbinafine Cream', sub: 'Antifungal', price: 95, mrp: 115, trending: false, img: 'images/medicines/ot83.jpg' },
-                { id: 'ot84', name: 'Permethrin Lotion', sub: 'Scabies Treatment', price: 110, mrp: 130, trending: false, img: 'images/medicines/ot84.jpg' },
-                { id: 'ot85', name: 'Lindane Lotion', sub: 'Scabies Treatment', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot85.jpg' },
-
-                { id: 'ot86', name: 'Azelaic Acid Cream', sub: 'Skin Treatment', price: 150, mrp: 180, trending: false, img: 'images/medicines/ot86.jpg' },
-                { id: 'ot87', name: 'Adapalene Gel', sub: 'Acne Treatment', price: 135, mrp: 160, trending: false, img: 'images/medicines/ot87.jpg' },
-                { id: 'ot88', name: 'Benzoyl Peroxide Gel', sub: 'Acne Treatment', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot88.jpg' },
-                { id: 'ot89', name: 'Clindamycin Gel', sub: 'Acne Treatment', price: 110, mrp: 135, trending: false, img: 'images/medicines/ot89.jpg' },
-                { id: 'ot90', name: 'Tretinoin Cream', sub: 'Acne Treatment', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot90.jpg' },
-
-                { id: 'ot91', name: 'Sodium Valproate 200mg', sub: 'Neurology', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot91.jpg' },
-                { id: 'ot92', name: 'Carbamazepine 200mg', sub: 'Neurology', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot92.jpg' },
-                { id: 'ot93', name: 'Gabapentin 300mg', sub: 'Neuropathy', price: 110, mrp: 135, trending: false, img: 'images/medicines/ot93.jpg' },
-                { id: 'ot94', name: 'Pregabalin 75mg', sub: 'Neuropathy', price: 125, mrp: 150, trending: false, img: 'images/medicines/ot94.jpg' },
-                { id: 'ot95', name: 'Amitriptyline 25mg', sub: 'Antidepressant', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot95.jpg' },
-
-                { id: 'ot96', name: 'Sertraline 50mg', sub: 'Antidepressant', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot96.jpg' },
-                { id: 'ot97', name: 'Fluoxetine 20mg', sub: 'Antidepressant', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot97.jpg' },
-                { id: 'ot98', name: 'Escitalopram 10mg', sub: 'Antidepressant', price: 110, mrp: 135, trending: false, img: 'images/medicines/ot98.jpg' },
-                { id: 'ot99', name: 'Clonazepam 0.5mg', sub: 'Anxiolytic', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot99.jpg' },
-                { id: 'ot100', name: 'Alprazolam 0.5mg', sub: 'Anxiolytic', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot100.jpg' },
-
-                { id: 'ot101', name: 'Melatonin 5mg', sub: 'Sleep Aid', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot101.jpg' },
-                { id: 'ot102', name: 'Doxylamine 10mg', sub: 'Sleep Aid', price: 65, mrp: 80, trending: false, img: 'images/medicines/ot102.jpg' },
-                { id: 'ot103', name: 'Vitamin D3 60000 IU', sub: 'Supplement', price: 110, mrp: 140, trending: true, img: 'images/medicines/ot103.jpg' },
-                { id: 'ot104', name: 'Omega 3 Capsule', sub: 'Supplement', price: 150, mrp: 180, trending: false, img: 'images/medicines/ot104.jpg' },
-                { id: 'ot105', name: 'Probiotic Capsule', sub: 'Digestive Health', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot105.jpg' },
-
-                { id: 'ot106', name: 'Electrolyte Powder', sub: 'Rehydration', price: 35, mrp: 45, trending: false, img: 'images/medicines/ot106.jpg' },
-                { id: 'ot107', name: 'Collagen Supplement', sub: 'Supplement', price: 350, mrp: 400, trending: false, img: 'images/medicines/ot107.jpg' },
-                { id: 'ot108', name: 'Biotin Tablet', sub: 'Supplement', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot108.jpg' },
-                { id: 'ot109', name: 'Hair Growth Serum', sub: 'Hair Care', price: 450, mrp: 500, trending: false, img: 'images/medicines/ot109.jpg' },
-                { id: 'ot110', name: 'Minoxidil 5% Solution', sub: 'Hair Care', price: 550, mrp: 600, trending: false, img: 'images/medicines/ot110.jpg' },
-
-                { id: 'ot111', name: 'Sunscreen SPF 50', sub: 'Skin Protection', price: 350, mrp: 400, trending: false, img: 'images/medicines/ot111.jpg' },
-                { id: 'ot112', name: 'Moisturizing Cream', sub: 'Skin Care', price: 220, mrp: 260, trending: false, img: 'images/medicines/ot112.jpg' },
-                { id: 'ot113', name: 'Lip Balm Medicated', sub: 'Skin Care', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot113.jpg' },
-                { id: 'ot114', name: 'Eye Lubricant Gel', sub: 'Ophthalmic', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot114.jpg' },
-                { id: 'ot115', name: 'Ear Drops Antibiotic', sub: 'Otolaryngology', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot115.jpg' },
-
-                { id: 'ot116', name: 'Throat Lozenges', sub: 'Oral Care', price: 30, mrp: 40, trending: false, img: 'images/medicines/ot116.jpg' },
-                { id: 'ot117', name: 'Mouthwash Antiseptic', sub: 'Oral Care', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot117.jpg' },
-                { id: 'ot118', name: 'Dental Pain Gel', sub: 'Oral Care', price: 65, mrp: 85, trending: false, img: 'images/medicines/ot118.jpg' },
-                { id: 'ot119', name: 'Glucose Powder', sub: 'Energy Supplement', price: 90, mrp: 110, trending: false, img: 'images/medicines/ot119.jpg' },
-                { id: 'ot120', name: 'Protein Powder', sub: 'Nutrition', price: 1200, mrp: 1400, trending: true, img: 'images/medicines/ot120.jpg' },
-
-                { id: 'ot121', name: 'Amikacin Injection', sub: 'Antibiotic', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot121.jpg' },
-                { id: 'ot122', name: 'Ceftriaxone Injection', sub: 'Antibiotic', price: 110, mrp: 140, trending: false, img: 'images/medicines/ot122.jpg' },
-                { id: 'ot123', name: 'Meropenem Injection', sub: 'Antibiotic', price: 850, mrp: 950, trending: false, img: 'images/medicines/ot123.jpg' },
-                { id: 'ot124', name: 'Linezolid 600mg', sub: 'Antibiotic', price: 220, mrp: 260, trending: false, img: 'images/medicines/ot124.jpg' },
-                { id: 'ot125', name: 'Vancomycin Injection', sub: 'Antibiotic', price: 450, mrp: 520, trending: false, img: 'images/medicines/ot125.jpg' },
-
-                { id: 'ot126', name: 'Levofloxacin 500mg', sub: 'Antibiotic', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot126.jpg' },
-                { id: 'ot127', name: 'Moxifloxacin 400mg', sub: 'Antibiotic', price: 140, mrp: 170, trending: false, img: 'images/medicines/ot127.jpg' },
-                { id: 'ot128', name: 'Clavulanic Acid Combo', sub: 'Antibiotic', price: 160, mrp: 190, trending: false, img: 'images/medicines/ot128.jpg' },
-                { id: 'ot129', name: 'Tobramycin Eye Drops', sub: 'Ophthalmic', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot129.jpg' },
-                { id: 'ot130', name: 'Moxifloxacin Eye Drops', sub: 'Ophthalmic', price: 110, mrp: 135, trending: false, img: 'images/medicines/ot130.jpg' },
-
-                { id: 'ot131', name: 'Timolol Eye Drops', sub: 'Glaucoma', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot131.jpg' },
-                { id: 'ot132', name: 'Brimonidine Eye Drops', sub: 'Glaucoma', price: 125, mrp: 150, trending: false, img: 'images/medicines/ot132.jpg' },
-                { id: 'ot133', name: 'Ofloxacin Ear Drops', sub: 'ENT', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot133.jpg' },
-                { id: 'ot134', name: 'Xylometazoline Nasal Spray', sub: 'ENT', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot134.jpg' },
-                { id: 'ot135', name: 'Fluticasone Nasal Spray', sub: 'ENT', price: 220, mrp: 260, trending: false, img: 'images/medicines/ot135.jpg' },
-
-                { id: 'ot136', name: 'Budesonide Inhaler', sub: 'Respiratory', price: 350, mrp: 400, trending: false, img: 'images/medicines/ot136.jpg' },
-                { id: 'ot137', name: 'Formoterol Inhaler', sub: 'Respiratory', price: 420, mrp: 470, trending: false, img: 'images/medicines/ot137.jpg' },
-                { id: 'ot138', name: 'Montelukast Syrup', sub: 'Pediatric Allergy', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot138.jpg' },
-                { id: 'ot139', name: 'Paracetamol Syrup Pediatric', sub: 'Pediatric', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot139.jpg' },
-                { id: 'ot140', name: 'Zinc Syrup Pediatric', sub: 'Pediatric Supplement', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot140.jpg' },
-
-                { id: 'ot141', name: 'Oral Rehydration Liquid', sub: 'Rehydration', price: 35, mrp: 45, trending: false, img: 'images/medicines/ot141.jpg' },
-                { id: 'ot142', name: 'Folic Acid 5mg', sub: 'Supplement', price: 20, mrp: 30, trending: false, img: 'images/medicines/ot142.jpg' },
-                { id: 'ot143', name: 'Vitamin E Capsule', sub: 'Supplement', price: 40, mrp: 55, trending: false, img: 'images/medicines/ot143.jpg' },
-                { id: 'ot144', name: 'Magnesium Tablet', sub: 'Supplement', price: 65, mrp: 80, trending: false, img: 'images/medicines/ot144.jpg' },
-                { id: 'ot145', name: 'Calcium + Vitamin D3', sub: 'Bone Health', price: 85, mrp: 105, trending: false, img: 'images/medicines/ot145.jpg' },
-
-                { id: 'ot146', name: 'Methotrexate 7.5mg', sub: 'Rheumatology', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot146.jpg' },
-                { id: 'ot147', name: 'Allopurinol 100mg', sub: 'Gout Treatment', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot147.jpg' },
-                { id: 'ot148', name: 'Colchicine 0.5mg', sub: 'Gout Treatment', price: 65, mrp: 85, trending: false, img: 'images/medicines/ot148.jpg' },
-                { id: 'ot149', name: 'Hydroxychloroquine 200mg', sub: 'Autoimmune', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot149.jpg' },
-                { id: 'ot150', name: 'Azathioprine 50mg', sub: 'Immunosuppressant', price: 110, mrp: 140, trending: false, img: 'images/medicines/ot150.jpg' },
-
-                { id: 'ot151', name: 'Finasteride 1mg', sub: 'Urology', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot151.jpg' },
-                { id: 'ot152', name: 'Tamsulosin 0.4mg', sub: 'Urology', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot152.jpg' },
-                { id: 'ot153', name: 'Sildenafil 50mg', sub: 'Urology', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot153.jpg' },
-                { id: 'ot154', name: 'Dutasteride 0.5mg', sub: 'Urology', price: 140, mrp: 170, trending: false, img: 'images/medicines/ot154.jpg' },
-                { id: 'ot155', name: 'Clomiphene 50mg', sub: 'Hormonal', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot155.jpg' },
-
-                { id: 'ot156', name: 'Ethinyl Estradiol Tablet', sub: 'Gynecology', price: 65, mrp: 85, trending: false, img: 'images/medicines/ot156.jpg' },
-                { id: 'ot157', name: 'Medroxyprogesterone 10mg', sub: 'Gynecology', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot157.jpg' },
-                { id: 'ot158', name: 'Tranexamic Acid 500mg', sub: 'Gynecology', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot158.jpg' },
-                { id: 'ot159', name: 'Oxytocin Injection', sub: 'Gynecology', price: 35, mrp: 50, trending: false, img: 'images/medicines/ot159.jpg' },
-                { id: 'ot160', name: 'Misoprostol 200mcg', sub: 'Gynecology', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot160.jpg' },
-
-                { id: 'ot161', name: 'Heparin Injection', sub: 'Anticoagulant', price: 150, mrp: 180, trending: false, img: 'images/medicines/ot161.jpg' },
-                { id: 'ot162', name: 'Dabigatran 110mg', sub: 'Anticoagulant', price: 420, mrp: 470, trending: false, img: 'images/medicines/ot162.jpg' },
-                { id: 'ot163', name: 'Atropine Injection', sub: 'Emergency Use', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot163.jpg' },
-                { id: 'ot164', name: 'Adrenaline Injection', sub: 'Emergency Use', price: 55, mrp: 75, trending: false, img: 'images/medicines/ot164.jpg' },
-                { id: 'ot165', name: 'Saline IV Fluid', sub: 'IV Fluid', price: 35, mrp: 50, trending: false, img: 'images/medicines/ot165.jpg' },
-
-                { id: 'ot166', name: 'Dextrose IV Fluid', sub: 'IV Fluid', price: 40, mrp: 55, trending: false, img: 'images/medicines/ot166.jpg' },
-                { id: 'ot167', name: 'Ringer Lactate', sub: 'IV Fluid', price: 45, mrp: 60, trending: false, img: 'images/medicines/ot167.jpg' },
-                { id: 'ot168', name: 'Insulin Pen Needle', sub: 'Medical Device', price: 25, mrp: 35, trending: false, img: 'images/medicines/ot168.jpg' },
-                { id: 'ot169', name: 'Nebulizer Machine', sub: 'Medical Device', price: 1800, mrp: 2000, trending: false, img: 'images/medicines/ot169.jpg' },
-                { id: 'ot170', name: 'Pulse Oximeter', sub: 'Medical Device', price: 950, mrp: 1100, trending: false, img: 'images/medicines/ot170.jpg' },
-
-                { id: 'ot171', name: 'Hot Water Bag', sub: 'Therapy Device', price: 250, mrp: 300, trending: false, img: 'images/medicines/ot171.jpg' },
-                { id: 'ot172', name: 'Orthopedic Knee Cap', sub: 'Ortho Support', price: 350, mrp: 400, trending: false, img: 'images/medicines/ot172.jpg' },
-                { id: 'ot173', name: 'Cervical Collar', sub: 'Ortho Support', price: 450, mrp: 500, trending: false, img: 'images/medicines/ot173.jpg' },
-                { id: 'ot174', name: 'Crepe Bandage', sub: 'First Aid', price: 60, mrp: 80, trending: false, img: 'images/medicines/ot174.jpg' },
-                { id: 'ot175', name: 'Digital Weighing Scale', sub: 'Medical Device', price: 1200, mrp: 1400, trending: false, img: 'images/medicines/ot175.jpg' },
-
-                { id: 'ot176', name: 'Thermal Patch Pain Relief', sub: 'Pain Relief', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot176.jpg' },
-                { id: 'ot177', name: 'Glucosamine Tablet', sub: 'Joint Health', price: 180, mrp: 210, trending: false, img: 'images/medicines/ot177.jpg' },
-                { id: 'ot178', name: 'Chondroitin Capsule', sub: 'Joint Health', price: 220, mrp: 260, trending: false, img: 'images/medicines/ot178.jpg' },
-                { id: 'ot179', name: 'Coenzyme Q10 Capsule', sub: 'Cardiac Supplement', price: 350, mrp: 400, trending: false, img: 'images/medicines/ot179.jpg' },
-                { id: 'ot180', name: 'Ashwagandha Capsule', sub: 'Herbal Supplement', price: 180, mrp: 220, trending: true, img: 'images/medicines/ot180.jpg' },
-
-                { id: 'ot181', name: 'Ginseng Capsule', sub: 'Herbal Supplement', price: 220, mrp: 260, trending: false, img: 'images/medicines/ot181.jpg' },
-                { id: 'ot182', name: 'Spirulina Tablet', sub: 'Herbal Supplement', price: 180, mrp: 220, trending: false, img: 'images/medicines/ot182.jpg' },
-                { id: 'ot183', name: 'Triphala Tablet', sub: 'Ayurvedic', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot183.jpg' },
-                { id: 'ot184', name: 'Giloy Juice', sub: 'Ayurvedic', price: 140, mrp: 170, trending: false, img: 'images/medicines/ot184.jpg' },
-                { id: 'ot185', name: 'Aloe Vera Juice', sub: 'Ayurvedic', price: 160, mrp: 190, trending: false, img: 'images/medicines/ot185.jpg' },
-
-                { id: 'ot186', name: 'Cranberry Capsule', sub: 'Urinary Health', price: 250, mrp: 290, trending: false, img: 'images/medicines/ot186.jpg' },
-                { id: 'ot187', name: 'Prostate Support Capsule', sub: 'Urology Supplement', price: 320, mrp: 360, trending: false, img: 'images/medicines/ot187.jpg' },
-                { id: 'ot188', name: 'L-Arginine Tablet', sub: 'Cardiac Supplement', price: 210, mrp: 250, trending: false, img: 'images/medicines/ot188.jpg' },
-                { id: 'ot189', name: 'Electrolyte Energy Drink', sub: 'Hydration', price: 60, mrp: 75, trending: false, img: 'images/medicines/ot189.jpg' },
-                { id: 'ot190', name: 'Iron Sucrose Injection', sub: 'Iron Therapy', price: 450, mrp: 520, trending: false, img: 'images/medicines/ot190.jpg' },
-
-                { id: 'ot191', name: 'Vitamin K Injection', sub: 'Vitamin Therapy', price: 95, mrp: 120, trending: false, img: 'images/medicines/ot191.jpg' },
-                { id: 'ot192', name: 'Cyanocobalamin Injection', sub: 'Vitamin B12 Therapy', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot192.jpg' },
-                { id: 'ot193', name: 'Calcium Gluconate Injection', sub: 'Mineral Therapy', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot193.jpg' },
-                { id: 'ot194', name: 'Dexamethasone Injection', sub: 'Steroid', price: 55, mrp: 70, trending: false, img: 'images/medicines/ot194.jpg' },
-                { id: 'ot195', name: 'Betamethasone Cream', sub: 'Dermatology', price: 65, mrp: 85, trending: false, img: 'images/medicines/ot195.jpg' },
-
-                { id: 'ot196', name: 'Ketotifen Syrup', sub: 'Allergy', price: 75, mrp: 95, trending: false, img: 'images/medicines/ot196.jpg' },
-                { id: 'ot197', name: 'Dextromethorphan Syrup', sub: 'Cough Suppressant', price: 85, mrp: 110, trending: false, img: 'images/medicines/ot197.jpg' },
-                { id: 'ot198', name: 'Guaifenesin Syrup', sub: 'Expectorant', price: 90, mrp: 115, trending: false, img: 'images/medicines/ot198.jpg' },
-                { id: 'ot199', name: 'Topical Diclofenac Gel', sub: 'Pain Relief', price: 120, mrp: 150, trending: false, img: 'images/medicines/ot199.jpg' },
-                { id: 'ot200', name: 'Antifungal Dusting Powder', sub: 'Dermatology', price: 70, mrp: 90, trending: true, img: 'images/medicines/ot200.jpg' }
-
-            ],
+           
         };
 
         const POPULAR = [
@@ -2165,75 +1912,141 @@
         Object.values(MEDICINES).forEach(arr => arr.forEach(m => MEDICINES_FLAT[m.id] = m));
         POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
 
+        function loadCustomCatCards() {
+            const custom = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+            const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+            const wrap = document.getElementById('custom-cat-cards');
+            if (!wrap) return;
+            const catsWithMeds = custom.filter(cat =>
+                adminMeds.some(m => m.catKey === cat.key || m.category === cat.label)
+            );
+            wrap.innerHTML = catsWithMeds.map(cat => `
+                <div class="cat-card" onclick="showCustomCategory('${cat.key}')" id="cat-${cat.key}">
+                    <div class="cat-icon" style="background:${cat.color || '#f0fdf4'};font-size:22px;display:flex;align-items:center;justify-content:center;">${cat.icon}</div>
+                    <div class="cat-name">${cat.label}</div>
+                </div>`).join('');
+        }
+
+        function showCustomCategory(key) {
+            const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+            const custom = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+            const cat = custom.find(c => c.key === key);
+            if (!cat) return;
+            const meds = adminMeds.filter(m => (m.catKey === key || m.category === cat.label) && m.price > 0);
+            activeCategory = key;
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            const el = document.getElementById('cat-' + key);
+            if (el) el.classList.add('active');
+            document.getElementById('cat-title-text').textContent = cat.icon + ' ' + cat.label + ' (' + meds.length + ' medicines)';
+            document.getElementById('category-medicines-grid').innerHTML = meds.map(m => {
+                const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || cat.label, price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
+                MEDICINES_FLAT[med.id] = med;
+                return renderCard(med);
+            }).join('');
+            document.getElementById('category-section').style.display = 'block';
+            document.getElementById('category-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function loadCustomCatCards() {
+            const custom = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+            const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+            const wrap = document.getElementById('custom-cat-cards');
+            if (!wrap) return;
+            const catsWithMeds = custom.filter(cat =>
+                adminMeds.some(m => m.catKey === cat.key || m.category === cat.label)
+            );
+            wrap.innerHTML = catsWithMeds.map(cat => `
+                <div class="cat-card" onclick="showCustomCategory('${cat.key}')" id="cat-${cat.key}">
+                    <div class="cat-icon" style="background:${cat.color || '#f0fdf4'};font-size:22px;display:flex;align-items:center;justify-content:center;">${cat.icon}</div>
+                    <div class="cat-name">${cat.label}</div>
+                </div>`).join('');
+        }
+
+        function showCustomCategory(key) {
+            const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
+            const custom = JSON.parse(localStorage.getItem('mq_custom_categories') || '[]');
+            const cat = custom.find(c => c.key === key);
+            if (!cat) return;
+            const meds = adminMeds.filter(m => (m.catKey === key || m.category === cat.label) && m.price > 0);
+            activeCategory = key;
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            const el = document.getElementById('cat-' + key);
+            if (el) el.classList.add('active');
+            document.getElementById('cat-title-text').textContent = cat.icon + ' ' + cat.label + ' (' + meds.length + ' medicines)';
+            document.getElementById('category-medicines-grid').innerHTML = meds.map(m => {
+                const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || cat.label, price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
+                MEDICINES_FLAT[med.id] = med;
+                return renderCard(med);
+            }).join('');
+            document.getElementById('category-section').style.display = 'block';
+            document.getElementById('category-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function syncAdminMedicines() {
             try {
                 const adminMeds = JSON.parse(localStorage.getItem('mq_admin_medicines') || '[]');
-                if (!adminMeds.length) {
-                    const sec = document.getElementById('admin-medicines-section');
-                    if (sec) sec.style.display = 'none';
-                    return;
-                }
 
+                // Update prices/stock for hardcoded medicines
                 adminMeds.forEach(adminMed => {
                     const adminName = (adminMed.name || '').toLowerCase().trim();
-                    let matched = false;
                     Object.values(MEDICINES_FLAT).forEach(med => {
                         const medName = (med.name || '').toLowerCase().trim();
                         if (medName === adminName || medName.includes(adminName) || adminName.includes(medName)) {
-                            if (adminMed.price && adminMed.price > 0) {
-                                med.price = adminMed.price;
-                                med.mrp = Math.round(adminMed.price * 1.1);
-                            }
+                            if (adminMed.price && adminMed.price > 0) { med.price = adminMed.price; med.mrp = Math.round(adminMed.price * 1.1); }
                             med.outOfStock = adminMed.quantity === 0;
-                            med.adminId = adminMed.id;
-                            matched = true;
                         }
                     });
-                    adminMed._isNew = !matched;
                 });
 
-                const newMeds = adminMeds.filter(m => m._isNew && m.name && m.price > 0);
+                // Inject into builtin categories
+                const BUILTIN_KEYS = ['fever', 'allergy', 'heart', 'brain', 'respiratory', 'bone', 'cold', 'bp', 'diabetes', 'other'];
+                BUILTIN_KEYS.forEach(key => {
+                    const catMeds = adminMeds.filter(m => m.catKey === key && m.price > 0);
+                    catMeds.forEach(m => {
+                        const alreadyIn = MEDICINES[key]?.find(x => x.name.toLowerCase() === m.name.toLowerCase());
+                        if (!alreadyIn && MEDICINES[key]) {
+                            const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
+                            MEDICINES[key].push(med);
+                            MEDICINES_FLAT[med.id] = med;
+                        }
+                    });
+                });
+
+                // Load custom category cards in Shop by Category
+                loadCustomCatCards();
+
+                // "Available at Our Pharmacy" section — all admin medicines
                 const section = document.getElementById('admin-medicines-section');
                 const grid = document.getElementById('admin-medicines-grid');
                 const countEl = document.getElementById('admin-med-count');
-
                 if (!section || !grid) return;
 
-                if (newMeds.length === 0) {
-                    section.style.display = 'none';
-                    return;
-                }
+                const validMeds = adminMeds.filter(m => m.name && m.price > 0);
+                if (validMeds.length === 0) { section.style.display = 'none'; return; }
 
                 section.style.display = 'block';
-                if (countEl) countEl.textContent = newMeds.length + ' medicines available';
-
-                const adminCards = newMeds.map(m => {
-                    const med = {
-                        id: 'adm_' + m.id,
-                        name: m.name,
-                        sub: m.category || 'Available at our pharmacy',
-                        price: m.price,
-                        mrp: Math.round(m.price * 1.15),
-                        outOfStock: m.quantity === 0,
-                        trending: false
-                    };
+                if (countEl) countEl.textContent = validMeds.length + ' medicines available';
+                grid.innerHTML = validMeds.map(m => {
+                    const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
                     MEDICINES_FLAT[med.id] = med;
                     return renderCard(med);
-                });
+                }).join('');
 
-                grid.innerHTML = adminCards.join('');
-
-            } catch (e) { }
+            } catch (e) { console.log('sync error', e); }
         }
         syncAdminMedicines();
 
         window.addEventListener('storage', function (e) {
-            if (e.key === 'mq_admin_medicines' || e.key === 'mq_medicines_updated') {
+            if (e.key === 'mq_admin_medicines' || e.key === 'mq_medicines_updated' || e.key === 'mq_custom_categories') {
                 syncAdminMedicines();
                 document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
                 if (activeCategory) {
-                    document.getElementById('category-medicines-grid').innerHTML =
-                        MEDICINES[activeCategory].map(renderCard).join('');
+                    const catEl = document.getElementById('category-medicines-grid');
+                    if (MEDICINES[activeCategory]) {
+                        catEl.innerHTML = MEDICINES[activeCategory].map(renderCard).join('');
+                    } else {
+                        showCustomCategory(activeCategory);
+                    }
                 }
             }
         });
@@ -2243,8 +2056,10 @@
             const pg = document.getElementById('popular-grid');
             if (pg && pg.children.length > 0) pg.innerHTML = POPULAR.map(renderCard).join('');
             if (activeCategory) {
-                document.getElementById('category-medicines-grid').innerHTML =
-                    MEDICINES[activeCategory].map(renderCard).join('');
+                const catEl = document.getElementById('category-medicines-grid');
+                if (MEDICINES[activeCategory]) {
+                    catEl.innerHTML = MEDICINES[activeCategory].map(renderCard).join('');
+                }
             }
         }, 15000);
         let cart = {};
@@ -2408,7 +2223,7 @@
             sec.style.display = 'block';
             sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        // IM_VYADAW
+
         function hideCategory() {
             document.getElementById('category-section').style.display = 'none';
             document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
