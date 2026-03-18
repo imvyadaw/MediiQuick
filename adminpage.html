@@ -2844,9 +2844,9 @@
       const p2 = document.getElementById('pw2').value;
       if (!p1 || p1.length < 6) { showToast('⚠️ Password must be at least 6 characters!', 'error'); return; }
       if (p1 !== p2) { showToast('⚠️ Passwords do not match!', 'error'); return; }
-      const adminData = JSON.parse(localStorage.getItem('mediiquickAdmin') || '{}');
+      const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
       adminData.password = p1;
-      localStorage.setItem('mediiquickAdmin', JSON.stringify(adminData));
+      localStorage.setItem('mq_admin', JSON.stringify(adminData));
       document.getElementById('pw1').value = '';
       document.getElementById('pw2').value = '';
       closeModal('pwModal');

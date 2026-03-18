@@ -1491,7 +1491,7 @@
                     <div id="newAddrFormWrap">
                         <div class="form-row">
                             <div class="co-form-group"><label>Full Name *</label><input type="text" id="addr-name"
-                                    placeholder="Yuvraj Dixit"><span class="co-err-msg" id="err-name">Name
+                                    placeholder=" "><span class="co-err-msg" id="err-name">Name
                                     required</span>
                             </div>
                             <div class="co-form-group"><label>Mobile *</label><input type="tel" id="addr-phone"
@@ -1602,7 +1602,7 @@
                                     placeholder="•••" maxlength="3"></div>
                         </div>
                         <div class="co-form-group" style="margin-top:10px;"><label>Name on Card</label><input
-                                type="text" id="card-name" placeholder="Yuvraj Dixit"></div>
+                                type="text" id="card-name" placeholder=" "></div>
                     </div>
                     <div class="nb-area" id="nbArea">
                         <p style="font-size:12px;font-weight:700;margin-bottom:10px;">Select Your Bank</p>
@@ -1840,10 +1840,10 @@
                     <div class="brand-name">💊 MediiQuick</div>
                     <p>Medicines delivered at your doorstep in 30 minutes. Trusted by thousands across India.</p>
                     <div class="social-links">
-                        <a href="https://www.facebook.com/mryuvrajdixit"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://x.com/Yuvraj_dixit__"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.instagram.com/mr_yuvraj_dixit__/"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.linkedin.com/in/yuvraj-dixit-3393422b5/"><i
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i
                                 class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
@@ -3113,11 +3113,13 @@
         function getPayLabel() { return { upi: 'UPI', card: 'Card', nb: selectedBank + ' Net Banking', wallet: 'Wallet', cod: 'Cash on Delivery' }[selectedPayMethod] || selectedPayMethod; }
 
         function doLogout() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('mq_user');
-                window.location.href = 'index.html';
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('mq_user');
+                    localStorage.removeItem('mq_orders');
+                    localStorage.removeItem('mq_addresses');
+                    window.location.href = 'index.html';
+                }
             }
-        }
 
         let toastTimer;
         function showToast(msg) {

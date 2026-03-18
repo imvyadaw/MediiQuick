@@ -1351,12 +1351,14 @@
     }
 
     function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('mediiquickUser');
-        localStorage.removeItem('mq_user');
-        window.location.href = 'login.html';
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('mq_user');
+          localStorage.removeItem('mq_orders');
+          localStorage.removeItem('mq_addresses');
+          localStorage.removeItem('mediiquickUser');
+          window.location.href = 'login.html';
+        }
       }
-    }
 
     let toastTimer;
     function showToast(msg) {
