@@ -148,7 +148,6 @@
             display: flex;
         }
 
-        /* LEFT PANEL */
         .left-panel {
             width: 40%;
             background: linear-gradient(155deg, #15803d, #16a34a, #059669);
@@ -240,7 +239,7 @@
             text-align: left;
         }
 
-        /* RIGHT PANEL */
+      
         .right-panel {
             flex: 1;
             padding: 36px 40px;
@@ -479,7 +478,7 @@
             text-decoration: underline;
         }
 
-        /* Success screen */
+        
         .success-screen {
             display: none;
             text-align: center;
@@ -589,7 +588,7 @@
     <main class="main">
         <div class="card">
 
-            <!-- LEFT PANEL -->
+           
             <div class="left-panel">
                 <div class="lp-icon">🏍️</div>
                 <h2>Join as Rider!</h2>
@@ -602,10 +601,10 @@
                 </div>
             </div>
 
-            <!-- RIGHT PANEL -->
+            
             <div class="right-panel">
 
-                <!-- SIGNUP FORM -->
+               
                 <div id="signupForm">
                     <div class="rp-title">🏍️ Create Rider Account</div>
                     <div class="rp-sub">Fill in your details to register as a delivery rider</div>
@@ -701,7 +700,7 @@
                     </div>
                 </div>
 
-                <!-- SUCCESS SCREEN -->
+               
                 <div class="success-screen" id="successScreen">
                     <div class="success-icon">🎉</div>
                     <h3>Account Created!</h3>
@@ -770,7 +769,7 @@
             const pass2 = document.getElementById('db-pass2').value;
             const agreed = document.getElementById('db-agree').checked;
 
-            // Reset errors
+           
             ['name', 'phone', 'city', 'pass', 'pass2', 'agree'].forEach(f => {
                 document.getElementById('err-' + f).classList.remove('show');
             });
@@ -791,7 +790,7 @@
             setTimeout(() => {
                 setLoading(false);
 
-                // Check if phone already registered
+                
                 const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
                 if (boys.find(b => b.phone === phone)) {
                     showToast('⚠ This phone number is already registered', 'error');
@@ -802,7 +801,7 @@
                     return;
                 }
 
-                // Save new delivery boy
+                
                 const newBoy = {
                     id: 'DB' + Date.now(),
                     name, phone, password: pass,
@@ -815,7 +814,7 @@
                 boys.push(newBoy);
                 localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
 
-                // Show success
+                
                 document.getElementById('signupForm').style.display = 'none';
                 document.getElementById('successScreen').classList.add('show');
                 showToast('✓ Account created successfully!', 'success');
