@@ -713,6 +713,9 @@
           <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">
             <i class="fas fa-store"></i> Admin Login
           </button>
+          <button class="tab-btn" id="tab-rider" onclick="switchTab('rider')">
+            <i class="fas fa-motorcycle"></i> Rider Login
+          </button>
         </div>
 
 
@@ -805,6 +808,41 @@
           </div>
         </div>
 
+        <!-- RIDER LOGIN SECTION -->
+        <div class="form-section" id="sec-rider">
+          <div class="section-title">🏍️ Rider Login</div>
+          <div class="section-sub">Login to your rider dashboard to manage deliveries</div>
+
+          <div class="form-group">
+            <label><i class="fas fa-phone"></i> Phone Number</label>
+            <div class="input-wrap">
+              <input type="tel" id="r-phone" maxlength="10" placeholder="10-digit number"
+                oninput="this.value=this.value.replace(/\D/g,'')">
+            </div>
+            <span class="err-msg" id="r-err-phone"><i class="fas fa-circle-exclamation"></i> Valid 10-digit number
+              required</span>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <div class="input-wrap">
+              <input type="password" id="r-pass" placeholder="••••••••">
+              <button class="pw-toggle" onclick="togglePw('r-pass',this)" type="button"><i
+                  class="fas fa-eye"></i></button>
+            </div>
+            <span class="err-msg" id="r-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+          </div>
+
+          <button class="submit-btn" id="riderLoginBtn" onclick="doRiderLogin()">
+            <div class="btn-spinner"></div>
+            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
+          </button>
+
+          <div class="bottom-link" style="margin-top:20px;">
+            New rider? <a href="delivery-signup.html">Create Rider Account</a>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -812,19 +850,43 @@
   <script>
 
     function switchTab(type) {
-      ['user', 'admin'].forEach(t => {
+      ['user', 'admin', 'rider'].forEach(t => {
         document.getElementById('sec-' + t).classList.toggle('active', t === type);
         document.getElementById('tab-' + t).classList.toggle('active', t === type);
       });
 
+      const icon = document.querySelector('.lp-icon');
+      const heading = document.querySelector('.left-panel h2');
+      const para = document.querySelector('.left-panel p');
+      const feats = document.querySelector('.lp-features');
+
       if (type === 'admin') {
-        document.querySelector('.lp-icon').textContent = '🏥';
-        document.querySelector('.left-panel h2').textContent = 'Admin Portal';
-        document.querySelector('.left-panel p').textContent = 'Manage your pharmacy — orders, inventory, and delivery all in one place.';
+        icon.textContent = '🏥';
+        heading.textContent = 'Admin Portal';
+        para.textContent = 'Manage your pharmacy — orders, inventory, and delivery all in one place.';
+        feats.innerHTML = `
+          <div class="lp-feat"><i class="fas fa-box"></i> Manage all orders easily</div>
+          <div class="lp-feat"><i class="fas fa-pills"></i> Full inventory control</div>
+          <div class="lp-feat"><i class="fas fa-motorcycle"></i> Assign & track riders</div>
+          <div class="lp-feat"><i class="fas fa-chart-line"></i> Sales & revenue analytics</div>`;
+      } else if (type === 'rider') {
+        icon.textContent = '🏍️';
+        heading.textContent = 'Rider Portal';
+        para.textContent = 'Login to manage your deliveries with MediiQuick.';
+        feats.innerHTML = `
+          <div class="lp-feat"><i class="fas fa-box-open"></i> View your assigned orders</div>
+          <div class="lp-feat"><i class="fas fa-toggle-on"></i> Set your availability status</div>
+          <div class="lp-feat"><i class="fas fa-check-circle"></i> Mark orders as delivered</div>
+          <div class="lp-feat"><i class="fas fa-history"></i> Track your delivery history</div>`;
       } else {
-        document.querySelector('.lp-icon').textContent = '💊';
-        document.querySelector('.left-panel h2').textContent = 'Welcome Back!';
-        document.querySelector('.left-panel p').innerHTML = 'MediiQuick — your medicines delivered in <strong>30 minutes</strong>!';
+        icon.textContent = '💊';
+        heading.textContent = 'Welcome Back!';
+        para.innerHTML = 'MediiQuick — your medicines delivered in <strong>30 minutes</strong>!';
+        feats.innerHTML = `
+          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed delivery</div>
+          <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
+          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
+          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>`;
       }
     }
 
@@ -920,9 +982,62 @@
         }
       }, 1200);
     }
-  // IM_VYADAW
+    // IM_VYADAW
     function socialLogin(provider) {
       showToast(`${provider} login coming soon!`);
+    }
+
+    function doRiderLogin() {
+      const phone = document.getElementById('r-phone').value.trim();
+      const pass = document.getElementById('r-pass').value;
+
+      document.getElementById('r-err-phone').classList.remove('show');
+      document.getElementById('r-err-pass').classList.remove('show');
+      document.getElementById('r-phone').classList.remove('err');
+      document.getElementById('r-pass').classList.remove('err');
+
+      let valid = true;
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        document.getElementById('r-err-phone').classList.add('show');
+        document.getElementById('r-phone').classList.add('err');
+        valid = false;
+      }
+      if (!pass) {
+        document.getElementById('r-err-pass').classList.add('show');
+        document.getElementById('r-pass').classList.add('err');
+        valid = false;
+      }
+      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
+
+      setLoading('riderLoginBtn', true);
+      setTimeout(() => {
+        setLoading('riderLoginBtn', false);
+        try {
+          const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+          const boy = boys.find(b => b.phone === phone);
+
+          if (!boy) {
+            document.getElementById('r-err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> No account found with this number';
+            document.getElementById('r-err-phone').classList.add('show');
+            document.getElementById('r-phone').classList.add('err');
+            showToast('⚠ No rider account found with this number', 'error');
+            return;
+          }
+          if (boy.password !== pass) {
+            document.getElementById('r-err-pass').innerHTML = '<i class="fas fa-circle-exclamation"></i> Incorrect password';
+            document.getElementById('r-err-pass').classList.add('show');
+            document.getElementById('r-pass').classList.add('err');
+            showToast('⚠ Incorrect password', 'error');
+            return;
+          }
+
+          localStorage.setItem('mq_db_session', JSON.stringify({ id: boy.id, name: boy.name, phone: boy.phone, loggedInAt: Date.now() }));
+          showToast('✓ Rider login successful!', 'success');
+          setTimeout(() => { window.location.href = 'delivery-dashboard.html'; }, 1000);
+        } catch (e) {
+          showToast('⚠ Login failed. Please try again.', 'error');
+        }
+      }, 1200);
     }
 
     function setLoading(btnId, state) {
@@ -950,11 +1065,13 @@
         const active = document.querySelector('.form-section.active').id;
         if (active === 'sec-user') doUserLogin();
         if (active === 'sec-admin') doAdminLogin();
+        if (active === 'sec-rider') doRiderLogin();
       }
     });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'admin') switchTab('admin');
+    if (params.get('tab') === 'rider') switchTab('rider');
 
     let toastTimer;
     function showToast(msg, type = '') {

@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick | Rider Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --green-light: #f0fdf4;
+      --green-border: #bbf7d0;
+      --green2: #dcfce7;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --white: #fff;
+      --bg: #f5f7fa;
+      --card: #fff;
+      --shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      --radius: 14px;
+      --red: #dc2626;
+      --orange: #f59e0b;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .header {
+      background: var(--white);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .logo h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rider-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .rider-chip .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .4;
+      }
+    }
+
+    .header-btn {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-btn:hover {
+      background: #b91c1c;
+    }
+
+
+    .main {
+      flex: 1;
+      padding: 24px;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .p-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--green2);
+      border: 3px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--green-dark);
+      flex-shrink: 0;
+    }
+
+    .p-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .p-detail {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .p-detail i {
+      color: var(--green);
+      margin-right: 4px;
+    }
+
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .status-btn {
+      padding: 16px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--green-border);
+      background: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+    }
+
+    .status-btn.sel-available {
+      background: var(--green-light);
+      border-color: var(--green);
+      color: var(--green-dark);
+    }
+
+    .status-btn.sel-offline {
+      background: #f1f5f9;
+      border-color: #64748b;
+      color: #374151;
+    }
+
+    .status-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    }
+
+    .status-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .busy-notice {
+      background: #fff7ed;
+      border: 1.5px solid #fed7aa;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #92400e;
+      margin-top: 10px;
+    }
+
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .si-green {
+      background: #dcfce7;
+    }
+
+    .si-orange {
+      background: #fff7ed;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--green-dark);
+      margin-top: 2px;
+    }
+
+    .stat-val.orange {
+      color: var(--orange);
+    }
+
+
+    .order-card {
+      border-left: 4px solid var(--green);
+    }
+
+    .order-card.no-order {
+      border-left-color: #e5e7eb;
+    }
+
+    .order-id-tag {
+      background: var(--green2);
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 5px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .detail-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .detail-row strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .deliver-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 13px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .deliver-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .no-order-empty {
+      text-align: center;
+      padding: 28px 0;
+      color: var(--muted);
+    }
+
+    .no-order-empty .ei {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+
+    .danger-card {
+      border: 1.5px solid #fca5a5;
+    }
+
+    .danger-card .card-title {
+      color: var(--red);
+    }
+
+    .danger-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .danger-btn {
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      color: var(--red);
+      border: 1.5px solid #fca5a5;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .danger-btn:hover {
+      background: #fef2f2;
+    }
+
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--green);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(22, 163, 74, .35);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    #toast.error {
+      background: var(--red);
+    }
+
+    #toast.warning {
+      background: var(--orange);
+    }
+
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+      animation: slideUp .25s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 11px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel-m {
+      background: #f3f4f6;
+      color: var(--text);
+    }
+
+    .btn-cancel-m:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-red {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-red:hover {
+      background: #b91c1c;
+    }
+
+
+    .form-group-m {
+      margin-bottom: 14px;
+    }
+
+    .form-group-m label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .form-input-m {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .form-input-m:focus {
+      border-color: var(--green);
+    }
+
+    .form-input-m.err {
+      border-color: var(--red);
+    }
+
+    .form-grid-m {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .pw-toggle-m {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .pw-toggle-m:hover {
+      color: #374151;
+    }
+
+    .err-msg-m {
+      font-size: 11px;
+      color: var(--red);
+      display: none;
+      margin-top: 3px;
+    }
+
+    .err-msg-m.show {
+      display: block;
+    }
+
+    .range-val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
+
+    .range-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--green);
+      margin-top: 6px;
+    }
+
+
+    .req-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .req-overlay.show {
+      display: flex;
+    }
+
+    .req-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+      animation: reqPop .3s cubic-bezier(.34, 1.56, .64, 1);
+      overflow: hidden;
+    }
+
+    @keyframes reqPop {
+      from {
+        transform: scale(.85) translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .req-header {
+      background: linear-gradient(135deg, #16a34a, #059669);
+      padding: 18px 20px;
+      color: #fff;
+    }
+
+    .req-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .req-title {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .req-timer {
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 8px;
+      padding: 4px 12px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .req-timer.urgent {
+      background: rgba(239, 68, 68, .3);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .5;
+      }
+    }
+
+    .req-sub {
+      font-size: 12px;
+      opacity: .85;
+    }
+
+    .req-body {
+      padding: 18px 20px;
+    }
+
+    .req-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .req-row:last-child {
+      border-bottom: none;
+    }
+
+    .req-row span {
+      color: #6b7280;
+    }
+
+    .req-row strong {
+      color: #111827;
+      font-weight: 600;
+      max-width: 200px;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .req-progress {
+      height: 4px;
+      background: #e5e7eb;
+      margin: 0 20px 16px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .req-progress-bar {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width 1s linear;
+    }
+
+    .req-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .req-accept {
+      padding: 13px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .req-accept:hover {
+      background: var(--green-dark);
+    }
+
+    .req-reject {
+      padding: 13px;
+      background: #fff;
+      color: var(--red);
+      border: 1.5px solid #fca5a5;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .req-reject:hover {
+      background: #fef2f2;
+    }
+
+
+    .accept-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .accept-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .reject-btn {
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      color: var(--red);
+      border: 1.5px solid #fca5a5;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .reject-btn:hover {
+      background: #fef2f2;
+    }
+
+    .pending-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ede9fe;
+      color: #7c3aed;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      animation: pulse 2s infinite;
+    }
+
+
+    .edit-profile-btn {
+      margin-left: auto;
+      background: var(--green-light);
+      color: var(--green-dark);
+      border: 1.5px solid var(--green-border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .edit-profile-btn:hover {
+      background: var(--green2);
+    }
+
+    @media(max-width:500px) {
+      .main {
+        padding: 16px 12px;
+      }
+
+      .header-inner {
+        padding: 10px 16px;
+      }
+
+      .form-grid-m {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toast"></div>
+
+
+  <div class="req-overlay" id="reqOverlay">
+    <div class="req-box">
+      <div class="req-header">
+        <div class="req-header-top">
+          <div class="req-title">🏍️ New Delivery Request!</div>
+          <div class="req-timer" id="reqTimer">2:00</div>
+        </div>
+        <div class="req-sub">Accept quickly before another rider does</div>
+      </div>
+      <div class="req-progress">
+        <div class="req-progress-bar" id="reqProgressBar" style="width:100%"></div>
+      </div>
+      <div class="req-body">
+        <div class="req-row"><span>Order ID</span><strong id="reqOrderId">—</strong></div>
+        <div class="req-row"><span>Customer</span><strong id="reqCustomer">—</strong></div>
+        <div class="req-row"><span>Address</span><strong id="reqAddress">—</strong></div>
+        <div class="req-row"><span>Amount</span><strong id="reqAmount">—</strong></div>
+        <div class="req-row"><span>Payment</span><strong id="reqPayment">—</strong></div>
+        <div class="req-row"><span>Items</span><strong id="reqItems">—</strong></div>
+      </div>
+      <div class="req-actions">
+        <button class="req-reject" onclick="rejectRequest()"><i class="fas fa-times"></i> Reject</button>
+        <button class="req-accept" onclick="acceptRequest()"><i class="fas fa-check"></i> Accept</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="confirmTitle">Are you sure?</div>
+        <button class="modal-close" onclick="closeConfirm()">✕</button>
+      </div>
+      <div class="modal-body" id="confirmBody">This action cannot be undone.</div>
+      <div class="modal-footer">
+        <button class="btn-cancel-m" onclick="closeConfirm()">Cancel</button>
+        <button class="btn-red" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title">✏️ Edit Profile</div>
+        <button class="modal-close" onclick="closeEdit()">✕</button>
+      </div>
+
+      <div class="form-grid-m">
+        <div class="form-group-m">
+          <label>Full Name *</label>
+          <input class="form-input-m" id="e-name" type="text" placeholder="Your name">
+          <div class="err-msg-m" id="e-err-name">Name required</div>
+        </div>
+        <div class="form-group-m">
+          <label>Phone Number *</label>
+          <input class="form-input-m" id="e-phone" type="tel" maxlength="10" placeholder="10-digit number"
+            oninput="this.value=this.value.replace(/\D/g,'')">
+          <div class="err-msg-m" id="e-err-phone">Valid 10-digit number required</div>
+        </div>
+      </div>
+
+      <div class="form-grid-m">
+        <div class="form-group-m">
+          <label>Vehicle Type</label>
+          <select class="form-input-m" id="e-vehicle">
+            <option value="bike">🏍️ Bike</option>
+            <option value="scooter">🛵 Scooter</option>
+            <option value="cycle">🚲 Cycle</option>
+          </select>
+        </div>
+        <div class="form-group-m">
+          <label>City</label>
+          <input class="form-input-m" id="e-city" type="text" placeholder="e.g. Patna">
+        </div>
+      </div>
+
+      <div class="form-group-m">
+        <label>Delivery Range — <span class="range-val" id="e-range-val">10 km</span></label>
+        <input type="range" id="e-range" min="1" max="50" value="10"
+          oninput="document.getElementById('e-range-val').textContent=this.value+' km'">
+        <div class="range-note">Maximum distance you are willing to deliver</div>
+      </div>
+
+      <div class="form-group-m">
+        <label>New Password <span style="font-weight:400;text-transform:none;font-size:11px;">(leave blank to keep
+            current)</span></label>
+        <div style="position:relative;">
+          <input class="form-input-m" id="e-pass" type="password" placeholder="Min 6 characters">
+          <button class="pw-toggle-m" type="button" onclick="toggleEditPw()"><i class="fas fa-eye"
+              id="e-eye"></i></button>
+        </div>
+        <div class="err-msg-m" id="e-err-pass">Password must be at least 6 characters</div>
+      </div>
+
+      <div class="modal-footer" style="margin-top:20px;">
+        <button class="btn-cancel-m" onclick="closeEdit()">Cancel</button>
+        <button
+          style="flex:1;padding:11px;border-radius:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;cursor:pointer;border:none;background:var(--green);color:#fff;"
+          onclick="saveEdit()">
+          <i class="fas fa-check"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"><i class="fas fa-pills"></i></div>
+        <h1>Medii<span>Quick</span></h1>
+      </a>
+      <div class="header-right">
+        <div class="rider-chip">
+          <div class="dot"></div> Rider Portal
+        </div>
+        <button class="header-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+
+
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>👤 My Profile</span>
+        <button class="edit-profile-btn" onclick="openEdit()"><i class="fas fa-pen"></i> Edit</button>
+      </div>
+      <div class="profile-row">
+        <div class="p-avatar" id="pAvatar">R</div>
+        <div>
+          <div class="p-name" id="pName">—</div>
+          <div class="p-detail"><i class="fas fa-phone"></i><span id="pPhone">—</span></div>
+          <div class="p-detail"><i class="fas fa-motorcycle"></i><span id="pVehicle">—</span></div>
+          <div class="p-detail"><i class="fas fa-map-marker-alt"></i><span id="pCity">—</span></div>
+          <div class="p-detail"><i class="fas fa-route"></i><span id="pRange">—</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="card-title">🟢 My Availability</div>
+      <div class="status-grid">
+        <button class="status-btn" id="btnAvailable" onclick="setStatus('available')">
+          ✅ Available
+        </button>
+        <button class="status-btn" id="btnOffline" onclick="setStatus('offline')">
+          ⚫ Go Offline
+        </button>
+      </div>
+      <div class="busy-notice" id="busyNotice" style="display:none;">
+        🔴 You have an active delivery. Complete it before changing your status.
+      </div>
+    </div>
+
+
+    <div class="stats-grid" style="margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-icon si-green">✅</div>
+        <div>
+          <div class="stat-label">Total Delivered</div>
+          <div class="stat-val" id="statDelivered">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-orange">🚴</div>
+        <div>
+          <div class="stat-label">Active Orders</div>
+          <div class="stat-val orange" id="statActive">0</div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card order-card" id="orderCard">
+      <div class="card-title">📦 Current Active Order</div>
+      <div id="orderContent">
+        <div class="no-order-empty">
+          <div class="ei">🏍️</div>
+          <div>No active order assigned yet</div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card danger-card">
+      <div class="card-title">⚠️ Danger Zone</div>
+      <div class="danger-sub">Deleting your account is permanent and cannot be undone. You will need to re-register to
+        use the platform again.</div>
+      <button class="danger-btn" onclick="confirmDelete()">
+        <i class="fas fa-trash"></i> Delete My Account
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+
+    let session = null;
+    try { session = JSON.parse(localStorage.getItem('mq_db_session')); } catch (e) { }
+    if (!session || !session.id) window.location.href = 'delivery-login.html';
+
+    function getMe() {
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      return boys.find(b => b.id === session.id) || null;
+    }
+
+    function saveBoysLS(boys) { localStorage.setItem('mq_delivery_boys', JSON.stringify(boys)); }
+
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = type ? type : '';
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function renderProfile() {
+      const me = getMe();
+      if (!me) { doLogout(); return; }
+      const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
+      document.getElementById('pAvatar').textContent = me.name.charAt(0).toUpperCase();
+      document.getElementById('pName').textContent = me.name;
+      document.getElementById('pPhone').textContent = me.phone;
+      document.getElementById('pVehicle').textContent = vMap[me.vehicle] || me.vehicle;
+      document.getElementById('pCity').textContent = me.city || '—';
+      document.getElementById('pRange').textContent = me.deliveryRange ? me.deliveryRange + ' km range' : 'Range not set';
+    }
+
+    function openEdit() {
+      const me = getMe();
+      if (!me) return;
+      document.getElementById('e-name').value = me.name;
+      document.getElementById('e-phone').value = me.phone;
+      document.getElementById('e-vehicle').value = me.vehicle || 'bike';
+      document.getElementById('e-city').value = me.city || '';
+      document.getElementById('e-pass').value = '';
+      const range = me.deliveryRange || 10;
+      document.getElementById('e-range').value = range;
+      document.getElementById('e-range-val').textContent = range + ' km';
+
+      ['name', 'phone', 'pass'].forEach(f => {
+        document.getElementById('e-err-' + f).classList.remove('show');
+        const inp = document.getElementById('e-' + f);
+        if (inp) inp.classList.remove('err');
+      });
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEdit() {
+      document.getElementById('editModal').classList.remove('show');
+    }
+
+    function toggleEditPw() {
+      const inp = document.getElementById('e-pass');
+      const ico = document.getElementById('e-eye');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      ico.className = inp.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+    }
+
+    function saveEdit() {
+      const name = document.getElementById('e-name').value.trim();
+      const phone = document.getElementById('e-phone').value.trim();
+      const vehicle = document.getElementById('e-vehicle').value;
+      const city = document.getElementById('e-city').value.trim();
+      const pass = document.getElementById('e-pass').value;
+      const range = parseInt(document.getElementById('e-range').value);
+
+
+      ['name', 'phone', 'pass'].forEach(f => {
+        document.getElementById('e-err-' + f).classList.remove('show');
+        const inp = document.getElementById('e-' + f);
+        if (inp) inp.classList.remove('err');
+      });
+
+      let valid = true;
+      if (name.length < 2) {
+        document.getElementById('e-err-name').classList.add('show');
+        document.getElementById('e-name').classList.add('err');
+        valid = false;
+      }
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        document.getElementById('e-err-phone').classList.add('show');
+        document.getElementById('e-phone').classList.add('err');
+        valid = false;
+      }
+      if (pass && pass.length < 6) {
+        document.getElementById('e-err-pass').classList.add('show');
+        document.getElementById('e-pass').classList.add('err');
+        valid = false;
+      }
+      if (!valid) return;
+
+
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const conflict = boys.find(b => b.phone === phone && b.id !== session.id);
+      if (conflict) {
+        document.getElementById('e-err-phone').textContent = 'This number is already used by another rider';
+        document.getElementById('e-err-phone').classList.add('show');
+        document.getElementById('e-phone').classList.add('err');
+        return;
+      }
+
+      const me = boys.find(b => b.id === session.id);
+      if (!me) return;
+      me.name = name;
+      me.phone = phone;
+      me.vehicle = vehicle;
+      me.city = city;
+      me.deliveryRange = range;
+      if (pass) me.password = pass;
+      saveBoysLS(boys);
+
+
+      session.name = name;
+      session.phone = phone;
+      localStorage.setItem('mq_db_session', JSON.stringify(session));
+
+      closeEdit();
+      renderAll();
+      showToast('✅ Profile updated successfully!');
+    }
+
+
+    document.getElementById('editModal').addEventListener('click', function (e) {
+      if (e.target === this) closeEdit();
+    });
+
+    function renderStatus() {
+      const me = getMe();
+      if (!me) return;
+      const s = me.status;
+      const btnA = document.getElementById('btnAvailable');
+      const btnO = document.getElementById('btnOffline');
+      const busy = document.getElementById('busyNotice');
+
+      btnA.className = 'status-btn' + (s === 'available' ? ' sel-available' : '');
+      btnO.className = 'status-btn' + (s === 'offline' ? ' sel-offline' : '');
+
+      if (s === 'busy') {
+        btnA.disabled = true;
+        btnO.disabled = true;
+        busy.style.display = 'block';
+      } else {
+        btnA.disabled = false;
+        btnO.disabled = false;
+        busy.style.display = 'none';
+      }
+    }
+
+    function renderStats() {
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      const delivered = orders.filter(o => o.deliveryBoy?.id === session.id && o.status === 'delivered').length;
+      const active = orders.filter(o => o.deliveryBoy?.id === session.id && ['on_the_way', 'pending_acceptance'].includes(o.status)).length;
+      document.getElementById('statDelivered').textContent = delivered;
+      document.getElementById('statActive').textContent = active;
+    }
+
+    function renderActiveOrder() {
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+
+
+      const pending = orders.find(o => o.deliveryBoy?.id === session.id && o.status === 'pending_acceptance');
+      const active = orders.find(o => o.deliveryBoy?.id === session.id && o.status === 'on_the_way');
+      const order = pending || active;
+
+      const card = document.getElementById('orderCard');
+      const content = document.getElementById('orderContent');
+
+      if (!order) {
+        card.classList.add('no-order');
+        content.innerHTML = `<div class="no-order-empty"><div class="ei">🏍️</div><div>No active order assigned yet</div></div>`;
+        return;
+      }
+
+      card.classList.remove('no-order');
+      const addr = order.deliveryAddr || {};
+      const addrStr = addr.street ? `${addr.street}, ${addr.city}` : (order.city || '—');
+      const items = (order.items || []).map(i => `${i.med?.name || i.name} ×${i.qty}`).join(', ') || '—';
+      const phone = addr.phone || '—';
+      const isPending = order.status === 'pending_acceptance';
+
+      content.innerHTML = `
+        ${isPending ? `<div class="pending-badge">⏳ New Order Request — Please Accept or Reject</div>` : ''}
+        <div class="order-id-tag">${order.orderId}</div>
+        <div class="detail-row"><span>Customer</span><strong>${order.customerName || order.name || 'Guest'}</strong></div>
+        <div class="detail-row"><span>Phone</span><strong><a href="tel:${phone}" style="color:var(--green);text-decoration:none;font-weight:700;">📞 ${phone}</a></strong></div>
+        <div class="detail-row"><span>Address</span><strong>${addrStr}</strong></div>
+        <div class="detail-row"><span>Items</span><strong style="font-size:12px;">${items}</strong></div>
+        <div class="detail-row"><span>Amount</span><strong style="color:var(--green);">₹${order.total || 0}</strong></div>
+        <div class="detail-row"><span>Payment</span><strong>${order.payMethod || '—'}</strong></div>
+        ${isPending ? `
+          <div style="margin-top:16px;">
+            <button class="accept-btn" onclick="acceptOrder('${order.orderId}')">
+              <i class="fas fa-check-circle"></i> Accept Order
+            </button>
+            <button class="reject-btn" onclick="rejectOrder('${order.orderId}')">
+              <i class="fas fa-times-circle"></i> Reject Order
+            </button>
+          </div>
+        ` : `
+          <button class="deliver-btn" onclick="markDelivered('${order.orderId}')">
+            <i class="fas fa-check-circle"></i> Mark as Delivered
+          </button>
+        `}
+      `;
+    }
+
+    function acceptOrder(orderId) {
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      o.status = 'on_the_way';
+      o.statusUpdatedAt = Date.now();
+      localStorage.setItem('mq_orders', JSON.stringify(orders));
+      showToast('✅ Order accepted! Go deliver it!');
+      renderAll();
+    }
+
+    function rejectOrder(orderId) {
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+
+      o.deliveryBoy = null;
+      o.status = 'packing';
+      o.statusUpdatedAt = Date.now();
+      localStorage.setItem('mq_orders', JSON.stringify(orders));
+
+
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const me = boys.find(b => b.id === session.id);
+      if (me) {
+        me.status = 'available';
+        me.activeOrder = null;
+        localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
+      }
+      showToast('❌ Order rejected. You are now available.', 'error');
+      renderAll();
+    }
+
+    function setStatus(newStatus) {
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const me = boys.find(b => b.id === session.id);
+      if (!me) return;
+      if (me.status === 'busy') { showToast('Complete the active delivery first!', 'warning'); return; }
+      me.status = newStatus;
+      saveBoysLS(boys);
+      renderAll();
+      showToast(newStatus === 'available' ? '✅ You are now Available!' : '⚫ You are now Offline');
+    }
+
+    function markDelivered(orderId) {
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      const o = orders.find(x => x.orderId === orderId);
+      if (!o) return;
+      o.status = 'delivered';
+      o.statusUpdatedAt = Date.now();
+      localStorage.setItem('mq_orders', JSON.stringify(orders));
+
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const me = boys.find(b => b.id === session.id);
+      if (me) {
+        me.status = 'available';
+        me.activeOrder = null;
+        me.totalDelivered = (me.totalDelivered || 0) + 1;
+        saveBoysLS(boys);
+      }
+
+      showToast('🎉 Order delivered! Great job!');
+      renderAll();
+    }
+
+    function doLogout() {
+      localStorage.removeItem('mq_db_session');
+      window.location.href = 'login.html?tab=rider';
+    }
+
+
+    function openConfirm(title, body, cb) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmBody').textContent = body;
+      document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); cb(); };
+      document.getElementById('confirmModal').classList.add('show');
+    }
+    function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); }
+
+    function confirmDelete() {
+      openConfirm(
+        '🗑️ Delete Your Account?',
+        'This will permanently remove your account. You will be logged out immediately and will need to re-register to use the platform again.',
+        deleteAccount
+      );
+    }
+
+    function deleteAccount() {
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const updated = boys.filter(b => b.id !== session.id);
+      saveBoysLS(updated);
+      localStorage.removeItem('mq_db_session');
+      showToast('Account deleted. Redirecting...');
+      setTimeout(() => window.location.href = 'index.html', 1500);
+    }
+
+    function renderAll() {
+      const me = getMe();
+      if (!me) { doLogout(); return; }
+
+
+      if (me.status === 'busy' && me.activeOrder) {
+        const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+        const activeOrder = orders.find(o => o.orderId === me.activeOrder);
+        if (!activeOrder || activeOrder.status === 'cancelled' || activeOrder.status === 'delivered') {
+          const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+          const myBoy = boys.find(b => b.id === session.id);
+          if (myBoy) {
+            myBoy.status = 'available';
+            myBoy.activeOrder = null;
+            localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
+          }
+          if (activeOrder?.status === 'cancelled') {
+            showToast('ℹ️ Your assigned order was cancelled. You are now available.');
+          }
+        }
+      }
+
+      renderProfile();
+      renderStatus();
+      renderStats();
+      renderActiveOrder();
+    }
+
+    renderAll();
+
+
+    setInterval(() => {
+      renderAll();
+      checkForNewRequests();
+    }, 2000);
+
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'mq_rider_requests' || e.key === 'mq_orders') {
+        checkForNewRequests();
+        renderAll();
+      }
+    });
+
+
+    let _currentRequestId = null;
+    let _timerInterval = null;
+
+    function checkForNewRequests() {
+      const me = getMe();
+      if (!me) return;
+      if (me.status === 'busy') return;
+
+      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+      const now = Date.now();
+
+
+      const myReq = requests.find(r =>
+        Array.isArray(r.riderIds) &&
+        r.riderIds.includes(session.id) &&
+        now < r.expiresAt
+      );
+
+      if (!myReq) {
+        if (_currentRequestId) closeRequestPopup();
+        return;
+      }
+
+
+      if (myReq.acceptedBy && myReq.acceptedBy !== session.id) {
+        if (_currentRequestId === myReq.orderId) {
+
+          showTakenMessage();
+        }
+        return;
+      }
+
+
+      if (myReq.acceptedBy === session.id) {
+        if (_currentRequestId) closeRequestPopup();
+        return;
+      }
+
+
+      if (_currentRequestId === myReq.orderId) return;
+
+
+      showRequestPopup(myReq);
+    }
+
+    function showTakenMessage() {
+
+      const timerEl = document.getElementById('reqTimer');
+      const overlay = document.getElementById('reqOverlay');
+      if (!overlay.classList.contains('show')) return;
+
+
+      const header = overlay.querySelector('.req-header');
+      if (header) {
+        header.style.background = 'linear-gradient(135deg,#64748b,#475569)';
+      }
+      const title = document.getElementById('reqOrderId');
+      overlay.querySelector('.req-title').textContent = '❌ Order Already Taken!';
+      overlay.querySelector('.req-sub').textContent = 'Another rider accepted this order';
+      if (timerEl) timerEl.textContent = '';
+
+
+      const actions = overlay.querySelector('.req-actions');
+      if (actions) actions.style.display = 'none';
+
+
+      setTimeout(() => {
+        closeRequestPopup();
+
+        const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+        const me = boys.find(b => b.id === session.id);
+        if (me && me.status !== 'busy') {
+          me.status = 'available';
+          localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
+        }
+        renderAll();
+      }, 1500);
+    }
+
+    function acceptRequest() {
+      if (!_currentRequestId) return;
+      const orderId = _currentRequestId;
+
+
+      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+      const req = requests.find(r => r.orderId === orderId);
+
+
+      if (!req || req.acceptedBy) {
+        showTakenMessage();
+        return;
+      }
+
+
+      req.acceptedBy = session.id;
+      localStorage.setItem('mq_rider_requests', JSON.stringify(requests));
+
+
+      const recheck = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+      const reqCheck = recheck.find(r => r.orderId === orderId);
+      if (!reqCheck || reqCheck.acceptedBy !== session.id) {
+        showTakenMessage();
+        return;
+      }
+
+
+      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      const o = orders.find(x => x.orderId === orderId);
+      const me = getMe();
+      if (o && me) {
+        o.deliveryBoy = { id: me.id, name: me.name, phone: me.phone };
+        o.status = 'on_the_way';
+        o.statusUpdatedAt = Date.now();
+        localStorage.setItem('mq_orders', JSON.stringify(orders));
+      }
+
+
+      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
+      const myBoy = boys.find(b => b.id === session.id);
+      if (myBoy) {
+        myBoy.status = 'busy';
+        myBoy.activeOrder = orderId;
+        localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
+      }
+
+      closeRequestPopup();
+      renderAll();
+      showToast('✅ Order accepted! Go deliver it!');
+    }
+
+    function rejectRequest() {
+      if (!_currentRequestId) return;
+      const orderId = _currentRequestId;
+
+      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+      const req = requests.find(r => r.orderId === orderId);
+      if (req && !req.acceptedBy) {
+        if (!Array.isArray(req.rejectedBy)) req.rejectedBy = [];
+        if (!req.rejectedBy.includes(session.id)) {
+          req.rejectedBy.push(session.id);
+        }
+        req.riderIds = req.riderIds.filter(id => id !== session.id);
+
+        const allRejected = req.riderIds.length === 0 || req.riderIds.every(id => req.rejectedBy.includes(id));
+        if (allRejected) {
+          const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+          const o = orders.find(x => x.orderId === orderId);
+          if (o && (o.status === 'confirmed' || o.status === 'pending')) {
+            o.status = 'cancelled';
+            o.cancelledAt = Date.now();
+            o.cancelReason = 'All riders rejected the order';
+            localStorage.setItem('mq_orders', JSON.stringify(orders));
+          }
+          req.expired = true;
+        }
+
+        localStorage.setItem('mq_rider_requests', JSON.stringify(requests));
+      }
+
+      closeRequestPopup();
+      showToast('❌ Order rejected');
+    }
+
+    function showRequestPopup(req) {
+      _currentRequestId = req.orderId;
+
+
+      const overlay = document.getElementById('reqOverlay');
+      const header = overlay.querySelector('.req-header');
+      if (header) header.style.background = 'linear-gradient(135deg,#16a34a,#059669)';
+      overlay.querySelector('.req-title').textContent = '🏍️ New Delivery Request!';
+      overlay.querySelector('.req-sub').textContent = 'Accept quickly before another rider does';
+      const actions = overlay.querySelector('.req-actions');
+      if (actions) actions.style.display = 'grid';
+
+      document.getElementById('reqOrderId').textContent = req.orderId;
+      document.getElementById('reqCustomer').textContent = req.customerName;
+      document.getElementById('reqAddress').textContent = req.address;
+      document.getElementById('reqAmount').textContent = '₹' + req.total;
+      document.getElementById('reqPayment').textContent = req.payMethod;
+      document.getElementById('reqItems').textContent = req.items;
+
+      overlay.classList.add('show');
+
+      clearInterval(_timerInterval);
+      _timerInterval = setInterval(() => {
+        const reqs = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+        const r = reqs.find(x => x.orderId === _currentRequestId);
+
+        if (!r || Date.now() >= r.expiresAt) {
+          closeRequestPopup();
+          renderAll();
+          return;
+        }
+
+
+        if (r.acceptedBy && r.acceptedBy !== session.id) {
+          showTakenMessage();
+          return;
+        }
+
+        const remaining = Math.max(0, r.expiresAt - Date.now());
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        const timerEl = document.getElementById('reqTimer');
+        if (timerEl) {
+          timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+          timerEl.className = 'req-timer' + (remaining < 30000 ? ' urgent' : '');
+        }
+        const pct = (remaining / (2 * 60 * 1000)) * 100;
+        const bar = document.getElementById('reqProgressBar');
+        if (bar) {
+          bar.style.width = pct + '%';
+          bar.style.background = remaining < 30000 ? '#ef4444' : 'var(--green)';
+        }
+      }, 1000);
+    }
+
+    function closeRequestPopup() {
+      _currentRequestId = null;
+      clearInterval(_timerInterval);
+      document.getElementById('reqOverlay').classList.remove('show');
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -35,7 +35,6 @@
             min-height: 100vh;
         }
 
-
         .header {
             background: #fff;
             box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
@@ -784,10 +783,128 @@
                 border-bottom: 1px solid var(--border);
             }
         }
+
+
+        .rider-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rider-overlay.show {
+            display: flex;
+        }
+
+        .rider-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px 24px 22px;
+            width: 90%;
+            max-width: 340px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            text-align: center;
+            animation: rSlide .25s ease;
+        }
+
+        @keyframes rSlide {
+            from {
+                transform: translateY(28px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .rider-ava {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--green-light);
+            border: 3px solid var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 0 auto 12px;
+        }
+
+        .rider-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .rider-nm {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .rider-call-a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green-dark);
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background .2s;
+        }
+
+        .rider-call-a:hover {
+            background: #15803d;
+        }
+
+        .rider-close {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .rider-close:hover {
+            background: var(--bg);
+        }
     </style>
 </head>
 
 <body>
+
+
+    <div class="rider-overlay" id="riderOverlay" onclick="if(event.target===this)closeRiderModal()">
+        <div class="rider-box">
+            <div class="rider-ava" id="riderAva">🚴</div>
+            <div class="rider-tag">Your Delivery Rider</div>
+            <div class="rider-nm" id="riderNm">—</div>
+            <a href="#" class="rider-call-a" id="riderCallA">📞 <span id="riderPh">—</span></a>
+            <button class="rider-close" onclick="closeRiderModal()">Close</button>
+        </div>
+    </div>
+
 
     <div id="toast"></div>
 
@@ -904,6 +1021,10 @@
         function getStatus(order) {
             if (order.status === 'cancelled') return 'cancelled';
 
+            if (['pending_acceptance', 'on_the_way', 'delivered', 'packing', 'confirmed'].includes(order.status)) {
+                return order.status;
+            }
+
             const autoStatus = getAutoStatus(order);
             const adminStatus = order.status || 'pending';
 
@@ -925,8 +1046,15 @@
             confirmed: {
                 label: 'Order Confirmed',
                 badge: 'badge-orange', activeStep: 1,
-                etaIcon: '📋', etaLabel: 'Order confirmed! Preparing medicines',
+                etaIcon: '📋', etaLabel: 'Order confirmed! Finding a rider...',
                 etaColor: '#c2410c', etaBg: 'linear-gradient(135deg,#fff7ed,#fffbeb)', etaBorder: '#fed7aa',
+                showTimer: true
+            },
+            pending_acceptance: {
+                label: 'Finding Rider 🏍️',
+                badge: 'badge-orange', activeStep: 2,
+                etaIcon: '🏍️', etaLabel: 'Finding a rider for your order...',
+                etaColor: '#7c3aed', etaBg: 'linear-gradient(135deg,#ede9fe,#f5f3ff)', etaBorder: '#c4b5fd',
                 showTimer: true
             },
             packing: {
@@ -1008,7 +1136,7 @@
             const secs = Math.floor((remMin - mins) * 60);
             return `${mins} min ${String(secs).padStart(2, '0')} sec`;
         }
-    // IM_VYADAW
+
         function renderCard(order) {
             const status = getStatus(order);
             const sc = STATUS_CONFIG[status];
@@ -1104,7 +1232,7 @@
             } else if (status === 'confirmed' || status === 'pending') {
                 actionsHTML = `<button class="btn btn-red" onclick="cancelOrder('${order.orderId}')">✕ Cancel Order</button>`;
             } else if (status === 'on_the_way') {
-                actionsHTML = `<button class="btn btn-outline" onclick="showToast('📞 Calling rider...')">📞 Call Rider</button>`;
+                actionsHTML = `<button class="btn btn-outline" onclick="showRiderInfo('${order.orderId}')">📞 Call Rider</button>`;
             } else if (status === 'cancelled') {
                 actionsHTML = `<button class="btn btn-primary" onclick="reorder('${order.orderId}')">🔄 Reorder</button>`;
             }
@@ -1142,6 +1270,30 @@
                 </div>
             </div>`;
         }
+
+
+        const MQ_DEFAULT_RIDER = { name: 'Ravi Kumar', phone: '9876543210' };
+
+        function showRiderInfo(orderId) {
+            const order = orders.find(o => o.orderId === orderId);
+            if (!order) return;
+
+            const rider = (order.deliveryBoy && order.deliveryBoy.name)
+                ? order.deliveryBoy
+                : MQ_DEFAULT_RIDER;
+
+            document.getElementById('riderAva').textContent = rider.name.charAt(0).toUpperCase();
+            document.getElementById('riderNm').textContent = rider.name;
+            document.getElementById('riderPh').textContent = rider.phone;
+            document.getElementById('riderCallA').href = 'tel:' + rider.phone;
+
+            document.getElementById('riderOverlay').classList.add('show');
+        }
+
+        function closeRiderModal() {
+            document.getElementById('riderOverlay').classList.remove('show');
+        }
+
 
         function renderAll() {
             loadOrders();
