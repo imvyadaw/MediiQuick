@@ -5,16 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Signup — MediiQuick</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    <link rel="preconnect" href="https:  fonts.googleapis.com">
+    <link href="https:  fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https:  cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
+
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -25,7 +27,6 @@
             position: relative;
             overflow: hidden;
         }
-
 
         body::before {
             content: '';
@@ -497,7 +498,7 @@
             text-decoration: underline;
         }
 
-            /* IM_VYADAW */
+        /* IM_VYADAW */
 
         .success-screen {
             display: none;
@@ -608,29 +609,104 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        @media(max-width:600px) {
+
+        @media (max-width: 1100px) {
+            .card {
+                max-width: 700px;
+            }
+        }
+
+
+        @media (max-width: 768px) {
+            .card {
+                max-width: 540px;
+            }
+
+            .card-body {
+                max-height: 65vh;
+            }
+        }
+
+
+        @media (max-width: 580px) {
+
+            html,
+            body {
+                overflow-x: hidden;
+                overflow-y: auto;
+
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .card {
+                max-width: 100%;
+                border-radius: 18px;
+            }
+
+            .card-top {
+                padding: 20px 18px;
+                gap: 12px;
+            }
+
+            .card-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.4rem;
+            }
+
+            .card-top h2 {
+                font-size: 1.1rem;
+            }
+
+            .card-top p {
+                font-size: 12px;
+            }
+
+            .steps {
+                padding: 0 12px;
+            }
+
+            .step-tab {
+                font-size: 11px;
+                padding: 12px 4px;
+            }
+
+            .card-body {
+                padding: 20px 16px;
+                max-height: unset;
+
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
+
             }
 
             .form-group.span2 {
                 grid-column: span 1;
             }
 
-            .card-body {
-                padding: 20px;
+            .btn-row {
+                flex-direction: column;
             }
 
-            .card-top {
-                padding: 20px;
-            }
-
-            .steps {
-                padding: 0 16px;
+            .btn-back,
+            .btn-next {
+                flex: unset;
+                width: 100%;
             }
 
             .card-footer {
-                padding: 0 20px 20px;
+                padding: 0 16px 20px;
+            }
+
+            .form-group input,
+            .form-group select {
+                font-size: 16px;
+                /* iOS zoom fix */
             }
         }
     </style>
@@ -643,7 +719,7 @@
 
     <header class="header">
         <a href="index.html" class="logo">
-            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
+            <img src="https:  storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
                 alt="MediiQuick">
             <h1>Medii<span>Quick</span></h1>
         </a>
@@ -887,7 +963,8 @@
                     <div class="tick-wrap">✓</div>
                     <h3>Registration Successful! 🎉</h3>
                     <p>Your application has been submitted to the MediiQuick team.<br>You will receive a response within
-                        <strong>24-48 hours</strong>.</p>
+                        <strong>24-48 hours</strong>.
+                    </p>
                     <div class="success-id">
                         <span>Your Admin ID</span>
                         <strong id="genAdminId">ADMIN-000000</strong>
@@ -911,12 +988,25 @@
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+            authDomain: "mediiquick-25a65.firebaseapp.com",
+            projectId: "mediiquick-25a65",
+            storageBucket: "mediiquick-25a65.firebasestorage.app",
+            messagingSenderId: "480632265996",
+            appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         let currentStep = 1;
 
-        function goStep(n) {
-            if (n > currentStep && !validateStep(currentStep)) return;
+        window.goStep = function goStep(n) {
+            if (n > currentStep && !window.validateStep(currentStep)) return;
 
             currentStep = n;
             [1, 2, 3].forEach(i => {
@@ -928,7 +1018,7 @@
             document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        function validateStep(step) {
+        window.validateStep = function validateStep(step) {
             let valid = true;
 
             function check(id, errId, testFn) {
@@ -987,11 +1077,31 @@
             return valid;
         }
 
-        function submitForm() {
+
+
+
+        async function hashPassword(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain + 'mq_salt_2024');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        window.submitForm = async function submitForm() {
             if (!validateStep(3)) return;
 
             const adminId = 'ADMIN-' + Math.floor(100000 + Math.random() * 900000);
             document.getElementById('genAdminId').textContent = adminId;
+
+            const email = document.getElementById('email').value.trim().toLowerCase();
+
+
+            const snap = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
+            if (!snap.empty) {
+                showToast('⚠ This email is already registered as an admin');
+                return;
+            }
 
             const data = {
                 adminId,
@@ -1002,20 +1112,73 @@
                 location: document.getElementById('location').value.trim(),
                 gst: document.getElementById('gst').value.trim().toUpperCase(),
                 drugLicense: document.getElementById('drug-license').value.trim(),
-                email: document.getElementById('email').value.trim(),
+                email,
                 mobile: document.getElementById('mobile').value.trim(),
                 mobile2: document.getElementById('mobile2').value.trim(),
                 openTime: document.getElementById('open-time').value,
                 closeTime: document.getElementById('close-time').value,
                 shopType: document.getElementById('shop-type').value,
-                deliveryRadius: document.getElementById('delivery-radius').value,
+                deliveryRadius: parseInt(document.getElementById('delivery-radius').value) || 5,
+                password: await hashPassword(document.getElementById('password').value),
+                lat: null,
+                lng: null,
                 registeredAt: new Date().toISOString(),
             };
 
-            console.log('✅ Admin Registered:', data);
 
-            const adminDataWithPass = { ...data, password: document.getElementById('password').value };
-            try { localStorage.setItem('mq_admin', JSON.stringify(adminDataWithPass)); } catch (e) { }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        data.lat = pos.coords.latitude;
+                        data.lng = pos.coords.longitude;
+                        saveAdmin(data);
+                    },
+                    () => saveAdmin(data)
+                );
+            } else {
+                saveAdmin(data);
+            }
+        }
+
+        window.saveAdmin = async function saveAdmin(data) {
+            try {
+                await addDoc(collection(db, 'admins'), data);
+                
+            } catch (e) {
+                console.error('Firestore save error:', e);
+                showToast('⚠ Registration failed. Please try again.');
+                return;
+            }
+
+            try {
+                const { setDoc, doc: _doc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                const profileData = {
+                    name: data.shopName,
+                    shopName: data.shopName,
+                    owner: data.adminName,
+                    address: data.location,
+                    phone: data.mobile,
+                    mobile2: data.mobile2 || '',
+                    email: data.email,
+                    license: data.drugLicense,
+                    city: data.city,
+                    pin: data.pin,
+                    gst: data.gst,
+                    openTime: data.openTime,
+                    closeTime: data.closeTime,
+                    shopType: data.shopType,
+                    deliveryRadius: data.deliveryRadius,
+                    adminId: data.adminId,
+                    servedPins: [],
+                    lat: data.lat || null,
+                    lng: data.lng || null,
+                    createdAt: data.registeredAt,
+                };
+                await setDoc(_doc(db, 'pharmacyProfiles', data.adminId), profileData, { merge: true });
+                
+            } catch (e) {
+                console.warn('pharmacyProfiles save warning (non-critical):', e);
+            }
 
             ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById('successScreen').classList.add('show');
@@ -1026,7 +1189,7 @@
             });
         }
 
-        function checkStrength(val) {
+        window.checkStrength = function checkStrength(val) {
             const wrap = document.getElementById('pwStrength');
             if (!val) { wrap.style.display = 'none'; return; }
             wrap.style.display = 'block';
@@ -1051,7 +1214,7 @@
             label.style.color = colors[score - 1] || '#ef4444';
         }
 
-        function togglePw(inputId, btn) {
+        window.togglePw = function togglePw(inputId, btn) {
             const input = document.getElementById(inputId);
             const icon = btn.querySelector('i');
             if (input.type === 'password') {
@@ -1063,8 +1226,7 @@
             }
         }
 
-        let toastTimer;
-        function showToast(msg) {
+        window.showToast = function showToast(msg) {
             document.getElementById('toast-msg').textContent = msg;
             const t = document.getElementById('toast');
             t.classList.add('show');
@@ -1082,6 +1244,10 @@
             });
         });
     </script>
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+    </script>
+
 
 </body>
 

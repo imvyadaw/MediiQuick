@@ -16,6 +16,8 @@
             box-sizing: border-box;
         }
 
+
+
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
@@ -239,7 +241,7 @@
             text-align: left;
         }
 
-      
+
         .right-panel {
             flex: 1;
             padding: 36px 40px;
@@ -478,7 +480,7 @@
             text-decoration: underline;
         }
 
-        
+
         .success-screen {
             display: none;
             text-align: center;
@@ -544,7 +546,7 @@
             background: #ef4444;
         }
 
-        @media(max-width:700px) {
+        /* @media(max-width:700px) {
             .left-panel {
                 display: none;
             }
@@ -564,6 +566,99 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
+        } */
+
+        /* Large tablet */
+        @media (max-width:1100px) {
+            .card {
+                max-width: 800px;
+            }
+
+            .left-panel {
+                width: 38%;
+                padding: 32px 22px;
+            }
+        }
+
+        /* Tablet */
+        @media (max-width:768px) {
+            .card {
+                max-width: 560px;
+                min-height: unset;
+            }
+
+            .left-panel {
+                width: 34%;
+                padding: 28px 16px;
+            }
+
+            .left-panel h2 {
+                font-size: 1.2rem;
+            }
+
+            .lp-features {
+                display: none;
+            }
+
+            .left-panel p {
+                margin-bottom: 0;
+                font-size: 12px;
+            }
+
+            .tab-btn {
+                padding: 10px 6px;
+                flex-direction: column;
+                font-size: 10px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width:580px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .card {
+                border-radius: 18px;
+                flex-direction: column;
+                max-width: 100%;
+                min-height: unset;
+            }
+
+            .left-panel {
+                width: 100%;
+                flex-direction: row;
+                padding: 14px 18px;
+                border-radius: 0;
+                min-height: unset;
+            }
+
+            .lp-features {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 22px 18px;
+            }
+
+            .social-row {
+                flex-direction: column;
+            }
+
+            .input-wrap input {
+                font-size: 16px;
+            }
+
+            html,
+            body {
+                overflow-x: hidden;
+            }
+        }
+
+        /* ── Utility classes ── */
+        .form-logo-img {
+            max-width: 280px;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -588,7 +683,7 @@
     <main class="main">
         <div class="card">
 
-           
+
             <div class="left-panel">
                 <div class="lp-icon">🏍️</div>
                 <h2>Join as Rider!</h2>
@@ -601,10 +696,10 @@
                 </div>
             </div>
 
-            
+
             <div class="right-panel">
 
-               
+
                 <div id="signupForm">
                     <div class="rp-title">🏍️ Create Rider Account</div>
                     <div class="rp-sub">Fill in your details to register as a delivery rider</div>
@@ -650,6 +745,19 @@
                             <span class="err-msg" id="err-city"><i class="fas fa-circle-exclamation"></i> City
                                 required</span>
                         </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> PIN Code</label>
+                            <div class="input-wrap">
+                                <input type="text" id="db-pincode" maxlength="6" placeholder="6-digit PIN code"
+                                    oninput="this.value=this.value.replace(/\D/g,'')">
+                            </div>
+                            <span class="err-msg" id="err-pincode"><i class="fas fa-circle-exclamation"></i> Valid
+                                6-digit PIN code required</span>
+                        </div>
+                        <div></div>
                     </div>
 
                     <div class="form-group">
@@ -700,14 +808,14 @@
                     </div>
                 </div>
 
-               
+
                 <div class="success-screen" id="successScreen">
                     <div class="success-icon">🎉</div>
                     <h3>Account Created!</h3>
                     <p>Welcome to MediiQuick Riders! Your account has been registered.<br>You can now login and start
                         delivering.</p>
                     <button class="submit-btn" onclick="window.location.href='login.html?tab=rider'"
-                        style="max-width:280px;margin:0 auto;">
+                        class="form-logo-img">
                         <i class="fas fa-right-to-bracket"></i> Go to Login
                     </button>
                 </div>
@@ -716,69 +824,96 @@
         </div>
     </main>
 
-    <script>
-        function togglePw(id, btn) {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+            authDomain: "mediiquick-25a65.firebaseapp.com",
+            projectId: "mediiquick-25a65",
+            storageBucket: "mediiquick-25a65.firebasestorage.app",
+            messagingSenderId: "480632265996",
+            appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function hashPassword(plain) {
+          const encoder = new TextEncoder();
+          const data = encoder.encode(plain + 'mq_salt_2024');
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+                window.togglePw = function (id, btn) {
             const input = document.getElementById(id);
             const icon = btn.querySelector('i');
             input.type = input.type === 'password' ? 'text' : 'password';
             icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
-        }
+        };
 
-        function checkPwStrength(val) {
-            const bars = [document.getElementById('pb1'), document.getElementById('pb2'), document.getElementById('pb3'), document.getElementById('pb4')];
-            const lbl = document.getElementById('pw-label');
-            bars.forEach(b => { b.className = 'pw-bar'; });
-
-            if (!val) { lbl.textContent = 'Enter a password'; lbl.style.color = '#94a3b8'; return; }
-
+        window.checkPwStrength = function (val) {
+            const wrap = document.getElementById('pwStrength');
+            if (!val) { wrap.style.display = 'none'; return; }
+            wrap.style.display = 'block';
             let score = 0;
             if (val.length >= 6) score++;
-            if (val.length >= 8) score++;
-            if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score++;
-            if (/[^A-Za-z0-9]/.test(val)) score++;
-
-            const cls = score <= 1 ? 'weak' : score <= 2 ? 'medium' : 'strong';
-            const labels = { weak: 'Weak', medium: 'Medium', strong: 'Strong' };
-            const colors = { weak: '#ef4444', medium: '#f59e0b', strong: '#16a34a' };
-
-            for (let i = 0; i < score; i++) bars[i].classList.add(cls);
-            lbl.textContent = labels[cls];
-            lbl.style.color = colors[cls];
-        }
+            if (/[A-Z]/.test(val)) score++;
+            if (/\d/.test(val)) score++;
+            if (/[!@#$%^&*]/.test(val)) score++;
+            const cls = ['weak', 'weak', 'medium', 'strong'];
+            const labels2 = ['Weak', 'Fair', 'Good', 'Strong ✓'];
+            const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
+            [1, 2, 3, 4].forEach(i => {
+                const b = document.getElementById('pbar' + i);
+                if (!b) return;
+                b.className = 'pw-bar';
+                if (i <= score) b.classList.add(cls[score - 1] || 'weak');
+            });
+            const lbl = document.getElementById('pwLabel');
+            if (lbl) { lbl.textContent = labels2[score - 1] || 'Weak'; lbl.style.color = colors[score - 1] || '#ef4444'; }
+        };
 
         function showToast(msg, type = '') {
             const t = document.getElementById('toast');
             t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
             document.getElementById('toast-msg').textContent = msg;
-            setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
         }
 
         function setLoading(state) {
             const btn = document.getElementById('signupBtn');
+            if (!btn) return;
             btn.classList.toggle('loading', state);
-            btn.querySelector('.btn-spinner').style.display = state ? 'block' : 'none';
-            btn.querySelector('.btn-text').style.opacity = state ? '.6' : '1';
+            const spinner = btn.querySelector('.btn-spinner');
+            const text = btn.querySelector('.btn-text');
+            if (spinner) spinner.style.display = state ? 'block' : 'none';
+            if (text) text.style.opacity = state ? '.6' : '1';
         }
 
-        function doSignup() {
+        window.doSignup = async function () {
             const name = document.getElementById('db-name').value.trim();
             const phone = document.getElementById('db-phone').value.trim();
             const vehicle = document.getElementById('db-vehicle').value;
             const city = document.getElementById('db-city').value.trim();
+            const pincode = document.getElementById('db-pincode').value.trim();
             const pass = document.getElementById('db-pass').value;
             const pass2 = document.getElementById('db-pass2').value;
             const agreed = document.getElementById('db-agree').checked;
 
-           
-            ['name', 'phone', 'city', 'pass', 'pass2', 'agree'].forEach(f => {
+            ['name', 'phone', 'city', 'pincode', 'pass', 'pass2', 'agree'].forEach(f => {
                 document.getElementById('err-' + f).classList.remove('show');
             });
 
             let valid = true;
-
             if (name.length < 2) { document.getElementById('err-name').classList.add('show'); valid = false; }
             if (!/^[6-9]\d{9}$/.test(phone)) { document.getElementById('err-phone').classList.add('show'); valid = false; }
             if (!city) { document.getElementById('err-city').classList.add('show'); valid = false; }
+            if (!/^\d{6}$/.test(pincode)) { document.getElementById('err-pincode').classList.add('show'); valid = false; }
             if (pass.length < 6) { document.getElementById('err-pass').classList.add('show'); valid = false; }
             if (pass !== pass2) { document.getElementById('err-pass2').classList.add('show'); valid = false; }
             if (!agreed) { document.getElementById('err-agree').classList.add('show'); valid = false; }
@@ -786,43 +921,71 @@
             if (!valid) { showToast('⚠ Please fill in all fields correctly', 'error'); return; }
 
             setLoading(true);
-
-            setTimeout(() => {
-                setLoading(false);
-
-                
-                const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-                if (boys.find(b => b.phone === phone)) {
+            try {
+                 
+                const riderSnap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
+                if (!riderSnap.empty) {
+                    setLoading(false);
                     showToast('⚠ This phone number is already registered', 'error');
-                    document.getElementById('err-phone').querySelector('i').nextSibling
-                    document.getElementById('err-phone').textContent = '';
                     document.getElementById('err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> This phone number is already registered';
                     document.getElementById('err-phone').classList.add('show');
                     return;
                 }
 
                 
-                const newBoy = {
-                    id: 'DB' + Date.now(),
-                    name, phone, password: pass,
-                    vehicle, city,
+
+                const riderId = 'DB' + Date.now();
+                
+                const hashedPass = await hashPassword(pass);
+                                const newRider = {
+                    id: riderId,
+                    name,
+                    phone,
+                    password: hashedPass,
+                    vehicle,
+                    city,
+                    pincode,
                     status: 'available',
                     totalDelivered: 0,
                     activeOrder: null,
+                    lat: null,
+                    lng: null,
                     joinedAt: Date.now()
                 };
-                boys.push(newBoy);
-                localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
 
-                
+            
+                await setDoc(doc(db, 'riders', riderId), newRider);
+
+                 
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(async function (pos) {
+                        try {
+                            await updateDoc(doc(db, 'riders', riderId), {
+                                lat: pos.coords.latitude,
+                                lng: pos.coords.longitude
+                            });
+                        } catch (e) { }
+                    }, () => { });
+                }
+
+                setLoading(false);
                 document.getElementById('signupForm').style.display = 'none';
                 document.getElementById('successScreen').classList.add('show');
                 showToast('✓ Account created successfully!', 'success');
-            }, 1200);
-        }
+
+            } catch (err) {
+                setLoading(false);
+                showToast('⚠ Registration failed. Please try again.', 'error');
+                console.error(err);
+            }
+        };
 
         document.addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
     </script>
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+    </script>
+
 </body>
 
 </html>

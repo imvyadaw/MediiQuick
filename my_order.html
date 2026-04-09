@@ -784,6 +784,92 @@
             }
         }
 
+        /* Large tablet */
+        @media (max-width:1100px) {
+            .card {
+                max-width: 800px;
+            }
+
+            .left-panel {
+                width: 38%;
+                padding: 32px 22px;
+            }
+        }
+
+        /* Tablet */
+        @media (max-width:768px) {
+            .card {
+                max-width: 560px;
+                min-height: unset;
+            }
+
+            .left-panel {
+                width: 34%;
+                padding: 28px 16px;
+            }
+
+            .left-panel h2 {
+                font-size: 1.2rem;
+            }
+
+            .lp-features {
+                display: none;
+            }
+
+            .left-panel p {
+                margin-bottom: 0;
+                font-size: 12px;
+            }
+
+            .tab-btn {
+                padding: 10px 6px;
+                flex-direction: column;
+                font-size: 10px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width:580px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .card {
+                border-radius: 18px;
+                flex-direction: column;
+                max-width: 100%;
+                min-height: unset;
+            }
+
+            .left-panel {
+                width: 100%;
+                flex-direction: row;
+                padding: 14px 18px;
+                border-radius: 0;
+                min-height: unset;
+            }
+
+            .lp-features {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 22px 18px;
+            }
+
+            .social-row {
+                flex-direction: column;
+            }
+
+            .input-wrap input {
+                font-size: 16px;
+            }
+
+            html,
+            body {
+                overflow-x: hidden;
+            }
+        }
 
         .rider-overlay {
             display: none;
@@ -889,6 +975,37 @@
         .rider-close:hover {
             background: var(--bg);
         }
+
+        /* ── Utility classes ── */
+        .stat-val-green {
+            color: var(--green-dark);
+        }
+
+        .stat-val-orange {
+            color: var(--orange);
+        }
+
+        .stat-val-purple {
+            color: #7c3aed;
+        }
+
+        .eta-box-delivered {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .eta-label-delivered {
+            color: #15803d;
+        }
+
+        .eta-box-cancelled {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .eta-label-cancelled {
+            color: #dc2626;
+        }
     </style>
 </head>
 
@@ -934,28 +1051,28 @@
                 <div class="stat-icon si-green">📦</div>
                 <div>
                     <div class="stat-label">Total Orders</div>
-                    <div class="stat-val" id="statTotal" style="color:var(--green-dark)">0</div>
+                    <div class="stat-val stat-val-green" id="statTotal">0</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon si-orange">🚴</div>
                 <div>
                     <div class="stat-label">Active</div>
-                    <div class="stat-val" id="statActive" style="color:var(--orange)">0</div>
+                    <div class="stat-val stat-val-orange" id="statActive">0</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon si-green">✅</div>
                 <div>
                     <div class="stat-label">Delivered</div>
-                    <div class="stat-val" id="statDelivered" style="color:var(--green-dark)">0</div>
+                    <div class="stat-val stat-val-green" id="statDelivered">0</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon si-purple">💊</div>
                 <div>
                     <div class="stat-label">Total Spent</div>
-                    <div class="stat-val" id="statSpent" style="color:#7c3aed">₹0</div>
+                    <div class="stat-val stat-val-purple" id="statSpent">₹0</div>
                 </div>
             </div>
         </div>
@@ -970,12 +1087,12 @@
         <div id="ordersList"></div>
     </main>
 
+     
+
     <script>
-        (function () {
-            if (!localStorage.getItem('mq_user')) {
-                window.location.href = 'login.html';
-            }
-        })();
+        const _mqUserRaw = localStorage.getItem('mq_user');
+        if (!_mqUserRaw) { window.location.href = 'login.html'; }
+        else { try { const _u = JSON.parse(_mqUserRaw); if (_u.expiresAt && Date.now() > _u.expiresAt) { localStorage.removeItem('mq_user'); window.location.href = 'login.html'; } } catch (e) { localStorage.removeItem('mq_user'); window.location.href = 'login.html'; } }
 
         const ALL_MEDS = [
             { id: 'm1', name: 'Paracetamol', sub: 'Paracetamol 500mg', price: 40, mrp: 50 },
@@ -1021,7 +1138,10 @@
         function getStatus(order) {
             if (order.status === 'cancelled') return 'cancelled';
 
-            if (['pending_acceptance', 'on_the_way', 'delivered', 'packing', 'confirmed'].includes(order.status)) {
+           
+            if (order.status === 'pending_acceptance') return 'packing';
+
+            if (['on_the_way', 'delivered', 'packing', 'confirmed'].includes(order.status)) {
                 return order.status;
             }
 
@@ -1090,23 +1210,47 @@
 
         function loadOrders() {
             try {
-                const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-
-                let currentUser = null;
-                try {
-                    const raw = localStorage.getItem('mq_user');
-                    if (!raw) { orders = []; return; }
-                    currentUser = JSON.parse(raw);
-                } catch (e) { orders = []; return; }
-
+                const raw = localStorage.getItem('mq_user');
+                if (!raw) { orders = []; return; }
+                const currentUser = JSON.parse(raw);
                 const userEmail = (currentUser.email || '').toLowerCase().trim();
+                if (!userEmail && !currentUser.uid) { orders = []; return; }
 
-                if (!userEmail) { orders = []; return; }
+                
+                let allOrders = window._mqOrderCache || [];
+
+                
+                try {
+                    const localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                    if (localOrders.length > 0) {
+                        
+                        localOrders.forEach(lo => {
+                            if (!allOrders.find(o => o.orderId === lo.orderId)) {
+                                allOrders.push(lo);
+                            }
+                        });
+                    }
+                } catch (e) { }
+
+                
+                try {
+                    const userKey = 'mq_orders_' + userEmail;
+                    const userOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    userOrders.forEach(lo => {
+                        if (!allOrders.find(o => o.orderId === lo.orderId)) {
+                            allOrders.push(lo);
+                        }
+                    });
+                } catch (e) { }
 
                 orders = allOrders.filter(o => {
-                    const orderEmail = (o.customerEmail || '').toLowerCase().trim();
-                    return orderEmail === userEmail;
+                    const orderEmail = (o.customerEmail || o.email || '').toLowerCase().trim();
+                    const orderUid = o.userId || o.uid || '';
+                    return orderEmail === userEmail || (currentUser.uid && orderUid === currentUser.uid);
                 });
+
+                
+                orders.sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0));
 
             } catch (e) { orders = []; }
         }
@@ -1115,11 +1259,17 @@
         try {
             const u = JSON.parse(localStorage.getItem('mq_user') || '{}');
             _currentUserEmail = (u.email || '').toLowerCase().trim();
-        } catch (e) { }
+            if (!u.email && !u.uid) window.location.href = 'login.html';
+        } catch (e) { window.location.href = 'login.html'; }
 
+         
         window.addEventListener('storage', function (e) {
             if (e.key === 'mq_user') {
-                window.location.reload();
+                 
+                try {
+                    const u = JSON.parse(e.newValue || '{}');
+                    if (!u.email && !u.uid) window.location.href = 'login.html';
+                } catch (e) { window.location.href = 'login.html'; }
             }
         });
 
@@ -1182,19 +1332,19 @@
                 const delivMsg = deliveredIn && deliveredIn < 60
                     ? `Delivered in ${deliveredIn} min ⚡`
                     : 'Delivered successfully!';
-                etaBoxHTML = `<div class="eta-box" style="background:#f0fdf4;border-color:#bbf7d0;">
+                etaBoxHTML = `<div class="eta-box eta-box-delivered">
                     <div class="eta-icon">✅</div>
                     <div>
-                        <div class="eta-label" style="color:#15803d;">DELIVERED SUCCESSFULLY</div>
-                        <div class="eta-time" style="color:#15803d;">${delivMsg}</div>
+                        <div class="eta-label eta-label-delivered">DELIVERED SUCCESSFULLY</div>
+                        <div class="eta-time eta-label-delivered">${delivMsg}</div>
                     </div>
                 </div>`;
             } else if (status === 'cancelled') {
-                etaBoxHTML = `<div class="eta-box" style="background:#fee2e2;border-color:#fecaca;">
+                etaBoxHTML = `<div class="eta-box eta-box-cancelled">
                     <div class="eta-icon">❌</div>
                     <div>
-                        <div class="eta-label" style="color:#dc2626;">ORDER CANCELLED</div>
-                        <div class="eta-time" style="color:#dc2626;">This order has been cancelled</div>
+                        <div class="eta-label eta-label-cancelled">ORDER CANCELLED</div>
+                        <div class="eta-time eta-label-cancelled">This order has been cancelled</div>
                     </div>
                 </div>`;
             } else {
@@ -1231,6 +1381,8 @@
                 actionsHTML = `<button class="btn btn-primary" onclick="reorder('${order.orderId}')">🔄 Reorder</button><button class="btn btn-outline">⭐ Rate Order</button>`;
             } else if (status === 'confirmed' || status === 'pending') {
                 actionsHTML = `<button class="btn btn-red" onclick="cancelOrder('${order.orderId}')">✕ Cancel Order</button>`;
+            } else if (status === 'packing') {
+                actionsHTML = `<div style="font-size:12px;color:#1d4ed8;background:#dbeafe;padding:7px 12px;border-radius:8px;font-weight:600;">📦 Order is being packed...</div>`;
             } else if (status === 'on_the_way') {
                 actionsHTML = `<button class="btn btn-outline" onclick="showRiderInfo('${order.orderId}')">📞 Call Rider</button>`;
             } else if (status === 'cancelled') {
@@ -1350,13 +1502,47 @@
         function cancelOrder(orderId) {
             if (!confirm('Are you sure you want to cancel this order?')) return;
             try {
-                let stored = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                
+                let stored = window._mqOrderCache || [];
                 const o = stored.find(x => x.orderId === orderId);
-                if (o) {
-                    o.status = 'cancelled';
-                    o.cancelledAt = Date.now();
-                }
-                localStorage.setItem('mq_orders', JSON.stringify(stored));
+                if (o) { o.status = 'cancelled'; o.cancelledAt = Date.now(); }
+                window._mqOrderCache = stored;
+
+               
+                try {
+                    let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                    const lo = localOrders.find(x => x.orderId === orderId);
+                    if (lo) { lo.status = 'cancelled'; lo.cancelledAt = Date.now(); }
+                    localStorage.setItem('mq_orders', JSON.stringify(localOrders));
+                } catch (e) { }
+
+                
+                try {
+                    const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
+                    if (userEmail) {
+                        const userKey = 'mq_orders_' + userEmail;
+                        let userOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
+                        const uo = userOrders.find(x => x.orderId === orderId);
+                        if (uo) { uo.status = 'cancelled'; uo.cancelledAt = Date.now(); }
+                        localStorage.setItem(userKey, JSON.stringify(userOrders));
+                    }
+                } catch (e) { }
+
+                
+                import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
+                    .then(({ getFirestore, doc, updateDoc }) => {
+                       
+                        try {
+                            if (window._mqFirestore && o) {
+                                
+                                updateDoc(doc(window._mqFirestore, 'orders', o.orderId), {
+                                    status: 'cancelled',
+                                    cancelledAt: Date.now()
+                                }).catch(() => { });
+                            }
+                        } catch (e) { }
+                    }).catch(() => { });
+
                 showToast('✓ Order cancelled successfully!');
                 loadOrders();
                 renderAll();
@@ -1364,6 +1550,13 @@
         }
 
         function reorder(orderId) {
+            const order = orders.find(o => o.orderId === orderId);
+            if (order && order.items && order.items.length > 0) {
+                 
+                try {
+                    localStorage.setItem('mq_reorder_cart', JSON.stringify(order.items));
+                } catch (e) { }
+            }
             showToast('🛒 Taking you to medicines...');
             setTimeout(() => window.location.href = 'profile.html', 1200);
         }
@@ -1379,6 +1572,10 @@
 
         renderAll();
 
+        
+        window._mqLoadOrders = loadOrders;
+        window._mqRenderAll = renderAll;
+
         setInterval(() => {
             orders.forEach(order => {
                 const status = getStatus(order);
@@ -1389,18 +1586,84 @@
         }, 1000);
 
         setInterval(() => {
-            try {
-                const u = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                const nowEmail = (u.email || '').toLowerCase().trim();
-                if (nowEmail !== _currentUserEmail) {
-                    window.location.reload();
-                    return;
-                }
-            } catch (e) { }
-
             loadOrders();
             renderAll();
         }, 10000);
+    </script>
+
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+            authDomain: "mediiquick-25a65.firebaseapp.com",
+            projectId: "mediiquick-25a65",
+            storageBucket: "mediiquick-25a65.firebasestorage.app",
+            messagingSenderId: "480632265996",
+            appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+        };
+        const _app = initializeApp(firebaseConfig);
+        const _db = getFirestore(_app);
+        window._mqFirestore = _db; // Expose for cancelOrder
+
+        function getUserIdentifiers() {
+            try {
+                const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                return {
+                    email: (user.email || '').toLowerCase().trim(),
+                    uid: user.uid || ''
+                };
+            } catch (e) { return { email: '', uid: '' }; }
+        }
+
+         
+        async function subscribeOrderUpdates() {
+            try {
+                const { email, uid } = getUserIdentifiers();
+                if (!email && !uid) return;
+
+                
+                const q = query(collection(_db, 'orders'), where('customerEmail', '==', email));
+
+                onSnapshot(q, (snap) => {
+                    const emailOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                    
+                    if (uid) {
+                        const uidQ = query(collection(_db, 'orders'), where('userId', '==', uid));
+                        getDocs(uidQ).then(uidSnap => {
+                            const uidOrders = uidSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                            
+                            const merged = [...emailOrders];
+                            uidOrders.forEach(uo => {
+                                if (!merged.find(eo => eo.orderId === uo.orderId)) merged.push(uo);
+                            });
+                            window._mqOrderCache = merged;
+                            if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+                        }).catch(() => {
+                            window._mqOrderCache = emailOrders;
+                            if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+                        });
+                    } else {
+                        window._mqOrderCache = emailOrders;
+                        if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+                    }
+                }, (err) => {
+                    console.warn('Firestore order subscription error:', err);
+                    
+                    if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+                });
+
+            } catch (e) {
+                console.warn('Firestore subscription failed:', e);
+                 
+                if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+            }
+        }
+
+        subscribeOrderUpdates();
     </script>
 </body>
 

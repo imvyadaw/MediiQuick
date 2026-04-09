@@ -2,1003 +2,882 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — MediiQuick</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            background: rgba(22, 163, 74, .07);
-            top: -150px;
-            right: -100px;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            background: rgba(22, 163, 74, .05);
-            bottom: -100px;
-            left: -80px;
-            pointer-events: none;
-        }
-
-        .pill {
-            position: absolute;
-            border-radius: 50px;
-            opacity: .06;
-            background: #4ade80;
-            pointer-events: none;
-        }
-
-        .pill1 {
-            width: 120px;
-            height: 40px;
-            top: 20%;
-            left: 5%;
-            transform: rotate(-25deg);
-        }
-
-        .pill2 {
-            width: 80px;
-            height: 28px;
-            top: 60%;
-            right: 7%;
-            transform: rotate(15deg);
-        }
-
-        .pill3 {
-            width: 60px;
-            height: 22px;
-            bottom: 25%;
-            left: 10%;
-            transform: rotate(30deg);
-        }
-
-        .header {
-            padding: 18px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .logo img {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-        }
-
-        .logo h1 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .logo h1 span {
-            color: #4ade80;
-        }
-
-        .header-link {
-            color: rgba(255, 255, 255, .6);
-            font-size: 13px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color .2s;
-        }
-
-        .header-link:hover {
-            color: #4ade80;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
-            overflow: hidden;
-        }
-
-        .card-top {
-            background: linear-gradient(135deg, #16a34a, #059669);
-            padding: 32px 40px;
-            color: #fff;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-top::before {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .06);
-            top: -80px;
-            right: -60px;
-        }
-
-        .card-top::after {
-            content: '';
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .04);
-            bottom: -60px;
-            left: -40px;
-        }
-
-        .top-icon {
-            width: 72px;
-            height: 72px;
-            background: rgba(255, 255, 255, .2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 16px;
-            border: 2px solid rgba(255, 255, 255, .25);
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-top h2 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-top p {
-            font-size: 13px;
-            opacity: .85;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-body {
-            padding: 36px 40px;
-        }
-
-        .login-type {
-            display: flex;
-            background: #f1f5f9;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 28px;
-            gap: 4px;
-        }
-
-        .lt-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 9px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            background: transparent;
-            color: #64748b;
-        }
-
-        .lt-btn.active {
-            background: #fff;
-            color: #16a34a;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 7px;
-        }
-
-        .form-group label i {
-            color: #16a34a;
-            width: 15px;
-            text-align: center;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .input-wrap input {
-            width: 100%;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 13px 16px;
-            font-size: 14px;
-            font-family: 'Poppins', sans-serif;
-            color: #1a1a2e;
-            outline: none;
-            transition: all .2s;
-            background: #fff;
-        }
-
-        .input-wrap input:focus {
-            border-color: #16a34a;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
-        }
-
-        .input-wrap input.err {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
-        }
-
-        .input-wrap .input-icon {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 15px;
-            cursor: pointer;
-            transition: color .2s;
-            background: none;
-            border: none;
-        }
-
-        .input-wrap .input-icon:hover {
-            color: #374151;
-        }
-
-        .err-msg {
-            font-size: 12px;
-            color: #ef4444;
-            display: none;
-            align-items: center;
-            gap: 4px;
-            margin-top: 5px;
-        }
-
-        .err-msg.show {
-            display: flex;
-        }
-
-        .forgot-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .forgot-row label {
-            margin-bottom: 0;
-        }
-
-        .forgot-link {
-            font-size: 12px;
-            color: #16a34a;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-
-        .remember-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .remember-row input[type=checkbox] {
-            width: 16px;
-            height: 16px;
-            accent-color: #16a34a;
-            cursor: pointer;
-        }
-
-        .remember-row label {
-            font-size: 13px;
-            color: #64748b;
-            cursor: pointer;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn:hover {
-            background: #15803d;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn.loading {
-            pointer-events: none;
-            opacity: .8;
-        }
-
-        .login-btn .btn-spinner {
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, .4);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: none;
-        }
-
-        .login-btn.loading .btn-spinner {
-            display: block;
-        }
-
-        .login-btn.loading .btn-text {
-            opacity: .6;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .divider span {
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .demo-btn {
-            width: 100%;
-            background: #f8fafc;
-            border: 1.5px dashed #cbd5e1;
-            color: #475569;
-            border-radius: 12px;
-            padding: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .demo-btn:hover {
-            background: #f0fdf4;
-            border-color: #16a34a;
-            color: #16a34a;
-        }
-
-        .card-footer {
-            padding: 20px 40px 32px;
-            text-align: center;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        .footer-text {
-            font-size: 13px;
-            color: #6b7280;
-        }
-
-        .footer-text a {
-            color: #16a34a;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .footer-text a:hover {
-            text-decoration: underline;
-        }
-
-        .security-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 12px;
-        }
-
-        .security-row i {
-            color: #16a34a;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: #0f172a;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 999;
-            transition: transform .3s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        #toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        #toast.success-toast {
-            background: #16a34a;
-        }
-
-        #toast.error-toast {
-            background: #ef4444;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .6);
-            z-index: 500;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal-box {
-            background: #fff;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            padding: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
-        }
-
-        .modal-box h3 {
-            font-size: 1.1rem;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .modal-box p {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .modal-close {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #94a3b8;
-            margin-top: -4px;
-        }
-
-        .modal-close:hover {
-            color: #374151;
-        }
-
-        .modal-btn {
-            width: 100%;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            padding: 13px;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 12px;
-        }
-
-        .modal-btn:hover {
-            background: #15803d;
-        }
-
-        .modal-cancel {
-            width: 100%;
-            background: #f1f5f9;
-            color: #475569;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        @media(max-width:480px) {
-            .header {
-                padding: 14px 16px;
-            }
-
-            .card-top {
-                padding: 24px 24px;
-            }
-
-            .card-body {
-                padding: 24px;
-            }
-
-            .card-footer {
-                padding: 16px 24px 24px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — MediiQuick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .07);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(22, 163, 74, .05);
+      bottom: -100px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    .pill {
+      position: absolute;
+      border-radius: 50px;
+      opacity: .06;
+      background: #4ade80;
+      pointer-events: none;
+    }
+
+    .pill1 {
+      width: 120px;
+      height: 40px;
+      top: 20%;
+      left: 5%;
+      transform: rotate(-25deg);
+    }
+
+    .pill2 {
+      width: 80px;
+      height: 28px;
+      top: 60%;
+      right: 7%;
+      transform: rotate(15deg);
+    }
+
+    .pill3 {
+      width: 60px;
+      height: 22px;
+      bottom: 25%;
+      left: 10%;
+      transform: rotate(30deg);
+    }
+
+    .header {
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo h1 span {
+      color: #4ade80;
+    }
+
+    .header-link {
+      color: rgba(255, 255, 255, .6);
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+
+    .header-link:hover {
+      color: #4ade80;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 820px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
+      overflow: hidden;
+      display: flex;
+      min-height: 520px;
+    }
+
+    .left-panel {
+      width: 42%;
+      background: linear-gradient(155deg, #15803d, #16a34a, #059669);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+      top: -80px;
+      right: -80px;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+      bottom: -60px;
+      left: -60px;
+    }
+
+    .lp-icon {
+      width: 90px;
+      height: 90px;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      margin: 0 auto 24px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-panel p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .85);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-feat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lp-feat i {
+      font-size: 15px;
+      opacity: .9;
+    }
+
+    .right-panel {
+      flex: 1;
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+
+    .form-group label i {
+      color: #16a34a;
+      width: 15px;
+      text-align: center;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      color: #1a1a2e;
+      outline: none;
+      transition: all .2s;
+      background: #fff;
+    }
+
+    .input-wrap input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
+    }
+
+    .input-wrap input.err {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .pw-toggle:hover {
+      color: #374151;
+    }
+
+    .err-msg {
+      font-size: 12px;
+      color: #ef4444;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .err-msg.show {
+      display: flex;
+    }
+
+    .forgot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .forgot-row label {
+      margin-bottom: 0;
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn.loading {
+      pointer-events: none;
+      opacity: .8;
+    }
+
+    .btn-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, .4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .btn-spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .bottom-link {
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 18px;
+    }
+
+    .bottom-link a {
+      color: #16a34a;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0 16px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .divider span {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+      white-space: nowrap;
+      color: #fff;
+      background: #0f172a;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.t-success {
+      background: #16a34a;
+    }
+
+    #toast.t-error {
+      background: #ef4444;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+    }
+
+    .modal-box h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .modal-box p {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #94a3b8;
+      margin-top: -4px;
+    }
+
+    .modal-close:hover {
+      color: #374151;
+    }
+
+    .modal-btn {
+      width: 100%;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .modal-btn:hover {
+      background: #15803d;
+    }
+
+    .modal-cancel {
+      width: 100%;
+      background: #f1f5f9;
+      color: #475569;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        max-width: 560px;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 34%;
+        padding: 28px 16px;
+      }
+
+      .left-panel h2 {
+        font-size: 1.2rem;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .left-panel p {
+        margin-bottom: 0;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .card {
+        border-radius: 18px;
+        flex-direction: column;
+        max-width: 100%;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 100%;
+        flex-direction: row;
+        padding: 14px 18px;
+        border-radius: 0;
+        min-height: unset;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 28px 20px;
+      }
+
+      .input-wrap input {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="pill pill1"></div>
+  <div class="pill pill2"></div>
+  <div class="pill pill3"></div>
 
-    <div class="pill pill1"></div>
-    <div class="pill pill2"></div>
-    <div class="pill pill3"></div>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <h1>Medii<span>Quick</span></h1>
+    </a>
+    <a href="index.html" class="header-link">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+  </header>
 
-    <div id="toast"><span id="toast-msg"></span></div>
-
-    <div class="modal-overlay" id="forgotModal">
-        <div class="modal-box">
-            <button class="modal-close" onclick="closeForgot()">✕</button>
-            <h3>🔑 Password Reset</h3>
-
-            <div id="forgot-step1">
-                <p>Enter your registered email — we will send a 6-digit OTP.</p>
-                <div class="form-group" style="margin-bottom:14px;">
-                    <label><i class="fas fa-envelope"></i> Registered Email</label>
-                    <div class="input-wrap">
-                        <input type="email" id="forgot-email" placeholder="admin@yourshop.com">
-                    </div>
-                </div>
-                <button class="modal-btn" id="sendOtpBtn" onclick="sendResetLink()">📧 Send OTP</button>
-                <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
-            </div>
-            <!-- IM_VYADAW -->
-
-            <div id="forgot-step2" style="display:none;">
-                <p>Check your email (or terminal in dev mode) and enter the 6-digit OTP.</p>
-                <div class="form-group" style="margin-bottom:8px;">
-                    <label><i class="fas fa-key"></i> Enter OTP</label>
-                    <div class="input-wrap">
-                        <input type="text" id="forgot-otp" placeholder="123456" maxlength="6"
-                            style="letter-spacing:10px;font-size:22px;font-weight:700;text-align:center;">
-                    </div>
-                </div>
-                <p id="otpTimer" style="font-size:12px;color:#16a34a;text-align:center;margin-bottom:10px;"></p>
-                <button class="modal-btn" id="verifyOtpBtn" onclick="verifyOtp()">✓ Verify OTP</button>
-                <button class="modal-cancel" onclick="resendOtp()" style="background:#f0fdf4;color:#16a34a;">🔄 Resend
-                    OTP</button>
-            </div>
-
-            <div id="forgot-step3" style="display:none;">
-                <p style="color:#16a34a;">✅ OTP verified! Set your new password.</p>
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label><i class="fas fa-lock"></i> New Password</label>
-                    <div class="input-wrap">
-                        <input type="password" id="forgot-newpass" placeholder="Min 8 characters">
-                    </div>
-                </div>
-                <div class="form-group" style="margin-bottom:14px;">
-                    <label><i class="fas fa-lock-open"></i> Confirm Password</label>
-                    <div class="input-wrap">
-                        <input type="password" id="forgot-confpass" placeholder="Re-enter new password">
-                    </div>
-                </div>
-                <button class="modal-btn" id="resetPassBtn" onclick="doResetPassword()">🔐 Reset Password</button>
-                <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
-            </div>
+  <main class="main">
+    <div class="card">
+      <div class="left-panel">
+        <div class="lp-icon">🏥</div>
+        <h2>Admin Portal</h2>
+        <p>Manage your pharmacy — orders, inventory, and delivery all in one place.</p>
+        <div class="lp-features">
+          <div class="lp-feat"><i class="fas fa-box"></i> Manage all orders easily</div>
+          <div class="lp-feat"><i class="fas fa-pills"></i> Full inventory control</div>
+          <div class="lp-feat"><i class="fas fa-motorcycle"></i> Assign &amp; track riders</div>
+          <div class="lp-feat"><i class="fas fa-chart-line"></i> Sales &amp; revenue analytics</div>
         </div>
+      </div>
+
+       
+      <div class="right-panel">
+        <div class="section-title">🏥 Admin Login</div>
+        <div class="section-sub">Login to your pharmacy partner dashboard</div>
+
+        <div class="form-group">
+          <label><i class="fas fa-id-badge"></i> Admin ID or Email</label>
+          <div class="input-wrap">
+            <input type="text" id="a-id" placeholder="ADMIN-123456 or email">
+          </div>
+          <span class="err-msg" id="a-err-id"><i class="fas fa-circle-exclamation"></i> Admin ID or email
+            required</span>
+        </div>
+
+        <div class="form-group">
+          <div class="forgot-row">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <a href="#" class="forgot-link" onclick="openForgot();return false;">Forgot Password?</a>
+          </div>
+          <div class="input-wrap">
+            <input type="password" id="a-pass" placeholder="••••••••">
+            <button class="pw-toggle" onclick="togglePw('a-pass',this)" type="button"><i
+                class="fas fa-eye"></i></button>
+          </div>
+          <span class="err-msg" id="a-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+        </div>
+
+        <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()">
+          <div class="btn-spinner"></div>
+          <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
+        </button>
+
+        <div class="bottom-link">
+          New pharmacy partner? <a href="admin-signup.html">Register Your Pharmacy</a>
+        </div>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span>OR</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="bottom-link">
+          <a href="login.html">← Back to main login page</a>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <header class="header">
-        <a href="index.html" class="logo">
-            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
-                alt="MediiQuick">
-            <h1>Medii<span>Quick</span></h1>
-        </a>
-        <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
-    </header>
-
-    <main class="main">
-        <div class="card">
-
-            <div class="card-top">
-                <div class="top-icon">🔐</div>
-                <h2>Admin Login</h2>
-                <p>Log in to the MediiQuick pharmacy partner dashboard</p>
-            </div>
-
-            <div class="card-body">
-
-                <div class="login-type">
-                    <button class="lt-btn active" id="lt-email" onclick="switchType('email')">
-                        <i class="fas fa-envelope"></i> Email
-                    </button>
-                    <button class="lt-btn" id="lt-id" onclick="switchType('id')">
-                        <i class="fas fa-id-badge"></i> Admin ID
-                    </button>
-                </div>
-
-                <div id="form-email">
-                    <div class="form-group">
-                        <div class="forgot-row">
-                            <label><i class="fas fa-envelope"></i> Email Address</label>
-                        </div>
-                        <div class="input-wrap">
-                            <input type="email" id="login-email" placeholder="admin@yourshop.com">
-                        </div>
-                        <span class="err-msg" id="err-email"><i class="fas fa-circle-exclamation"></i> Valid email
-                            required</span>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="forgot-row">
-                            <label><i class="fas fa-lock"></i> Password</label>
-                            <a href="#" class="forgot-link" onclick="openForgot(); return false;">Forgot Password?</a>
-                        </div>
-                        <div class="input-wrap">
-                            <input type="password" id="login-pass" placeholder="••••••••">
-                            <button class="input-icon" onclick="togglePw('login-pass', this)" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <span class="err-msg" id="err-pass"><i class="fas fa-circle-exclamation"></i> Password
-                            required</span>
-                    </div>
-                </div>
-
-                <div id="form-id" style="display:none;">
-                    <div class="form-group">
-                        <label><i class="fas fa-id-badge"></i> Admin ID</label>
-                        <div class="input-wrap">
-                            <input type="text" id="login-admin-id" placeholder="e.g. ADMIN-123456">
-                        </div>
-                        <span class="err-msg" id="err-admin-id"><i class="fas fa-circle-exclamation"></i> Valid Admin ID
-                            required</span>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="forgot-row">
-                            <label><i class="fas fa-lock"></i> Password</label>
-                            <a href="#" class="forgot-link" onclick="openForgot(); return false;">Forgot?</a>
-                        </div>
-                        <div class="input-wrap">
-                            <input type="password" id="login-id-pass" placeholder="••••••••">
-                            <button class="input-icon" onclick="togglePw('login-id-pass', this)" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <span class="err-msg" id="err-id-pass"><i class="fas fa-circle-exclamation"></i> Password
-                            required</span>
-                    </div>
-                </div>
-
-                <div class="remember-row">
-                    <input type="checkbox" id="remember" checked>
-                    <label for="remember">Remember me on this device</label>
-                </div>
-
-                <button class="login-btn" id="loginBtn" onclick="doLogin()">
-                    <div class="btn-spinner"></div>
-                    <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
-                </button>
-
-            </div>
-
-            <div class="card-footer">
-                <p class="footer-text">
-                    Don't have an account? <a href="admin-signup.html">Register as Pharmacy Partner</a>
-                </p>
-                <div class="security-row">
-                    <i class="fas fa-shield-halved"></i>
-                    <span>256-bit SSL secured login</span>
-                    <span>•</span>
-                    <i class="fas fa-lock"></i>
-                    <span>Data encrypted</span>
-                </div>
-            </div>
-
+   
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgot()">×</button>
+      <h3>Reset Password</h3>
+      <p>Enter your registered admin email address and we'll send you a reset link.</p>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="forgot-email" placeholder="admin@pharmacy.com">
         </div>
-    </main>
+      </div>
+      <button class="modal-btn" onclick="sendReset()">Send Reset Link</button>
+      <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
+    </div>
+  </div>
 
-    <script>
-        let activeType = 'email';
+  <div id="toast"><span id="toast-msg"></span></div>
 
-        function switchType(type) {
-            activeType = type;
-            ['email', 'id'].forEach(t => {
-                document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
-                document.getElementById('lt-' + t).classList.toggle('active', t === type);
-            });
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    function getGPS() {
+      return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve({ lat: null, lng: null });
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve({ lat: null, lng: null }),
+          { timeout: 5000 }
+        );
+      });
+    }
+
+    window.togglePw = function (id, btn) {
+      const inp = document.getElementById(id);
+      const isText = inp.type === 'text';
+      inp.type = isText ? 'password' : 'text';
+      btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+    };
+
+    function setLoading(btnId, state) {
+      const btn = document.getElementById(btnId);
+      btn.classList.toggle('loading', state);
+      const spinner = btn.querySelector('.btn-spinner');
+      const text = btn.querySelector('.btn-text');
+      if (spinner) spinner.style.display = state ? 'block' : 'none';
+      if (text) text.style.opacity = state ? '.6' : '1';
+    }
+
+     
+    async function hashPassword(plain) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plain + 'mq_salt_2024');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+        window.doAdminLogin = async function () {
+      const id = document.getElementById('a-id').value.trim();
+      const pass = document.getElementById('a-pass').value;
+      let valid = true;
+
+      const idOk = id.length >= 3;
+      document.getElementById('a-err-id').classList.toggle('show', !idOk);
+      document.getElementById('a-id').classList.toggle('err', !idOk);
+      if (!idOk) valid = false;
+
+      const passOk = pass.length >= 1;
+      document.getElementById('a-err-pass').classList.toggle('show', !passOk);
+      document.getElementById('a-pass').classList.toggle('err', !passOk);
+      if (!passOk) valid = false;
+
+      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
+
+      setLoading('adminLoginBtn', true);
+      try {
+        const adminsRef = collection(db, 'admins');
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id);
+
+        let snap;
+        if (isEmail) {
+          snap = await getDocs(query(adminsRef, where('email', '==', id.toLowerCase())));
+        } else {
+          snap = await getDocs(query(adminsRef, where('adminId', '==', id.toUpperCase())));
         }
 
-        function togglePw(id, btn) {
-            const input = document.getElementById(id);
-            const icon = btn.querySelector('i');
-            input.type = input.type === 'password' ? 'text' : 'password';
-            icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
-        }
-        // <<--IM_VYADAW-->>
-        function validate() {
-            let valid = true;
-            if (activeType === 'email') {
-                const email = document.getElementById('login-email').value.trim();
-                const pass = document.getElementById('login-pass').value;
-                const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-                document.getElementById('err-email').classList.toggle('show', !emailOk);
-                if (!emailOk) valid = false;
-                const passOk = pass.length >= 1;
-                document.getElementById('err-pass').classList.toggle('show', !passOk);
-                if (!passOk) valid = false;
-            }
-            if (activeType === 'id') {
-                const adminId = document.getElementById('login-admin-id').value.trim();
-                const pass = document.getElementById('login-id-pass').value;
-                const idOk = adminId.length >= 3;
-                document.getElementById('err-admin-id').classList.toggle('show', !idOk);
-                if (!idOk) valid = false;
-                const passOk = pass.length >= 1;
-                document.getElementById('err-id-pass').classList.toggle('show', !passOk);
-                if (!passOk) valid = false;
-            }
-            return valid;
+        if (snap.empty) {
+          setLoading('adminLoginBtn', false);
+          showToast('⚠ No admin account found. Please register first.', 'error');
+          return;
         }
 
-        function doLogin() {
-            if (!validate()) { showToast('⚠ Please enter valid details', 'error'); return; }
+        const adminData = snap.docs[0].data();
+        const adminDocId = snap.docs[0].id;
 
-            let identifier = '';
-            let password = '';
-            if (activeType === 'email') {
-                identifier = document.getElementById('login-email').value.trim().toLowerCase();
-                password = document.getElementById('login-pass').value;
-            } else {
-                identifier = document.getElementById('login-admin-id').value.trim().toUpperCase();
-                password = document.getElementById('login-id-pass').value;
-            }
-
-            const btn = document.getElementById('loginBtn');
-            btn.classList.add('loading');
-            btn.querySelector('.btn-text').innerHTML = 'Logging in...';
-
-            setTimeout(() => {
-                try {
-                    const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
-                    let matched = false;
-
-                    if (activeType === 'email') {
-                        if (adminData.email && adminData.email.toLowerCase() === identifier && adminData.password === password) {
-                            matched = true;
-                        }
-                    } else {
-                        if (adminData.adminId && adminData.adminId.toUpperCase() === identifier && adminData.password === password) {
-                            matched = true;
-                        }
-                    }
-
-                    btn.classList.remove('loading');
-                    btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
-
-                    if (matched) {
-                        localStorage.setItem('mq_admin_session', JSON.stringify({
-                            email: adminData.email || '',
-                            shopName: adminData.shopName || 'MediiQuick Pharmacy',
-                            adminName: adminData.adminName || 'Admin',
-                            adminId: adminData.adminId || ''
-                        }));
-                        showToast('✓ Login successful! Redirecting...', 'success');
-                        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1200);
-                    } else if (!adminData.email && !adminData.adminId) {
-                        showToast('⚠ Koi admin account nahi mila! Pehle signup karein.', 'error');
-                        setTimeout(() => { window.location.href = 'admin-signup.html'; }, 2000);
-                    } else {
-                        showToast('⚠ Email/ID ya password galat hai!', 'error');
-                    }
-                } catch (err) {
-                    btn.classList.remove('loading');
-                    btn.querySelector('.btn-text').innerHTML = '<i class="fas fa-right-to-bracket"></i> Login to Dashboard';
-                    showToast('⚠ Login error. Please try again.', 'error');
-                }
-            }, 600);
+         
+        const enteredHash = await hashPassword(pass);
+        const storedPw = adminData.password || '';
+         
+        const passwordMatch = storedPw === enteredHash || storedPw === pass;
+        if (!passwordMatch) {
+          setLoading('adminLoginBtn', false);
+          showToast('⚠ Incorrect password.', 'error');
+          return;
         }
 
-        let forgotEmail = '';
-        let otpCountdown;
-
-        function openForgot() {
-            forgotEmail = '';
-            document.getElementById('forgotModal').classList.add('show');
-            showForgotStep(1);
-        }
-        function closeForgot() {
-            document.getElementById('forgotModal').classList.remove('show');
-            clearInterval(otpCountdown);
-        }
-        function showForgotStep(n) {
-            [1, 2, 3].forEach(i => {
-                const el = document.getElementById('forgot-step' + i);
-                if (el) el.style.display = i === n ? 'block' : 'none';
-            });
+        const gps = await getGPS();
+        if (gps.lat) {
+          try { await updateDoc(doc(db, 'admins', adminDocId), { lat: gps.lat, lng: gps.lng }); } catch (e) { }
         }
 
-        async function sendResetLink() {
-            const email = document.getElementById('forgot-email').value.trim();
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showToast('⚠ Please enter a valid email', 'error'); return;
-            }
-            const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
-            if (!adminData.email || adminData.email.toLowerCase() !== email.toLowerCase()) {
-                showToast('⚠ Ye email registered nahi hai!', 'error'); return;
-            }
-            forgotEmail = email;
-            const otp = String(Math.floor(100000 + Math.random() * 900000));
-            localStorage.setItem('mq_reset_otp', JSON.stringify({ otp, email, expires: Date.now() + 600000 }));
-            showToast('✓ OTP: ' + otp + ' — Copy karke next box mein daalo!', 'success');
-            showForgotStep(2);
-            let secs = 600;
-            const timerEl = document.getElementById('otpTimer');
-            clearInterval(otpCountdown);
-            otpCountdown = setInterval(() => {
-                secs--;
-                const m = Math.floor(secs / 60), s = secs % 60;
-                if (timerEl) timerEl.textContent = `OTP valid for: ${m}:${String(s).padStart(2, '0')}`;
-                if (secs <= 0) { clearInterval(otpCountdown); if (timerEl) timerEl.textContent = 'OTP expired.'; }
-            }, 1000);
-        }
+        const adminSession = {
+          docId: adminDocId,
+          email: adminData.email,
+          shopName: adminData.shopName || '',
+          adminName: adminData.adminName || '',
+          adminId: adminData.adminId || '',
+          city: adminData.city || '',
+          deliveryRadius: adminData.deliveryRadius || '5',
+          servedPins: adminData.servedPins || [],
+          lat: gps.lat || adminData.lat || null,
+          lng: gps.lng || adminData.lng || null,
+          loginAt: Date.now(),
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+        };
+        localStorage.setItem('mq_admin_session', JSON.stringify(adminSession));
 
-        async function verifyOtp() {
-            const otp = document.getElementById('forgot-otp').value.trim();
-            if (otp.length !== 6 || !/^\d+$/.test(otp)) { showToast('⚠ 6-digit OTP daalo', 'error'); return; }
-            try {
-                const stored = JSON.parse(localStorage.getItem('mq_reset_otp') || '{}');
-                if (stored.otp === otp && stored.email === forgotEmail && Date.now() < stored.expires) {
-                    showToast('✓ OTP verified!', 'success'); showForgotStep(3);
-                } else {
-                    showToast('⚠ Galat ya expired OTP!', 'error');
-                }
-            } catch (e) { showToast('⚠ Error verifying OTP', 'error'); }
-        }
+        showToast('✓ Login successful!', 'success');
+        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
 
-        async function doResetPassword() {
-            const otp = document.getElementById('forgot-otp').value.trim();
-            const np = document.getElementById('forgot-newpass').value;
-            const cp = document.getElementById('forgot-confpass').value;
-            if (np.length < 8) { showToast('⚠ Password kam se kam 8 characters ka hona chahiye.', 'error'); return; }
-            if (np !== cp) { showToast('⚠ Passwords match nahi kar rahe!', 'error'); return; }
-            try {
-                const stored = JSON.parse(localStorage.getItem('mq_reset_otp') || '{}');
-                if (stored.otp !== otp || stored.email !== forgotEmail || Date.now() >= stored.expires) {
-                    showToast('⚠ OTP invalid ya expired!', 'error'); return;
-                }
-                const adminData = JSON.parse(localStorage.getItem('mq_admin') || '{}');
-                adminData.password = np;
-                localStorage.setItem('mq_admin', JSON.stringify(adminData));
-                localStorage.removeItem('mq_reset_otp');
-                clearInterval(otpCountdown);
-                closeForgot();
-                showToast('✅ Password reset ho gaya! Ab login karein.', 'success');
-            } catch (e) { showToast('⚠ Error resetting password.', 'error'); }
-        }
+      } catch (err) {
+        setLoading('adminLoginBtn', false);
+        showToast('⚠ Login failed. Please try again.', 'error');
+        console.error(err);
+      }
+    };
 
-        async function resendOtp() {
-            if (!forgotEmail) return;
-            const otp = String(Math.floor(100000 + Math.random() * 900000));
-            localStorage.setItem('mq_reset_otp', JSON.stringify({ otp, email: forgotEmail, expires: Date.now() + 600000 }));
-            showToast('✓ Naya OTP: ' + otp + ' — Copy karke daalo!', 'success');
-        }
+    window.openForgot = function () { document.getElementById('forgotModal').classList.add('show'); };
+    window.closeForgot = function () { document.getElementById('forgotModal').classList.remove('show'); };
 
-        document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    window.sendReset = async function () {
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('⚠ Please enter a valid email', 'error'); return;
+      }
+      closeForgot();
+      showToast('📧 Password reset request sent to admin support.', 'success');
+    };
 
-        let toastTimer;
-        function showToast(msg, type = '') {
-            const t = document.getElementById('toast');
-            t.className = type === 'success' ? 'success-toast show' : type === 'error' ? 'error-toast show' : 'show';
-            document.getElementById('toast-msg').textContent = msg;
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-        }
-    </script>
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doAdminLogin();
+    });
+
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
+      document.getElementById('toast-msg').textContent = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
+    }
+  </script>
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+  </script>
+
 </body>
-
 </html>

@@ -595,7 +595,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    @media(max-width:600px) {
+    /* @media(max-width:600px) {
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -619,6 +619,102 @@
       .card-footer {
         padding: 0 20px 20px;
       }
+    } */
+
+    /* Large tablet */
+    @media (max-width:1100px) {
+      .card {
+        max-width: 800px;
+      }
+
+      .left-panel {
+        width: 38%;
+        padding: 32px 22px;
+      }
+    }
+
+    /* Tablet */
+    @media (max-width:768px) {
+      .card {
+        max-width: 560px;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 34%;
+        padding: 28px 16px;
+      }
+
+      .left-panel h2 {
+        font-size: 1.2rem;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .left-panel p {
+        margin-bottom: 0;
+        font-size: 12px;
+      }
+
+      .tab-btn {
+        padding: 10px 6px;
+        flex-direction: column;
+        font-size: 10px;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width:580px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .card {
+        border-radius: 18px;
+        flex-direction: column;
+        max-width: 100%;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 100%;
+        flex-direction: row;
+        padding: 14px 18px;
+        border-radius: 0;
+        min-height: unset;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 22px 18px;
+      }
+
+      .social-row {
+        flex-direction: column;
+      }
+
+      .input-wrap input {
+        font-size: 16px;
+      }
+
+      html,
+      body {
+        overflow-x: hidden;
+      }
+    }
+
+    /* ── Utility classes ── */
+    .field-note-wrap {
+      margin-top: 8px;
+    }
+
+    .check-group-top {
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -781,6 +877,17 @@
                 radius</span>
             </div>
 
+            <div class="form-group span2">
+              <label><i class="fas fa-map-pin"></i> Served PIN Codes <span style="font-weight:600;color:#dc2626;">⚠️
+                  Required</span></label>
+              <input type="text" id="served-pins" placeholder="e.g. 274301, 274302, 274305" maxlength="200">
+              <span style="font-size:11px;color:#dc2626;margin-top:3px;display:block;font-weight:600;">
+                ⚠️ This is very important! You will only receive orders from these PIN codes.<br>
+                💡 Enter PIN codes of areas you deliver to — separate with commas.<br>
+                Example: For Delhi → 110001, 110002, 110003
+              </span>
+            </div>
+
           </div>
           <div class="btn-row">
             <button class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
@@ -825,7 +932,7 @@
                 match</span>
             </div>
 
-            <div style="margin-top:8px;">
+            <div class="field-note-wrap">
               <div class="check-group">
                 <input type="checkbox" id="terms">
                 <label for="terms">I agree to MediiQuick's <a href="#">Terms of Service</a> and <a href="#">Pharmacy
@@ -834,7 +941,7 @@
               <span class="err-msg" id="err-terms"><i class="fas fa-circle-exclamation"></i> You must accept the
                 terms</span>
 
-              <div class="check-group" style="margin-top:8px;">
+              <div class="check-group check-group-top">
                 <input type="checkbox" id="verify">
                 <label for="verify">I confirm that all provided information is accurate and my drug license is
                   valid</label>
@@ -880,13 +987,44 @@
     </div>
   </main>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    let currentStep = 1;
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
 
-    function goStep(n) {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+     
+    async function hashPassword(plain) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plain + 'mq_salt_2024');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+        let currentStep = 1;
+
+    // 
+    let _adminLat = null, _adminLng = null;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => { _adminLat = pos.coords.latitude; _adminLng = pos.coords.longitude; },
+        () => { }
+      );
+    }
+
+    window.goStep = function (n) {
       if (n > currentStep && !validateStep(currentStep)) return;
-
       currentStep = n;
       [1, 2, 3].forEach(i => {
         document.getElementById('sec' + i).classList.toggle('active', i === n);
@@ -894,11 +1032,10 @@
         tab.classList.toggle('active', i === n);
         tab.classList.toggle('done', i < n);
       });
-
       document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    };
 
-    function validateStep(step) {
+    window.validateStep = function (step) {
       let valid = true;
 
       function check(id, errId, testFn) {
@@ -920,7 +1057,6 @@
         check('gst', 'err-gst', v => /^[0-9A-Z]{15}$/.test(v.toUpperCase()));
         check('drug-license', 'err-drug', v => v.length >= 5);
       }
-
       if (step === 2) {
         check('email', 'err-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
         check('mobile', 'err-mobile', v => /^[6-9]\d{9}$/.test(v));
@@ -929,41 +1065,55 @@
         check('shop-type', 'err-shoptype', v => v !== '');
         check('delivery-radius', 'err-radius', v => v !== '');
       }
-
       if (step === 3) {
         const pass = document.getElementById('password').value;
         const conf = document.getElementById('confirm-pass').value;
         const terms = document.getElementById('terms').checked;
         const verify = document.getElementById('verify').checked;
-
         const passOk = pass.length >= 8 && /\d/.test(pass);
         document.getElementById('password').classList.toggle('err', !passOk);
         document.getElementById('err-pass').classList.toggle('show', !passOk);
         if (!passOk) valid = false;
-
         const confOk = conf === pass && conf.length > 0;
         document.getElementById('confirm-pass').classList.toggle('err', !confOk);
         document.getElementById('err-confirm').classList.toggle('show', !confOk);
         if (!confOk) valid = false;
-
         document.getElementById('err-terms').classList.toggle('show', !terms);
         if (!terms) valid = false;
-
         document.getElementById('err-verify').classList.toggle('show', !verify);
         if (!verify) valid = false;
       }
-
       if (!valid) showToast('⚠ Please fill all fields correctly');
       return valid;
-    }
+    };
 
-    function submitForm() {
+    window.submitForm = async function () {
       if (!validateStep(3)) return;
+
+      const email = document.getElementById('email').value.trim().toLowerCase();
+
+      try {
+        const adminSnap = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
+        if (!adminSnap.empty) {
+          showToast('⚠ This email is already registered as an admin!'); return;
+        }
+        const userSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+        if (!userSnap.empty) {
+          showToast('⚠ This email is already registered as a customer!'); return;
+        }
+      } catch (e) {
+        showToast('⚠ Network error. Please try again.'); return;
+      }
 
       const adminId = 'ADMIN-' + Math.floor(100000 + Math.random() * 900000);
       document.getElementById('genAdminId').textContent = adminId;
 
-      const data = {
+      const pinsRaw = (document.getElementById('served-pins')?.value || '').trim();
+      const servedPins = pinsRaw
+        ? pinsRaw.split(',').map(p => p.trim()).filter(p => /^\d{6}$/.test(p))
+        : [];
+
+      const adminData = {
         adminId,
         shopName: document.getElementById('shop-name').value.trim(),
         adminName: document.getElementById('admin-name').value.trim(),
@@ -972,66 +1122,60 @@
         location: document.getElementById('location').value.trim(),
         gst: document.getElementById('gst').value.trim().toUpperCase(),
         drugLicense: document.getElementById('drug-license').value.trim(),
-        email: document.getElementById('email').value.trim(),
+        email: email,
         mobile: document.getElementById('mobile').value.trim(),
         mobile2: document.getElementById('mobile2').value.trim(),
         openTime: document.getElementById('open-time').value,
         closeTime: document.getElementById('close-time').value,
         shopType: document.getElementById('shop-type').value,
         deliveryRadius: document.getElementById('delivery-radius').value,
-        registeredAt: new Date().toISOString(),
+        servedPins,
+        lat: _adminLat,
+        lng: _adminLng,
+        password: await hashPassword(document.getElementById('password').value),
+        registeredAt: new Date().toISOString()
       };
 
-      console.log('✅ Admin Registered:', data);
+      try {
+        await setDoc(doc(db, 'admins', adminId), adminData);
+        ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
+        document.getElementById('successScreen').classList.add('show');
+        document.getElementById('cardFooter').style.display = 'none';
+        [1, 2, 3].forEach(i => {
+          document.getElementById('tab' + i).classList.remove('active');
+          document.getElementById('tab' + i).classList.add('done');
+        });
+      } catch (err) {
+        showToast('⚠ Registration failed. Please try again.');
+        console.error(err);
+      }
+    };
 
-      const adminData = { ...data, password: document.getElementById('password').value };
-      try { localStorage.setItem('mq_admin', JSON.stringify(adminData)); } catch (e) { }
-
-      ['sec1', 'sec2', 'sec3'].forEach(id => document.getElementById(id).classList.remove('active'));
-      document.getElementById('successScreen').classList.add('show');
-      document.getElementById('cardFooter').style.display = 'none';
-      [1, 2, 3].forEach(i => {
-        document.getElementById('tab' + i).classList.remove('active');
-        document.getElementById('tab' + i).classList.add('done');
-      });
-    }
-
-    function checkStrength(val) {
+    window.checkStrength = function (val) {
       const wrap = document.getElementById('pwStrength');
       if (!val) { wrap.style.display = 'none'; return; }
       wrap.style.display = 'block';
-
       let score = 0;
       if (val.length >= 8) score++;
       if (/[A-Z]/.test(val)) score++;
       if (/\d/.test(val)) score++;
       if (/[!@#$%^&*]/.test(val)) score++;
-
       const bars = [1, 2, 3, 4].map(i => document.getElementById('bar' + i));
       const label = document.getElementById('pwLabel');
       const levels = ['weak', 'weak', 'medium', 'strong'];
-      const labels = ['Weak', 'Fair', 'Good', 'Strong ✓'];
+      const labels2 = ['Weak', 'Fair', 'Good', 'Strong ✓'];
       const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
-
-      bars.forEach((b, i) => {
-        b.className = 'pw-bar';
-        if (i < score) b.classList.add(levels[score - 1]);
-      });
-      label.textContent = labels[score - 1] || 'Weak';
+      bars.forEach((b, i) => { b.className = 'pw-bar'; if (i < score) b.classList.add(levels[score - 1]); });
+      label.textContent = labels2[score - 1] || 'Weak';
       label.style.color = colors[score - 1] || '#ef4444';
-    }
+    };
 
-    function togglePw(inputId, btn) {
+    window.togglePw = function (inputId, btn) {
       const input = document.getElementById(inputId);
       const icon = btn.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'fas fa-eye-slash';
-      } else {
-        input.type = 'password';
-        icon.className = 'fas fa-eye';
-      }
-    }
+      if (input.type === 'password') { input.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+      else { input.type = 'password'; icon.className = 'fas fa-eye'; }
+    };
 
     let toastTimer;
     function showToast(msg) {
@@ -1052,7 +1196,6 @@
       });
     });
   </script>
-<!-- IM_VYADAW -->
 </body>
 
 </html>

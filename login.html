@@ -635,7 +635,9 @@
       margin-top: 8px;
     }
 
-    @media(max-width:700px) {
+
+
+    /* @media(max-width:700px) {
       .left-panel {
         display: none;
       }
@@ -651,6 +653,115 @@
       .header {
         padding: 14px 16px;
       }
+    } */
+
+    /* Large tablet */
+    @media (max-width:1100px) {
+      .card {
+        max-width: 800px;
+      }
+
+      .left-panel {
+        width: 38%;
+        padding: 32px 22px;
+      }
+    }
+
+    /* Tablet */
+    @media (max-width:768px) {
+      .card {
+        max-width: 560px;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 34%;
+        padding: 28px 16px;
+      }
+
+      .left-panel h2 {
+        font-size: 1.2rem;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .left-panel p {
+        margin-bottom: 0;
+        font-size: 12px;
+      }
+
+      .tab-btn {
+        padding: 10px 6px;
+        flex-direction: column;
+        font-size: 10px;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width:580px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .card {
+        border-radius: 18px;
+        flex-direction: column;
+        max-width: 100%;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 100%;
+        flex-direction: row;
+        padding: 14px 18px;
+        border-radius: 0;
+        min-height: unset;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 22px 18px;
+      }
+
+      .social-row {
+        flex-direction: column;
+      }
+
+      .input-wrap input {
+        font-size: 16px;
+      }
+
+      html,
+      body {
+        overflow-x: hidden;
+      }
+    }
+
+    /* ── Utility classes ── */
+    .form-group-0 {
+      margin-bottom: 0;
+    }
+
+    .form-group-mt {
+      margin-top: 20px;
+    }
+
+    .form-group-mt-sm {
+      margin-top: 8px;
+    }
+
+    .icon-facebook {
+      color: #1877f2;
+    }
+
+    .admin-login-link {
+      color: #64748b;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -668,7 +779,7 @@
       <button class="modal-close" onclick="closeForgot()">✕</button>
       <h3>🔑 Forgot Password?</h3>
       <p>Enter your registered email — we'll send a password reset link.</p>
-      <div class="form-group" style="margin-bottom:0;">
+      <div class="form-group form-group-0">
         <label><i class="fas fa-envelope"></i> Email Address</label>
         <div class="input-wrap">
           <input type="email" id="forgot-email" placeholder="you@email.com">
@@ -759,7 +870,7 @@
               <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google
             </button>
             <button class="social-btn" onclick="socialLogin('Facebook')">
-              <i class="fab fa-facebook" style="color:#1877f2;"></i> Facebook
+              <i class="fab fa-facebook icon-facebook"></i> Facebook
             </button>
           </div>
 
@@ -800,11 +911,11 @@
             <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
           </button>
 
-          <div class="bottom-link" style="margin-top:20px;">
+          <div class="bottom-link form-group-mt">
             New pharmacy partner? <a href="admin-signup.html">Register Your Pharmacy</a>
           </div>
-          <div class="bottom-link" style="margin-top:8px;">
-            <a href="admin-login.html" style="color:#64748b;font-weight:500;">Go to full Admin Login page →</a>
+          <div class="bottom-link form-group-mt-sm">
+            <a href="admin-login.html" class="admin-login-link">Go to dedicated Admin Login →</a>
           </div>
         </div>
 
@@ -838,7 +949,7 @@
             <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
           </button>
 
-          <div class="bottom-link" style="margin-top:20px;">
+          <div class="bottom-link form-group-mt">
             New rider? <a href="delivery-signup.html">Create Rider Account</a>
           </div>
         </div>
@@ -847,19 +958,43 @@
     </div>
   </main>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    function switchTab(type) {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+     
+    async function hashPassword(plain) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plain + 'mq_salt_2024');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+         
+    window.switchTab = function (type) {
       ['user', 'admin', 'rider'].forEach(t => {
         document.getElementById('sec-' + t).classList.toggle('active', t === type);
         document.getElementById('tab-' + t).classList.toggle('active', t === type);
       });
-
       const icon = document.querySelector('.lp-icon');
       const heading = document.querySelector('.left-panel h2');
       const para = document.querySelector('.left-panel p');
       const feats = document.querySelector('.lp-features');
-
       if (type === 'admin') {
         icon.textContent = '🏥';
         heading.textContent = 'Admin Portal';
@@ -888,16 +1023,39 @@
           <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
           <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>`;
       }
-    }
+    };
 
-    function togglePw(id, btn) {
+    window.togglePw = function (id, btn) {
       const input = document.getElementById(id);
       const icon = btn.querySelector('i');
       input.type = input.type === 'password' ? 'text' : 'password';
       icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+    };
+
+     
+    function getGPS() {
+      return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve({ lat: null, lng: null });
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve({ lat: null, lng: null }),
+          { timeout: 5000 }
+        );
+      });
     }
 
-    function doUserLogin() {
+     
+    function setLoading(btnId, state) {
+      const btn = document.getElementById(btnId);
+      btn.classList.toggle('loading', state);
+      const spinner = btn.querySelector('.btn-spinner');
+      const text = btn.querySelector('.btn-text');
+      if (spinner) spinner.style.display = state ? 'block' : 'none';
+      if (text) text.style.opacity = state ? '.6' : '1';
+    }
+
+    
+    window.doUserLogin = async function () {
       const email = document.getElementById('u-email').value.trim().toLowerCase();
       const pass = document.getElementById('u-pass').value;
       let valid = true;
@@ -915,32 +1073,60 @@
       if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('userLoginBtn', true);
+      try {
+         
+        const userCred = await signInWithEmailAndPassword(auth, email, pass);
+        const firebaseUser = userCred.user;
 
-      setTimeout(() => {
-        setLoading('userLoginBtn', false);
-        try {
-          const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
-          const matched = users.find(u => (u.email || '').toLowerCase() === email && u.password === pass);
-          if (matched) {
-            matched.email = matched.email.toLowerCase();
-            localStorage.setItem('mq_user', JSON.stringify(matched));
-            showToast('✓ Login successful!', 'success');
-            setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
-            return;
-          }
-          const emailExists = users.find(u => (u.email || '').toLowerCase() === email);
-          if (emailExists) {
-            showToast('⚠ Incorrect password. Please try again.', 'error');
-          } else {
-            showToast('⚠ No account found with this email.', 'error');
-          }
-        } catch (e) {
-          showToast('⚠ Login failed. Please try again.', 'error');
+        
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        let userData = { name: firebaseUser.displayName || email.split('@')[0], email, mobile: '' };
+        if (userSnap.exists()) {
+          userData = { ...userSnap.data(), id: userSnap.id };
         }
-      }, 1200);
-    }
 
-    function doAdminLogin() {
+         
+        const gps = await getGPS();
+        if (gps.lat && userSnap.exists()) {
+          try {
+            await updateDoc(userDocRef, { lat: gps.lat, lng: gps.lng });
+          } catch (e) { }
+        }
+
+        
+        const userSession = {
+          uid: firebaseUser.uid,
+          name: userData.name || email.split('@')[0],
+          email: userData.email,
+          mobile: userData.mobile || '',
+          lat: gps.lat,
+          lng: gps.lng,
+          loginAt: Date.now(),
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+        };
+        localStorage.setItem('mq_user', JSON.stringify(userSession));
+
+        showToast('✓ Login successful!', 'success');
+        setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+
+      } catch (err) {
+        setLoading('userLoginBtn', false);
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+          showToast('⚠ No account found with this email.', 'error');
+        } else if (err.code === 'auth/wrong-password') {
+          showToast('⚠ Incorrect password. Please try again.', 'error');
+        } else if (err.code === 'auth/too-many-requests') {
+          showToast('⚠ Too many attempts. Please wait and try again.', 'error');
+        } else {
+          showToast('⚠ Login failed: ' + (err.message || 'Unknown error'), 'error');
+        }
+      }
+    };
+
+     
+    window.doAdminLogin = async function () {
       const id = document.getElementById('a-id').value.trim();
       const pass = document.getElementById('a-pass').value;
       let valid = true;
@@ -958,36 +1144,83 @@
       if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('adminLoginBtn', true);
+      try {
+        const adminsRef = collection(db, 'admins');
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id);
 
-      setTimeout(() => {
-        setLoading('adminLoginBtn', false);
-        try {
-          const saved = JSON.parse(localStorage.getItem('mq_admin') || 'null');
-          if (!saved) {
-            showToast('⚠ No admin account found. Please register first.', 'error');
-            return;
-          }
-          const idMatch = (saved.email === id || saved.adminId === id.toUpperCase());
-          if (idMatch && saved.password === pass) {
-            localStorage.setItem('mq_admin_session', JSON.stringify(saved));
-            showToast('✓ Admin login successful!', 'success');
-            setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
-          } else if (idMatch) {
-            showToast('⚠ Incorrect password.', 'error');
-          } else {
-            showToast('⚠ No admin account found with this ID or email.', 'error');
-          }
-        } catch (e) {
-          showToast('⚠ Login failed. Please try again.', 'error');
+         
+        let snap;
+        if (isEmail) {
+          snap = await getDocs(query(adminsRef, where('email', '==', id.toLowerCase())));
+        } else {
+          snap = await getDocs(query(adminsRef, where('adminId', '==', id.toUpperCase())));
         }
-      }, 1200);
-    }
-    // IM_VYADAW
-    function socialLogin(provider) {
-      showToast(`${provider} login coming soon!`);
-    }
 
-    function doRiderLogin() {
+        if (snap.empty) {
+          setLoading('adminLoginBtn', false);
+          showToast('⚠ No admin account found. Please register first.', 'error');
+          return;
+        }
+
+        const adminData = snap.docs[0].data();
+        const adminDocId = snap.docs[0].id;
+
+        
+        const adminEnteredHash = await hashPassword(pass);
+        const adminStored = adminData.password || '';
+        const adminPassOk = adminStored === adminEnteredHash || adminStored === pass;
+        if (!adminPassOk) {
+          setLoading('adminLoginBtn', false);
+          showToast('⚠ Incorrect password.', 'error');
+          return;
+        }
+
+         
+        const gps = await getGPS();
+        if (gps.lat) {
+          try {
+            await updateDoc(doc(db, 'admins', adminDocId), { lat: gps.lat, lng: gps.lng });
+          } catch (e) { }
+        }
+
+        
+        const adminSession = {
+          docId: adminDocId,
+          email: adminData.email,
+          shopName: adminData.shopName || '',
+          adminName: adminData.adminName || '',
+          adminId: adminData.adminId || '',
+          city: adminData.city || '',
+          mobile: adminData.mobile || '',
+          mobile2: adminData.mobile2 || '',
+          location: adminData.location || '',
+          drugLicense: adminData.drugLicense || '',
+          pin: adminData.pin || '',
+          gst: adminData.gst || '',
+          openTime: adminData.openTime || '',
+          closeTime: adminData.closeTime || '',
+          shopType: adminData.shopType || '',
+          deliveryRadius: adminData.deliveryRadius ? String(adminData.deliveryRadius) : '5',
+          servedPins: adminData.servedPins || [],
+          lat: gps.lat || adminData.lat || null,
+          lng: gps.lng || adminData.lng || null,
+          loginAt: Date.now(),
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+        };
+        localStorage.setItem('mq_admin_session', JSON.stringify(adminSession));
+
+        showToast('✓ Admin login successful!', 'success');
+        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
+
+      } catch (err) {
+        setLoading('adminLoginBtn', false);
+        showToast('⚠ Login failed. Please try again.', 'error');
+        console.error(err);
+      }
+    };
+
+    
+    window.doRiderLogin = async function () {
       const phone = document.getElementById('r-phone').value.trim();
       const pass = document.getElementById('r-pass').value;
 
@@ -1010,56 +1243,95 @@
       if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('riderLoginBtn', true);
-      setTimeout(() => {
-        setLoading('riderLoginBtn', false);
-        try {
-          const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-          const boy = boys.find(b => b.phone === phone);
+      try {
+        const ridersRef = collection(db, 'riders');
+        const snap = await getDocs(query(ridersRef, where('phone', '==', phone)));
 
-          if (!boy) {
-            document.getElementById('r-err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> No account found with this number';
-            document.getElementById('r-err-phone').classList.add('show');
-            document.getElementById('r-phone').classList.add('err');
-            showToast('⚠ No rider account found with this number', 'error');
-            return;
-          }
-          if (boy.password !== pass) {
-            document.getElementById('r-err-pass').innerHTML = '<i class="fas fa-circle-exclamation"></i> Incorrect password';
-            document.getElementById('r-err-pass').classList.add('show');
-            document.getElementById('r-pass').classList.add('err');
-            showToast('⚠ Incorrect password', 'error');
-            return;
-          }
-
-          localStorage.setItem('mq_db_session', JSON.stringify({ id: boy.id, name: boy.name, phone: boy.phone, loggedInAt: Date.now() }));
-          showToast('✓ Rider login successful!', 'success');
-          setTimeout(() => { window.location.href = 'delivery-dashboard.html'; }, 1000);
-        } catch (e) {
-          showToast('⚠ Login failed. Please try again.', 'error');
+        if (snap.empty) {
+          setLoading('riderLoginBtn', false);
+          document.getElementById('r-err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> No account found with this number';
+          document.getElementById('r-err-phone').classList.add('show');
+          document.getElementById('r-phone').classList.add('err');
+          showToast('⚠ No rider account found with this number', 'error');
+          return;
         }
-      }, 1200);
-    }
 
-    function setLoading(btnId, state) {
-      const btn = document.getElementById(btnId);
-      btn.classList.toggle('loading', state);
-      const spinner = btn.querySelector('.btn-spinner');
-      const text = btn.querySelector('.btn-text');
-      if (spinner) spinner.style.display = state ? 'block' : 'none';
-      if (text) text.style.opacity = state ? '.6' : '1';
-    }
+        const riderData = snap.docs[0].data();
+        const riderDocId = snap.docs[0].id;
 
-    function openForgot() { document.getElementById('forgotModal').classList.add('show'); }
-    function closeForgot() { document.getElementById('forgotModal').classList.remove('show'); }
-    function sendReset() {
+         
+        const riderEnteredHash = await hashPassword(pass);
+        const riderStored = riderData.password || '';
+        const riderPassOk = riderStored === riderEnteredHash || riderStored === pass;
+        if (!riderPassOk) {
+          setLoading('riderLoginBtn', false);
+          document.getElementById('r-err-pass').innerHTML = '<i class="fas fa-circle-exclamation"></i> Incorrect password';
+          document.getElementById('r-err-pass').classList.add('show');
+          document.getElementById('r-pass').classList.add('err');
+          showToast('⚠ Incorrect password', 'error');
+          return;
+        }
+
+        
+        const gps = await getGPS();
+        if (gps.lat) {
+          try {
+            await updateDoc(doc(db, 'riders', riderDocId), { lat: gps.lat, lng: gps.lng });
+          } catch (e) { }
+        }
+
+        
+        const riderSession = {
+          docId: riderDocId,
+          id: riderData.id,
+          name: riderData.name,
+          phone: riderData.phone,
+          city: riderData.city,
+          lat: gps.lat || riderData.lat || null,
+          lng: gps.lng || riderData.lng || null,
+          loggedInAt: Date.now(),
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+        };
+        localStorage.setItem('mq_db_session', JSON.stringify(riderSession));
+
+        showToast('✓ Rider login successful!', 'success');
+        setTimeout(() => { window.location.href = 'delivery-dashboard.html'; }, 1000);
+
+      } catch (err) {
+        setLoading('riderLoginBtn', false);
+        showToast('⚠ Login failed. Please try again.', 'error');
+        console.error(err);
+      }
+    };
+
+    
+    window.openForgot = function () { document.getElementById('forgotModal').classList.add('show'); };
+    window.closeForgot = function () { document.getElementById('forgotModal').classList.remove('show'); };
+
+    window.sendReset = async function () {
       const email = document.getElementById('forgot-email').value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showToast('⚠ Please enter a valid email', 'error'); return;
       }
-      closeForgot();
-      showToast('📧 Reset link sent to ' + email, 'success');
-    }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        closeForgot();
+        showToast('📧 Reset link sent to ' + email, 'success');
+      } catch (err) {
+        showToast('⚠ Could not send reset email. Check the address.', 'error');
+      }
+    };
 
+    window.socialLogin = function (provider) {
+      showToast(`${provider} login coming soon!`);
+    };
+
+     
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'admin') switchTab('admin');
+    if (params.get('tab') === 'rider') switchTab('rider');
+
+     
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const active = document.querySelector('.form-section.active').id;
@@ -1069,19 +1341,21 @@
       }
     });
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('tab') === 'admin') switchTab('admin');
-    if (params.get('tab') === 'rider') switchTab('rider');
-
     let toastTimer;
-    function showToast(msg, type = '') {
+    window.showToast = function (msg, type = '') {
       const t = document.getElementById('toast');
       t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
       document.getElementById('toast-msg').textContent = msg;
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
-    }
+    };
+
+    function showToast(msg, type = '') { window.showToast(msg, type); }
   </script>
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+  </script>
+
 </body>
 
 </html>

@@ -676,9 +676,96 @@
       grid-column: span 2;
     }
 
-    @media(max-width:480px) {
+    /* @media(max-width:480px) {
       .addr-form-full {
         grid-column: span 1;
+      }
+    } */
+
+    /* Large tablet */
+    @media (max-width:1100px) {
+      .card {
+        max-width: 800px;
+      }
+
+      .left-panel {
+        width: 38%;
+        padding: 32px 22px;
+      }
+    }
+
+    /* Tablet */
+    @media (max-width:768px) {
+      .card {
+        max-width: 560px;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 34%;
+        padding: 28px 16px;
+      }
+
+      .left-panel h2 {
+        font-size: 1.2rem;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .left-panel p {
+        margin-bottom: 0;
+        font-size: 12px;
+      }
+
+      .tab-btn {
+        padding: 10px 6px;
+        flex-direction: column;
+        font-size: 10px;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width:580px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .card {
+        border-radius: 18px;
+        flex-direction: column;
+        max-width: 100%;
+        min-height: unset;
+      }
+
+      .left-panel {
+        width: 100%;
+        flex-direction: row;
+        padding: 14px 18px;
+        border-radius: 0;
+        min-height: unset;
+      }
+
+      .lp-features {
+        display: none;
+      }
+
+      .right-panel {
+        padding: 22px 18px;
+      }
+
+      .social-row {
+        flex-direction: column;
+      }
+
+      .input-wrap input {
+        font-size: 16px;
+      }
+
+      html,
+      body {
+        overflow-x: hidden;
       }
     }
 
@@ -898,6 +985,120 @@
       transform: translateY(0);
       opacity: 1;
     }
+
+    /* ── Utility classes ── */
+    .chevron-sm {
+      font-size: 11px;
+    }
+
+    .nav-icon {
+      width: 18px;
+      color: var(--green);
+    }
+
+    .nav-logout-link {
+      color: #dc2626;
+    }
+
+    .modal-box-addr {
+      max-width: 500px;
+      width: 95%;
+    }
+
+    .addr-form-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .addr-form-input-spaced {
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    .modal-btns-top {
+      margin-top: 6px;
+    }
+
+    .default-badge {
+      margin-left: auto;
+      background: var(--green);
+      color: #fff;
+      font-size: 11px;
+      padding: 1px 8px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .orders-empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .orders-empty-icon {
+      font-size: 40px;
+      color: var(--green-border);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .orders-browse-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: var(--green);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .orders-loading {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .add-addr-btn-top {
+      margin-top: 12px;
+    }
+
+    .danger-card {
+      background: #fff0f0;
+      border-color: #fecaca;
+    }
+
+    .danger-label {
+      color: #dc2626;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+    }
+
+    .eta-badge {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .addr-flex-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .addr-phone-line {
+      margin-top: 4px;
+    }
+
+    .no-addr-msg {
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 12px 0;
+    }
   </style>
 </head>
 
@@ -915,16 +1116,16 @@
       <div class="header-right">
         <div class="account-menu-wrap">
           <button class="account-btn" id="accountBtn">
-            <i class="fas fa-user"></i> My Account <i class="fas fa-chevron-down" style="font-size:11px;"></i>
+            <i class="fas fa-user"></i> My Account <i class="fas fa-chevron-down chevron-sm"></i>
           </button>
           <div class="account-dropdown" id="accountDropdown">
-            <a href="#" onclick="showSection('account'); closeDropdown()"><i class="fas fa-user"
-                style="width:18px;color:var(--green);"></i> Profile</a>
-            <a href="#" onclick="showSection('orders'); closeDropdown()"><i class="fas fa-box"
-                style="width:18px;color:var(--green);"></i> My Orders</a>
-            <a href="my_order.html"><i class="fas fa-truck" style="width:18px;color:var(--green);"></i> Track Order</a>
-            <a href="#" onclick="logout()" style="color:#dc2626;"><i class="fas fa-sign-out-alt"
-                style="width:18px;"></i> Logout</a>
+            <a href="#" onclick="showSection('account'); closeDropdown()"><i class="fas fa-user" class="nav-icon"></i>
+              Profile</a>
+            <a href="#" onclick="showSection('orders'); closeDropdown()"><i class="fas fa-box" class="nav-icon"></i> My
+              Orders</a>
+            <a href="my_order.html"><i class="fas fa-truck nav-icon"></i> Track Order</a>
+            <a href="#" onclick="logout()" class="nav-logout-link"><i class="fas fa-sign-out-alt" class="nav-icon"></i>
+              Logout</a>
           </div>
         </div>
 
@@ -940,54 +1141,52 @@
   </header>
 
   <div class="modal-overlay" id="addressModal">
-    <div class="modal-box" style="max-width:500px;width:95%;">
+    <div class="modal-box modal-box-addr">
       <div class="modal-title" id="addrModalTitle">Add New Address</div>
       <input type="hidden" id="editAddrIndex" value="-1" />
       <div class="addr-form-grid">
         <div class="addr-form-full">
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Address Type</label>
-          <select class="addr-form-input" id="addrType" style="margin-top:4px;margin-bottom:10px;">
+          <label class="addr-form-label">Address Type</label>
+          <select class="addr-form-input addr-form-input-spaced" id="addrType">
             <option value="Home">🏠 Home</option>
             <option value="Work">🏢 Work</option>
             <option value="Other">📍 Other</option>
           </select>
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Full Name *</label>
-          <input class="addr-form-input" id="addrName" placeholder="Your name"
-            style="margin-top:4px;margin-bottom:10px;" />
+          <label class="addr-form-label">Full Name *</label>
+          <input class="addr-form-input" id="addrName" placeholder="Your name" class="addr-form-input-spaced" />
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Phone Number *</label>
+          <label class="addr-form-label">Phone Number *</label>
           <input class="addr-form-input" id="addrPhone" type="tel" placeholder="10-digit number"
-            style="margin-top:4px;margin-bottom:10px;" />
+            class="addr-form-input-spaced" />
         </div>
         <div class="addr-form-full">
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Street / Flat / Colony *</label>
+          <label class="addr-form-label">Street / Flat / Colony *</label>
           <input class="addr-form-input" id="addrStreet" placeholder="Flat no, Colony, Street..."
-            style="margin-top:4px;margin-bottom:10px;" />
+            class="addr-form-input-spaced" />
         </div>
         <div class="addr-form-full">
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">Landmark</label>
+          <label class="addr-form-label">Landmark</label>
           <input class="addr-form-input" id="addrLandmark" placeholder="Near school, temple..."
-            style="margin-top:4px;margin-bottom:10px;" />
+            class="addr-form-input-spaced" />
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">City *</label>
-          <input class="addr-form-input" id="addrCity" placeholder="City" style="margin-top:4px;margin-bottom:10px;" />
+          <label class="addr-form-label">City *</label>
+          <input class="addr-form-input addr-form-input-spaced" id="addrCity" placeholder="City" />
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">State *</label>
-          <input class="addr-form-input" id="addrState" placeholder="State"
-            style="margin-top:4px;margin-bottom:10px;" />
+          <label class="addr-form-label">State *</label>
+          <input class="addr-form-input" id="addrState" placeholder="State" class="addr-form-input-spaced" />
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);font-weight:500;">PIN Code *</label>
+          <label class="addr-form-label">PIN Code *</label>
           <input class="addr-form-input" id="addrPin" type="number" placeholder="6-digit PIN"
-            style="margin-top:4px;margin-bottom:10px;" />
+            class="addr-form-input-spaced" />
         </div>
       </div>
-      <div class="modal-btns" style="margin-top:6px;">
+      <div class="modal-btns modal-btns-top">
         <button class="modal-cancel" onclick="closeAddressModal()">Cancel</button>
         <button class="modal-save" onclick="saveAddress()"><i class="fas fa-check"></i> Save Address</button>
       </div>
@@ -1021,8 +1220,7 @@
         </button>
         <button class="nav-item" onclick="showSection('orders')" id="nav-orders">
           <i class="fas fa-box"></i> My Orders
-          <span id="ordersBadge"
-            style="margin-left:auto;background:var(--green);color:#fff;font-size:11px;padding:1px 8px;border-radius:10px;display:none;"></span>
+          <span id="ordersBadge" class="default-badge"></span>
         </button>
         <button class="nav-item" onclick="showSection('wishlist')" id="nav-wishlist">
           <i class="fas fa-heart"></i> Wishlist
@@ -1098,12 +1296,10 @@
 
       <div id="wishlist" class="section">
         <div class="section-title"><i class="fas fa-heart"></i> Wishlist</div>
-        <div style="text-align:center;padding:40px;color:var(--text-muted);">
-          <i class="fas fa-heart"
-            style="font-size:40px;color:var(--green-border);margin-bottom:12px;display:block;"></i>
+        <div class="orders-empty">
+          <i class="fas fa-heart" class="orders-empty-icon"></i>
           <p>No wishlist items yet.</p>
-          <a href="profile.html"
-            style="display:inline-block;margin-top:12px;background:var(--green);color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Browse
+          <a href="profile.html" class="orders-browse-btn">Browse
             Medicines</a>
         </div>
       </div>
@@ -1111,9 +1307,9 @@
       <div id="address" class="section">
         <div class="section-title"><i class="fas fa-map-marker-alt"></i> My Address</div>
         <div id="addressSection">
-          <p style="color:var(--text-muted);font-size:14px;">Loading...</p>
+          <p class="orders-loading">Loading...</p>
         </div>
-        <button class="add-addr-btn" onclick="openAddressModal(null)" style="margin-top:12px;">
+        <button class="add-addr-btn add-addr-btn-top" onclick="openAddressModal(null)">
           <i class="fas fa-plus"></i> &nbsp;Save New Address
         </button>
       </div>
@@ -1144,27 +1340,105 @@
           </div>
         </div>
 
-        <div class="settings-card" style="background:#fff0f0;border-color:#fecaca;">
-          <div class="settings-label" style="color:#dc2626;">⚠️ Danger Zone</div>
-          <button class="settings-btn" style="background:#dc2626;" onclick="logout()">Logout Account</button>
+        <div class="settings-card danger-card">
+          <div class="settings-label danger-label">⚠️ Danger Zone</div>
+          <button class="settings-btn btn-danger" onclick="logout()">Logout Account</button>
         </div>
       </div>
 
     </main>
   </div>
 
+  <!-- Firebase Module -->
+  <script type="module">
+    import { db as _db } from './firebase-config.js';
+    import { collection, doc, setDoc, getDoc, getDocs, updateDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const _user = JSON.parse(localStorage.getItem('mq_user') || '{}');
+    const _uid = _user.uid;
+    const _email = (_user.email || '').toLowerCase().trim();
+
+     
+    async function loadProfileFromFirestore() {
+      try {
+        if (!_uid) return;
+        const snap = await getDoc(doc(_db, 'users', _uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          const merged = { ..._user, ...data };
+          localStorage.setItem('mq_user', JSON.stringify(merged));
+          if (window._mpLoadUser) window._mpLoadUser();
+        }
+      } catch (e) { console.warn('Profile load failed:', e); }
+    }
+
+    
+    async function saveProfileFieldToFirestore(field, value) {
+      try {
+        if (!_uid) return;
+        await updateDoc(doc(_db, 'users', _uid), { [field]: value });
+      } catch (e) { console.warn('Profile field save failed:', e); }
+    }
+
+   
+    async function loadAddressesFromFirestore() {
+      try {
+        if (!_uid) return;
+        const snap = await getDoc(doc(_db, 'userAddresses', _uid));
+        if (snap.exists()) {
+          
+          window._mqAddressCache = snap.data().addresses || [];
+          if (window._mpLoadAddresses) window._mpLoadAddresses();
+        }
+      } catch (e) { console.warn('Addresses load failed:', e); }
+    }
+
+     
+    async function saveAddressesToFirestore(addresses) {
+      try {
+        if (!_uid) return;
+        await setDoc(doc(_db, 'userAddresses', _uid), { addresses, updatedAt: Date.now() });
+      } catch (e) { console.warn('Addresses save failed:', e); }
+    }
+
+     
+    function subscribeOrders() {
+      try {
+        if (!_uid && !_email) return;
+        const q = _uid
+          ? query(collection(_db, 'orders'), where('userId', '==', _uid))
+          : query(collection(_db, 'orders'), where('customerEmail', '==', _email));
+        onSnapshot(q, (snap) => {
+          const fsOrders = snap.docs.map(d => d.data());
+          
+          window._mqOrderCache = fsOrders;
+          if (window._mpLoadOrders) window._mpLoadOrders();
+        });
+      } catch (e) { console.warn('Orders subscription failed:', e); }
+    }
+
+    
+    window.__mpFirestore = {
+      saveProfileFieldToFirestore,
+      saveAddressesToFirestore,
+    };
+
+    loadProfileFromFirestore();
+    loadAddressesFromFirestore();
+    subscribeOrders();
+  </script>
+
   <script>
     (function () {
-      if (!localStorage.getItem('mq_user')) {
-        window.location.href = 'login.html';
-      }
+      const _mqU = localStorage.getItem('mq_user') || localStorage.getItem('mq_user');
+      if (!_mqU) { window.location.href = 'login.html'; }
     })();
 
     let userData = {};
 
     function loadUser() {
       try {
-        const raw = localStorage.getItem('mq_user') || '{}';
+        const raw = localStorage.getItem('mq_user') || localStorage.getItem('mq_user') || '{}';
         userData = JSON.parse(raw);
       } catch (e) { userData = {}; }
 
@@ -1201,8 +1475,8 @@
     function loadOrders() {
       let orders = [];
       try {
-        const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-
+         
+        const allOrders = window._mqOrderCache || [];
         const userEmail = (userData.email || '').toLowerCase().trim();
         if (!userEmail) return;
         orders = allOrders.filter(o => {
@@ -1261,7 +1535,7 @@
           <div class="order-pay">${o.payMethod || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
-          ${eta !== null && status !== 'delivered' ? `<span style="font-size:12px;color:var(--green);font-weight:600;">⏱ ${eta} min left</span>` : ''}
+          ${eta !== null && status !== 'delivered' ? `<span class="eta-badge">⏱ ${eta} min left</span>` : ''}
           <a class="track-link" href="my_order.html"><i class="fas fa-map-marker-alt"></i> Track</a>
         </div>
       </div>
@@ -1326,6 +1600,11 @@
         const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
         const idx = users.findIndex(u => u.email === userData.email);
         if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
+
+         
+        if (window.__mpFirestore) {
+          window.__mpFirestore.saveProfileFieldToFirestore(editField, val);
+        }
       } catch (e) { }
 
       closeModal();
@@ -1351,14 +1630,11 @@
     }
 
     function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-          localStorage.removeItem('mq_user');
-          localStorage.removeItem('mq_orders');
-          localStorage.removeItem('mq_addresses');
-          localStorage.removeItem('mediiquickUser');
-          window.location.href = 'login.html';
-        }
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('mq_user');  
+        window.location.href = 'login.html';
       }
+    }
 
     let toastTimer;
     function showToast(msg) {
@@ -1384,10 +1660,15 @@
     });
 
     function getSavedAddresses() {
-      try { return JSON.parse(localStorage.getItem('mq_addresses') || '[]'); } catch (e) { return []; }
+      
+      return window._mqAddressCache || [];
     }
     function saveAddresses(list) {
-      localStorage.setItem('mq_addresses', JSON.stringify(list));
+      window._mqAddressCache = list; 
+      
+      if (window.__mpFirestore) {
+        window.__mpFirestore.saveAddressesToFirestore(list);
+      }
     }
 
     function loadAddresses() {
@@ -1395,7 +1676,8 @@
 
       if (addrs.length === 0) {
         try {
-          const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+           
+          const orders = window._mqOrderCache || [];
           const latest = orders.find(o => o.deliveryAddr);
           if (latest?.deliveryAddr) {
             addrs = [{ ...latest.deliveryAddr, isDefault: true }];
@@ -1408,13 +1690,13 @@
       if (!section) return;
 
       if (addrs.length === 0) {
-        section.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">No saved addresses. Click the button below to add one!</p>`;
+        section.innerHTML = `<p class="no-addr-msg">No saved addresses. Click the button below to add one!</p>`;
         return;
       }
 
       section.innerHTML = addrs.map((a, i) => `
     <div class="addr-card ${a.isDefault ? 'default-addr' : ''}">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <div class="addr-flex-row">
         <span class="addr-type-badge">${a.type === 'Work' ? '🏢' : a.type === 'Other' ? '📍' : '🏠'} ${a.type || 'Home'}</span>
         ${a.isDefault ? '<span class="default-tag">✅ Default</span>' : ''}
       </div>
@@ -1423,9 +1705,9 @@
         ${a.street || ''}${a.landmark ? ', ' + a.landmark : ''}<br/>
         ${a.city || ''}${a.state ? ', ' + a.state : ''} - ${a.pin || ''}
       </div>
-      ${a.phone ? `<div class="addr-line" style="margin-top:4px;">📞 ${a.phone}</div>` : ''}
+      ${a.phone ? `<div class="addr-line addr-phone-line">📞 ${a.phone}</div>` : ''}
       <div class="addr-actions">
-        ${!a.isDefault ? `<button class="addr-btn addr-btn-default" onclick="setDefault(${i})">✅ Default Set Karo</button>` : ''}
+        ${!a.isDefault ? `<button class="addr-btn addr-btn-default" onclick="setDefault(${i})">✅ Set as Default</button>` : ''}
         <button class="addr-btn addr-btn-edit" onclick="openAddressModal(${i})">✏️ Edit</button>
         <button class="addr-btn addr-btn-delete" onclick="deleteAddress(${i})">🗑️ Delete</button>
       </div>
@@ -1531,6 +1813,11 @@
     loadUser();
     loadOrders();
     loadAddresses();
+
+     
+    window._mpLoadUser = loadUser;
+    window._mpLoadOrders = loadOrders;
+    window._mpLoadAddresses = loadAddresses;
 
     setInterval(loadOrders, 10000);
   </script>

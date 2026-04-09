@@ -25,7 +25,7 @@
       --white: #fff;
       --bg: #f5f7fa;
       --card: #fff;
-      --shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      --shadow: 0 2px 16px rgba(0, 0, .08);
       --radius: 14px;
       --red: #dc2626;
       --orange: #f59e0b;
@@ -39,7 +39,6 @@
       display: flex;
       flex-direction: column;
     }
-
 
     .header {
       background: var(--white);
@@ -117,11 +116,11 @@
 
       0%,
       100% {
-        opacity: 1;
+        opacity: 1
       }
 
       50% {
-        opacity: .4;
+        opacity: .4
       }
     }
 
@@ -144,7 +143,6 @@
       background: #b91c1c;
     }
 
-
     .main {
       flex: 1;
       padding: 24px;
@@ -152,7 +150,6 @@
       margin: 0 auto;
       width: 100%;
     }
-
 
     .card {
       background: var(--card);
@@ -171,6 +168,11 @@
       margin-bottom: 16px;
     }
 
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     .profile-row {
       display: flex;
@@ -209,7 +211,6 @@
       color: var(--green);
       margin-right: 4px;
     }
-
 
     .status-grid {
       display: grid;
@@ -263,11 +264,14 @@
       margin-top: 10px;
     }
 
-
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
+    }
+
+    .stats-grid-mb {
+      margin-bottom: 20px;
     }
 
     .stat-card {
@@ -316,7 +320,6 @@
       color: var(--orange);
     }
 
-
     .order-card {
       border-left: 4px solid var(--green);
     }
@@ -353,6 +356,23 @@
     .detail-row strong {
       color: var(--text);
       font-weight: 600;
+      max-width: 220px;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .detail-phone-link {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .detail-items {
+      font-size: 12px;
+    }
+
+    .detail-amount {
+      color: var(--green);
     }
 
     .deliver-btn {
@@ -389,440 +409,9 @@
       margin-bottom: 10px;
     }
 
-
-    .danger-card {
-      border: 1.5px solid #fca5a5;
+    .order-actions-wrap {
+      margin-top: 16px;
     }
-
-    .danger-card .card-title {
-      color: var(--red);
-    }
-
-    .danger-sub {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 14px;
-      line-height: 1.6;
-    }
-
-    .danger-btn {
-      width: 100%;
-      padding: 12px;
-      background: #fff;
-      color: var(--red);
-      border: 1.5px solid #fca5a5;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .danger-btn:hover {
-      background: #fef2f2;
-    }
-
-
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--green);
-      color: #fff;
-      padding: 12px 22px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      box-shadow: 0 4px 20px rgba(22, 163, 74, .35);
-      transform: translateY(80px);
-      opacity: 0;
-      transition: all .3s;
-      z-index: 999;
-    }
-
-    #toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    #toast.error {
-      background: var(--red);
-    }
-
-    #toast.warning {
-      background: var(--orange);
-    }
-
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .5);
-      z-index: 500;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
-      animation: slideUp .25s ease;
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(30px);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .modal-title {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--muted);
-      line-height: 1;
-    }
-
-    .modal-body {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    .modal-footer {
-      display: flex;
-      gap: 10px;
-    }
-
-    .modal-footer button {
-      flex: 1;
-      padding: 11px;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      border: none;
-    }
-
-    .btn-cancel-m {
-      background: #f3f4f6;
-      color: var(--text);
-    }
-
-    .btn-cancel-m:hover {
-      background: #e5e7eb;
-    }
-
-    .btn-red {
-      background: var(--red);
-      color: #fff;
-    }
-
-    .btn-red:hover {
-      background: #b91c1c;
-    }
-
-
-    .form-group-m {
-      margin-bottom: 14px;
-    }
-
-    .form-group-m label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 6px;
-    }
-
-    .form-input-m {
-      width: 100%;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      outline: none;
-      transition: border-color .2s;
-    }
-
-    .form-input-m:focus {
-      border-color: var(--green);
-    }
-
-    .form-input-m.err {
-      border-color: var(--red);
-    }
-
-    .form-grid-m {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .pw-toggle-m {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #9ca3af;
-      font-size: 13px;
-    }
-
-    .pw-toggle-m:hover {
-      color: #374151;
-    }
-
-    .err-msg-m {
-      font-size: 11px;
-      color: var(--red);
-      display: none;
-      margin-top: 3px;
-    }
-
-    .err-msg-m.show {
-      display: block;
-    }
-
-    .range-val {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--green-dark);
-    }
-
-    .range-note {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    input[type=range] {
-      width: 100%;
-      accent-color: var(--green);
-      margin-top: 6px;
-    }
-
-
-    .req-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .6);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .req-overlay.show {
-      display: flex;
-    }
-
-    .req-box {
-      background: #fff;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
-      animation: reqPop .3s cubic-bezier(.34, 1.56, .64, 1);
-      overflow: hidden;
-    }
-
-    @keyframes reqPop {
-      from {
-        transform: scale(.85) translateY(30px);
-        opacity: 0;
-      }
-
-      to {
-        transform: scale(1) translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .req-header {
-      background: linear-gradient(135deg, #16a34a, #059669);
-      padding: 18px 20px;
-      color: #fff;
-    }
-
-    .req-header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-
-    .req-title {
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .req-timer {
-      font-size: 1.2rem;
-      font-weight: 800;
-      background: rgba(255, 255, 255, .2);
-      border-radius: 8px;
-      padding: 4px 12px;
-      min-width: 48px;
-      text-align: center;
-    }
-
-    .req-timer.urgent {
-      background: rgba(239, 68, 68, .3);
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .5;
-      }
-    }
-
-    .req-sub {
-      font-size: 12px;
-      opacity: .85;
-    }
-
-    .req-body {
-      padding: 18px 20px;
-    }
-
-    .req-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      padding: 6px 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .req-row:last-child {
-      border-bottom: none;
-    }
-
-    .req-row span {
-      color: #6b7280;
-    }
-
-    .req-row strong {
-      color: #111827;
-      font-weight: 600;
-      max-width: 200px;
-      text-align: right;
-      font-size: 12px;
-    }
-
-    .req-progress {
-      height: 4px;
-      background: #e5e7eb;
-      margin: 0 20px 16px;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .req-progress-bar {
-      height: 100%;
-      background: var(--green);
-      border-radius: 4px;
-      transition: width 1s linear;
-    }
-
-    .req-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 0 20px 20px;
-    }
-
-    .req-accept {
-      padding: 13px;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .req-accept:hover {
-      background: var(--green-dark);
-    }
-
-    .req-reject {
-      padding: 13px;
-      background: #fff;
-      color: var(--red);
-      border: 1.5px solid #fca5a5;
-      border-radius: 12px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .req-reject:hover {
-      background: #fef2f2;
-    }
-
 
     .accept-btn {
       width: 100%;
@@ -883,6 +472,285 @@
       animation: pulse 2s infinite;
     }
 
+    .danger-card {
+      border: 1.5px solid #fca5a5;
+    }
+
+    .danger-card .card-title {
+      color: var(--red);
+    }
+
+    .danger-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .danger-btn {
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      color: var(--red);
+      border: 1.5px solid #fca5a5;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .danger-btn:hover {
+      background: #fef2f2;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--green);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(22, 163, 74, .35);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    #toast.error {
+      background: var(--red);
+    }
+
+    #toast.warning {
+      background: var(--orange);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+      animation: slideUp .25s ease;
+    }
+
+    .modal-box-md {
+      max-width: 480px;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-footer-top {
+      margin-top: 20px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 11px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel-m {
+      background: #f3f4f6;
+      color: var(--text);
+    }
+
+    .btn-cancel-m:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-red {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-red:hover {
+      background: #b91c1c;
+    }
+
+    .btn-save-pw {
+      flex: 1;
+      padding: 11px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      background: var(--green);
+      color: #fff;
+    }
+
+    .form-group-m {
+      margin-bottom: 14px;
+    }
+
+    .form-group-m label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .form-input-m {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .form-input-m:focus {
+      border-color: var(--green);
+    }
+
+    .form-input-m.err {
+      border-color: var(--red);
+    }
+
+    .form-grid-m {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .pw-field-wrap {
+      position: relative;
+    }
+
+    .pw-toggle-m {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .pw-toggle-m:hover {
+      color: #374151;
+    }
+
+    .pw-label-note {
+      font-weight: 400;
+      text-transform: none;
+      font-size: 11px;
+    }
+
+    .err-msg-m {
+      font-size: 11px;
+      color: var(--red);
+      display: none;
+      margin-top: 3px;
+    }
+
+    .err-msg-m.show {
+      display: block;
+    }
+
+    .range-val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
+
+    .range-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--green);
+      margin-top: 6px;
+    }
 
     .edit-profile-btn {
       margin-left: auto;
@@ -905,6 +773,187 @@
       background: var(--green2);
     }
 
+    .req-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .req-overlay.show {
+      display: flex;
+    }
+
+    .req-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+      animation: reqPop .3s cubic-bezier(.34, 1.56, .64, 1);
+      overflow: hidden;
+    }
+
+    @keyframes reqPop {
+      from {
+        transform: scale(.85) translateY(30px);
+        opacity: 0
+      }
+
+      to {
+        transform: scale(1) translateY(0);
+        opacity: 1
+      }
+    }
+
+    .req-header {
+      background: linear-gradient(135deg, #16a34a, #059669);
+      padding: 18px 20px;
+      color: #fff;
+    }
+
+    .req-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .req-title {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .req-timer {
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 8px;
+      padding: 4px 12px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .req-timer.urgent {
+      background: rgba(239, 68, 68, .3);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .5
+      }
+    }
+
+    .req-sub {
+      font-size: 12px;
+      opacity: .85;
+    }
+
+    .req-body {
+      padding: 18px 20px;
+    }
+
+    .req-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .req-row:last-child {
+      border-bottom: none;
+    }
+
+    .req-row span {
+      color: #6b7280;
+    }
+
+    .req-row strong {
+      color: #111827;
+      font-weight: 600;
+      max-width: 200px;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .req-progress {
+      height: 4px;
+      background: #e5e7eb;
+      margin: 0 20px 16px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .req-progress-bar {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width 1s linear;
+      width: 100%;
+    }
+
+    .req-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .req-accept {
+      padding: 13px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .req-accept:hover {
+      background: var(--green-dark);
+    }
+
+    .req-reject {
+      padding: 13px;
+      background: #fff;
+      color: var(--red);
+      border: 1.5px solid #fca5a5;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .req-reject:hover {
+      background: #fef2f2;
+    }
+
     @media(max-width:500px) {
       .main {
         padding: 16px 12px;
@@ -918,13 +967,20 @@
         grid-template-columns: 1fr;
       }
     }
+
+    @media(max-width:580px) {
+
+      html,
+      body {
+        overflow-x: hidden;
+      }
+    }
   </style>
 </head>
 
 <body>
 
   <div id="toast"></div>
-
 
   <div class="req-overlay" id="reqOverlay">
     <div class="req-box">
@@ -936,12 +992,16 @@
         <div class="req-sub">Accept quickly before another rider does</div>
       </div>
       <div class="req-progress">
-        <div class="req-progress-bar" id="reqProgressBar" style="width:100%"></div>
+        <div class="req-progress-bar" id="reqProgressBar"></div>
       </div>
       <div class="req-body">
         <div class="req-row"><span>Order ID</span><strong id="reqOrderId">—</strong></div>
         <div class="req-row"><span>Customer</span><strong id="reqCustomer">—</strong></div>
         <div class="req-row"><span>Address</span><strong id="reqAddress">—</strong></div>
+        <div class="req-row" id="reqDistanceRow" style="display:none;">
+          <span>📍 Distance</span>
+          <strong id="reqDistance" style="color:#16a34a;font-size:16px;font-weight:700;">—</strong>
+        </div>
         <div class="req-row"><span>Amount</span><strong id="reqAmount">—</strong></div>
         <div class="req-row"><span>Payment</span><strong id="reqPayment">—</strong></div>
         <div class="req-row"><span>Items</span><strong id="reqItems">—</strong></div>
@@ -952,7 +1012,6 @@
       </div>
     </div>
   </div>
-
 
   <div class="modal-overlay" id="confirmModal">
     <div class="modal-box">
@@ -968,14 +1027,12 @@
     </div>
   </div>
 
-
   <div class="modal-overlay" id="editModal">
-    <div class="modal-box" style="max-width:480px;">
+    <div class="modal-box modal-box-md">
       <div class="modal-head">
         <div class="modal-title">✏️ Edit Profile</div>
         <button class="modal-close" onclick="closeEdit()">✕</button>
       </div>
-
       <div class="form-grid-m">
         <div class="form-group-m">
           <label>Full Name *</label>
@@ -989,7 +1046,6 @@
           <div class="err-msg-m" id="e-err-phone">Valid 10-digit number required</div>
         </div>
       </div>
-
       <div class="form-grid-m">
         <div class="form-group-m">
           <label>Vehicle Type</label>
@@ -1001,39 +1057,39 @@
         </div>
         <div class="form-group-m">
           <label>City</label>
-          <input class="form-input-m" id="e-city" type="text" placeholder="e.g. Patna">
+          <input class="form-input-m" id="e-city" type="text" placeholder="e.g. Delhi">
         </div>
       </div>
-
+      <div class="form-grid-m">
+        <div class="form-group-m">
+          <label>PIN Code *</label>
+          <input class="form-input-m" id="e-pincode" type="text" maxlength="6" placeholder="6-digit PIN"
+            oninput="this.value=this.value.replace(/\D/g,'')">
+          <div class="err-msg-m" id="e-err-pincode">Valid 6-digit PIN required</div>
+        </div>
+        <div></div>
+      </div>
       <div class="form-group-m">
         <label>Delivery Range — <span class="range-val" id="e-range-val">10 km</span></label>
         <input type="range" id="e-range" min="1" max="50" value="10"
           oninput="document.getElementById('e-range-val').textContent=this.value+' km'">
         <div class="range-note">Maximum distance you are willing to deliver</div>
       </div>
-
       <div class="form-group-m">
-        <label>New Password <span style="font-weight:400;text-transform:none;font-size:11px;">(leave blank to keep
-            current)</span></label>
-        <div style="position:relative;">
+        <label>New Password <span class="pw-label-note">(leave blank to keep current)</span></label>
+        <div class="pw-field-wrap">
           <input class="form-input-m" id="e-pass" type="password" placeholder="Min 6 characters">
           <button class="pw-toggle-m" type="button" onclick="toggleEditPw()"><i class="fas fa-eye"
               id="e-eye"></i></button>
         </div>
         <div class="err-msg-m" id="e-err-pass">Password must be at least 6 characters</div>
       </div>
-
-      <div class="modal-footer" style="margin-top:20px;">
+      <div class="modal-footer modal-footer-top">
         <button class="btn-cancel-m" onclick="closeEdit()">Cancel</button>
-        <button
-          style="flex:1;padding:11px;border-radius:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;cursor:pointer;border:none;background:var(--green);color:#fff;"
-          onclick="saveEdit()">
-          <i class="fas fa-check"></i> Save Changes
-        </button>
+        <button class="btn-save-pw" onclick="saveEdit()"><i class="fas fa-check"></i> Save Changes</button>
       </div>
     </div>
   </div>
-
 
   <header class="header">
     <div class="header-inner">
@@ -1045,6 +1101,11 @@
         <div class="rider-chip">
           <div class="dot"></div> Rider Portal
         </div>
+        <div id="riderGpsBadge" onclick="updateRiderGps()" title="GPS Location — Click to refresh"
+          style="display:flex;align-items:center;gap:6px;background:#fef9c3;border:1px solid #fde047;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#92400e;cursor:pointer;">
+          <i class="fas fa-map-marker-alt"></i>
+          <span id="riderGpsHeaderText">📡 Loading...</span>
+        </div>
         <button class="header-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
     </div>
@@ -1052,9 +1113,8 @@
 
   <div class="main">
 
-
     <div class="card">
-      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="card-title card-title-row">
         <span>👤 My Profile</span>
         <button class="edit-profile-btn" onclick="openEdit()"><i class="fas fa-pen"></i> Edit</button>
       </div>
@@ -1065,29 +1125,29 @@
           <div class="p-detail"><i class="fas fa-phone"></i><span id="pPhone">—</span></div>
           <div class="p-detail"><i class="fas fa-motorcycle"></i><span id="pVehicle">—</span></div>
           <div class="p-detail"><i class="fas fa-map-marker-alt"></i><span id="pCity">—</span></div>
+          <div class="p-detail"><i class="fas fa-map-pin"></i><span id="pPincode">—</span></div>
           <div class="p-detail"><i class="fas fa-route"></i><span id="pRange">—</span></div>
+          <div class="p-detail" style="margin-top:6px;">
+            <span id="gpsStatusBadge"
+              style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;background:#fef9c3;color:#92400e;">📡
+              GPS loading...</span>
+          </div>
         </div>
       </div>
     </div>
 
-
     <div class="card">
       <div class="card-title">🟢 My Availability</div>
       <div class="status-grid">
-        <button class="status-btn" id="btnAvailable" onclick="setStatus('available')">
-          ✅ Available
-        </button>
-        <button class="status-btn" id="btnOffline" onclick="setStatus('offline')">
-          ⚫ Go Offline
-        </button>
+        <button class="status-btn" id="btnAvailable" onclick="setStatus('available')">✅ Available</button>
+        <button class="status-btn" id="btnOffline" onclick="setStatus('offline')">⚫ Go Offline</button>
       </div>
       <div class="busy-notice" id="busyNotice" style="display:none;">
         🔴 You have an active delivery. Complete it before changing your status.
       </div>
     </div>
 
-
-    <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stats-grid stats-grid-mb">
       <div class="stat-card">
         <div class="stat-icon si-green">✅</div>
         <div>
@@ -1104,7 +1164,6 @@
       </div>
     </div>
 
-
     <div class="card order-card" id="orderCard">
       <div class="card-title">📦 Current Active Order</div>
       <div id="orderContent">
@@ -1115,33 +1174,144 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-title">🔒 Change Password</div>
+      <div class="danger-sub" style="color:var(--muted);">Update your login password. You'll need your current password
+        to confirm.</div>
+      <button class="btn-save-pw"
+        style="width:100%;padding:12px;border-radius:10px;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;"
+        onclick="openChangePass()"><i class="fas fa-key"></i> Change Password</button>
+    </div>
 
     <div class="card danger-card">
       <div class="card-title">⚠️ Danger Zone</div>
       <div class="danger-sub">Deleting your account is permanent and cannot be undone. You will need to re-register to
         use the platform again.</div>
-      <button class="danger-btn" onclick="confirmDelete()">
-        <i class="fas fa-trash"></i> Delete My Account
-      </button>
+      <button class="danger-btn" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete My Account</button>
     </div>
 
   </div>
 
-  <script>
+  <div class="modal-overlay" id="changePassModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">🔒 Change Password</div>
+        <button class="modal-close" onclick="closeChangePass()">✕</button>
+      </div>
+      <div class="form-group-m" style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Current Password
+          *</label>
+        <div class="pw-field-wrap">
+          <input class="form-input-m" id="cp-old" type="password" placeholder="Enter current password">
+          <button class="pw-toggle-m" type="button" onclick="toggleCpPw('cp-old','cp-eye0')"><i class="fas fa-eye"
+              id="cp-eye0"></i></button>
+        </div>
+        <div class="err-msg-m" id="cp-err-old" style="display:none;color:#dc2626;font-size:11px;margin-top:4px;">Current
+          password is incorrect</div>
+      </div>
+      <div class="form-group-m" style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password
+          *</label>
+        <div class="pw-field-wrap">
+          <input class="form-input-m" id="cp-new" type="password" placeholder="Min 6 characters">
+          <button class="pw-toggle-m" type="button" onclick="toggleCpPw('cp-new','cp-eye1')"><i class="fas fa-eye"
+              id="cp-eye1"></i></button>
+        </div>
+        <div class="err-msg-m" id="cp-err-new" style="display:none;color:#dc2626;font-size:11px;margin-top:4px;">Min 6
+          characters required</div>
+      </div>
+      <div class="form-group-m" style="margin-bottom:18px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Confirm New
+          Password *</label>
+        <div class="pw-field-wrap">
+          <input class="form-input-m" id="cp-confirm" type="password" placeholder="Re-enter new password">
+          <button class="pw-toggle-m" type="button" onclick="toggleCpPw('cp-confirm','cp-eye2')"><i class="fas fa-eye"
+              id="cp-eye2"></i></button>
+        </div>
+        <div class="err-msg-m" id="cp-err-confirm" style="display:none;color:#dc2626;font-size:11px;margin-top:4px;">
+          Passwords do not match</div>
+      </div>
+      <div class="modal-footer modal-footer-top">
+        <button class="btn-cancel-m" onclick="closeChangePass()">Cancel</button>
+        <button class="btn-save-pw" id="cpSaveBtn" onclick="doChangePass()"><i class="fas fa-check"></i> Update
+          Password</button>
+      </div>
+    </div>
+  </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    
     let session = null;
     try { session = JSON.parse(localStorage.getItem('mq_db_session')); } catch (e) { }
-    if (!session || !session.id) window.location.href = 'delivery-login.html';
-
-    function getMe() {
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      return boys.find(b => b.id === session.id) || null;
+    if (!session || !session.docId) {
+      window.location.replace('login.html?tab=rider');
+    }
+    if (session && session.expiresAt && Date.now() > session.expiresAt) {
+      localStorage.removeItem('mq_db_session');
+      window.location.replace('login.html?tab=rider');
     }
 
-    function saveBoysLS(boys) { localStorage.setItem('mq_delivery_boys', JSON.stringify(boys)); }
+    
+    let _riderCache = null;
+
+     
+    async function hashPassword(plain) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plain + 'mq_salt_2024');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+        async function getMe() {
+      if (_riderCache) return _riderCache;
+      try {
+        const snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', session.phone)));
+        if (!snap.empty) {
+          _riderCache = { docId: snap.docs[0].id, ...snap.docs[0].data() };
+          return _riderCache;
+        }
+      } catch (e) { console.error('getMe error:', e); }
+      return null;
+    }
+
+    async function saveMeToFirestore(updates) {
+      try {
+        const me = await getMe();
+        if (me && me.docId) {
+          await updateDoc(doc(db, 'riders', me.docId), updates);
+          _riderCache = { ..._riderCache, ...updates };
+        }
+      } catch (e) { console.error('saveMeToFirestore error:', e); }
+    }
+
+     
+    async function saveBoysFirestore(boy) {
+      try {
+        await setDoc(doc(db, 'riders', boy.id || boy.phone), boy, { merge: true });
+      } catch (e) { console.warn('saveBoysFirestore failed:', e); }
+    }
+    function saveBoysLS(boys) {
+      
+      boys.forEach(b => saveBoysFirestore(b));
+    }
 
     let toastTimer;
-    function showToast(msg, type = '') {
+    window.showToast = function (msg, type = '') {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.className = type ? type : '';
@@ -1150,8 +1320,9 @@
       toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
     }
 
-    function renderProfile() {
-      const me = getMe();
+    
+    async function renderProfile() {
+      const me = await getMe();
       if (!me) { doLogout(); return; }
       const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
       document.getElementById('pAvatar').textContent = me.name.charAt(0).toUpperCase();
@@ -1159,22 +1330,24 @@
       document.getElementById('pPhone').textContent = me.phone;
       document.getElementById('pVehicle').textContent = vMap[me.vehicle] || me.vehicle;
       document.getElementById('pCity').textContent = me.city || '—';
+      document.getElementById('pPincode').textContent = me.pincode ? '📍 ' + me.pincode : 'PIN not set';
       document.getElementById('pRange').textContent = me.deliveryRange ? me.deliveryRange + ' km range' : 'Range not set';
     }
 
-    function openEdit() {
-      const me = getMe();
+    
+    window.openEdit = async function () {
+      const me = await getMe();
       if (!me) return;
       document.getElementById('e-name').value = me.name;
       document.getElementById('e-phone').value = me.phone;
       document.getElementById('e-vehicle').value = me.vehicle || 'bike';
       document.getElementById('e-city').value = me.city || '';
+      document.getElementById('e-pincode').value = me.pincode || '';
       document.getElementById('e-pass').value = '';
       const range = me.deliveryRange || 10;
       document.getElementById('e-range').value = range;
       document.getElementById('e-range-val').textContent = range + ' km';
-
-      ['name', 'phone', 'pass'].forEach(f => {
+      ['name', 'phone', 'pincode', 'pass'].forEach(f => {
         document.getElementById('e-err-' + f).classList.remove('show');
         const inp = document.getElementById('e-' + f);
         if (inp) inp.classList.remove('err');
@@ -1182,27 +1355,25 @@
       document.getElementById('editModal').classList.add('show');
     }
 
-    function closeEdit() {
-      document.getElementById('editModal').classList.remove('show');
-    }
+    window.closeEdit = function () { document.getElementById('editModal').classList.remove('show'); }
 
-    function toggleEditPw() {
+    window.toggleEditPw = function () {
       const inp = document.getElementById('e-pass');
       const ico = document.getElementById('e-eye');
       inp.type = inp.type === 'password' ? 'text' : 'password';
       ico.className = inp.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
     }
 
-    function saveEdit() {
+    window.saveEdit = async function () {
       const name = document.getElementById('e-name').value.trim();
       const phone = document.getElementById('e-phone').value.trim();
       const vehicle = document.getElementById('e-vehicle').value;
       const city = document.getElementById('e-city').value.trim();
+      const pincode = document.getElementById('e-pincode').value.trim();
       const pass = document.getElementById('e-pass').value;
       const range = parseInt(document.getElementById('e-range').value);
 
-
-      ['name', 'phone', 'pass'].forEach(f => {
+      ['name', 'phone', 'pincode', 'pass'].forEach(f => {
         document.getElementById('e-err-' + f).classList.remove('show');
         const inp = document.getElementById('e-' + f);
         if (inp) inp.classList.remove('err');
@@ -1219,6 +1390,11 @@
         document.getElementById('e-phone').classList.add('err');
         valid = false;
       }
+      if (!/^\d{6}$/.test(pincode)) {
+        document.getElementById('e-err-pincode').classList.add('show');
+        document.getElementById('e-pincode').classList.add('err');
+        valid = false;
+      }
       if (pass && pass.length < 6) {
         document.getElementById('e-err-pass').classList.add('show');
         document.getElementById('e-pass').classList.add('err');
@@ -1226,79 +1402,77 @@
       }
       if (!valid) return;
 
-
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const conflict = boys.find(b => b.phone === phone && b.id !== session.id);
-      if (conflict) {
-        document.getElementById('e-err-phone').textContent = 'This number is already used by another rider';
-        document.getElementById('e-err-phone').classList.add('show');
-        document.getElementById('e-phone').classList.add('err');
-        return;
-      }
-
-      const me = boys.find(b => b.id === session.id);
-      if (!me) return;
-      me.name = name;
-      me.phone = phone;
-      me.vehicle = vehicle;
-      me.city = city;
-      me.deliveryRange = range;
-      if (pass) me.password = pass;
-      saveBoysLS(boys);
-
+      const updates = { name, phone, vehicle, city, pincode, deliveryRange: range };
+      if (pass) updates.password = pass;
+      await saveMeToFirestore(updates);
 
       session.name = name;
       session.phone = phone;
       localStorage.setItem('mq_db_session', JSON.stringify(session));
 
       closeEdit();
-      renderAll();
+      await renderAll();
       showToast('✅ Profile updated successfully!');
     }
-
 
     document.getElementById('editModal').addEventListener('click', function (e) {
       if (e.target === this) closeEdit();
     });
 
-    function renderStatus() {
-      const me = getMe();
+    
+    async function renderStatus() {
+      const me = await getMe();
       if (!me) return;
       const s = me.status;
       const btnA = document.getElementById('btnAvailable');
       const btnO = document.getElementById('btnOffline');
       const busy = document.getElementById('busyNotice');
-
       btnA.className = 'status-btn' + (s === 'available' ? ' sel-available' : '');
       btnO.className = 'status-btn' + (s === 'offline' ? ' sel-offline' : '');
-
       if (s === 'busy') {
-        btnA.disabled = true;
-        btnO.disabled = true;
-        busy.style.display = 'block';
+        btnA.disabled = true; btnO.disabled = true; busy.style.display = 'block';
       } else {
-        btnA.disabled = false;
-        btnO.disabled = false;
-        busy.style.display = 'none';
+        btnA.disabled = false; btnO.disabled = false; busy.style.display = 'none';
       }
     }
 
-    function renderStats() {
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-      const delivered = orders.filter(o => o.deliveryBoy?.id === session.id && o.status === 'delivered').length;
-      const active = orders.filter(o => o.deliveryBoy?.id === session.id && ['on_the_way', 'pending_acceptance'].includes(o.status)).length;
-      document.getElementById('statDelivered').textContent = delivered;
-      document.getElementById('statActive').textContent = active;
+     
+    async function renderStats() {
+     
+      try {
+        const snap = await getDocs(query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)));
+        const orders = snap.docs.map(d => d.data());
+        const delivered = orders.filter(o => o.status === 'delivered').length;
+        const active = orders.filter(o => ['on_the_way', 'pending_acceptance'].includes(o.status)).length;
+        document.getElementById('statDelivered').textContent = delivered;
+        document.getElementById('statActive').textContent = active;
+      } catch (e) {
+        document.getElementById('statDelivered').textContent = '—';
+        document.getElementById('statActive').textContent = '—';
+      }
+    }
+
+     
+     
+    function subscribeActiveOrder() {
+      onSnapshot(
+        query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)),
+        (snap) => {
+          window._mqActiveOrderCache = snap.docs.map(d => d.data());
+          renderActiveOrderFromCache();
+        }
+      );
     }
 
     function renderActiveOrder() {
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+      renderActiveOrderFromCache();
+    }
 
-
-      const pending = orders.find(o => o.deliveryBoy?.id === session.id && o.status === 'pending_acceptance');
-      const active = orders.find(o => o.deliveryBoy?.id === session.id && o.status === 'on_the_way');
+    function renderActiveOrderFromCache() {
+      const orders = window._mqActiveOrderCache || [];
+      const pending = orders.find(o => o.status === 'pending_acceptance');
+      const active = orders.find(o => o.status === 'on_the_way');
       const order = pending || active;
-
       const card = document.getElementById('orderCard');
       const content = document.getElementById('orderContent');
 
@@ -1319,336 +1493,354 @@
         ${isPending ? `<div class="pending-badge">⏳ New Order Request — Please Accept or Reject</div>` : ''}
         <div class="order-id-tag">${order.orderId}</div>
         <div class="detail-row"><span>Customer</span><strong>${order.customerName || order.name || 'Guest'}</strong></div>
-        <div class="detail-row"><span>Phone</span><strong><a href="tel:${phone}" style="color:var(--green);text-decoration:none;font-weight:700;">📞 ${phone}</a></strong></div>
+        <div class="detail-row"><span>Phone</span><strong><a href="tel:${phone}" class="detail-phone-link">📞 ${phone}</a></strong></div>
         <div class="detail-row"><span>Address</span><strong>${addrStr}</strong></div>
-        <div class="detail-row"><span>Items</span><strong style="font-size:12px;">${items}</strong></div>
-        <div class="detail-row"><span>Amount</span><strong style="color:var(--green);">₹${order.total || 0}</strong></div>
+        <div class="detail-row"><span>Items</span><strong class="detail-items">${items}</strong></div>
+        <div class="detail-row"><span>Amount</span><strong class="detail-amount">₹${order.total || 0}</strong></div>
         <div class="detail-row"><span>Payment</span><strong>${order.payMethod || '—'}</strong></div>
         ${isPending ? `
-          <div style="margin-top:16px;">
-            <button class="accept-btn" onclick="acceptOrder('${order.orderId}')">
-              <i class="fas fa-check-circle"></i> Accept Order
-            </button>
-            <button class="reject-btn" onclick="rejectOrder('${order.orderId}')">
-              <i class="fas fa-times-circle"></i> Reject Order
-            </button>
+          <div class="order-actions-wrap">
+            <button class="accept-btn" onclick="acceptOrder('${order.orderId}')"><i class="fas fa-check-circle"></i> Accept Order</button>
+            <button class="reject-btn" onclick="rejectOrder('${order.orderId}')"><i class="fas fa-times-circle"></i> Reject Order</button>
           </div>
         ` : `
-          <button class="deliver-btn" onclick="markDelivered('${order.orderId}')">
-            <i class="fas fa-check-circle"></i> Mark as Delivered
-          </button>
+          <button class="deliver-btn" onclick="markDelivered('${order.orderId}')"><i class="fas fa-check-circle"></i> Mark as Delivered</button>
         `}
       `;
     }
 
-    function acceptOrder(orderId) {
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-      const o = orders.find(x => x.orderId === orderId);
-      if (!o) return;
-      o.status = 'on_the_way';
-      o.statusUpdatedAt = Date.now();
-      localStorage.setItem('mq_orders', JSON.stringify(orders));
+    
+    window.acceptOrder = async function (orderId) {
+      const now = Date.now();
+       
+      try {
+        await updateDoc(doc(db, 'orders', orderId), { status: 'on_the_way', statusUpdatedAt: now, riderAcceptedAt: now });
+        await deleteDoc(doc(db, 'riderRequests', orderId));
+      } catch (e) { console.warn('acceptOrder Firestore error:', e); }
       showToast('✅ Order accepted! Go deliver it!');
       renderAll();
     }
 
-    function rejectOrder(orderId) {
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-      const o = orders.find(x => x.orderId === orderId);
-      if (!o) return;
-
-      o.deliveryBoy = null;
-      o.status = 'packing';
-      o.statusUpdatedAt = Date.now();
-      localStorage.setItem('mq_orders', JSON.stringify(orders));
-
-
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const me = boys.find(b => b.id === session.id);
-      if (me) {
-        me.status = 'available';
-        me.activeOrder = null;
-        localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
-      }
+    window.rejectOrder = function (orderId) {
+       
+      updateDoc(doc(db, 'orders', orderId), { deliveryBoy: null, status: 'packing', statusUpdatedAt: Date.now() })
+        .catch(e => console.warn('rejectOrder Firestore error:', e));
       showToast('❌ Order rejected. You are now available.', 'error');
       renderAll();
     }
 
-    function setStatus(newStatus) {
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const me = boys.find(b => b.id === session.id);
-      if (!me) return;
-      if (me.status === 'busy') { showToast('Complete the active delivery first!', 'warning'); return; }
-      me.status = newStatus;
-      saveBoysLS(boys);
-      renderAll();
-      showToast(newStatus === 'available' ? '✅ You are now Available!' : '⚫ You are now Offline');
-    }
+     
+    window.markDelivered = async function (orderId) {
+      const now = Date.now();
+      // FIXED: update Firestore directly
+      try {
+        await updateDoc(doc(db, 'orders', orderId), {
+          status: 'delivered',
+          deliveredAt: now,
+          statusUpdatedAt: now
+        });
+      } catch (e) { console.warn('Delivered status Firestore update failed:', e); }
 
-    function markDelivered(orderId) {
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-      const o = orders.find(x => x.orderId === orderId);
-      if (!o) return;
-      o.status = 'delivered';
-      o.statusUpdatedAt = Date.now();
-      localStorage.setItem('mq_orders', JSON.stringify(orders));
+       
+      try {
+        await deleteDoc(doc(db, 'riderRequests', orderId));
+      } catch (e) { }
 
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const me = boys.find(b => b.id === session.id);
-      if (me) {
-        me.status = 'available';
-        me.activeOrder = null;
-        me.totalDelivered = (me.totalDelivered || 0) + 1;
-        saveBoysLS(boys);
-      }
-
+      await saveMeToFirestore({
+        status: 'available',
+        activeOrder: null,
+        totalDelivered: ((_riderCache && _riderCache.totalDelivered) || 0) + 1
+      });
       showToast('🎉 Order delivered! Great job!');
       renderAll();
-    }
+    };
 
-    function doLogout() {
+    window.setStatus = async function (newStatus) {
+      const me = await getMe();
+      if (!me) return;
+      if (me.status === 'busy') { showToast('Complete the active delivery first!', 'warning'); return; }
+      await saveMeToFirestore({ status: newStatus });
+      renderAll();
+      showToast(newStatus === 'available' ? '✅ You are now Available!' : '⚫ You are now Offline');
+    };
+
+    window.doLogout = function () {
       localStorage.removeItem('mq_db_session');
       window.location.href = 'login.html?tab=rider';
     }
 
-
-    function openConfirm(title, body, cb) {
+    window.openConfirm = function (title, body, cb) {
       document.getElementById('confirmTitle').textContent = title;
       document.getElementById('confirmBody').textContent = body;
       document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); cb(); };
       document.getElementById('confirmModal').classList.add('show');
     }
-    function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); }
+    window.closeConfirm = function () { document.getElementById('confirmModal').classList.remove('show'); }
 
-    function confirmDelete() {
+    window.confirmDelete = function () {
       openConfirm(
         '🗑️ Delete Your Account?',
-        'This will permanently remove your account. You will be logged out immediately and will need to re-register to use the platform again.',
+        'This will permanently remove your account. You will be logged out immediately.',
         deleteAccount
       );
     }
 
-    function deleteAccount() {
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const updated = boys.filter(b => b.id !== session.id);
-      saveBoysLS(updated);
+    async function deleteAccount() {
+      try {
+        const me = await getMe();
+        if (me && me.docId) {
+          await deleteDoc(doc(db, 'riders', me.docId));
+        }
+      } catch (e) { console.error('deleteAccount error:', e); }
       localStorage.removeItem('mq_db_session');
       showToast('Account deleted. Redirecting...');
       setTimeout(() => window.location.href = 'index.html', 1500);
     }
 
-    function renderAll() {
-      const me = getMe();
-      if (!me) { doLogout(); return; }
+     
+    window.openChangePass = function () {
+      ['cp-old', 'cp-new', 'cp-confirm'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      ['cp-err-old', 'cp-err-new', 'cp-err-confirm'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.getElementById('changePassModal').classList.add('show');
+    };
 
+    window.closeChangePass = function () {
+      document.getElementById('changePassModal').classList.remove('show');
+    };
 
-      if (me.status === 'busy' && me.activeOrder) {
-        const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-        const activeOrder = orders.find(o => o.orderId === me.activeOrder);
-        if (!activeOrder || activeOrder.status === 'cancelled' || activeOrder.status === 'delivered') {
-          const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-          const myBoy = boys.find(b => b.id === session.id);
-          if (myBoy) {
-            myBoy.status = 'available';
-            myBoy.activeOrder = null;
-            localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
-          }
-          if (activeOrder?.status === 'cancelled') {
-            showToast('ℹ️ Your assigned order was cancelled. You are now available.');
-          }
-        }
+    window.toggleCpPw = function (inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const ico = document.getElementById(iconId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      ico.className = inp.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+    };
+
+    window.doChangePass = async function () {
+      const oldPass = document.getElementById('cp-old').value;
+      const newPass = document.getElementById('cp-new').value;
+      const confirm = document.getElementById('cp-confirm').value;
+
+      ['cp-err-old', 'cp-err-new', 'cp-err-confirm'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+
+      let valid = true;
+      const me = await getMe();
+      if (!me) { showToast('Session expired. Please login again.', 'error'); return; }
+
+       
+      const oldHash = await hashPassword(oldPass);
+      const passwordMatch = me.password === oldHash || me.password === oldPass;
+      if (!oldPass || !passwordMatch) {
+        document.getElementById('cp-err-old').style.display = 'block';
+        valid = false;
       }
+      if (newPass.length < 6) {
+        document.getElementById('cp-err-new').style.display = 'block';
+        valid = false;
+      }
+      if (newPass !== confirm) {
+        document.getElementById('cp-err-confirm').style.display = 'block';
+        valid = false;
+      }
+      if (!valid) return;
 
-      renderProfile();
-      renderStatus();
+      const btn = document.getElementById('cpSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      try {
+        const newHash = await hashPassword(newPass);
+        await saveMeToFirestore({ password: newHash });
+        closeChangePass();
+        showToast('✅ Password changed successfully!');
+      } catch (e) {
+        showToast('⚠️ Failed to update password. Try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Update Password';
+      }
+    };
+
+    document.getElementById('changePassModal').addEventListener('click', function (e) {
+      if (e.target === this) closeChangePass();
+    });
+
+     
+    window.renderAll = async function () {
+      const me = await getMe();
+      if (!me) { doLogout(); return; }
+      await renderProfile();
+      await renderStatus();
       renderStats();
       renderActiveOrder();
     }
 
-    renderAll();
-
-
-    setInterval(() => {
-      renderAll();
-      checkForNewRequests();
-    }, 2000);
-
-
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'mq_rider_requests' || e.key === 'mq_orders') {
-        checkForNewRequests();
-        renderAll();
+     
+    window.updateRiderGps = function () {
+      if (!navigator.geolocation) {
+        const el = document.getElementById('gpsStatusBadge');
+        const hdrTxt = document.getElementById('riderGpsHeaderText');
+        if (el) { el.textContent = '❌ GPS off'; el.style.background = '#fee2e2'; el.style.color = '#dc2626'; }
+        if (hdrTxt) hdrTxt.textContent = '❌ GPS off';
+        return;
       }
-    });
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        try {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          session.lat = lat; session.lng = lng;
+          localStorage.setItem('mq_db_session', JSON.stringify(session));
+          saveMeToFirestore({ lat, lng });
+          const coordText = lat.toFixed(5) + ', ' + lng.toFixed(5);
+          const el = document.getElementById('gpsStatusBadge');
+          const hdr = document.getElementById('riderGpsBadge');
+          const hdrTxt = document.getElementById('riderGpsHeaderText');
+          if (el) { el.textContent = '📍 ' + coordText; el.style.background = '#dcfce7'; el.style.color = '#15803d'; }
+          if (hdr) { hdr.style.background = '#dcfce7'; hdr.style.borderColor = '#86efac'; hdr.style.color = '#15803d'; }
+          if (hdrTxt) hdrTxt.textContent = coordText;
+        } catch (e) { }
+      }, function () {
+        const el = document.getElementById('gpsStatusBadge');
+        const hdrTxt = document.getElementById('riderGpsHeaderText');
+        if (session.lat && session.lng) {
+          const coordText = session.lat.toFixed(5) + ', ' + session.lng.toFixed(5);
+          if (el) { el.textContent = '📍 ' + coordText; el.style.background = '#dcfce7'; el.style.color = '#15803d'; }
+          if (hdrTxt) hdrTxt.textContent = coordText;
+        } else {
+          if (el) { el.textContent = '⚠️ Enable GPS'; el.style.background = '#fef9c3'; el.style.color = '#92400e'; }
+          if (hdrTxt) hdrTxt.textContent = '⚠️ Enable GPS';
+        }
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    }
 
-
+    
     let _currentRequestId = null;
     let _timerInterval = null;
+    let _riderRequestsCache = [];  
 
-    function checkForNewRequests() {
-      const me = getMe();
+     
+    async function subscribeRiderRequests() {
+      const me = await getMe();
+      if (!me) return;
+      const myDocId = me.docId;
+      onSnapshot(
+        query(collection(db, 'riderRequests'), where('riderIds', 'array-contains', myDocId)),
+        (snap) => {
+          _riderRequestsCache = snap.docs.map(d => ({ orderId: d.id, ...d.data() }));
+          checkForNewRequests();
+        }
+      );
+    }
+
+    async function checkForNewRequests() {
+      const me = await getMe();
       if (!me) return;
       if (me.status === 'busy') return;
-
-      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
+      const myDocId = me.docId;
       const now = Date.now();
-
-
-      const myReq = requests.find(r =>
+      
+      const myReq = _riderRequestsCache.find(r =>
         Array.isArray(r.riderIds) &&
-        r.riderIds.includes(session.id) &&
-        now < r.expiresAt
+        r.riderIds.includes(myDocId) &&
+        !r.acceptedBy &&
+        !r.expired &&
+        now < r.expiresAt &&
+        !(Array.isArray(r.rejectedBy) && r.rejectedBy.includes(myDocId))
       );
-
       if (!myReq) {
         if (_currentRequestId) closeRequestPopup();
         return;
       }
-
-
-      if (myReq.acceptedBy && myReq.acceptedBy !== session.id) {
-        if (_currentRequestId === myReq.orderId) {
-
-          showTakenMessage();
-        }
-        return;
-      }
-
-
-      if (myReq.acceptedBy === session.id) {
-        if (_currentRequestId) closeRequestPopup();
-        return;
-      }
-
-
       if (_currentRequestId === myReq.orderId) return;
-
-
       showRequestPopup(myReq);
     }
 
-    function showTakenMessage() {
-
-      const timerEl = document.getElementById('reqTimer');
+    window.showTakenMessage = function () {
       const overlay = document.getElementById('reqOverlay');
       if (!overlay.classList.contains('show')) return;
-
-
       const header = overlay.querySelector('.req-header');
-      if (header) {
-        header.style.background = 'linear-gradient(135deg,#64748b,#475569)';
-      }
-      const title = document.getElementById('reqOrderId');
+      if (header) header.style.background = 'linear-gradient(135deg,#64748b,#475569)';
       overlay.querySelector('.req-title').textContent = '❌ Order Already Taken!';
       overlay.querySelector('.req-sub').textContent = 'Another rider accepted this order';
+      const timerEl = document.getElementById('reqTimer');
       if (timerEl) timerEl.textContent = '';
-
-
       const actions = overlay.querySelector('.req-actions');
       if (actions) actions.style.display = 'none';
-
-
-      setTimeout(() => {
-        closeRequestPopup();
-
-        const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-        const me = boys.find(b => b.id === session.id);
-        if (me && me.status !== 'busy') {
-          me.status = 'available';
-          localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
-        }
-        renderAll();
-      }, 1500);
+      setTimeout(() => { closeRequestPopup(); renderAll(); }, 1500);
     }
 
-    function acceptRequest() {
+    window.acceptRequest = async function () {
       if (!_currentRequestId) return;
       const orderId = _currentRequestId;
+      const me = await getMe();
+      if (!me) return;
+      const myDocId = me.docId;
 
+      
+      const req = _riderRequestsCache.find(r => r.orderId === orderId);
+      if (!req || req.acceptedBy) { showTakenMessage(); return; }
 
-      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
-      const req = requests.find(r => r.orderId === orderId);
+       
+      try {
+        await setDoc(doc(db, 'riderRequests', orderId), { acceptedBy: myDocId }, { merge: true });
+      } catch (e) { showToast('⚠️ Network error, try again'); return; }
 
+      
+      try {
+        await updateDoc(doc(db, 'orders', orderId), {
+          deliveryBoy: { docId: me.docId, name: me.name, phone: me.phone },
+          status: 'on_the_way',
+          statusUpdatedAt: Date.now()
+        });
+      } catch (e) { console.warn('Order Firestore update failed:', e); }
 
-      if (!req || req.acceptedBy) {
-        showTakenMessage();
-        return;
-      }
-
-
-      req.acceptedBy = session.id;
-      localStorage.setItem('mq_rider_requests', JSON.stringify(requests));
-
-
-      const recheck = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
-      const reqCheck = recheck.find(r => r.orderId === orderId);
-      if (!reqCheck || reqCheck.acceptedBy !== session.id) {
-        showTakenMessage();
-        return;
-      }
-
-
-      const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-      const o = orders.find(x => x.orderId === orderId);
-      const me = getMe();
-      if (o && me) {
-        o.deliveryBoy = { id: me.id, name: me.name, phone: me.phone };
-        o.status = 'on_the_way';
-        o.statusUpdatedAt = Date.now();
-        localStorage.setItem('mq_orders', JSON.stringify(orders));
-      }
-
-
-      const boys = JSON.parse(localStorage.getItem('mq_delivery_boys') || '[]');
-      const myBoy = boys.find(b => b.id === session.id);
-      if (myBoy) {
-        myBoy.status = 'busy';
-        myBoy.activeOrder = orderId;
-        localStorage.setItem('mq_delivery_boys', JSON.stringify(boys));
-      }
-
+      await saveMeToFirestore({ status: 'busy', activeOrder: orderId });
       closeRequestPopup();
       renderAll();
       showToast('✅ Order accepted! Go deliver it!');
     }
 
-    function rejectRequest() {
+    window.rejectRequest = function () {
       if (!_currentRequestId) return;
       const orderId = _currentRequestId;
+      const myDocId = (_riderCache && _riderCache.docId) || session.docId;
 
-      const requests = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
-      const req = requests.find(r => r.orderId === orderId);
+      
+      const req = _riderRequestsCache.find(r => r.orderId === orderId);
       if (req && !req.acceptedBy) {
         if (!Array.isArray(req.rejectedBy)) req.rejectedBy = [];
-        if (!req.rejectedBy.includes(session.id)) {
-          req.rejectedBy.push(session.id);
-        }
-        req.riderIds = req.riderIds.filter(id => id !== session.id);
-
+        if (!req.rejectedBy.includes(myDocId)) req.rejectedBy.push(myDocId);
+        req.riderIds = req.riderIds.filter(id => id !== myDocId);
         const allRejected = req.riderIds.length === 0 || req.riderIds.every(id => req.rejectedBy.includes(id));
-        if (allRejected) {
-          const orders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-          const o = orders.find(x => x.orderId === orderId);
-          if (o && (o.status === 'confirmed' || o.status === 'pending')) {
-            o.status = 'cancelled';
-            o.cancelledAt = Date.now();
-            o.cancelReason = 'All riders rejected the order';
-            localStorage.setItem('mq_orders', JSON.stringify(orders));
+        if (allRejected) req.expired = true;
+
+        
+        setDoc(doc(db, 'riderRequests', orderId), {
+          rejectedBy: req.rejectedBy,
+          riderIds: req.riderIds,
+          expired: req.expired || false
+        }, { merge: true }).then(() => {
+          if (req.expired) {
+            
+            updateDoc(doc(db, 'orders', orderId), {
+              status: 'cancelled',
+              cancelledAt: Date.now(),
+              cancelReason: 'All riders rejected the order'
+            }).catch(() => { });
           }
-          req.expired = true;
-        }
-
-        localStorage.setItem('mq_rider_requests', JSON.stringify(requests));
+        }).catch(e => console.warn('rejectRequest Firestore error:', e));
       }
-
       closeRequestPopup();
       showToast('❌ Order rejected');
     }
 
-    function showRequestPopup(req) {
+    window.showRequestPopup = function (req) {
       _currentRequestId = req.orderId;
-
-
       const overlay = document.getElementById('reqOverlay');
       const header = overlay.querySelector('.req-header');
       if (header) header.style.background = 'linear-gradient(135deg,#16a34a,#059669)';
@@ -1664,25 +1856,33 @@
       document.getElementById('reqPayment').textContent = req.payMethod;
       document.getElementById('reqItems').textContent = req.items;
 
-      overlay.classList.add('show');
+      const distRow = document.getElementById('reqDistanceRow');
+      const distEl = document.getElementById('reqDistance');
+      if (distRow && distEl) {
+        if (req.distanceKm !== null && req.distanceKm !== undefined) {
+          distEl.textContent = req.distanceKm + ' km';
+          distRow.style.display = 'flex';
+        } else if (req.customerLat && req.customerLng) {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (pos) {
+              const R = 6371;
+              const dL = (req.customerLat - pos.coords.latitude) * Math.PI / 180;
+              const dO = (req.customerLng - pos.coords.longitude) * Math.PI / 180;
+              const a = Math.sin(dL / 2) ** 2 + Math.cos(pos.coords.latitude * Math.PI / 180) * Math.cos(req.customerLat * Math.PI / 180) * Math.sin(dO / 2) ** 2;
+              distEl.textContent = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2) + ' km';
+              distRow.style.display = 'flex';
+            }, function () { distRow.style.display = 'none'; });
+          } else { distRow.style.display = 'none'; }
+        } else { distRow.style.display = 'none'; }
+      }
 
+      overlay.classList.add('show');
       clearInterval(_timerInterval);
       _timerInterval = setInterval(() => {
-        const reqs = JSON.parse(localStorage.getItem('mq_rider_requests') || '[]');
-        const r = reqs.find(x => x.orderId === _currentRequestId);
-
-        if (!r || Date.now() >= r.expiresAt) {
-          closeRequestPopup();
-          renderAll();
-          return;
-        }
-
-
-        if (r.acceptedBy && r.acceptedBy !== session.id) {
-          showTakenMessage();
-          return;
-        }
-
+         
+        const r = _riderRequestsCache.find(x => x.orderId === _currentRequestId);
+        if (!r || Date.now() >= r.expiresAt) { closeRequestPopup(); renderAll(); return; }
+        if (r.acceptedBy && r.acceptedBy !== ((_riderCache && _riderCache.docId) || session.docId)) { showTakenMessage(); return; }
         const remaining = Math.max(0, r.expiresAt - Date.now());
         const mins = Math.floor(remaining / 60000);
         const secs = Math.floor((remaining % 60000) / 1000);
@@ -1691,7 +1891,7 @@
           timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
           timerEl.className = 'req-timer' + (remaining < 30000 ? ' urgent' : '');
         }
-        const pct = (remaining / (2 * 60 * 1000)) * 100;
+        const pct = (remaining / (10 * 60 * 1000)) * 100; // FIXED: was 2 min, now 10 min
         const bar = document.getElementById('reqProgressBar');
         if (bar) {
           bar.style.width = pct + '%';
@@ -1700,13 +1900,24 @@
       }, 1000);
     }
 
-    function closeRequestPopup() {
+    window.closeRequestPopup = function () {
       _currentRequestId = null;
       clearInterval(_timerInterval);
       document.getElementById('reqOverlay').classList.remove('show');
     }
 
+    
+    renderAll();
+    updateRiderGps();
+    setInterval(updateRiderGps, 30000);
+     
+    subscribeRiderRequests();
+    subscribeActiveOrder();
+     
+    setInterval(() => { renderAll(); }, 3000);
+
   </script>
+
 
 </body>
 
