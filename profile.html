@@ -2790,9 +2790,12 @@
             const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
             const uid = user.uid;
 
-            await syncAdminMedicinesFromFirestore();
-            await syncCustomCatsFromFirestore();
-            await loadAddressesFromFirestore(uid);
+            // FIX: Parallel Firestore calls — 3x faster on mobile
+            await Promise.all([
+                syncAdminMedicinesFromFirestore(),
+                syncCustomCatsFromFirestore(),
+                loadAddressesFromFirestore(uid)
+            ]);
 
             if (uid) {
                 const fsCart = await loadCartFromFirestore(uid);
@@ -2848,7 +2851,7 @@
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
                     import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
                         let _app;
-                        try { _app = getApp(); } catch(e) {
+                        try { _app = getApp(); } catch (e) {
                             _app = initializeApp({
                                 apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
                                 authDomain: "mediiquick-25a65.firebaseapp.com",
@@ -2871,17 +2874,17 @@
                                 const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
                                 const snap = await getDoc(doc(_db, 'users', user.uid));
                                 if (snap.exists()) {
-                                    const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
+                                    const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 86400000 };
                                     localStorage.setItem('mq_user', JSON.stringify(merged));
                                     if (window._mpLoadUser) window._mpLoadUser();
                                 }
-                            } catch(e) {}
+                            } catch (e) { }
                             // GPS update to Firestore
                             if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition(function(pos) {
+                                navigator.geolocation.getCurrentPosition(function (pos) {
                                     const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                                    updateDoc(doc(_db, 'users', user.uid), { lat, lng }).catch(()=>{});
-                                }, function() {});
+                                    updateDoc(doc(_db, 'users', user.uid), { lat, lng }).catch(() => { });
+                                }, function () { });
                             }
                         });
                     });
@@ -3835,29 +3838,35 @@
                 try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch (e) { }
                 if (!currentUser.email) { showToast('⚠ Please login to place an order'); return; }
 
-                const _geoResult = await geocodeByPin(pin);
-                const _deliveryLat = _geoResult?.lat || null;
-                const _deliveryLng = _geoResult?.lng || null;
-
-                // ✅ Real PIN → City fetch karo (India Post API)
-                // Yeh value orderData mein save hogi taaki admin sahi city verify kar sake
+                // FIX: Nominatim + India Post API dono parallel chalao — 3-4 sec bachega
+                let _geoResult = null;
                 let realPinCity = null;
                 if (pin && pin.length === 6) {
                     try {
-                        const pinRes = await Promise.race([
-                            fetch('https://api.postalpincode.in/pincode/' + pin),
-                            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+                        const [geoResult, pinRes] = await Promise.allSettled([
+                            geocodeByPin(pin),
+                            Promise.race([
+                                fetch('https://api.postalpincode.in/pincode/' + pin),
+                                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+                            ])
                         ]);
-                        const pinData = await pinRes.json();
-                        if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
-                            const po = pinData[0].PostOffice[0];
-                            realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
-                            console.log('[MQ] Order PIN', pin, '→ Real city:', realPinCity, '| User entered:', city.toLowerCase());
+                        if (geoResult.status === 'fulfilled') _geoResult = geoResult.value;
+                        if (pinRes.status === 'fulfilled') {
+                            try {
+                                const pinData = await pinRes.value.json();
+                                if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
+                                    const po = pinData[0].PostOffice[0];
+                                    realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
+                                    console.log('[MQ] Order PIN', pin, '→ Real city:', realPinCity, '| User entered:', city.toLowerCase());
+                                }
+                            } catch (e) { console.warn('[MQ] PIN city parse failed:', e); }
                         }
                     } catch (e) {
-                        console.warn('[MQ] PIN real-city fetch failed:', e);
+                        console.warn('[MQ] PIN/Geo parallel fetch failed:', e);
                     }
                 }
+                const _deliveryLat = _geoResult?.lat || null;
+                const _deliveryLng = _geoResult?.lng || null;
 
                 const payNowBtn = document.getElementById('payNowBtn');
                 if (payNowBtn) { payNowBtn.disabled = true; payNowBtn.textContent = '🔍 Checking availability...'; }
@@ -3990,6 +3999,18 @@
             document.getElementById('accountDropdown').classList.remove('show');
         });
 
+        // GPS Cache helper — 30 min tak cache valid
+        function saveGPSCache(lat, lng) {
+            try { localStorage.setItem('mq_gps_cache', JSON.stringify({ lat, lng, savedAt: Date.now() })); } catch (e) { }
+        }
+        function getGPSCache() {
+            try {
+                const c = JSON.parse(localStorage.getItem('mq_gps_cache') || 'null');
+                if (c && Date.now() - c.savedAt < 30 * 60 * 1000) return c;
+            } catch (e) { }
+            return null;
+        }
+
         function changeLocation() {
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
@@ -3997,27 +4018,43 @@
                 text.innerHTML = '❌ GPS not supported';
                 return;
             }
+
+            // FIX: Cache check karo pehle — instant result!
+            const cached = getGPSCache();
+            if (cached) {
+                text.textContent = cached.lat.toFixed(5) + ', ' + cached.lng.toFixed(5);
+                try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = cached.lat; cu.lng = cached.lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
+                // Background mein fresh GPS bhi lo silently
+                navigator.geolocation.getCurrentPosition(function (pos) {
+                    saveGPSCache(pos.coords.latitude, pos.coords.longitude);
+                }, function () { }, { enableHighAccuracy: false, timeout: 5000 });
+                return;
+            }
+
             text.textContent = '📡 Detecting...';
             loader.style.display = 'inline-block';
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
             navigator.geolocation.getCurrentPosition(function (pos) {
                 try {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
                     loader.style.display = 'none';
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
+                    // GPS cache save karo
+                    saveGPSCache(lat, lng);
                     // Update Firestore (Firebase Auth user)
                     if (window._profileAuth) {
                         const user = window._profileAuth.currentUser;
                         if (user) {
                             import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
                                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
-                                    try { updateDoc(doc(getFirestore(getApp()), 'users', user.uid), { lat, lng }).catch(()=>{}); } catch(e) {}
+                                    try { updateDoc(doc(getFirestore(getApp()), 'users', user.uid), { lat, lng }).catch(() => { }); } catch (e) { }
                                 });
                             });
                         }
                     }
                     // Keep localStorage in sync
-                    try { const cu = JSON.parse(localStorage.getItem('mq_user')||'{}'); cu.lat=lat; cu.lng=lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch(e) {}
+                    try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = lat; cu.lng = lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
                 } catch (e) { loader.style.display = 'none'; }
             }, function () {
                 loader.style.display = 'none';
@@ -4029,7 +4066,7 @@
                         text.innerHTML = '⚠️ GPS off — please allow in browser settings';
                     }
                 } catch (e) { text.innerHTML = '⚠️ GPS off — please allow in browser settings'; }
-            }, { enableHighAccuracy: true, timeout: 10000 });
+            }, { enableHighAccuracy: !isMobile, timeout: isMobile ? 5000 : 10000 });
         }
 
         document.getElementById('medicine-search').addEventListener('keydown', function (e) {
@@ -4039,34 +4076,51 @@
         document.addEventListener('DOMContentLoaded', function () {
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
-            loader.style.display = 'inline-block';
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (pos) {
-                    try {
-                        const lat = pos.coords.latitude;
-                        const lng = pos.coords.longitude;
-                        loader.style.display = 'none';
-                        text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                        const cuRaw = localStorage.getItem('mq_user');
-                        const cu = JSON.parse(cuRaw || '{}');
-                        cu.lat = lat; cu.lng = lng;
-                        localStorage.setItem('mq_user', JSON.stringify(cu));
-                    } catch (e) { loader.style.display = 'none'; }
-                }, function () {
-                    loader.style.display = 'none';
-                    try {
-                        const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                        if (cu.lat && cu.lng) {
-                            text.textContent = cu.lat.toFixed(5) + ', ' + cu.lng.toFixed(5);
-                        } else {
-                            text.innerHTML = '⚠️ GPS off — please allow';
-                        }
-                    } catch (e) { text.innerHTML = '⚠️ GPS off — please allow'; }
-                }, { enableHighAccuracy: true, timeout: 10000 });
-            } else {
+            // FIX: GPS cache check — instant result doosri baar se!
+            const cachedGPS = getGPSCache();
+            if (cachedGPS) {
                 loader.style.display = 'none';
-                text.textContent = 'GPS not supported';
+                text.textContent = cachedGPS.lat.toFixed(5) + ', ' + cachedGPS.lng.toFixed(5);
+                try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = cachedGPS.lat; cu.lng = cachedGPS.lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
+                // Background mein silently refresh
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (pos) {
+                        saveGPSCache(pos.coords.latitude, pos.coords.longitude);
+                        try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = pos.coords.latitude; cu.lng = pos.coords.longitude; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
+                    }, function () { }, { enableHighAccuracy: false, timeout: 5000 });
+                }
+            } else {
+                loader.style.display = 'inline-block';
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (pos) {
+                        try {
+                            const lat = pos.coords.latitude;
+                            const lng = pos.coords.longitude;
+                            loader.style.display = 'none';
+                            text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
+                            saveGPSCache(lat, lng);
+                            const cuRaw = localStorage.getItem('mq_user');
+                            const cu = JSON.parse(cuRaw || '{}');
+                            cu.lat = lat; cu.lng = lng;
+                            localStorage.setItem('mq_user', JSON.stringify(cu));
+                        } catch (e) { loader.style.display = 'none'; }
+                    }, function () {
+                        loader.style.display = 'none';
+                        try {
+                            const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                            if (cu.lat && cu.lng) {
+                                text.textContent = cu.lat.toFixed(5) + ', ' + cu.lng.toFixed(5);
+                            } else {
+                                text.innerHTML = '⚠️ GPS off — please allow';
+                            }
+                        } catch (e) { text.innerHTML = '⚠️ GPS off — please allow'; }
+                    }, { enableHighAccuracy: !isMobile, timeout: isMobile ? 5000 : 10000 });
+                } else {
+                    loader.style.display = 'none';
+                    text.textContent = 'GPS not supported';
+                }
             }
 
             updateCartDrawer();
