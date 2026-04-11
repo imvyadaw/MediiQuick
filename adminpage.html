@@ -927,12 +927,12 @@
       overflow-x: auto;
     }
 
-    /* @media(max-width:768px) {
+    @media(max-width:768px) {
       .mob-nav {
         display: flex;
         gap: 6px;
       }
-    } */
+    }
 
     .mob-nav-btn {
       white-space: nowrap;
@@ -1271,7 +1271,7 @@
       opacity: 0.5;
     }
 
- 
+
     .low-stock-qty {
       color: #dc2626;
       font-weight: 700;
@@ -1308,7 +1308,7 @@
       font-size: 12px;
     }
 
- 
+
     .order-detail-panel {
       background: #f8fafc;
       border-radius: 10px;
@@ -1380,7 +1380,7 @@
       font-size: 13px;
     }
 
-  
+
     .cust-detail-header {
       display: flex;
       align-items: center;
@@ -1441,7 +1441,7 @@
       color: var(--green);
     }
 
-     
+
     .analytics-bar-wrap {
       margin-bottom: 10px;
     }
@@ -1461,7 +1461,7 @@
       color: #dc2626;
     }
 
-    
+
     .admin-cat-card {
       border-radius: 10px;
       padding: 8px 6px;
@@ -1481,7 +1481,7 @@
       line-height: 1.3;
     }
 
-    
+
     .td-padded {
       padding: 5px 10px;
     }
@@ -1508,7 +1508,7 @@
       margin-top: 6px;
     }
 
-    
+
     .hr-modal {
       margin: 12px 0;
       border-color: #f3f4f6;
@@ -1533,7 +1533,7 @@
       color: var(--muted);
     }
 
-     
+
     .cat-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -1846,6 +1846,118 @@
         overflow-x: hidden;
       }
     }
+
+    /* ===== RESPONSIVE FIXES ===== */
+    @media(max-width:600px) {
+      .header-inner {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+
+      .logo h1 {
+        font-size: 1rem;
+      }
+
+      .admin-chip {
+        display: none;
+      }
+    }
+
+    @media(max-width:768px) {
+      .mob-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 8px 12px;
+      }
+
+      .mob-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mob-nav-btn {
+        flex-shrink: 0;
+        font-size: 12px;
+        padding: 7px 12px;
+      }
+    }
+
+    @media(max-width:600px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 14px;
+      }
+
+      .stat-val {
+        font-size: 1.4rem;
+      }
+    }
+
+    @media(max-width:400px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:768px) {
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        min-width: 560px;
+      }
+    }
+
+    @media(max-width:500px) {
+      .modal-box {
+        width: 96%;
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .med-form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:600px) {
+      .main {
+        padding: 14px;
+      }
+
+      .page-head {
+        margin-bottom: 16px;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .recent-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:768px) {
+
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="password"],
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
+    }
+
+    /* ===== END RESPONSIVE FIXES ===== */
   </style>
 </head>
 
@@ -2248,6 +2360,8 @@
                 <input class="form-input" id="pServedPins" placeholder="e.g. 274301, 274302, 274305">
                 <div style="font-size:11px;color:var(--muted);margin-top:3px;">Orders from these PIN codes will be
                   assigned to you — separate with commas</div>
+                <span id="admin-pin-fetch-status"
+                  style="display:none;font-size:12px;margin-top:4px;color:#16a34a;"></span>
               </div>
               <div class="form-group" id="gpsStatusWrap"
                 style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:10px;font-size:12px;">
@@ -2292,7 +2406,8 @@
             <div class="coverage-emoji">🗺️</div>
             <div class="coverage-content">
               <div class="coverage-title">Delivery Coverage Zone</div>
-              <div class="coverage-desc" id="coverageInfo">Set your pharmacy location in Profile to enable deliveries within a 10-15km radius.</div>
+              <div class="coverage-desc" id="coverageInfo">Set your pharmacy location in Profile to enable deliveries
+                within a 10-15km radius.</div>
             </div>
             <button class="btn-outline btn-outline-sm2" onclick="showView('profile')">Set
               Location →</button>
@@ -2770,47 +2885,60 @@
   </div>
 
 
-   
+
   <script type="module">
     import { db as _db } from './firebase-config.js';
     import { collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-     
+
     function subscribeOrders() {
       try {
         onSnapshot(collection(_db, 'orders'), (snap) => {
-          // FIXED: memory only, not localStorage
-          window._mqOrderCache = snap.docs.map(d => d.data());
+          window._mqOrderCache = snap.docs.map(d => ({ orderId: d.id, ...d.data() }));
+          // Re-render orders & dashboard whenever Firestore sends new data
+          if (typeof renderOrders === 'function') renderOrders();
+          if (typeof renderDashboard === 'function') renderDashboard();
           if (window._adminReRender) window._adminReRender();
         });
       } catch (e) { console.warn('Orders subscription failed:', e); }
     }
 
-    
+
     async function loadMedicinesFromFirestore() {
       try {
         const snap = await getDocs(collection(_db, 'medicines'));
         if (snap.empty) return;
         const meds = snap.docs.map(d => ({ ...d.data(), id: parseInt(d.data().id || d.id) || d.data().id }));
-        
+
         window._mqMedCache = meds;
         window._mqMedUpdated = Date.now();
         if (window._adminLoadMedicines) window._adminLoadMedicines();
       } catch (e) { console.warn('Medicine Firestore load failed:', e); }
     }
 
-    
+
     async function loadCustomCatsFromFirestore() {
       try {
         const snap = await getDocs(collection(_db, 'customCategories'));
-        if (snap.empty) return;
-        const cats = snap.docs.map(d => ({ key: d.id, ...d.data() }));
-         
+        const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
         window._mqCatCache = cats;
+        // LocalStorage mein bhi sync karo
+        try {
+          const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+          const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
+          localStorage.setItem(key, JSON.stringify(cats));
+        } catch (e) { }
+        // Re-render cat grids if medicine modal is open
+        if (document.getElementById('medModal')?.classList.contains('show')) {
+          renderCatGrid(window._selectedCatKeyBackup || selectedCatKey || '');
+        }
+        if (document.getElementById('bulkImportModal')?.classList.contains('show')) {
+          renderBulkCatGrid();
+        }
       } catch (e) { console.warn('Custom cats load failed:', e); }
     }
 
-     
+
     window.__adminFirestore = {
       db: _db,
       saveMedicineToFirestore: async (med) => {
@@ -2838,20 +2966,20 @@
           await setDoc(doc(_db, 'riderRequests', reqId), req, { merge: true });
         } catch (e) { console.warn('Rider request save failed:', e); }
       },
-       
+
       savePharmacyProfileToFirestore: async (adminId, profile) => {
         try {
           await setDoc(doc(_db, 'pharmacyProfiles', adminId), { ...profile, updatedAt: Date.now() }, { merge: true });
         } catch (e) { console.warn('Pharmacy profile save failed:', e); }
       },
-       
+
       loadPharmacyProfileFromFirestore: async (adminId) => {
         try {
           const snap = await getDoc(doc(_db, 'pharmacyProfiles', adminId));
           return snap.exists() ? snap.data() : null;
         } catch (e) { console.warn('Pharmacy profile load failed:', e); return null; }
       },
-       
+
       loadAdminRegistrationData: async (adminId) => {
         try {
           const snap = await getDocs(query(collection(_db, 'admins'), where('adminId', '==', adminId)));
@@ -2859,15 +2987,30 @@
           return null;
         } catch (e) { console.warn('Admin registration data load failed:', e); return null; }
       },
-      
+
       deleteOrderFromFirestore: async (orderId) => {
         try {
           await deleteDoc(doc(_db, 'orders', orderId));
         } catch (e) { console.warn('Order delete failed:', e); }
+      },
+      deleteCustomCatFromFirestore: async (key) => {
+        try {
+          await deleteDoc(doc(_db, 'customCategories', key));
+        } catch (e) { console.warn('Custom cat delete failed:', e); }
+      },
+      deleteMedicinesByCategory: async (catKey, catLabel) => {
+        try {
+          const snap = await getDocs(collection(_db, 'medicines'));
+          const toDelete = snap.docs.filter(d => {
+            const data = d.data();
+            return data.catKey === catKey || data.category === catLabel;
+          });
+          await Promise.all(toDelete.map(d => deleteDoc(doc(_db, 'medicines', d.id))));
+        } catch (e) { console.warn('Category medicines delete failed:', e); }
       }
     };
 
-     
+
     function subscribeDeliveryBoys() {
       onSnapshot(collection(_db, 'riders'), (snap) => {
         window._mqDeliveryBoysCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -2881,33 +3024,117 @@
     subscribeDeliveryBoys();
   </script>
 
-  <script>
-     
-    const session = localStorage.getItem('mq_admin_session');
-    if (!session) {
+  <script type="module">
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    let _app;
+    try { _app = getApp(); } catch(e) {
+      _app = initializeApp({
+        apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+        authDomain: "mediiquick-25a65.firebaseapp.com",
+        projectId: "mediiquick-25a65",
+        storageBucket: "mediiquick-25a65.firebasestorage.app",
+        messagingSenderId: "480632265996",
+        appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+      });
+    }
+    const _auth = getAuth(_app);
+    const _fdb = getFirestore(_app);
+
+    window._mqAdminSignOut = () => signOut(_auth).then(() => {
+      localStorage.removeItem('mq_admin_session');
       window.location.href = 'login.html?tab=admin';
-    } else {
-       
+    });
+
+    // Check localStorage immediately (fast, synchronous) — set by login.html
+    const _lsSession = (() => {
       try {
-        const _sess = JSON.parse(session);
-        if (_sess.expiresAt && Date.now() > _sess.expiresAt) {
-          localStorage.removeItem('mq_admin_session');
+        const s = JSON.parse(localStorage.getItem('mq_admin_session') || 'null');
+        if (s && s.expiresAt && Date.now() < s.expiresAt && s.docId) return s;
+        return null;
+      } catch(e) { return null; }
+    })();
+
+    if (_lsSession) {
+      // Already verified by login.html — populate UI immediately
+      window._mqAdminData = _lsSession;
+      const nameEl = document.getElementById('headerPharmacyName');
+      if (nameEl && _lsSession.shopName) nameEl.textContent = _lsSession.shopName;
+    }
+
+    // Firebase Auth check — additional security layer
+    onAuthStateChanged(_auth, async (user) => {
+      if (!user) {
+        // No Firebase Auth session — check if localStorage session exists as fallback
+        if (!_lsSession) {
           window.location.href = 'login.html?tab=admin';
         }
-      } catch (e) { localStorage.removeItem('mq_admin_session'); window.location.href = 'login.html?tab=admin'; }
+        // If localStorage session valid, allow access (user is authenticated via Firestore)
+        return;
+      }
+      // Firebase Auth user exists — verify they are admin in Firestore
       try {
-        const admin = JSON.parse(session);
-        const nameEl = document.getElementById('headerPharmacyName');
-        if (nameEl && admin.shopName) nameEl.textContent = admin.shopName;
-         
-        if (!localStorage.getItem('mq_admin_session')) {
-          localStorage.setItem('mq_admin_session', session);
+        const snap = await getDocs(query(collection(_fdb, 'admins'), where('email', '==', user.email)));
+        if (snap.empty) {
+          // Not an admin — sign out
+          await signOut(_auth);
+          localStorage.removeItem('mq_admin_session');
+          window.location.href = 'login.html?tab=admin';
+          return;
         }
-      } catch (e) { }
-    }
+        const adminData = snap.docs[0].data();
+        window._mqAdminData = { docId: snap.docs[0].id, ...adminData };
+        const nameEl = document.getElementById('headerPharmacyName');
+        if (nameEl && adminData.shopName) nameEl.textContent = adminData.shopName;
+        // Refresh localStorage session
+        const legacySession = {
+          docId: snap.docs[0].id,
+          email: adminData.email,
+          shopName: adminData.shopName || '',
+          adminName: adminData.adminName || '',
+          adminId: adminData.adminId || '',
+          city: adminData.city || '',
+          deliveryRadius: adminData.deliveryRadius || '5',
+          servedPins: adminData.servedPins || [],
+          lat: adminData.lat || null,
+          lng: adminData.lng || null,
+          expiresAt: Date.now() + 86400000
+        };
+        localStorage.setItem('mq_admin_session', JSON.stringify(legacySession));
+      } catch(e) {
+        console.error('Admin auth check failed:', e);
+        // On error, keep user on page if localStorage session valid
+        if (!_lsSession) window.location.href = 'login.html?tab=admin';
+      }
+    });
+  </script>
+
+  <script>
 
     let medicines = [];
     let pendingDeleteId = null;
+    let pendingDeleteCatKey = null;
+
+    // FIX: Define _adminReRender so Firestore real-time listener can trigger re-render
+    window._adminReRender = function () {
+      if (typeof renderOrders === 'function') renderOrders();
+      if (typeof renderDashboard === 'function') renderDashboard();
+    };
+
+    // FIX: getDistanceKm fallback in case utils.js doesn't export it
+    if (typeof getDistanceKm !== 'function') {
+      window.getDistanceKm = function (lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      };
+    }
 
     const SAMPLE_MEDICINES = [
       { id: 1, name: 'Paracetamol 500mg', quantity: 120, price: 18 },
@@ -2936,22 +3163,26 @@
       } catch (e) { medicines = SAMPLE_MEDICINES; }
     }
     function saveMedicinesLS() {
-      localStorage.setItem(getMedKey(), JSON.stringify(medicines));  
-       
+      localStorage.setItem(getMedKey(), JSON.stringify(medicines));
+
       window._mqMedCache = medicines;
       window._mqMedUpdated = Date.now();
-       
+
       if (window.__adminFirestore) {
         medicines.forEach(m => window.__adminFirestore.saveMedicineToFirestore(m));
       }
     }
 
     function loadOrders() {
-       
-      return window._mqOrderCache || [];
+      // Firestore cache use karo, orderId ensure karo
+      const cache = window._mqOrderCache || [];
+      return cache.map(o => ({
+        ...o,
+        orderId: o.orderId || o.id || ''
+      }));
     }
     function saveOrdersLS(orders) {
-      
+
       window._mqOrderCache = orders;
       if (window.__adminFirestore) {
         orders.forEach(o => window.__adminFirestore.saveOrderStatusToFirestore(o.orderId, o));
@@ -2962,17 +3193,17 @@
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
 
-       
+
         if (window._mqAdminProfileCache && window._mqAdminProfileCache.name) {
           const profile = { ...window._mqAdminProfileCache };
-          
+
           if (session.lat && !profile.lat) profile.lat = session.lat;
           if (session.lng && !profile.lng) profile.lng = session.lng;
           if (session.adminId && !profile.adminId) profile.adminId = session.adminId;
           return profile;
         }
 
-         
+
         const lsProfile = JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}');
         if (lsProfile && lsProfile.name) {
           if (session.lat && !lsProfile.lat) lsProfile.lat = session.lat;
@@ -2982,7 +3213,7 @@
           return lsProfile;
         }
 
-         
+
         const profile = {};
         if (session.shopName) profile.name = session.shopName;
         if (session.shopName) profile.shopName = session.shopName;
@@ -3000,12 +3231,12 @@
       } catch (e) { return {}; }
     }
 
-     
+
     async function initAdminProfile() {
-       
+
       function waitForFirestore(cb, attempts) {
         if (window.__adminFirestore) { cb(); return; }
-        if (attempts <= 0) { cb(); return; }  
+        if (attempts <= 0) { cb(); return; }
         setTimeout(() => waitForFirestore(cb, attempts - 1), 300);
       }
 
@@ -3014,7 +3245,7 @@
           const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
           if (!session.adminId) return;
 
-          
+
           const sessionProfile = {
             name: session.shopName || '',
             shopName: session.shopName || '',
@@ -3036,21 +3267,21 @@
             lat: session.lat || null,
             lng: session.lng || null,
           };
-           
+
           if (!window._mqAdminProfileCache || !window._mqAdminProfileCache.name) {
             window._mqAdminProfileCache = sessionProfile;
             renderProfile();
           }
 
-          
+
           if (window.__adminFirestore) {
             const fsProfile = await window.__adminFirestore.loadPharmacyProfileFromFirestore(session.adminId);
             if (fsProfile && Object.keys(fsProfile).length > 0) {
-               
+
               if (session.lat && !fsProfile.lat) fsProfile.lat = session.lat;
               if (session.lng && !fsProfile.lng) fsProfile.lng = session.lng;
               if (!fsProfile.adminId) fsProfile.adminId = session.adminId;
-               
+
               if (!fsProfile.mobile2) fsProfile.mobile2 = session.mobile2 || '';
               if (!fsProfile.pin) fsProfile.pin = session.pin || '';
               if (!fsProfile.gst) fsProfile.gst = session.gst || '';
@@ -3058,14 +3289,14 @@
               if (!fsProfile.closeTime) fsProfile.closeTime = session.closeTime || '';
               if (!fsProfile.shopType) fsProfile.shopType = session.shopType || '';
               window._mqAdminProfileCache = fsProfile;
-              
+
               renderProfile();
               renderDashboard();
             } else {
-               
+
               const regData = await window.__adminFirestore.loadAdminRegistrationData(session.adminId);
               if (regData && regData.shopName) {
-                 
+
                 const mergedProfile = {
                   name: regData.shopName,
                   shopName: regData.shopName,
@@ -3089,7 +3320,7 @@
                 window._mqAdminProfileCache = mergedProfile;
                 window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, mergedProfile);
               } else {
-                 
+
                 window._mqAdminProfileCache = sessionProfile;
                 window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, sessionProfile);
               }
@@ -3101,22 +3332,22 @@
           console.warn('[MQ] initAdminProfile error:', e);
           window._mqAdminProfileCache = window._mqAdminProfileCache || {};
         }
-      }, 50);  
+      }, 50);
     }
 
-     
+
 
     function cityMatch(a, b) {
       if (!a || !b) return false;
       a = a.toLowerCase().trim();
       b = b.toLowerCase().trim();
       if (a === b) return true;
-      
+
       const clean = s => s.replace(/^(new |greater |old |east |west |north |south )/i, '').trim();
       return clean(a) === clean(b);
     }
 
-    
+
     function haversineKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -3134,55 +3365,50 @@
     }
 
     function isOrderInRange(order, profile) {
-        // Delivery address se data lo
-        const deliveryPin = (order.deliveryAddr?.pin || order.customerPin || '').toString().trim();
-        const deliveryCity = (order.deliveryAddr?.city || order.city || '').toLowerCase().trim();
-        const deliveryLat = order.deliveryAddr?.lat || null;
-        const deliveryLng = order.deliveryAddr?.lng || null;
+      // Delivery address se data lo
+      const deliveryPin = (order.deliveryAddr?.pin || order.customerPin || '').toString().trim();
+      const deliveryCity = (order.deliveryAddr?.city || order.city || '').toLowerCase().trim();
+      const deliveryLat = order.deliveryAddr?.lat || null;
+      const deliveryLng = order.deliveryAddr?.lng || null;
 
-        
-        const servedPins = (profile.servedPins || []).map(p => p.toString().trim());
-        const pharmCity = (profile.city || '').toLowerCase().trim();
-        const pharmLat = profile.lat || null;
-        const pharmLng = profile.lng || null;
-        const radius = parseFloat(profile.deliveryRadius || 15);
+      const servedPins = (profile.servedPins || []).map(p => p.toString().trim());
+      const pharmCity = (profile.city || '').toLowerCase().trim();
+      const pharmLat = profile.lat || null;
+      const pharmLng = profile.lng || null;
+      const radius = parseFloat(profile.deliveryRadius || 15);
 
-         
-        if (servedPins.length === 0 && !pharmCity && !pharmLat) return true;
+      // FIX: Koi bhi filter set nahi → sab orders dikhao
+      if (servedPins.length === 0 && !pharmCity && !pharmLat) return true;
 
-         
-        if (!deliveryPin && !deliveryCity && !deliveryLat) return true;
+      // FIX: Order mein location info nahi → dikhao (drop mat karo)
+      if (!deliveryPin && !deliveryCity && !deliveryLat) return true;
 
-        
-        if (servedPins.length > 0 && deliveryPin && servedPins.includes(deliveryPin)) {
-           
-          if (pharmCity && deliveryCity && pharmCity === deliveryCity) {
-            return true;   
-          } else {
-            return false;  
-          }
-        }
+      // FIX: PIN match kafi hai — city spelling difference se orders drop hote the
+      if (servedPins.length > 0 && deliveryPin && servedPins.includes(deliveryPin)) {
+        return true;
+      }
 
-        
-        if (pharmCity && deliveryCity && pharmCity === deliveryCity) {
-           
-          if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
-            const distance = getDistanceKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
-            return distance <= radius;
-          }
-          return true;  
-        }
-
-        
+      // City match check (flexible - cityMatch function use karo)
+      if (pharmCity && deliveryCity && cityMatch(pharmCity, deliveryCity)) {
         if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
           const distance = getDistanceKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
           return distance <= radius;
         }
-
-         
-        return false;
+        return true;
       }
- 
+
+      // GPS distance only
+      if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
+        const distance = getDistanceKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
+        return distance <= radius;
+      }
+
+      // FIX: Agar koi strict filter nahi set kiya toh order show karo
+      if (!pharmCity && !pharmLat && servedPins.length === 0) return true;
+
+      return false;
+    }
+
     let _adminGpsUpdated = false;
     function updateAdminGps() {
       if (_adminGpsUpdated) return;
@@ -3196,13 +3422,13 @@
       navigator.geolocation.getCurrentPosition(function (pos) {
         try {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          
+
           const p = loadProfile();
           p.lat = lat; p.lng = lng;
-          
+
           window._mqAdminProfileCache = { ...(window._mqAdminProfileCache || {}), lat, lng };
 
-           
+
           try {
             const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
             if (session.adminId && window.__adminFirestore) {
@@ -3210,19 +3436,19 @@
             }
           } catch (e) { }
 
-           
+
           const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
           session.lat = lat; session.lng = lng;
           localStorage.setItem('mq_admin_session', JSON.stringify(session));
           _adminGpsUpdated = true;
-           
+
           const badge = document.getElementById('adminGpsBadge');
           const txt = document.getElementById('adminGpsText');
           if (badge) { badge.style.background = '#dcfce7'; badge.style.borderColor = '#86efac'; badge.style.color = '#15803d'; }
           if (txt) txt.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
         } catch (e) { }
       }, function () {
-         
+
         const p = loadProfile();
         const badge = document.getElementById('adminGpsBadge');
         const txt = document.getElementById('adminGpsText');
@@ -3272,7 +3498,7 @@
       const boys = getDeliveryBoys();
       const profile = loadProfile();
 
-       
+
       const orders = allOrders.filter(o => isOrderInRange(o, profile));
 
       const lowCount = medicines.filter(m => m.quantity < 10).length;
@@ -3392,12 +3618,22 @@
     let selectedNewCatIcon = '💊';
 
     function getCustomCats() {
-       
-      return window._mqCatCache || [];
+      // Firestore cache ko prefer karo, fallback to localStorage
+      if (window._mqCatCache) return window._mqCatCache;
+      try {
+        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
+        return JSON.parse(localStorage.getItem(key) || '[]');
+      } catch (e) { return []; }
     }
     function saveCustomCats(cats) {
-       
       window._mqCatCache = cats;
+      // LocalStorage mein bhi save karo taaki page reload pe data rahe
+      try {
+        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
+        localStorage.setItem(key, JSON.stringify(cats));
+      } catch (e) { }
       if (window.__adminFirestore) {
         cats.forEach(c => window.__adminFirestore.saveCustomCatToFirestore(c));
       }
@@ -3408,14 +3644,15 @@
     }
 
     function renderCatGrid(selectedKey) {
+      const builtinKeys = BUILTIN_CATS.map(c => c.key);
       const all = getAllCats();
       const grid = document.getElementById('catGrid');
       if (!grid) return;
 
       grid.innerHTML = all.map(cat => {
         const isSelected = cat.key === selectedKey;
+        const isCustom = !builtinKeys.includes(cat.key);
         return `<div
-          onclick="selectCatOption('${cat.key}')"
           style="
             border: 2px solid ${isSelected ? '#16a34a' : cat.border};
             background: ${isSelected ? '#f0fdf4' : cat.color};
@@ -3428,9 +3665,12 @@
           "
           onmouseover="this.style.borderColor='#16a34a';this.style.transform='translateY(-1px)'"
           onmouseout="if('${cat.key}'!==selectedCatKey){this.style.borderColor='${cat.border}';this.style.transform='none';}">
-          <div style="font-size:22px;margin-bottom:4px;">${cat.icon}</div>
-          <div style="font-size:11px;font-weight:700;color:#374151;line-height:1.3;">${cat.label}</div>
+          <div onclick="selectCatOption('${cat.key}')">
+            <div style="font-size:22px;margin-bottom:4px;">${cat.icon}</div>
+            <div style="font-size:11px;font-weight:700;color:#374151;line-height:1.3;">${cat.label}</div>
+          </div>
           ${isSelected ? '<div style="position:absolute;top:4px;right:4px;background:#16a34a;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center;">✓</div>' : ''}
+          ${isCustom ? `<button onclick="event.stopPropagation();openDeleteCatModal('${cat.key}')" title="Delete Category" style="position:absolute;top:3px;left:3px;background:#fee2e2;color:#dc2626;border:none;border-radius:50%;width:17px;height:17px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;">✕</button>` : ''}
         </div>`;
       }).join('');
 
@@ -3601,6 +3841,52 @@
       pendingDeleteId = null;
     }
 
+    function openDeleteCatModal(key) {
+      const cat = getAllCats().find(c => c.key === key);
+      if (!cat) return;
+      pendingDeleteCatKey = key;
+      document.getElementById('delCatName').textContent = cat.icon + ' ' + cat.label;
+      const medCount = medicines.filter(m => m.catKey === key || m.category === cat.label).length;
+      document.getElementById('delCatMedCount').textContent = medCount > 0
+        ? '⚠️ This category has ' + medCount + ' medicine(s) — they will also be deleted!'
+        : '✅ This category has no medicines.';
+      openModal('delCatModal');
+    }
+
+    function confirmDeleteCat() {
+      if (!pendingDeleteCatKey) return;
+      const customCats = getCustomCats();
+      const cat = customCats.find(c => c.key === pendingDeleteCatKey);
+      if (!cat) { closeModal('delCatModal'); return; }
+
+      // Remove all medicines of this category
+      medicines = medicines.filter(m => m.catKey !== pendingDeleteCatKey && m.category !== cat.label);
+      saveMedicinesLS();
+
+      // Remove from Firestore medicines
+      if (window.__adminFirestore) {
+        window.__adminFirestore.deleteMedicinesByCategory(cat.key, cat.label);
+        window.__adminFirestore.deleteCustomCatFromFirestore(cat.key);
+      }
+
+      // Remove category from cache
+      const updatedCats = customCats.filter(c => c.key !== pendingDeleteCatKey);
+      window._mqCatCache = updatedCats;
+
+      closeModal('delCatModal');
+      if (selectedCatKey === pendingDeleteCatKey) {
+        selectedCatKey = '';
+        document.getElementById('medCategory').value = '';
+        const display = document.getElementById('selectedCatDisplay');
+        if (display) display.style.display = 'none';
+      }
+      renderCatGrid(selectedCatKey);
+      renderMedicines();
+      renderDashboard();
+      showToast('🗑️ Category "' + cat.label + '" and all its medicines have been deleted!');
+      pendingDeleteCatKey = null;
+    }
+
     function openRestockModal(id) {
       const m = medicines.find(x => x.id === id);
       if (!m) return;
@@ -3647,7 +3933,7 @@
       const q = (document.getElementById('orderSearch')?.value || '').toLowerCase();
       const sf = document.getElementById('orderStatusFilter')?.value || 'all';
 
-      
+
       let list = allOrders.filter(o => {
         const matchQ = !q || (o.orderId || '').toLowerCase().includes(q) || (o.customerName || o.name || '').toLowerCase().includes(q);
         const matchS = sf === 'all' || o.status === sf;
@@ -3667,7 +3953,7 @@
         const custEmail = o.customerEmail ? `<br><small style="color:#6b7280;">${o.customerEmail}</small>` : '';
         const phone = o.deliveryAddr?.phone || '—';
         const orderPin = o.deliveryAddr?.pin || '';
-         
+
         let rangeBadge = '';
         if (orderPin) {
           rangeBadge = `<br><span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:1px 5px;border-radius:4px;font-weight:700;">📮 ${orderPin}</span>`;
@@ -3729,13 +4015,13 @@
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
 
-       
+
       if (newStatus === 'on_the_way' && !o.deliveryBoy?.id) {
         showToast('⚠️ No rider assigned! Please send a rider request using ⚡ first.', 'warning');
         closeModal('statusModal');
         return;
       }
-       
+
       if (newStatus === 'packing' && o.status === 'pending') {
         showToast('⚠️ Please confirm the order first!', 'warning');
         closeModal('statusModal');
@@ -3745,7 +4031,7 @@
       o.status = newStatus;
       o.statusUpdatedAt = Date.now();
 
-      
+
       if (!o.assignedAdminId) {
         const sess = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
         if (sess.adminId) o.assignedAdminId = sess.adminId;
@@ -3773,14 +4059,14 @@
         saveDeliveryBoysLS(boys);
       }
 
-       
+
       try {
         if (window.__adminFirestore) {
           const { deleteDoc: _del, doc: _doc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
           await _del(_doc(window.__adminFirestore.db, 'riderRequests', orderId));
         }
       } catch (e) { console.warn('freeAssignedRider Firestore error:', e); }
-       
+
       if (window._mqRiderRequestsCache) {
         window._mqRiderRequestsCache = window._mqRiderRequestsCache.filter(r => r.orderId !== orderId);
       }
@@ -3791,7 +4077,7 @@
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
 
-       
+
       const simpleFlow = {
         pending: { next: 'confirmed', label: '📋 Confirm Order', cls: 'btn-green' },
         confirmed: { next: 'packing', label: '📦 Start Packing', cls: 'btn-green' },
@@ -3804,7 +4090,7 @@
       const pharmCity = (profile.city || '').toLowerCase();
       const outOfRange = pharmCity && custCity && custCity !== pharmCity;
 
-      
+
       const allBoys = getDeliveryBoys().filter(d => d.status === 'available');
       const cityBoys = allBoys.filter(b => {
         const rc = (b.city || '').toLowerCase().trim();
@@ -3812,14 +4098,14 @@
       });
       const riderCount = cityBoys.length;
 
-      
+
       const requests = window._mqRiderRequestsCache || [];
       const activeReq = requests.find(r => r.orderId === orderId && !r.expired && !r.acceptedBy);
 
       let actionHTML = '';
       if (o.status === 'packing') {
         if (activeReq) {
-          
+
           const rejCount = (activeReq.rejectedBy || []).length;
           const totalCount = (activeReq.riderIds || []).length;
           actionHTML = `
@@ -3833,7 +4119,7 @@
               🔄 Resend Request (${riderCount} rider${riderCount !== 1 ? 's' : ''} available)
             </button>`;
         } else {
-           
+
           actionHTML = `
             <button onclick="broadcastToRidersManual('${orderId}')"
               style="width:100%;padding:13px;border-radius:10px;font-family:Poppins,sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;background:#16a34a;color:#fff;margin-bottom:8px;">
@@ -3894,7 +4180,7 @@
       openModal('quickStatusModal');
     }
 
-    
+
     function broadcastToRidersManual(orderId) {
       const orders = loadOrders();
       const o = orders.find(x => x.orderId === orderId);
@@ -3905,29 +4191,29 @@
       const radius = parseFloat(profile.deliveryRadius || 5);
       const allBoys = getDeliveryBoys().filter(b => b.status === 'available');
 
-       
+
       const pharmCity = (profile.city || '').toLowerCase().trim();
 
       const boys = allBoys.filter(b => {
         const riderCity = (b.city || '').toLowerCase().trim();
 
-         
+
         if (riderCity && pharmCity && riderCity !== pharmCity) {
           return false; // Different city rider — skip
         }
 
-        
+
         if (pharmLat && pharmLng && b.lat && b.lng) {
           const latDiff = Math.abs(pharmLat - b.lat);
           const lngDiff = Math.abs(pharmLng - b.lng);
           const isSameDevice = latDiff < 0.01 && lngDiff < 0.01;
 
           if (!isSameDevice) {
-             
+
             const dist = getDistanceKm(pharmLat, pharmLng, b.lat, b.lng);
             if (dist !== null && dist > radius) return false;
           }
-          
+
         }
 
         return true;
@@ -3942,7 +4228,7 @@
       const addrStr = addr.street ? `${addr.street}, ${addr.city || ''}` : (o.city || '—');
       const now = Date.now();
 
-      
+
       let distanceKm = null;
       if (pharmLat && pharmLng && o.customerLat && o.customerLng) {
         distanceKm = getDistanceKm(pharmLat, pharmLng, o.customerLat, o.customerLng);
@@ -3969,12 +4255,12 @@
         processedByAdmin: false
       };
 
-       
+
       if (window.__adminFirestore) {
         window.__adminFirestore.saveRiderRequestToFirestore(orderId, newReq);
       }
 
-       
+
       o.status = 'pending_acceptance';
       o.statusUpdatedAt = now;
       saveOrdersLS(orders);
@@ -3990,12 +4276,12 @@
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
 
-       
+
       if (newStatus === 'on_the_way' && !o.deliveryBoy?.id) {
         showToast('⚠️ No rider assigned! Please click "Send Request to All Riders" first.', 'warning');
         return;
       }
-      
+
       if (newStatus === 'packing' && o.status === 'pending') {
         showToast('⚠️ Please confirm the order first!', 'warning');
         return;
@@ -4017,7 +4303,7 @@
     }
 
     function broadcastToRiders(orderId) {
-      
+
       broadcastToRidersManual(orderId);
     }
 
@@ -4042,11 +4328,11 @@
     }
 
     function getDeliveryBoys() {
-      
+
       return window._mqDeliveryBoysCache || [];
     }
     async function saveDeliveryBoysLS(boys) {
-       
+
       window._mqDeliveryBoysCache = boys;
       try {
         if (window.__adminFirestore) {
@@ -4329,7 +4615,7 @@
       // Served pins
       const pinsEl = document.getElementById('pServedPins');
       if (pinsEl) pinsEl.value = (p.servedPins || []).join(', ');
-      
+
       const gpsEl = document.getElementById('gpsStatusText');
       if (gpsEl) {
         const pins = p.servedPins || [];
@@ -4370,7 +4656,7 @@
         city: city,
         deliveryRadius: document.getElementById('pDeliveryRadius').value,
         servedPins: servedPins,
-         
+
         adminId: existing.adminId || null,
         pin: existing.pin || '',
         gst: existing.gst || '',
@@ -4378,18 +4664,18 @@
         openTime: existing.openTime || '',
         closeTime: existing.closeTime || '',
         shopType: existing.shopType || '',
-       
+
         lat: existing.lat || null,
         lng: existing.lng || null,
       };
 
-       
+
       window._mqAdminProfileCache = p;
 
-      
+
       localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
 
-       
+
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
         session.shopName = p.name;
@@ -4406,16 +4692,16 @@
         localStorage.setItem('mq_admin_session', JSON.stringify(session));
       } catch (e) { }
 
-       
+
       (function saveToFirestoreWithRetry(attempt) {
         if (window.__adminFirestore) {
           try {
             const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
             if (session.adminId) {
-               
+
               window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, p)
                 .then(async () => {
-                   
+
                   try {
                     const { updateDoc, doc: _doc, collection: _col, getDocs: _getDocs, query: _query, where: _where } =
                       await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
@@ -4446,7 +4732,7 @@
         if (attempt < 20) {
           setTimeout(() => saveToFirestoreWithRetry(attempt + 1), 500);
         }
-         
+
       })(0);
 
       document.getElementById('headerPharmacyName').textContent = p.name || 'Pharmacy Admin';
@@ -4457,6 +4743,78 @@
         : `✅ Profile saved! Delivery zone: City "${city}"`;
       showToast(pinMsg);
     }
+
+    // ===== ADMIN PROFILE: Served PINs auto-fetch =====
+    // Jab admin pServedPins mein koi naya 6-digit PIN type kare
+    // → India Post API se city fetch karo
+    // → pCity field update karo (always override)
+    // Debounce: last PIN jo type hua usse process karo
+    (function setupAdminPinFetch() {
+      const servedEl = document.getElementById('pServedPins');
+      if (!servedEl) return;
+
+      let _timer = null;
+      let _lastProcessedPins = new Set();
+
+      servedEl.addEventListener('input', function () {
+        clearTimeout(_timer);
+        _timer = setTimeout(async function () {
+          const statusEl = document.getElementById('admin-pin-fetch-status');
+          const raw = servedEl.value;
+          // Sab valid 6-digit PINs nikalo
+          const pins = raw.split(',').map(p => p.trim()).filter(p => /^\d{6}$/.test(p));
+          if (pins.length === 0) {
+            if (statusEl) statusEl.style.display = 'none';
+            return;
+          }
+
+          // Nayi PIN dhundo jo pehle process nahi hua
+          const newPin = pins.find(p => !_lastProcessedPins.has(p));
+          if (!newPin) return; // Sab already processed
+
+          if (statusEl) {
+            statusEl.style.display = 'inline';
+            statusEl.style.color = '#16a34a';
+            statusEl.textContent = '📍 Fetching city for PIN ' + newPin + '...';
+          }
+
+          try {
+            const res = await fetch('https://api.postalpincode.in/pincode/' + newPin);
+            const data = await res.json();
+
+            if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+              const po = data[0].PostOffice[0];
+              const fetchedCity = po.District || po.Division || po.Name || '';
+              const fetchedState = po.State || '';
+
+              // City field hamesha update karo (PIN se verified city)
+              const cityEl = document.getElementById('pCity');
+              if (cityEl && fetchedCity) {
+                cityEl.value = fetchedCity;
+                // Error class hata do agar tha
+                cityEl.classList.remove('error-input');
+              }
+
+              _lastProcessedPins.add(newPin);
+
+              if (statusEl) {
+                statusEl.style.color = '#16a34a';
+                statusEl.textContent = '✅ City auto-update: ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '');
+                setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
+              }
+            } else {
+              if (statusEl) {
+                statusEl.style.color = '#f59e0b';
+                statusEl.textContent = '⚠ PIN ' + newPin + ' not found — please check city manually';
+                setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
+              }
+            }
+          } catch (e) {
+            if (statusEl) statusEl.style.display = 'none';
+          }
+        }, 700);
+      });
+    })();
 
     async function hashPassword(plain) {
       const encoder = new TextEncoder();
@@ -4474,10 +4832,10 @@
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
         if (session.adminId && window.__adminFirestore) {
-           
+
           const hashedPw = await hashPassword(p1);
           window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, { password: hashedPw });
-          
+
           try {
             const { updateDoc, doc: _doc, collection: _col, getDocs: _getDocs, query: _query, where: _where } =
               await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
@@ -4515,9 +4873,9 @@
         if (clearCancelled && o.status === 'cancelled') { toDelete.push(o); return false; }
         return true;
       });
-       
+
       window._mqOrderCache = kept;
-       
+
       if (window.__adminFirestore && toDelete.length > 0) {
         await Promise.all(toDelete.map(o => window.__adminFirestore.deleteOrderFromFirestore(o.orderId)));
       }
@@ -4530,8 +4888,12 @@
 
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('mq_admin_session');  
-        window.location.href = 'login.html?tab=admin';
+        localStorage.removeItem('mq_admin_session');
+        if (window._mqAdminSignOut) {
+          window._mqAdminSignOut();
+        } else {
+          window.location.href = 'login.html?tab=admin';
+        }
       }
     }
 
@@ -4563,9 +4925,9 @@
     (function autoFillProfileFromSignup() {
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-         
+
         const lsProfile = JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}');
-        if (lsProfile.name) return;  
+        if (lsProfile.name) return;
 
         if (session.shopName || session.adminName) {
           const p = {
@@ -4587,9 +4949,9 @@
             mobile2: session.mobile2 || '',
           };
           window._mqAdminProfileCache = p;
-           
+
           localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
-          
+
           (function tryFirestore(attempt) {
             if (window.__adminFirestore && session.adminId) {
               window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, p);
@@ -4604,10 +4966,10 @@
     loadMedicines();
     renderDashboard();
     renderProfile();
-    
+
     initAdminProfile();
 
-    
+
     window._adminReRender = function () {
       renderDashboard();
       const activeView = document.querySelector('.view.active')?.id;
@@ -4620,7 +4982,7 @@
       renderMedicines();
       renderDashboard();
     };
-   
+
     window._adminRenderDeliveryBoys = function () {
       renderDeliveryBoys();
     };
@@ -4679,7 +5041,7 @@
     ];
 
     function getAllBulkCats() {
-        
+
       return [...PROFILE_CATS, ...(window._mqCatCache || [])];
     }
 
@@ -4692,7 +5054,7 @@
       document.getElementById('bulkCatSelected').style.display = 'none';
       document.getElementById('bulkStep1Next').disabled = true;
       document.getElementById('bulkStep1Next').style.opacity = '0.5';
-       
+
       renderBulkCatGrid();
       openModal('bulkImportModal');
     }
@@ -4884,7 +5246,7 @@
         if (!exists) {
           const newCat = { key: bulkSelectedCat.key, label: bulkSelectedCat.label, icon: bulkSelectedCat.icon, color: '#f0fdf4', border: '#86efac' };
           customCats.push(newCat);
-         
+
           window._mqCatCache = customCats;
           if (window.__adminFirestore) window.__adminFirestore.saveCustomCatToFirestore(newCat);
         }
@@ -4930,7 +5292,7 @@
       a.click();
       showToast('📥 Template downloaded!');
     }
-   
+
     async function subscribeRiderRequests() {
       const { onSnapshot: _snap, collection: _collection, setDoc: _setDoc, doc: _doc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
       const _db = window.__adminFirestore?.db;
@@ -4945,7 +5307,7 @@
         for (const req of window._mqRiderRequestsCache) {
           if (req.expired) continue;
 
-          
+
           if (req.acceptedBy && !req.processedByAdmin) {
             const o = orders.find(x => x.orderId === req.orderId);
             if (o && o.status === 'pending_acceptance') {
@@ -4957,7 +5319,7 @@
               o.statusUpdatedAt = now;
               o.riderAcceptedAt = now;
               ordersChanged = true;
-              
+
               try {
                 await _setDoc(_doc(_db, 'riderRequests', req.orderId), { processedByAdmin: true }, { merge: true });
               } catch (e) { }
@@ -4965,7 +5327,7 @@
             }
           }
 
-         
+
           if (!req.acceptedBy && now > req.expiresAt) {
             const o = orders.find(x => x.orderId === req.orderId);
             if (o && (o.status === 'packing' || o.status === 'pending_acceptance')) {
@@ -4979,7 +5341,7 @@
             showToast(`⏰ Rider request expired for ${req.orderId}. Try again.`, 'warning');
           }
 
-           
+
           if (!req.acceptedBy && !req.expired && Array.isArray(req.rejectedBy) && Array.isArray(req.riderIds)) {
             const allRejected = req.riderIds.length > 0 && req.riderIds.every(id => req.rejectedBy.includes(id));
             if (allRejected) {
@@ -5012,7 +5374,7 @@
     import { auth, db } from "./firebase-config.js";
   </script>
 
-   
+
   <div class="modal-overlay" id="clearHistoryModal">
     <div class="modal-box modal-sm">
       <div class="modal-head">
@@ -5038,6 +5400,29 @@
       </div>
     </div>
   </div>
+
+  <!-- Delete Category Modal -->
+  <div class="modal-overlay" id="delCatModal">
+    <div class="modal-box modal-sm">
+      <div class="modal-head">
+        <div class="modal-title" style="color:#dc2626;">🗑️ Category Delete Karein?</div>
+        <button class="modal-close" onclick="closeModal('delCatModal')">✕</button>
+      </div>
+      <p class="modal-text">
+        Are you sure you want to delete <strong id="delCatName"></strong> ?
+      </p>
+      <p id="delCatMedCount"
+        style="font-size:12px;padding:8px 10px;border-radius:8px;margin:10px 0;background:#fef2f2;color:#dc2626;font-weight:600;">
+      </p>
+      <p style="font-size:12px;color:#dc2626;background:#fef2f2;padding:8px 10px;border-radius:8px;">⚠️ Yeh action undo
+        cannot be undone!</p>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('delCatModal')">Cancel</button>
+        <button class="btn-danger" onclick="confirmDeleteCat()">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

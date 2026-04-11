@@ -3,10 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rider Sign Up — MediiQuick</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>MediiQuick — Rider Sign Up | Join & Earn</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,445 +17,415 @@
             box-sizing: border-box;
         }
 
-
-
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0b1120 0%, #0f2a1a 100%);
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
             display: flex;
             flex-direction: column;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #16a34a;
+            top: -150px;
+            left: -100px;
+        }
+
+        .blob-2 {
             width: 500px;
             height: 500px;
-            border-radius: 50%;
-            background: rgba(22, 163, 74, .07);
-            top: -150px;
-            right: -100px;
-            pointer-events: none;
+            background: #2dd4bf;
+            bottom: -200px;
+            right: -150px;
         }
 
-        body::after {
-            content: '';
-            position: absolute;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            background: rgba(22, 163, 74, .05);
-            bottom: -100px;
-            left: -80px;
-            pointer-events: none;
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: #059669;
+            top: 40%;
+            left: 70%;
         }
 
-        .pill {
-            position: absolute;
-            border-radius: 50px;
-            opacity: .06;
-            background: #4ade80;
-            pointer-events: none;
-        }
-
-        .pill1 {
-            width: 120px;
-            height: 40px;
-            top: 20%;
-            left: 5%;
-            transform: rotate(-25deg);
-        }
-
-        .pill2 {
-            width: 80px;
-            height: 28px;
-            top: 60%;
-            right: 7%;
-            transform: rotate(15deg);
-        }
-
-        .pill3 {
-            width: 60px;
-            height: 22px;
-            bottom: 25%;
-            left: 10%;
-            transform: rotate(30deg);
-        }
-
-        .header {
-            padding: 16px 40px;
+        .glass-header {
+            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+            padding: 14px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
             position: relative;
-            z-index: 10;
+            z-index: 20;
         }
 
-        .logo {
+        .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
         }
 
-        .logo img {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #16a34a, #059669);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .logo h1 {
-            font-size: 1.2rem;
+        .logo-area h1 {
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #fff;
+            color: white;
+            letter-spacing: -0.3px;
         }
 
-        .logo h1 span {
+        .logo-area h1 span {
             color: #4ade80;
         }
 
         .header-link {
-            color: rgba(255, 255, 255, .6);
-            font-size: 13px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            font-weight: 500;
             text-decoration: none;
+            transition: 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: color .2s;
+            gap: 8px;
+            backdrop-filter: blur(4px);
         }
 
         .header-link:hover {
-            color: #4ade80;
+            background: #16a34a;
+            color: white;
+            transform: scale(0.97);
         }
 
-        .main {
+        .main-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 30px 20px;
             position: relative;
             z-index: 10;
         }
 
-        .card {
-            background: #fff;
-            border-radius: 24px;
+        .rider-card {
+            max-width: 1100px;
             width: 100%;
-            max-width: 900px;
-            box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 44px;
             overflow: hidden;
             display: flex;
+            flex-wrap: wrap;
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 222, 128, 0.2);
+            transition: all 0.2s;
         }
 
-        .left-panel {
-            width: 40%;
-            background: linear-gradient(155deg, #15803d, #16a34a, #059669);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .hero-panel {
+            background: linear-gradient(125deg, #0f3b2c, #0a2a1f, #0f3826);
+            flex: 1.2;
             padding: 40px 32px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
             overflow: hidden;
-            flex-shrink: 0;
         }
 
-        .left-panel::before {
-            content: '';
+        .hero-panel::before {
+            content: "🏍️";
+            font-size: 180px;
             position: absolute;
-            width: 260px;
-            height: 260px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .06);
-            top: -80px;
-            right: -80px;
+            bottom: -40px;
+            right: -40px;
+            opacity: 0.08;
+            pointer-events: none;
         }
 
-        .left-panel::after {
-            content: '';
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .04);
-            bottom: -60px;
-            left: -60px;
-        }
-
-        .lp-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, .2);
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin: 0 auto 20px;
-            border: 2px solid rgba(255, 255, 255, .3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .left-panel h2 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .left-panel p {
-            font-size: 13px;
-            color: rgba(255, 255, 255, .85);
-            line-height: 1.7;
-            margin-bottom: 24px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .lp-features {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .lp-feat {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, .12);
-            border-radius: 10px;
-            padding: 10px 14px;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 500;
-            text-align: left;
-        }
-
-
-        .right-panel {
-            flex: 1;
-            padding: 36px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow-y: auto;
-        }
-
-        .rp-title {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-
-        .rp-sub {
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 22px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            font-size: 12px;
+        .rider-badge {
+            background: rgba(255, 255, 255, 0.12);
+            width: fit-content;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
+            color: #bef264;
+            margin-bottom: 20px;
+            backdrop-filter: blur(2px);
         }
 
-        .form-group label i {
-            color: #16a34a;
-            width: 14px;
-            text-align: center;
+        .hero-panel h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 16px;
         }
 
-        .input-wrap {
-            position: relative;
+        .hero-panel h2 i {
+            color: #4ade80;
         }
 
-        .input-wrap input,
-        .input-wrap select {
-            width: 100%;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 13px;
-            font-family: 'Poppins', sans-serif;
-            color: #1a1a2e;
-            outline: none;
-            transition: all .2s;
-            background: #fff;
-        }
-
-        .input-wrap input:focus,
-        .input-wrap select:focus {
-            border-color: #16a34a;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
-        }
-
-        .input-wrap input.err {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
-        }
-
-        .pw-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .pw-toggle:hover {
-            color: #374151;
-        }
-
-        .err-msg {
-            font-size: 11px;
-            color: #ef4444;
-            display: none;
-            align-items: center;
-            gap: 4px;
-            margin-top: 4px;
-        }
-
-        .err-msg.show {
-            display: flex;
-        }
-
-        .pw-bars {
-            display: flex;
-            gap: 4px;
-            height: 3px;
-            margin: 6px 0 2px;
-        }
-
-        .pw-bar {
-            flex: 1;
-            border-radius: 4px;
-            background: #e2e8f0;
-            transition: background .3s;
-        }
-
-        .pw-bar.weak {
-            background: #ef4444;
-        }
-
-        .pw-bar.medium {
-            background: #f59e0b;
-        }
-
-        .pw-bar.strong {
-            background: #16a34a;
-        }
-
-        .pw-label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #94a3b8;
-        }
-
-        .check-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            margin: 10px 0 4px;
-        }
-
-        .check-group input[type=checkbox] {
-            width: 15px;
-            height: 15px;
-            margin-top: 2px;
-            accent-color: #16a34a;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-
-        .check-group label {
-            font-size: 12px;
-            color: #374151;
+        .hero-desc {
+            color: #ccf0e3;
+            font-size: 0.9rem;
             line-height: 1.5;
-            cursor: pointer;
+            margin-bottom: 28px;
         }
 
-        .check-group label a {
-            color: #16a34a;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all .2s;
+        .feature-stack {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 14px;
             margin-top: 12px;
         }
 
-        .submit-btn:hover {
-            background: #15803d;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px 18px;
+            border-radius: 22px;
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+            color: white;
+            font-size: 0.9rem;
         }
 
-        .submit-btn:active {
-            transform: translateY(0);
+        .feature-item i {
+            width: 28px;
+            font-size: 1.2rem;
+            color: #4ade80;
         }
 
-        .submit-btn.loading {
-            pointer-events: none;
-            opacity: .8;
+        .form-panel {
+            flex: 1.6;
+            padding: 38px 36px;
+            background: white;
         }
 
-        .btn-spinner {
-            width: 17px;
-            height: 17px;
-            border: 2px solid rgba(255, 255, 255, .4);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
+        .form-header {
+            margin-bottom: 20px;
+        }
+
+        .form-header h3 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #0b2e1f;
+            letter-spacing: -0.3px;
+        }
+
+        .form-header p {
+            color: #5b6e8c;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .double-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .input-field {
+            margin-bottom: 18px;
+        }
+
+        .input-field label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2c3e2f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .input-field label i {
+            color: #16a34a;
+            width: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 20px;
+            border: 1.5px solid #e2edf2;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            background: #ffffff;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .input-wrapper input.error-border {
+            border-color: #f97316;
+            background-color: #fff9f5;
+        }
+
+        .pw-toggle-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8ba0bc;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .error-text {
+            font-size: 0.7rem;
+            color: #f97316;
             display: none;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-weight: 500;
         }
 
-        .submit-btn.loading .btn-spinner {
-            display: block;
+        .error-text.show {
+            display: flex;
+        }
+
+        .strength-meter {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0 5px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            flex: 1;
+            background: #e2e8f0;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .strength-bar.weak {
+            background: #f97316;
+        }
+
+        .strength-bar.medium {
+            background: #facc15;
+        }
+
+        .strength-bar.strong {
+            background: #16a34a;
+        }
+
+        .strength-text {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .terms-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 20px 0 12px;
+        }
+
+        .terms-check input {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: #16a34a;
+        }
+
+        .terms-check label {
+            font-size: 0.8rem;
+            color: #2d3a3f;
+            line-height: 1.4;
+        }
+
+        .terms-check a {
+            color: #16a34a;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .submit-rider-btn {
+            width: 100%;
+            background: #0e2f1f;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .submit-rider-btn:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(22, 163, 74, 0.3);
+        }
+
+        .submit-rider-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
         }
 
         @keyframes spin {
@@ -463,366 +434,285 @@
             }
         }
 
-        .bottom-link {
+        .login-redirect {
             text-align: center;
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 14px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #5b6e8c;
         }
 
-        .bottom-link a {
+        .login-redirect a {
             color: #16a34a;
-            text-decoration: none;
             font-weight: 700;
+            text-decoration: none;
         }
 
-        .bottom-link a:hover {
-            text-decoration: underline;
-        }
-
-
-        .success-screen {
-            display: none;
+        .success-box {
             text-align: center;
             padding: 20px 0;
+            display: none;
         }
 
-        .success-screen.show {
+        .success-box.show {
             display: block;
         }
 
         .success-icon {
+            background: #e6f7ec;
             width: 80px;
             height: 80px;
-            background: #dcfce7;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin: 0 auto 20px;
         }
 
-        .success-screen h3 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 8px;
-        }
-
-        .success-screen p {
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        #toast {
+        .toast {
             position: fixed;
-            bottom: 24px;
+            bottom: 30px;
             left: 50%;
-            transform: translateX(-50%) translateY(80px);
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
             padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 60px;
             font-weight: 600;
-            z-index: 999;
-            transition: transform .3s;
+            font-size: 0.85rem;
+            z-index: 200;
+            transition: 0.25s;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             pointer-events: none;
-            white-space: nowrap;
-            color: #fff;
-            background: #0f172a;
         }
 
-        #toast.show {
+        .toast.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        #toast.t-success {
+        .toast.success {
             background: #16a34a;
         }
 
-        #toast.t-error {
-            background: #ef4444;
+        .toast.error {
+            background: #e11d48;
         }
 
-        /* @media(max-width:700px) {
-            .left-panel {
-                display: none;
+        @media (max-width: 880px) {
+            .rider-card {
+                flex-direction: column;
+                border-radius: 32px;
             }
 
-            .right-panel {
+            .hero-panel {
+                padding: 30px 24px;
+            }
+
+            .form-panel {
                 padding: 28px 24px;
             }
 
-            .card {
-                max-width: 480px;
+            .double-grid {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .glass-header {
+                padding: 12px 18px;
             }
 
-            .header {
-                padding: 14px 16px;
-            }
-
-            .form-grid {
+            .double-grid {
                 grid-template-columns: 1fr;
             }
-        } */
 
-        /* Large tablet */
-        @media (max-width:1100px) {
-            .card {
-                max-width: 800px;
+            .hero-panel h2 {
+                font-size: 1.6rem;
             }
 
-            .left-panel {
-                width: 38%;
-                padding: 32px 22px;
-            }
-        }
-
-        /* Tablet */
-        @media (max-width:768px) {
-            .card {
-                max-width: 560px;
-                min-height: unset;
-            }
-
-            .left-panel {
-                width: 34%;
-                padding: 28px 16px;
-            }
-
-            .left-panel h2 {
-                font-size: 1.2rem;
-            }
-
-            .lp-features {
+            .feature-stack {
                 display: none;
             }
 
-            .left-panel p {
-                margin-bottom: 0;
-                font-size: 12px;
+            .hero-panel .feature-item:first-child {
+                display: flex;
             }
 
-            .tab-btn {
-                padding: 10px 6px;
-                flex-direction: column;
-                font-size: 10px;
-            }
-        }
-
-        /* Mobile */
-        @media (max-width:580px) {
-            .header {
-                padding: 12px 16px;
+            .feature-item {
+                padding: 10px 14px;
             }
 
-            .card {
-                border-radius: 18px;
-                flex-direction: column;
-                max-width: 100%;
-                min-height: unset;
+            .form-header h3 {
+                font-size: 1.4rem;
             }
-
-            .left-panel {
-                width: 100%;
-                flex-direction: row;
-                padding: 14px 18px;
-                border-radius: 0;
-                min-height: unset;
-            }
-
-            .lp-features {
-                display: none;
-            }
-
-            .right-panel {
-                padding: 22px 18px;
-            }
-
-            .social-row {
-                flex-direction: column;
-            }
-
-            .input-wrap input {
-                font-size: 16px;
-            }
-
-            html,
-            body {
-                overflow-x: hidden;
-            }
-        }
-
-        /* ── Utility classes ── */
-        .form-logo-img {
-            max-width: 280px;
-            margin: 0 auto;
         }
     </style>
 </head>
 
 <body>
-    <div class="pill pill1"></div>
-    <div class="pill pill2"></div>
-    <div class="pill pill3"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-    <div id="toast"><span id="toast-msg"></span></div>
+    <div id="toastContainer"></div>
 
-    <header class="header">
-        <a href="index.html" class="logo">
-            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png"
-                alt="MediiQuick">
+    <header class="glass-header">
+        <a href="#" class="logo-area">
+            <div class="logo-icon">⚕️</div>
             <h1>Medii<span>Quick</span></h1>
         </a>
-        <a href="" class="header-link"><i class="fas fa-arrow-left"></i> Already have account?
-            Login</a>
+        <a href="login.html?tab=rider" class="header-link"><i class="fas fa-arrow-right-to-bracket"></i> Rider Login</a>
     </header>
 
-    <main class="main">
-        <div class="card">
-
-
-            <div class="left-panel">
-                <div class="lp-icon">🏍️</div>
-                <h2>Join as Rider!</h2>
-                <p>Deliver medicines and earn money with <strong>MediiQuick</strong>.</p>
-                <div class="lp-features">
-                    <div class="lp-feat"><i class="fas fa-money-bill-wave"></i> Earn per delivery</div>
-                    <div class="lp-feat"><i class="fas fa-clock"></i> Flexible working hours</div>
-                    <div class="lp-feat"><i class="fas fa-mobile-alt"></i> Easy order management</div>
-                    <div class="lp-feat"><i class="fas fa-shield-halved"></i> Safe & trusted platform</div>
+    <div class="main-wrapper">
+        <div class="rider-card">
+            <div class="hero-panel">
+                <div class="rider-badge"><i class="fas fa-motorcycle"></i> ONBOARDING 2026</div>
+                <h2>Earn <i class="fas fa-rupee-sign"></i> 120+<br>per delivery</h2>
+                <p class="hero-desc">Join India's fastest medical delivery network. Flexible hours, daily payouts, and
+                    insurance benefits.</p>
+                <div class="feature-stack">
+                    <div class="feature-item"><i class="fas fa-wallet"></i> Weekly bonus + incentives</div>
+                    <div class="feature-item"><i class="fas fa-clock"></i> Work anytime, 24/7</div>
+                    <div class="feature-item"><i class="fas fa-hand-holding-heart"></i> Priority delivery zones</div>
+                    <div class="feature-item"><i class="fas fa-map-marked-alt"></i> Live order tracking</div>
                 </div>
             </div>
 
+            <div class="form-panel">
+                <div id="riderFormContainer">
+                    <div class="form-header">
+                        <h3>🏍️ Rider signup</h3>
+                        <p>Start delivering medicines & earn daily</p>
+                    </div>
 
-            <div class="right-panel">
-
-
-                <div id="signupForm">
-                    <div class="rp-title">🏍️ Create Rider Account</div>
-                    <div class="rp-sub">Fill in your details to register as a delivery rider</div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Full Name</label>
-                            <div class="input-wrap">
-                                <input type="text" id="db-name" placeholder="e.g. Rahul Kumar">
+                    <div class="double-grid">
+                        <div class="input-field">
+                            <label><i class="fas fa-user-pen"></i> Full name</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="fullName" placeholder="e.g. Vikram Singh" autocomplete="name">
                             </div>
-                            <span class="err-msg" id="err-name"><i class="fas fa-circle-exclamation"></i> Full name
-                                required</span>
+                            <div class="error-text" id="errName"><i class="fas fa-circle-exclamation"></i> Name required
+                                (min 2 chars)</div>
                         </div>
-
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Phone Number</label>
-                            <div class="input-wrap">
-                                <input type="tel" id="db-phone" maxlength="10" placeholder="10-digit number"
+                        <div class="input-field">
+                            <label><i class="fas fa-mobile-alt"></i> Mobile number</label>
+                            <div class="input-wrapper">
+                                <input type="tel" id="mobileNum" maxlength="10" placeholder="9876543210"
                                     oninput="this.value=this.value.replace(/\D/g,'')">
                             </div>
-                            <span class="err-msg" id="err-phone"><i class="fas fa-circle-exclamation"></i> Valid
-                                10-digit number required</span>
+                            <div class="error-text" id="errPhone"><i class="fas fa-circle-exclamation"></i> Valid
+                                10-digit mobile</div>
                         </div>
                     </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label><i class="fas fa-motorcycle"></i> Vehicle Type</label>
-                            <div class="input-wrap">
-                                <select id="db-vehicle">
-                                    <option value="bike">🏍️ Bike</option>
-                                    <option value="scooter">🛵 Scooter</option>
-                                    <option value="cycle">🚲 Cycle</option>
+                    <div class="double-grid">
+                        <div class="input-field">
+                            <label><i class="fas fa-motorcycle"></i> Vehicle</label>
+                            <div class="input-wrapper">
+                                <select id="vehicleType">
+                                    <option value="bike">🏍️ Motorcycle</option>
+                                    <option value="scooter">🛵 Electric Scooter</option>
+                                    <option value="cycle">🚲 Cycle (eco rider)</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div class="form-group">
+                        <div class="input-field">
                             <label><i class="fas fa-city"></i> City</label>
-                            <div class="input-wrap">
-                                <input type="text" id="db-city" placeholder="e.g. Patna">
+                            <div class="input-wrapper">
+                                <input type="text" id="cityName" placeholder="e.g. Delhi, Patna">
                             </div>
-                            <span class="err-msg" id="err-city"><i class="fas fa-circle-exclamation"></i> City
-                                required</span>
+                            <div class="error-text" id="errCity"><i class="fas fa-circle-exclamation"></i> City required
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label><i class="fas fa-map-pin"></i> PIN Code</label>
-                            <div class="input-wrap">
-                                <input type="text" id="db-pincode" maxlength="6" placeholder="6-digit PIN code"
+                    <div class="double-grid">
+                        <div class="input-field">
+                            <label><i class="fas fa-map-pin"></i> PIN code</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="pincodeVal" maxlength="6" placeholder="110001"
                                     oninput="this.value=this.value.replace(/\D/g,'')">
                             </div>
-                            <span class="err-msg" id="err-pincode"><i class="fas fa-circle-exclamation"></i> Valid
-                                6-digit PIN code required</span>
+                            <div class="error-text" id="errPincode"><i class="fas fa-circle-exclamation"></i> 6-digit
+                                pincode</div>
+                            <span id="ds-pin-status"
+                                style="display:none;font-size:12px;margin-top:4px;color:#16a34a;"></span>
                         </div>
-                        <div></div>
+                        <div class="input-field">
+                            <label><i class="fas fa-route"></i> Delivery Range (km)</label>
+                            <div class="input-wrapper">
+                                <select id="deliveryRange">
+                                    <option value="5">5 km</option>
+                                    <option value="10" selected>10 km</option>
+                                    <option value="15">15 km</option>
+                                    <option value="20">20 km</option>
+                                    <option value="25">25 km</option>
+                                    <option value="30">30 km</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password</label>
-                        <div class="input-wrap">
-                            <input type="password" id="db-pass" placeholder="Minimum 6 characters"
-                                oninput="checkPwStrength(this.value)">
-                            <button class="pw-toggle" type="button" onclick="togglePw('db-pass', this)"><i
-                                    class="fas fa-eye"></i></button>
+                    <div class="input-field">
+                        <label><i class="fas fa-lock"></i> Create password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="passwordReg" placeholder="Minimum 6 characters">
+                            <button type="button" class="pw-toggle-btn"
+                                onclick="togglePasswordField('passwordReg', this)"><i class="fas fa-eye"></i></button>
                         </div>
-                        <div class="pw-bars">
-                            <div class="pw-bar" id="pb1"></div>
-                            <div class="pw-bar" id="pb2"></div>
-                            <div class="pw-bar" id="pb3"></div>
-                            <div class="pw-bar" id="pb4"></div>
+                        <div class="strength-meter" id="strengthMeter">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
                         </div>
-                        <div class="pw-label" id="pw-label">Enter a password</div>
-                        <span class="err-msg" id="err-pass"><i class="fas fa-circle-exclamation"></i> Password must be
-                            at least 6 characters</span>
+                        <div class="strength-text" id="strengthLabel">Enter strong password</div>
+                        <div class="error-text" id="errPass"><i class="fas fa-circle-exclamation"></i> Password min 6
+                            characters</div>
                     </div>
 
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Confirm Password</label>
-                        <div class="input-wrap">
-                            <input type="password" id="db-pass2" placeholder="Re-enter password">
-                            <button class="pw-toggle" type="button" onclick="togglePw('db-pass2', this)"><i
-                                    class="fas fa-eye"></i></button>
+                    <div class="input-field">
+                        <label><i class="fas fa-check-circle"></i> Confirm password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirmPass">
+                            <button type="button" class="pw-toggle-btn"
+                                onclick="togglePasswordField('confirmPass', this)"><i class="fas fa-eye"></i></button>
                         </div>
-                        <span class="err-msg" id="err-pass2"><i class="fas fa-circle-exclamation"></i> Passwords do not
-                            match</span>
+                        <div class="error-text" id="errConfirm"><i class="fas fa-circle-exclamation"></i> Passwords
+                            don't match</div>
                     </div>
 
-                    <div class="check-group">
-                        <input type="checkbox" id="db-agree">
-                        <label for="db-agree">I agree to the <a href="#">Terms & Conditions</a> and confirm that all
-                            information provided is accurate.</label>
+                    <div class="terms-check">
+                        <input type="checkbox" id="termsAgree">
+                        <label for="termsAgree">I agree to <a href="#">Rider Terms & Code of Conduct</a> and verify that
+                            all details are accurate.</label>
                     </div>
-                    <span class="err-msg" id="err-agree"><i class="fas fa-circle-exclamation"></i> You must agree to the
-                        terms</span>
+                    <div class="error-text" id="errTerms"><i class="fas fa-circle-exclamation"></i> Accept terms to
+                        continue</div>
 
-                    <button class="submit-btn" id="signupBtn" onclick="doSignup()">
-                        <div class="btn-spinner"></div>
-                        <span class="btn-text"><i class="fas fa-user-plus"></i> Create Account</span>
+                    <button class="submit-rider-btn" id="signupActionBtn">
+                        <span class="loading-spinner" style="display:none;"></span>
+                        <span><i class="fas fa-user-check"></i> Register as Rider</span>
                     </button>
 
-                    <div class="bottom-link">
-                        Already have an account? <a href="login.html?tab=rider">Login Here</a>
+                    <div class="login-redirect">
+                        Already on MediiQuick? <a href="login.html?tab=rider">Login here →</a>
                     </div>
                 </div>
 
-
-                <div class="success-screen" id="successScreen">
-                    <div class="success-icon">🎉</div>
-                    <h3>Account Created!</h3>
-                    <p>Welcome to MediiQuick Riders! Your account has been registered.<br>You can now login and start
-                        delivering.</p>
-                    <button class="submit-btn" onclick="window.location.href='login.html?tab=rider'"
-                        class="form-logo-img">
-                        <i class="fas fa-right-to-bracket"></i> Go to Login
-                    </button>
+                <div id="successScreenBox" class="success-box">
+                    <div class="success-icon">🎉✅</div>
+                    <h3 style="color:#0f2a1f;">Welcome, Rider!</h3>
+                    <p style="margin: 10px 0 16px;">Your account is active. Start earning with MediiQuick deliveries.
+                    </p>
+                    <button class="submit-rider-btn" onclick="window.location.href='login.html?tab=rider'"
+                        style="background:#15803d; width:auto; padding:10px 28px;">Proceed to Login</button>
                 </div>
-
             </div>
         </div>
-    </main>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -840,152 +730,214 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function hashPassword(plain) {
-          const encoder = new TextEncoder();
-          const data = encoder.encode(plain + 'mq_salt_2024');
-          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        // ============ HELPER FUNCTIONS ============
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-                window.togglePw = function (id, btn) {
-            const input = document.getElementById(id);
-            const icon = btn.querySelector('i');
-            input.type = input.type === 'password' ? 'text' : 'password';
-            icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
-        };
-
-        window.checkPwStrength = function (val) {
-            const wrap = document.getElementById('pwStrength');
-            if (!val) { wrap.style.display = 'none'; return; }
-            wrap.style.display = 'block';
-            let score = 0;
-            if (val.length >= 6) score++;
-            if (/[A-Z]/.test(val)) score++;
-            if (/\d/.test(val)) score++;
-            if (/[!@#$%^&*]/.test(val)) score++;
-            const cls = ['weak', 'weak', 'medium', 'strong'];
-            const labels2 = ['Weak', 'Fair', 'Good', 'Strong ✓'];
-            const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#16a34a'];
-            [1, 2, 3, 4].forEach(i => {
-                const b = document.getElementById('pbar' + i);
-                if (!b) return;
-                b.className = 'pw-bar';
-                if (i <= score) b.classList.add(cls[score - 1] || 'weak');
-            });
-            const lbl = document.getElementById('pwLabel');
-            if (lbl) { lbl.textContent = labels2[score - 1] || 'Weak'; lbl.style.color = colors[score - 1] || '#ef4444'; }
-        };
-
-        function showToast(msg, type = '') {
-            const t = document.getElementById('toast');
-            t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
-            document.getElementById('toast-msg').textContent = msg;
-            clearTimeout(window._toastTimer);
-            window._toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${escapeHTML(message)}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        function setLoading(state) {
-            const btn = document.getElementById('signupBtn');
+        function setLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
             if (!btn) return;
-            btn.classList.toggle('loading', state);
-            const spinner = btn.querySelector('.btn-spinner');
-            const text = btn.querySelector('.btn-text');
-            if (spinner) spinner.style.display = state ? 'block' : 'none';
-            if (text) text.style.opacity = state ? '.6' : '1';
+            const spinner = btn.querySelector('.loading-spinner');
+            const textSpan = btn.querySelector('span:last-child');
+            if (isLoading) {
+                btn.disabled = true;
+                if (spinner) spinner.style.display = 'inline-block';
+                if (textSpan) textSpan.style.opacity = '0.7';
+            } else {
+                btn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (textSpan) textSpan.style.opacity = '1';
+            }
         }
 
-        window.doSignup = async function () {
-            const name = document.getElementById('db-name').value.trim();
-            const phone = document.getElementById('db-phone').value.trim();
-            const vehicle = document.getElementById('db-vehicle').value;
-            const city = document.getElementById('db-city').value.trim();
-            const pincode = document.getElementById('db-pincode').value.trim();
-            const pass = document.getElementById('db-pass').value;
-            const pass2 = document.getElementById('db-pass2').value;
-            const agreed = document.getElementById('db-agree').checked;
+        async function hashPassword(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain + 'mq_salt_2024');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-            ['name', 'phone', 'city', 'pincode', 'pass', 'pass2', 'agree'].forEach(f => {
-                document.getElementById('err-' + f).classList.remove('show');
-            });
-
-            let valid = true;
-            if (name.length < 2) { document.getElementById('err-name').classList.add('show'); valid = false; }
-            if (!/^[6-9]\d{9}$/.test(phone)) { document.getElementById('err-phone').classList.add('show'); valid = false; }
-            if (!city) { document.getElementById('err-city').classList.add('show'); valid = false; }
-            if (!/^\d{6}$/.test(pincode)) { document.getElementById('err-pincode').classList.add('show'); valid = false; }
-            if (pass.length < 6) { document.getElementById('err-pass').classList.add('show'); valid = false; }
-            if (pass !== pass2) { document.getElementById('err-pass2').classList.add('show'); valid = false; }
-            if (!agreed) { document.getElementById('err-agree').classList.add('show'); valid = false; }
-
-            if (!valid) { showToast('⚠ Please fill in all fields correctly', 'error'); return; }
-
-            setLoading(true);
-            try {
-                 
-                const riderSnap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
-                if (!riderSnap.empty) {
-                    setLoading(false);
-                    showToast('⚠ This phone number is already registered', 'error');
-                    document.getElementById('err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> This phone number is already registered';
-                    document.getElementById('err-phone').classList.add('show');
-                    return;
-                }
-
-                
-
-                const riderId = 'DB' + Date.now();
-                
-                const hashedPass = await hashPassword(pass);
-                                const newRider = {
-                    id: riderId,
-                    name,
-                    phone,
-                    password: hashedPass,
-                    vehicle,
-                    city,
-                    pincode,
-                    status: 'available',
-                    totalDelivered: 0,
-                    activeOrder: null,
-                    lat: null,
-                    lng: null,
-                    joinedAt: Date.now()
-                };
-
-            
-                await setDoc(doc(db, 'riders', riderId), newRider);
-
-                 
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(async function (pos) {
-                        try {
-                            await updateDoc(doc(db, 'riders', riderId), {
-                                lat: pos.coords.latitude,
-                                lng: pos.coords.longitude
-                            });
-                        } catch (e) { }
-                    }, () => { });
-                }
-
-                setLoading(false);
-                document.getElementById('signupForm').style.display = 'none';
-                document.getElementById('successScreen').classList.add('show');
-                showToast('✓ Account created successfully!', 'success');
-
-            } catch (err) {
-                setLoading(false);
-                showToast('⚠ Registration failed. Please try again.', 'error');
-                console.error(err);
+        // ============ PASSWORD STRENGTH ============
+        window.togglePasswordField = function (id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
             }
         };
 
-        document.addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
-    </script>
-    <script type="module">
-        import { auth, db } from "./firebase-config.js";
-    </script>
+        function evaluateStrength(pw) {
+            let score = 0;
+            if (pw.length >= 6) score++;
+            if (/[A-Z]/.test(pw)) score++;
+            if (/[0-9]/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
 
+            const bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+            bars.forEach((bar, idx) => {
+                const el = document.getElementById(bar);
+                if (idx < score) {
+                    if (score <= 2) el.className = 'strength-bar weak';
+                    else if (score === 3) el.className = 'strength-bar medium';
+                    else el.className = 'strength-bar strong';
+                } else {
+                    el.className = 'strength-bar';
+                }
+            });
+
+            const labels = ['', '⚠️ Weak', '🔶 Fair', '✅ Good', '💪 Strong'];
+            document.getElementById('strengthLabel').innerText = labels[score] || 'Enter password';
+        }
+
+        const passInput = document.getElementById('passwordReg');
+        passInput.addEventListener('input', (e) => evaluateStrength(e.target.value));
+
+        // ============ REGISTRATION ============
+        window.doSignup = async function () {
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('mobileNum').value.trim();
+            const vehicle = document.getElementById('vehicleType').value;
+            const city = document.getElementById('cityName').value.trim();
+            const pincode = document.getElementById('pincodeVal').value.trim();
+            const deliveryRange = parseInt(document.getElementById('deliveryRange').value);
+            const password = document.getElementById('passwordReg').value;
+            const confirm = document.getElementById('confirmPass').value;
+            const agreed = document.getElementById('termsAgree').checked;
+
+            // Reset error messages
+            document.querySelectorAll('.error-text').forEach(el => el.classList.remove('show'));
+
+            let isValid = true;
+            if (name.length < 2) { document.getElementById('errName').classList.add('show'); isValid = false; }
+            if (!/^[6-9]\d{9}$/.test(phone)) { document.getElementById('errPhone').classList.add('show'); isValid = false; }
+            if (!city) { document.getElementById('errCity').classList.add('show'); isValid = false; }
+            if (!/^\d{6}$/.test(pincode)) { document.getElementById('errPincode').classList.add('show'); isValid = false; }
+            if (password.length < 6) { document.getElementById('errPass').classList.add('show'); isValid = false; }
+            if (password !== confirm) { document.getElementById('errConfirm').classList.add('show'); isValid = false; }
+            if (!agreed) { document.getElementById('errTerms').classList.add('show'); isValid = false; }
+
+            if (!isValid) {
+                showToast('Please fill all details correctly', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('signupActionBtn');
+            setLoading('signupActionBtn', true);
+
+            try {
+                // Check if phone already exists
+                const q = query(collection(db, 'riders'), where('phone', '==', phone));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    showToast('Phone number already registered', 'error');
+                    setLoading('signupActionBtn', false);
+                    return;
+                }
+
+                const riderId = 'RIDER_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+                const hashed = await hashPassword(password);
+
+                // Get GPS location
+                let lat = null, lng = null;
+                if (navigator.geolocation) {
+                    await new Promise((resolve) => {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => { lat = pos.coords.latitude; lng = pos.coords.longitude; resolve(); },
+                            () => resolve(),
+                            { timeout: 5000 }
+                        );
+                    });
+                }
+
+                const newRider = {
+                    id: riderId,
+                    name: name,
+                    phone: phone,
+                    password: hashed,
+                    vehicle: vehicle,
+                    city: city,
+                    pincode: pincode,
+                    deliveryRange: deliveryRange,
+                    status: 'available',
+                    totalDelivered: 0,
+                    activeOrder: null,
+                    lat: lat,
+                    lng: lng,
+                    joinedAt: Date.now(),
+                    earnings: 0
+                };
+
+                await setDoc(doc(db, 'riders', riderId), newRider);
+
+                document.getElementById('riderFormContainer').style.display = 'none';
+                document.getElementById('successScreenBox').classList.add('show');
+                showToast('Account created successfully! 🎉', 'success');
+            } catch (err) {
+                console.error('Signup error:', err);
+                showToast('Server error, please try again later', 'error');
+            } finally {
+                setLoading('signupActionBtn', false);
+            }
+        };
+
+        // ===== PIN AUTO-FETCH: city auto-fill =====
+        let _dsPinTimer = null;
+        document.getElementById('pincodeVal')?.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            const val = this.value;
+            const statusEl = document.getElementById('ds-pin-status');
+            if (val.length !== 6) { if (statusEl) statusEl.style.display = 'none'; return; }
+            if (statusEl) { statusEl.style.display = 'inline'; statusEl.style.color = '#16a34a'; statusEl.textContent = '📍 Fetching city...'; }
+            clearTimeout(_dsPinTimer);
+            _dsPinTimer = setTimeout(async function () {
+                try {
+                    const res = await fetch('https://api.postalpincode.in/pincode/' + val);
+                    const data = await res.json();
+                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+                        const po = data[0].PostOffice[0];
+                        const fetchedCity = po.District || po.Division || po.Name || '';
+                        const fetchedState = po.State || '';
+                        // City always update karo
+                        const cityEl = document.getElementById('cityName');
+                        if (cityEl && fetchedCity) {
+                            cityEl.value = fetchedCity;
+                            // Error class hata do
+                            document.getElementById('errCity')?.classList.remove('show');
+                            cityEl.classList.remove('err');
+                        }
+                        if (statusEl) {
+                            statusEl.style.color = '#16a34a';
+                            statusEl.textContent = '✅ ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '') + ' — auto-fill!';
+                            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+                        }
+                    } else {
+                        if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ PIN not found — please enter city manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
+                    }
+                } catch (e) { if (statusEl) statusEl.style.display = 'none'; }
+            }, 600);
+        });
+
+        document.getElementById('signupActionBtn').addEventListener('click', doSignup);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignup(); });
+    </script>
 </body>
 
 </html>

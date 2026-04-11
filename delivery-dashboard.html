@@ -975,6 +975,72 @@
         overflow-x: hidden;
       }
     }
+
+    /* ===== RESPONSIVE FIXES ===== */
+    @media(max-width:480px) {
+      .header-inner {
+        padding: 10px 12px;
+        flex-wrap: nowrap;
+      }
+
+      .logo h1 {
+        font-size: 1rem;
+      }
+
+      .rider-chip {
+        display: none;
+      }
+    }
+
+    @media(max-width:600px) {
+      .order-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .order-actions {
+        flex-direction: row;
+        width: 100%;
+      }
+
+      .order-actions .btn-green,
+      .order-actions .btn-outline {
+        flex: 1;
+      }
+
+      .main {
+        padding: 14px;
+      }
+    }
+
+    @media(max-width:500px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width:768px) {
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+    }
+
+    @media(max-width:700px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width:400px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== END RESPONSIVE FIXES ===== */
   </style>
 </head>
 
@@ -1066,6 +1132,7 @@
           <input class="form-input-m" id="e-pincode" type="text" maxlength="6" placeholder="6-digit PIN"
             oninput="this.value=this.value.replace(/\D/g,'')">
           <div class="err-msg-m" id="e-err-pincode">Valid 6-digit PIN required</div>
+          <span id="dd-pin-status" style="display:none;font-size:12px;margin-top:4px;color:#16a34a;"></span>
         </div>
         <div></div>
       </div>
@@ -1254,7 +1321,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    
+
     let session = null;
     try { session = JSON.parse(localStorage.getItem('mq_db_session')); } catch (e) { }
     if (!session || !session.docId) {
@@ -1265,10 +1332,10 @@
       window.location.replace('login.html?tab=rider');
     }
 
-    
+
     let _riderCache = null;
 
-     
+
     async function hashPassword(plain) {
       const encoder = new TextEncoder();
       const data = encoder.encode(plain + 'mq_salt_2024');
@@ -1277,7 +1344,7 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-        async function getMe() {
+    async function getMe() {
       if (_riderCache) return _riderCache;
       try {
         const snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', session.phone)));
@@ -1299,14 +1366,14 @@
       } catch (e) { console.error('saveMeToFirestore error:', e); }
     }
 
-     
+
     async function saveBoysFirestore(boy) {
       try {
         await setDoc(doc(db, 'riders', boy.id || boy.phone), boy, { merge: true });
       } catch (e) { console.warn('saveBoysFirestore failed:', e); }
     }
     function saveBoysLS(boys) {
-      
+
       boys.forEach(b => saveBoysFirestore(b));
     }
 
@@ -1320,7 +1387,7 @@
       toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
     }
 
-    
+
     async function renderProfile() {
       const me = await getMe();
       if (!me) { doLogout(); return; }
@@ -1334,7 +1401,7 @@
       document.getElementById('pRange').textContent = me.deliveryRange ? me.deliveryRange + ' km range' : 'Range not set';
     }
 
-    
+
     window.openEdit = async function () {
       const me = await getMe();
       if (!me) return;
@@ -1419,7 +1486,7 @@
       if (e.target === this) closeEdit();
     });
 
-    
+
     async function renderStatus() {
       const me = await getMe();
       if (!me) return;
@@ -1436,9 +1503,9 @@
       }
     }
 
-     
+
     async function renderStats() {
-     
+
       try {
         const snap = await getDocs(query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)));
         const orders = snap.docs.map(d => d.data());
@@ -1452,8 +1519,8 @@
       }
     }
 
-     
-     
+
+
     function subscribeActiveOrder() {
       onSnapshot(
         query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)),
@@ -1509,10 +1576,10 @@
       `;
     }
 
-    
+
     window.acceptOrder = async function (orderId) {
       const now = Date.now();
-       
+
       try {
         await updateDoc(doc(db, 'orders', orderId), { status: 'on_the_way', statusUpdatedAt: now, riderAcceptedAt: now });
         await deleteDoc(doc(db, 'riderRequests', orderId));
@@ -1522,14 +1589,14 @@
     }
 
     window.rejectOrder = function (orderId) {
-       
+
       updateDoc(doc(db, 'orders', orderId), { deliveryBoy: null, status: 'packing', statusUpdatedAt: Date.now() })
         .catch(e => console.warn('rejectOrder Firestore error:', e));
       showToast('❌ Order rejected. You are now available.', 'error');
       renderAll();
     }
 
-     
+
     window.markDelivered = async function (orderId) {
       const now = Date.now();
       // FIXED: update Firestore directly
@@ -1541,7 +1608,7 @@
         });
       } catch (e) { console.warn('Delivered status Firestore update failed:', e); }
 
-       
+
       try {
         await deleteDoc(doc(db, 'riderRequests', orderId));
       } catch (e) { }
@@ -1597,7 +1664,7 @@
       setTimeout(() => window.location.href = 'index.html', 1500);
     }
 
-     
+
     window.openChangePass = function () {
       ['cp-old', 'cp-new', 'cp-confirm'].forEach(id => {
         document.getElementById(id).value = '';
@@ -1632,7 +1699,7 @@
       const me = await getMe();
       if (!me) { showToast('Session expired. Please login again.', 'error'); return; }
 
-       
+
       const oldHash = await hashPassword(oldPass);
       const passwordMatch = me.password === oldHash || me.password === oldPass;
       if (!oldPass || !passwordMatch) {
@@ -1670,7 +1737,7 @@
       if (e.target === this) closeChangePass();
     });
 
-     
+
     window.renderAll = async function () {
       const me = await getMe();
       if (!me) { doLogout(); return; }
@@ -1680,7 +1747,7 @@
       renderActiveOrder();
     }
 
-     
+
     window.updateRiderGps = function () {
       if (!navigator.geolocation) {
         const el = document.getElementById('gpsStatusBadge');
@@ -1718,12 +1785,12 @@
       }, { enableHighAccuracy: true, timeout: 10000 });
     }
 
-    
+
     let _currentRequestId = null;
     let _timerInterval = null;
-    let _riderRequestsCache = [];  
+    let _riderRequestsCache = [];
 
-     
+
     async function subscribeRiderRequests() {
       const me = await getMe();
       if (!me) return;
@@ -1743,7 +1810,7 @@
       if (me.status === 'busy') return;
       const myDocId = me.docId;
       const now = Date.now();
-      
+
       const myReq = _riderRequestsCache.find(r =>
         Array.isArray(r.riderIds) &&
         r.riderIds.includes(myDocId) &&
@@ -1781,16 +1848,16 @@
       if (!me) return;
       const myDocId = me.docId;
 
-      
+
       const req = _riderRequestsCache.find(r => r.orderId === orderId);
       if (!req || req.acceptedBy) { showTakenMessage(); return; }
 
-       
+
       try {
         await setDoc(doc(db, 'riderRequests', orderId), { acceptedBy: myDocId }, { merge: true });
       } catch (e) { showToast('⚠️ Network error, try again'); return; }
 
-      
+
       try {
         await updateDoc(doc(db, 'orders', orderId), {
           deliveryBoy: { docId: me.docId, name: me.name, phone: me.phone },
@@ -1810,7 +1877,7 @@
       const orderId = _currentRequestId;
       const myDocId = (_riderCache && _riderCache.docId) || session.docId;
 
-      
+
       const req = _riderRequestsCache.find(r => r.orderId === orderId);
       if (req && !req.acceptedBy) {
         if (!Array.isArray(req.rejectedBy)) req.rejectedBy = [];
@@ -1819,14 +1886,14 @@
         const allRejected = req.riderIds.length === 0 || req.riderIds.every(id => req.rejectedBy.includes(id));
         if (allRejected) req.expired = true;
 
-        
+
         setDoc(doc(db, 'riderRequests', orderId), {
           rejectedBy: req.rejectedBy,
           riderIds: req.riderIds,
           expired: req.expired || false
         }, { merge: true }).then(() => {
           if (req.expired) {
-            
+
             updateDoc(doc(db, 'orders', orderId), {
               status: 'cancelled',
               cancelledAt: Date.now(),
@@ -1879,7 +1946,7 @@
       overlay.classList.add('show');
       clearInterval(_timerInterval);
       _timerInterval = setInterval(() => {
-         
+
         const r = _riderRequestsCache.find(x => x.orderId === _currentRequestId);
         if (!r || Date.now() >= r.expiresAt) { closeRequestPopup(); renderAll(); return; }
         if (r.acceptedBy && r.acceptedBy !== ((_riderCache && _riderCache.docId) || session.docId)) { showTakenMessage(); return; }
@@ -1906,15 +1973,50 @@
       document.getElementById('reqOverlay').classList.remove('show');
     }
 
-    
+
     renderAll();
     updateRiderGps();
     setInterval(updateRiderGps, 30000);
-     
+
     subscribeRiderRequests();
     subscribeActiveOrder();
-     
+
     setInterval(() => { renderAll(); }, 3000);
+
+    // ===== EDIT MODAL: PIN se city auto-fetch =====
+    let _ddPinTimer = null;
+    document.getElementById('e-pincode')?.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 6);
+      const val = this.value;
+      const statusEl = document.getElementById('dd-pin-status');
+      if (val.length !== 6) { if (statusEl) statusEl.style.display = 'none'; return; }
+      if (statusEl) { statusEl.style.display = 'inline'; statusEl.style.color = '#16a34a'; statusEl.textContent = '📍 Fetching city...'; }
+      clearTimeout(_ddPinTimer);
+      _ddPinTimer = setTimeout(async function () {
+        try {
+          const res = await fetch('https://api.postalpincode.in/pincode/' + val);
+          const data = await res.json();
+          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+            const po = data[0].PostOffice[0];
+            const fetchedCity = po.District || po.Division || po.Name || '';
+            const fetchedState = po.State || '';
+            // City field hamesha update karo
+            const cityEl = document.getElementById('e-city');
+            if (cityEl && fetchedCity) {
+              cityEl.value = fetchedCity;
+              cityEl.classList.remove('err');
+            }
+            if (statusEl) {
+              statusEl.style.color = '#16a34a';
+              statusEl.textContent = '✅ ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '') + ' — auto-fill!';
+              setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+            }
+          } else {
+            if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ PIN not found — please enter city manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
+          }
+        } catch (e) { if (statusEl) statusEl.style.display = 'none'; }
+      }, 600);
+    });
 
   </script>
 

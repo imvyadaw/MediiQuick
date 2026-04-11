@@ -896,11 +896,17 @@
             margin-bottom: 32px;
         }
 
-        /* @media(max-width:700px) {
+        @media(max-width:700px) {
             .footer-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-        } */
+        }
+
+        @media(max-width:400px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
 
         /* Large tablet */
@@ -1980,6 +1986,121 @@
         .med-card-oos {
             opacity: 0.65;
         }
+
+        /* ===== RESPONSIVE FIXES ===== */
+        @media(max-width:480px) {
+            .location-bar {
+                display: none;
+            }
+
+            .header-inner {
+                flex-wrap: nowrap;
+                padding: 0 12px;
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+            }
+        }
+
+        @media(max-width:400px) {
+            .cart-drawer {
+                width: 100%;
+            }
+        }
+
+        @media(max-width:600px) {
+            .hero img {
+                height: 220px;
+            }
+
+            .hero-overlay {
+                padding: 20px;
+            }
+
+            .hero-content h2 {
+                font-size: 1.4rem;
+            }
+
+            .hero-content p {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+
+            .search-bar input {
+                font-size: 16px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .co-box {
+                border-radius: 14px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .pay-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .pay-cod-full {
+                grid-column: span 2;
+            }
+
+            .co-body {
+                padding: 16px 16px 20px;
+            }
+
+            .co-head {
+                padding: 16px 16px 0;
+            }
+        }
+
+        @media(max-width:768px) {
+
+            .co-form-group input,
+            .co-form-group select,
+            .upi-row input,
+            #card-num,
+            #card-exp,
+            #card-cvv,
+            #card-name {
+                font-size: 16px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .medicines-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .med-img-wrap,
+            .med-img-wrap img {
+                height: 110px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+        }
+
+        /* ===== END RESPONSIVE FIXES ===== */
     </style>
 </head>
 
@@ -2082,17 +2203,43 @@
                             <div class="co-form-group"><label>State *</label>
                                 <select id="addr-state">
                                     <option value="">Select State</option>
-                                    <option>Uttar Pradesh</option>
-                                    <option>Delhi</option>
-                                    <option>Maharashtra</option>
-                                    <option>Karnataka</option>
-                                    <option>Tamil Nadu</option>
-                                    <option>West Bengal</option>
-                                    <option>Rajasthan</option>
+                                    <option>Andhra Pradesh</option>
+                                    <option>Arunachal Pradesh</option>
+                                    <option>Assam</option>
+                                    <option>Bihar</option>
+                                    <option>Chhattisgarh</option>
+                                    <option>Goa</option>
                                     <option>Gujarat</option>
                                     <option>Haryana</option>
+                                    <option>Himachal Pradesh</option>
+                                    <option>Jharkhand</option>
+                                    <option>Karnataka</option>
+                                    <option>Kerala</option>
+                                    <option>Madhya Pradesh</option>
+                                    <option>Maharashtra</option>
+                                    <option>Manipur</option>
+                                    <option>Meghalaya</option>
+                                    <option>Mizoram</option>
+                                    <option>Nagaland</option>
+                                    <option>Odisha</option>
                                     <option>Punjab</option>
-                                    <option>Bihar</option>
+                                    <option>Rajasthan</option>
+                                    <option>Sikkim</option>
+                                    <option>Tamil Nadu</option>
+                                    <option>Telangana</option>
+                                    <option>Tripura</option>
+                                    <option>Uttar Pradesh</option>
+                                    <option>Uttarakhand</option>
+                                    <option>West Bengal</option>
+                                    <option>Andaman and Nicobar Islands</option>
+                                    <option>Chandigarh</option>
+                                    <option>Dadra and Nagar Haveli</option>
+                                    <option>Daman and Diu</option>
+                                    <option>Delhi</option>
+                                    <option>Jammu and Kashmir</option>
+                                    <option>Ladakh</option>
+                                    <option>Lakshadweep</option>
+                                    <option>Puducherry</option>
                                     <option>Other</option>
                                 </select>
                                 <span class="co-err-msg" id="err-state">State required</span>
@@ -2468,8 +2615,54 @@
                     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 }
 
+                // ✅ FIX: Real PIN → City validation using India Post API
+                // Delivery PIN ka actual city fetch karo aur verify karo
+                let realPinCity = null; // PIN se actual city
+                let realPinDistrict = null;
+                if (pin && pin.length === 6) {
+                    try {
+                        const pinRes = await Promise.race([
+                            fetch('https://api.postalpincode.in/pincode/' + pin),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+                        ]);
+                        const pinData = await pinRes.json();
+                        if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
+                            const po = pinData[0].PostOffice[0];
+                            realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
+                            realPinDistrict = (po.District || '').toLowerCase().trim();
+                            console.log('[MQ] PIN', pin, '→ Real city:', realPinCity);
+                        }
+                    } catch (e) {
+                        console.warn('[MQ] PIN API failed, falling back to user-entered city');
+                    }
+                }
+
+                // Jo city use karni hai verify ke liye: real PIN city preferred
+                // Agar PIN API kaam na kare toh user-entered city use karo
+                const verifiedCity = realPinCity || city;
+                const verifiedDistrict = realPinDistrict || '';
+
+                function _cityMatch(pharmCity, orderCity, orderDistrict) {
+                    if (!pharmCity || !orderCity) return false;
+                    const a = pharmCity.toLowerCase().trim();
+                    const b = orderCity.toLowerCase().trim();
+                    const d = (orderDistrict || '').toLowerCase().trim();
+
+                    // Exact match
+                    if (a === b) return true;
+                    if (d && a === d) return true;
+
+                    // Common prefix/suffix clean (e.g., "new delhi" vs "delhi")
+                    const clean = s => s.replace(/^(new |greater |old |east |west |north |south |navi )/i, '').trim();
+                    if (clean(a) === clean(b)) return true;
+                    if (d && clean(a) === clean(d)) return true;
+
+                    return false;
+                }
+
                 const admins = snap.docs.map(d => ({ adminId: d.id, ...d.data() }));
 
+                // ✅ STRICT MATCHING: PIN + City dono sahi hone chahiye
                 for (const a of admins) {
                     const servedPins = (a.servedPins || []).map(p => p.toString().trim());
                     const pharmCity = (a.city || '').toLowerCase().trim();
@@ -2477,33 +2670,54 @@
                     const pharmLng = a.lng || null;
                     const radius = parseFloat(a.deliveryRadius || 15);
 
-                    const pinMatch = pin && servedPins.includes(pin);
-                    const citySame = city && pharmCity && city === pharmCity;
+                    const pinInAdminList = pin && servedPins.includes(pin);
+                    const cityMatches = _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
 
-                    
-                    if (pinMatch && citySame) return a.adminId;
+                    // ✅ FIXED: PIN match aur REAL city match dono zaruri hain
+                    // Agar PIN Greater Noida ka hai aur admin Delhi ka, toh cityMatches = false → skip
+                    if (pinInAdminList && cityMatches) {
+                        console.log('[MQ] Matched admin', a.adminId, 'via PIN+City');
+                        return a.adminId;
+                    }
 
-                    
-                    if (pinMatch && !citySame) continue;
+                    // ❌ PIN match kiya lekin city alag → yeh order is admin ka NAHI hai
+                    // (Yahi tha asli bug — pehle yahan bhi match ho jaata tha)
+                    if (pinInAdminList && !cityMatches) {
+                        console.warn('[MQ] PIN', pin, 'matched admin', a.adminId, 'but city mismatch:', pharmCity, 'vs', verifiedCity, '— SKIPPING');
+                        continue;
+                    }
 
-                    
-                    if (citySame) {
+                    // Only city match (no PIN list set) — GPS refine karo
+                    if (!servedPins.length && cityMatches) {
                         if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
-                            if (_haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng) <= radius) return a.adminId;
+                            const dist = _haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
+                            if (dist <= radius) {
+                                console.log('[MQ] Matched admin', a.adminId, 'via city+GPS dist:', dist.toFixed(1), 'km');
+                                return a.adminId;
+                            }
                         } else {
-                            return a.adminId; 
+                            // No GPS, city match kafi hai
+                            console.log('[MQ] Matched admin', a.adminId, 'via city (no GPS)');
+                            return a.adminId;
                         }
                     }
                 }
 
-               
+                // GPS-only fallback — sirf tab jab verified city bhi match ho
                 if (deliveryLat && deliveryLng) {
                     const gpsFallback = admins.find(a => {
                         if (!a.lat || !a.lng) return false;
+                        const pharmCity = (a.city || '').toLowerCase().trim();
+                        // GPS fallback bhi city-aware hona chahiye
+                        const cityOk = !pharmCity || _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
+                        if (!cityOk) return false;
                         const radius = parseFloat(a.deliveryRadius || 15);
                         return _haversineKm(a.lat, a.lng, deliveryLat, deliveryLng) <= radius;
                     });
-                    if (gpsFallback) return gpsFallback.adminId;
+                    if (gpsFallback) {
+                        console.log('[MQ] Matched admin', gpsFallback.adminId, 'via GPS fallback');
+                        return gpsFallback.adminId;
+                    }
                 }
 
                 return null;
@@ -2534,7 +2748,7 @@
                 if (!uid) return;
                 const snap = await getDoc(doc(_db, 'userAddresses', uid));
                 if (snap.exists()) {
-                      
+
                     window._mqAddressCache = snap.data().addresses || [];
                 }
             } catch (e) { console.warn('Addresses load failed:', e); }
@@ -2552,23 +2766,26 @@
                 const snap = await getDocs(collection(_db, 'medicines'));
                 if (snap.empty) return;
                 const meds = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                
+
                 window._mqMedCache = meds;
                 window._mqMedUpdated = Date.now();
+                // Medicines load hone ke baad custom categories bhi refresh karo
+                if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
             } catch (e) { console.warn('Medicine sync failed:', e); }
         }
 
         async function syncCustomCatsFromFirestore() {
             try {
                 const snap = await getDocs(collection(_db, 'customCategories'));
-                if (snap.empty) return;
-                const cats = snap.docs.map(d => ({ key: d.id, ...d.data() }));
-                
+                const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
                 window._mqCatCache = cats;
-            } catch (e) { console.warn('Custom cats sync failed:', e); }
+            } catch (e) {
+                // Firestore fail hone par, koi bhi cached data use karo
+                console.warn('Custom cats sync failed:', e);
+            }
         }
 
-       
+
         async function initSync() {
             const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
             const uid = user.uid;
@@ -2586,7 +2803,7 @@
             }
         }
 
-         
+
         window.__mqFirestore = {
             saveOrderToFirestore,
             saveCartToFirestore,
@@ -2594,48 +2811,82 @@
             findAdminForOrder,
         };
 
-         
+
         initSync().then(() => {
             window.__mqFirestoreReady = true;
-            
+
             const pending = window._mqPendingOrders || [];
             if (pending.length > 0) {
                 console.log('[MQ] Flushing', pending.length, 'pending order(s) to Firestore...');
                 pending.forEach(order => saveOrderToFirestore(order));
                 window._mqPendingOrders = [];
             }
+
+            // Firestore sync complete hone ke baad categories aur medicines refresh karo
+            if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
+            if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
         }).catch(() => {
-             
+
             window.__mqFirestoreReady = true;
             const pending = window._mqPendingOrders || [];
             if (pending.length > 0) {
                 pending.forEach(order => saveOrderToFirestore(order));
                 window._mqPendingOrders = [];
             }
+            // Fallback: still try to render whatever is cached
+            if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
+            if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
         });
     </script>
 
     <script>
 
+        // Auth guard — Firebase Auth based
         (function () {
-            const user = localStorage.getItem('mq_user');
-            if (!user) { window.location.href = 'login.html'; return; }
-            try { const _pu = JSON.parse(user); if (_pu.expiresAt && Date.now() > _pu.expiresAt) { localStorage.removeItem('mq_user'); alert('Session expired. Please login again.'); window.location.href = 'login.html'; return; } } catch (e) { localStorage.removeItem('mq_user'); window.location.href = 'login.html'; return; }
+            // Import Firebase Auth and check login state
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
+                    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
+                        let _app;
+                        try { _app = getApp(); } catch(e) {
+                            _app = initializeApp({
+                                apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                                authDomain: "mediiquick-25a65.firebaseapp.com",
+                                projectId: "mediiquick-25a65",
+                                storageBucket: "mediiquick-25a65.firebasestorage.app",
+                                messagingSenderId: "480632265996",
+                                appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                            });
+                        }
+                        const _auth = getAuth(_app);
+                        const _db = getFirestore(_app);
+                        window._profileAuth = _auth;
+                        window._profileSignOut = () => import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js")
+                            .then(({ signOut }) => signOut(_auth).then(() => { localStorage.removeItem('mq_user'); window.location.href = 'index.html'; }));
 
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (pos) {
-                    try {
-                        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                        const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                        cu.lat = lat; cu.lng = lng;
-                        localStorage.setItem('mq_user', JSON.stringify(cu));
-                        const allUsers = JSON.parse(localStorage.getItem('mq_users') || '[]');
-                        const idx = allUsers.findIndex(u => (u.email || '').toLowerCase() === (cu.email || '').toLowerCase());
-                        if (idx !== -1) { allUsers[idx].lat = lat; allUsers[idx].lng = lng; localStorage.setItem('mq_users', JSON.stringify(allUsers)); }
-                    } catch (e) { }
-                }, function () { });
-            }
+                        onAuthStateChanged(_auth, async (user) => {
+                            if (!user) { window.location.href = 'login.html'; return; }
+                            // Keep mq_user in sync for legacy reads on this page
+                            try {
+                                const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                                const snap = await getDoc(doc(_db, 'users', user.uid));
+                                if (snap.exists()) {
+                                    const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
+                                    localStorage.setItem('mq_user', JSON.stringify(merged));
+                                    if (window._mpLoadUser) window._mpLoadUser();
+                                }
+                            } catch(e) {}
+                            // GPS update to Firestore
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(function(pos) {
+                                    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                                    updateDoc(doc(_db, 'users', user.uid), { lat, lng }).catch(()=>{});
+                                }, function() {});
+                            }
+                        });
+                    });
+                });
+            });
         })();
         const MEDICINES = {
             fever: [
@@ -2659,7 +2910,7 @@
                 { id: 'f18', name: 'Flexon', sub: 'Ibuprofen+Paracetamol', price: 50, mrp: 60, img: 'images/medicines/f18.jpg' },
                 { id: 'f19', name: 'Pirox 20', sub: 'Piroxicam 20mg', price: 30, mrp: 36, img: 'images/medicines/f19.jpg' },
                 { id: 'f20', name: 'Caldol 650', sub: 'Paracetamol 650mg', price: 22, mrp: 28, img: 'images/medicines/f20.jpg' },
-                 
+
             ],
             allergy: [
                 { id: 'a1', name: 'Cetirizine 10', sub: 'Cetirizine 10mg', price: 30, mrp: 36, img: 'images/medicines/a1.jpg' },
@@ -2682,7 +2933,7 @@
                 { id: 'a18', name: 'Montek LC', sub: 'Montelukast+Levocetirizine', price: 115, mrp: 135, img: 'images/medicines/a18.jpg' },
                 { id: 'a19', name: 'Betacap Scalp', sub: 'Betamethasone Solution', price: 155, mrp: 185, img: 'images/medicines/a19.jpg' },
                 { id: 'a20', name: 'Mometasone', sub: 'Mometasone Furoate', price: 195, mrp: 220, img: 'images/medicines/a20.jpg' },
-                 
+
             ],
             heart: [
                 { id: 'h1', name: 'Ecosprin 75', sub: 'Aspirin 75mg (EC)', price: 22, mrp: 28, img: 'images/medicines/h1.jpg' },
@@ -2705,7 +2956,7 @@
                 { id: 'h18', name: 'Furosemide 40', sub: 'Furosemide 40mg', price: 25, mrp: 30, img: 'images/medicines/h18.jpg' },
                 { id: 'h19', name: 'Spironolactone', sub: 'Spironolactone 25mg', price: 48, mrp: 58, img: 'images/medicines/h19.jpg' },
                 { id: 'h20', name: 'Valsartan 80', sub: 'Valsartan 80mg', price: 92, mrp: 110, img: 'images/medicines/h20.jpg' },
-                 
+
             ],
             brain: [
                 { id: 'b1', name: 'Encorate 200', sub: 'Sodium Valproate 200mg', price: 110, mrp: 130, img: 'images/medicines/b1.jpg' },
@@ -2728,7 +2979,7 @@
                 { id: 'b18', name: 'Zolpidem 10', sub: 'Zolpidem 10mg', price: 115, mrp: 138, img: 'images/medicines/b18.jpg' },
                 { id: 'b19', name: 'Alprazolam 0.25', sub: 'Alprazolam 0.25mg', price: 18, mrp: 22, img: 'images/medicines/b19.jpg' },
                 { id: 'b20', name: 'Quetiapine 25', sub: 'Quetiapine 25mg', price: 88, mrp: 105, img: 'images/medicines/b20.jpg' },
-                 
+
             ],
             respiratory: [
                 { id: 'r1', name: 'Asthalin 100mcg', sub: 'Salbutamol Inhaler', price: 135, mrp: 160, trending: true, img: 'images/medicines/r1.jpg' },
@@ -2751,7 +3002,7 @@
                 { id: 'r18', name: 'Moxikind CV 625', sub: 'Amoxicillin+Clavulanate', price: 195, mrp: 230, img: 'images/medicines/r18.jpg' },
                 { id: 'r19', name: 'Tiova Inhaler', sub: 'Tiotropium Bromide', price: 395, mrp: 455, img: 'images/medicines/r19.jpg' },
                 { id: 'r20', name: 'Foracort 200', sub: 'Formoterol+Budesonide', price: 355, mrp: 415, img: 'images/medicines/r20.jpg' },
-                 
+
             ],
             bone: [
                 { id: 'bo1', name: 'Uprise D3 60K', sub: 'Vitamin D3 60K IU', price: 125, mrp: 150, trending: true, img: 'images/medicines/bo1.jpg' },
@@ -2774,7 +3025,7 @@
                 { id: 'bo18', name: 'Rakshak Gold', sub: 'Calcium Supplement', price: 155, mrp: 185, img: 'images/medicines/bo18.jpg' },
                 { id: 'bo19', name: 'Ostofen 60mg', sub: 'Raloxifene 60mg', price: 245, mrp: 290, img: 'images/medicines/bo19.jpg' },
                 { id: 'bo20', name: 'Alendronate 70', sub: 'Alendronate Sodium 70mg', price: 195, mrp: 230, img: 'images/medicines/bo20.jpg' },
-                 
+
             ],
             cold: [
 
@@ -2801,7 +3052,7 @@
                 { id: 'cc19', name: 'T-Minic Syrup', sub: 'Paracetamol + CPM', price: 85, mrp: 95, trending: false, img: 'images/medicines/cc19.jpg' },
                 { id: 'cc20', name: 'Koflet Syrup', sub: 'Herbal Cough Formula', price: 95, mrp: 110, trending: false, img: 'images/medicines/cc20.jpg' },
 
-                 
+
 
             ],
             bp: [
@@ -2855,7 +3106,7 @@
 
                 { id: 'db19', name: 'Empagliflozin 10mg', sub: 'SGLT2 Inhibitor', price: 160, mrp: 190, trending: true, img: 'images/medicines/db19.jpg' },
                 { id: 'db20', name: 'Empagliflozin 25mg', sub: 'SGLT2 Inhibitor', price: 190, mrp: 220, trending: false, img: 'images/medicines/db20.jpg' },
-                 
+
 
             ],
         };
@@ -2928,7 +3179,7 @@
                 cart = {};
             }
         }
-         
+
 
         function addToCart(id) {
             const med = MEDICINES_FLAT[id];
@@ -2938,7 +3189,7 @@
                 return;
             }
             if (cart[id]) { cart[id].qty++; } else { cart[id] = { med, qty: 1 }; }
-            saveCart();  
+            saveCart();
             updateAllCartUIs(id);
             updateCartDrawer();
             showToast('✓ Added to cart: ' + med.name);
@@ -2953,7 +3204,7 @@
             }
             cart[id].qty = Math.max(0, cart[id].qty + delta);
             if (cart[id].qty <= 0) { delete cart[id]; }
-            saveCart();   
+            saveCart();
             updateAllCartUIs(id);
             updateCartDrawer();
         }
@@ -3106,16 +3357,27 @@
         Object.values(MEDICINES).forEach(arr => arr.forEach(m => MEDICINES_FLAT[m.id] = m));
         POPULAR.forEach(m => MEDICINES_FLAT[m.id] = m);
         loadCart();
-        
+
 
         function loadCustomCatCards() {
             const custom = window._mqCatCache || [];
             const adminMeds = window._mqMedCache || [];
             const wrap = document.getElementById('custom-cat-cards');
             if (!wrap) return;
+
+            // Sirf un custom categories ko dikhao jinmein actually medicines hain
             const catsWithMeds = custom.filter(cat =>
-                adminMeds.some(m => m.catKey === cat.key || m.category === cat.label)
+                adminMeds.some(m =>
+                    (m.catKey === cat.key || m.category === cat.label) &&
+                    m.price > 0 && m.quantity > 0
+                )
             );
+
+            if (catsWithMeds.length === 0) {
+                wrap.innerHTML = '';
+                return;
+            }
+
             wrap.innerHTML = catsWithMeds.map(cat => `
                 <div class="cat-card" onclick="showCustomCategory('${cat.key}')" id="cat-${cat.key}">
                     <div class="cat-icon" style="background:${cat.color || '#f0fdf4'};font-size:22px;display:flex;align-items:center;justify-content:center;">${cat.icon}</div>
@@ -3128,7 +3390,7 @@
             const custom = window._mqCatCache || [];
             const cat = custom.find(c => c.key === key);
             if (!cat) return;
-            const meds = adminMeds.filter(m => (m.catKey === key || m.category === cat.label) && m.price > 0);
+            const meds = adminMeds.filter(m => (m.catKey === key || m.category === cat.label) && m.price > 0 && m.quantity >= 0);
             activeCategory = key;
             document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
             const el = document.getElementById('cat-' + key);
@@ -3145,9 +3407,9 @@
 
         function syncAdminMedicines() {
             try {
-                const adminMeds = window._mqMedCache || []; 
+                const adminMeds = window._mqMedCache || [];
 
-               
+
                 adminMeds.forEach(adminMed => {
                     const adminName = (adminMed.name || '').toLowerCase().trim();
                     Object.values(MEDICINES_FLAT).forEach(med => {
@@ -3159,7 +3421,7 @@
                     });
                 });
 
-                 
+
                 const BUILTIN_KEYS = ['fever', 'allergy', 'heart', 'brain', 'respiratory', 'bone', 'cold', 'bp', 'diabetes', 'other'];
                 BUILTIN_KEYS.forEach(key => {
                     const catMeds = adminMeds.filter(m => m.catKey === key && m.price > 0);
@@ -3176,7 +3438,7 @@
                 // Load custom category cards
                 loadCustomCatCards();
 
-                
+
                 const section = document.getElementById('admin-medicines-section');
                 const grid = document.getElementById('admin-medicines-grid');
                 const countEl = document.getElementById('admin-med-count');
@@ -3193,12 +3455,12 @@
                     return renderCard(med);
                 }).join('');
 
-            } catch (e) {  }
+            } catch (e) { }
         }
 
         syncAdminMedicines();
 
-         
+
         window.addEventListener('storage', function (e) {
             if (e.key === 'mq_user') {
                 loadCart();
@@ -3295,7 +3557,7 @@
         let selectedBank = '';
 
         function getSavedAddresses() {
-             
+
             return window._mqAddressCache || [];
         }
 
@@ -3329,7 +3591,7 @@
                 </div>`).join('');
 
             html += `<div onclick="selectAddr(-1)" id="addrOptionNew" class="addr-option-new${selectedAddrIndex === -2 ? ' addr-option-new-active' : ''}">
-                <i class="fas fa-plus"></i> &nbsp; Naya Address Use Karo
+                <i class="fas fa-plus"></i> &nbsp; Use a New Address
             </div>`;
 
             picker.innerHTML = html;
@@ -3466,7 +3728,7 @@
         function formatCard(el) { let v = el.value.replace(/\D/g, '').substring(0, 16); el.value = v.replace(/(.{4})/g, '$1 ').trim(); }
         function formatExp(el) { let v = el.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4); el.value = v; }
 
-         
+
         let _pinFetchTimer = null;
         function onPinInput(val) {
             if (val.length !== 6 || !/^\d{6}$/.test(val)) return;
@@ -3483,18 +3745,45 @@
                         const state = po.State || '';
                         if (city) {
                             const cityEl = document.getElementById('addr-city');
-                            if (cityEl && !cityEl.value) cityEl.value = city;
+                            if (cityEl) {
+                                // Always update city based on PIN — override any manually typed value
+                                cityEl.value = city;
+                            }
                         }
                         if (state) {
                             const stateEl = document.getElementById('addr-state');
-                            if (stateEl && !stateEl.value) {
-                                
+                            if (stateEl) {
+                                const apiState = state.toLowerCase().trim();
                                 const opts = Array.from(stateEl.options);
-                                const match = opts.find(o => o.value.toLowerCase().includes(state.toLowerCase()) || state.toLowerCase().includes(o.value.toLowerCase()));
-                                if (match) stateEl.value = match.value;
+                                // Try exact match first, then partial match
+                                const match = opts.find(o => {
+                                    const optVal = (o.value || o.text || '').toLowerCase().trim();
+                                    if (!optVal || optVal === 'select state') return false;
+                                    return optVal === apiState ||
+                                        optVal.includes(apiState) ||
+                                        apiState.includes(optVal);
+                                });
+                                if (match) {
+                                    stateEl.value = match.value || match.text;
+                                } else {
+                                    // API se jo state mila usse directly set karo — "Other" fallback
+                                    // Pehle check karo "Other" option hai ya nahi
+                                    const otherOpt = opts.find(o => (o.value || o.text || '').toLowerCase() === 'other');
+                                    if (otherOpt) stateEl.value = otherOpt.value || otherOpt.text;
+                                    // State naam directly add karo as a new option agar match nahi mila
+                                    const newOpt = document.createElement('option');
+                                    newOpt.value = state;
+                                    newOpt.text = state;
+                                    newOpt.setAttribute('data-auto', 'true');
+                                    // Pehle se added auto option hata do
+                                    const prev = stateEl.querySelector('[data-auto="true"]');
+                                    if (prev) prev.remove();
+                                    stateEl.insertBefore(newOpt, otherOpt || null);
+                                    stateEl.value = state;
+                                }
                             }
                         }
-                        if (statusEl) { statusEl.textContent = '✅ City auto-fill ho gaya!'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 2000); }
+                        if (statusEl) { statusEl.textContent = '✅ City & State auto-filled!'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 2000); }
                     } else {
                         if (statusEl) { statusEl.textContent = '⚠ PIN not found, please enter city manually'; statusEl.style.color = '#f59e0b'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
                     }
@@ -3504,7 +3793,7 @@
             }, 600);
         }
 
-        
+
         async function geocodeByPin(pin) {
             try {
                 const url = `https://nominatim.openstreetmap.org/search?postalcode=${pin}&countrycodes=in&format=json&limit=1`;
@@ -3546,12 +3835,30 @@
                 try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch (e) { }
                 if (!currentUser.email) { showToast('⚠ Please login to place an order'); return; }
 
-                
                 const _geoResult = await geocodeByPin(pin);
                 const _deliveryLat = _geoResult?.lat || null;
                 const _deliveryLng = _geoResult?.lng || null;
 
-                 
+                // ✅ Real PIN → City fetch karo (India Post API)
+                // Yeh value orderData mein save hogi taaki admin sahi city verify kar sake
+                let realPinCity = null;
+                if (pin && pin.length === 6) {
+                    try {
+                        const pinRes = await Promise.race([
+                            fetch('https://api.postalpincode.in/pincode/' + pin),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+                        ]);
+                        const pinData = await pinRes.json();
+                        if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
+                            const po = pinData[0].PostOffice[0];
+                            realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
+                            console.log('[MQ] Order PIN', pin, '→ Real city:', realPinCity, '| User entered:', city.toLowerCase());
+                        }
+                    } catch (e) {
+                        console.warn('[MQ] PIN real-city fetch failed:', e);
+                    }
+                }
+
                 const payNowBtn = document.getElementById('payNowBtn');
                 if (payNowBtn) { payNowBtn.disabled = true; payNowBtn.textContent = '🔍 Checking availability...'; }
 
@@ -3560,7 +3867,7 @@
                 if (window.__mqFirestore && window.__mqFirestoreReady) {
                     assignedAdminId = await window.__mqFirestore.findAdminForOrder(pin, city, _deliveryLat, _deliveryLng);
                 } else {
-                    
+
                     assignedAdminId = await new Promise(function (resolve) {
                         let tries = 0;
                         const interval = setInterval(async function () {
@@ -3570,7 +3877,7 @@
                                 resolve(await window.__mqFirestore.findAdminForOrder(pin, city, _deliveryLat, _deliveryLng));
                             } else if (tries >= 16) { // 16 × 500ms = 8s
                                 clearInterval(interval);
-                                resolve(null);  
+                                resolve(null);
                             }
                         }, 500);
                     });
@@ -3578,13 +3885,13 @@
 
                 if (payNowBtn) { payNowBtn.disabled = false; payNowBtn.textContent = 'Pay Now →'; }
 
-                
+
                 if (!assignedAdminId) {
                     showToast('😔 Sorry! Delivery is not available in your area yet.');
                     return; // ❌ Order place NAHI hoga
                 }
 
-                
+
                 const orderId = 'MQ' + Date.now().toString().slice(-8);
 
                 document.getElementById('successAddr').textContent = type + ': ' + addrStreet + ', ' + city + ', ' + state + ' - ' + pin;
@@ -3606,6 +3913,9 @@
                     customerLng: currentUser.lng || null,
                     customerPin: pin,
                     city: city,
+                    // ✅ realPinCity: PIN API se verified actual city store karo
+                    // Admin page yeh use karega strict city+PIN matching ke liye
+                    realPinCity: realPinCity || city,
                     items: items,
                     total: total + cod,
                     codCharge: cod,
@@ -3613,20 +3923,20 @@
                     date: new Date().toLocaleDateString('en-IN'),
                     placedAt: Date.now(),
                     status: 'pending',
-                    assignedAdminId: assignedAdminId,   
+                    assignedAdminId: assignedAdminId,
                     deliveryAddr: { name: addrName, phone: addrPhone, street: addrStreet, city: city, state: state, pin: pin, type: type, landmark: landmark, lat: _deliveryLat, lng: _deliveryLng }
                 };
 
-                 
+
                 window._mqOrderCache = [orderData, ...(window._mqOrderCache || [])];
 
-                 
+
                 window.__mqFirestore.saveOrderToFirestore(orderData);
                 try {
                     if (currentUser.uid) window.__mqFirestore.saveCartToFirestore(currentUser.uid, {});
                 } catch (e) { }
 
-                
+
                 cart = {};
                 saveCart();
                 updateCartDrawer();
@@ -3641,7 +3951,7 @@
                 document.getElementById('cart-item-count').textContent = '0';
                 document.getElementById('cart-total').textContent = '0';
 
-                setStep(3);  
+                setStep(3);
 
             } catch (e) {
                 const payNowBtn = document.getElementById('payNowBtn');
@@ -3654,8 +3964,12 @@
 
         function doLogout() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('mq_user'); 
-                window.location.href = 'index.html';
+                localStorage.removeItem('mq_user');
+                if (window._profileSignOut) {
+                    window._profileSignOut();
+                } else {
+                    window.location.href = 'index.html';
+                }
             }
         }
 
@@ -3691,12 +4005,19 @@
                     const lng = pos.coords.longitude;
                     loader.style.display = 'none';
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                    const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                    cu.lat = lat; cu.lng = lng;
-                    localStorage.setItem('mq_user', JSON.stringify(cu));
-                    const allU = JSON.parse(localStorage.getItem('mq_users') || '[]');
-                    const i = allU.findIndex(u => (u.email || '').toLowerCase() === (cu.email || '').toLowerCase());
-                    if (i !== -1) { allU[i].lat = lat; allU[i].lng = lng; localStorage.setItem('mq_users', JSON.stringify(allU)); }
+                    // Update Firestore (Firebase Auth user)
+                    if (window._profileAuth) {
+                        const user = window._profileAuth.currentUser;
+                        if (user) {
+                            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
+                                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
+                                    try { updateDoc(doc(getFirestore(getApp()), 'users', user.uid), { lat, lng }).catch(()=>{}); } catch(e) {}
+                                });
+                            });
+                        }
+                    }
+                    // Keep localStorage in sync
+                    try { const cu = JSON.parse(localStorage.getItem('mq_user')||'{}'); cu.lat=lat; cu.lng=lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch(e) {}
                 } catch (e) { loader.style.display = 'none'; }
             }, function () {
                 loader.style.display = 'none';
@@ -3719,7 +4040,7 @@
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
             loader.style.display = 'inline-block';
-             
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (pos) {
                     try {
@@ -3759,7 +4080,7 @@
                     accountBtn.textContent = user.name.charAt(0).toUpperCase();
                     accountBtn.className = 'account-btn';
                 }
-                
+
             } catch (e) { }
 
             ['popular-grid', 'category-medicines-grid', 'search-results-grid', 'admin-medicines-grid'].forEach(function (gridId) {
@@ -3778,9 +4099,7 @@
         });
 
     </script>
-    <script type="module">
-        import { auth, db } from "./firebase-config.js";
-    </script>
+
 </body>
 
 </html>

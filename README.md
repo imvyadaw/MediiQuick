@@ -1,459 +1,353 @@
+Here's the updated `README.md` file with all the requested information:
+
+```markdown
 # MediiQuick — Medicine Delivery Platform
 
-## 📋 Overview
+## 📌 Project Overview
 
-MediiQuick is a complete **multi-role pharmacy delivery platform** built with pure HTML, CSS, and JavaScript. It supports three distinct user roles (Customer, Admin, Delivery Boy) with full CRUD functionality and Firebase Firestore for real-time data sync across all devices.
+**MediiQuick** is a complete medicine delivery platform connecting **customers**, **pharmacy admins**, and **delivery riders** in one unified system. Built with pure HTML/CSS/JS and Firebase as the backend, the platform enables 30-minute medicine delivery with real-time order tracking, GPS-based pharmacy assignment, and rider management.
 
 ---
 
-## 🎯 Key Features by Role
+## 🚀 Live Demo
 
-### 👤 Customer Features
-| Feature | Description |
-|---------|-------------|
-| **Browse Medicines** | Category-wise browsing (Fever, Allergy, Heart, Diabetes, Cold, BP, Bone, Respiratory, Brain) + dynamic custom categories from admins |
-| **Search Medicines** | Real-time search by medicine name or description |
-| **Cart Management** | Add/remove items, update quantities, cart persists across sessions and devices via Firestore |
-| **Address Management** | Save multiple addresses, set default, auto-fetch city from PIN code using postal API |
-| **Order Placement** | COD, UPI, Card, Net Banking, Wallet payment options |
-| **Order Tracking** | Real-time status updates, 30-minute ETA countdown, delivery partner tracking |
-| **Rider Contact** | View assigned rider name & phone number, direct call from order page |
-| **Profile Management** | Edit name, email, mobile, gender |
-| **Wishlist** | Save favorite medicines for later |
-
-### 🏥 Admin Features
-| Feature | Description |
-|---------|-------------|
-| **Medicine Management** | Add/Edit/Delete medicines, update stock quantity & price |
-| **Bulk Import** | CSV upload for medicines (Name, Quantity, Price) with duplicate handling |
-| **Custom Categories** | Create new categories with custom emoji icons & colors |
-| **Order Management** | View all orders, filter by status, update order status flow |
-| **Delivery Boy Management** | Add/Edit/Delete delivery boys, toggle online/offline status |
-| **Rider Assignment System** | Broadcast order requests to available riders, auto-accept with 10-min expiry |
-| **Analytics Dashboard** | Revenue tracking, top-selling medicines, order success rate |
-| **Low Stock Alerts** | Automatic highlighting of medicines with stock < 10 units |
-| **Pharmacy Profile** | Set city, delivery radius, served PIN codes, GPS location |
-| **Clear Order History** | Bulk delete delivered/cancelled orders |
-
-### 🏍️ Delivery Boy Features
-| Feature | Description |
-|---------|-------------|
-| **Rider Registration** | Self-registration with name, phone, vehicle type, city, PIN code, delivery range |
-| **Login System** | Phone number + password authentication with hashed password storage |
-| **Order Acceptance** | Receive broadcast requests in real-time, accept/reject within 10-minute window |
-| **Status Management** | Set available/offline status, auto-busy when on active delivery |
-| **Delivery Confirmation** | Mark orders as delivered, auto-update total delivered count |
-| **Profile Edit** | Update name, phone, vehicle, city, PIN code, delivery range, password |
-| **Account Deletion** | Delete own account permanently from the system |
-| **GPS Location** | Share live location with pharmacy for better assignment |
+> *(Add your hosted link here)*
 
 ---
 
 ## 🏗️ System Architecture
 
-### Firebase Firestore Collections
-
 ```
-Firestore Database Structure:
-│
-├── admins              → Admin registration (hashed passwords, adminId, shop details)
-├── users               → Customer registration (email, name, mobile, GPS)
-├── riders              → Delivery boy profiles (name, phone, vehicle, city, PIN, status)
-├── medicines           → Medicine inventory (name, price, quantity, category)
-├── customCategories    → Admin-created categories (icon, label, color)
-├── orders              → All orders (items, total, status, delivery address, timestamps)
-├── riderRequests       → Real-time delivery requests broadcast to riders
-├── pharmacyProfiles    → Pharmacy settings (city, served PINs, delivery radius, GPS)
-├── carts               → User cart data synced across devices
-└── userAddresses       → Saved addresses per user (type, street, city, PIN, phone)
-```
-
-### Data Flow Diagram
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Customer   │────▶│   Admin     │────▶│    Rider    │
-│   places    │     │  confirms   │     │  accepts    │
-│    order    │     │   & packs   │     │  delivers   │
-└─────────────┘     └─────────────┘     └─────────────┘
-       │                   │                   │
-       ▼                   ▼                   ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Firebase Firestore                     │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐    │
-│  │ orders  │  │ admins  │  │ riders  │  │riderReq │    │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘    │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Admin Assignment Logic (Zepto/Blinkit Style)
-
-```javascript
-   Priority-based admin matching
-Priority 1: PIN code + City both match → ✅ Assign immediately
-Priority 2: PIN matches but city different → ❌ Skip this admin
-Priority 3: City matches + distance within radius → ✅ Assign
-Priority 4: GPS fallback (no PIN/city) → ✅ Assign if within radius
-Priority 5: No match → ❌ Order cannot be placed
+┌─────────────────────────────────────────────────────────────┐
+│                     MediiQuick Platform                      │
+├───────────────┬───────────────────┬─────────────────────────┤
+│   Customers   │  Pharmacy Admins   │    Delivery Riders       │
+│   (index.html)│  (adminpage.html)  │  (delivery-dashboard.html)│
+└───────────────┴───────────────────┴─────────────────────────┘
+                              │
+                    ┌─────────▼─────────┐
+                    │     Firebase       │
+                    │  ┌─────────────┐   │
+                    │  │ Firestore   │   │
+                    │  │   DB        │   │
+                    │  └─────────────┘   │
+                    │  ┌─────────────┐   │
+                    │  │ Firebase    │   │
+                    │  │   Auth      │   │
+                    │  └─────────────┘   │
+                    └─────────────────────┘
 ```
 
 ---
 
-## 📁 Complete File Structure
+## 👥 User Roles & Features
+
+### 1. 🛒 Customers (`index.html`, `profile.html`, `my_order.html`)
+
+| Feature | Description |
+|---------|-------------|
+| **Medicine Search** | Search by name, category, or keywords |
+| **Category Browsing** | Browse by Fever, Allergy, Heart Care, Diabetes, etc. |
+| **Shopping Cart** | Add/remove items, update quantities |
+| **Checkout** | Multiple payment options (UPI, Card, Net Banking, COD) |
+| **Order Tracking** | Real-time order status with ETA |
+| **Address Management** | Save multiple delivery addresses |
+| **Order History** | View past orders with details |
+| **Profile Management** | Update name, email, phone, password |
+| **GPS Location** | Auto-detect delivery location |
+
+### 2. 🏥 Pharmacy Admins (`adminpage.html`)
+
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Real-time stats: orders, medicines, revenue, deliveries |
+| **Medicine Management** | Add/Edit/Delete medicines, bulk import via CSV |
+| **Category Management** | Create custom categories with icons |
+| **Order Management** | View all orders, update status, assign riders |
+| **Delivery Boys** | Add/Edit/Delete riders, track availability |
+| **Customer Management** | View customer profiles and order history |
+| **Analytics** | Sales reports, top medicines, revenue summary |
+| **Profile Settings** | Update pharmacy info, delivery radius, served PIN codes |
+| **Real-time Sync** | Orders update automatically via Firestore |
+
+### 3. 🏍️ Delivery Riders (`delivery-dashboard.html`, `delivery-signup.html`)
+
+| Feature | Description |
+|---------|-------------|
+| **Rider Registration** | Sign up with phone, vehicle type, city, PIN |
+| **GPS Tracking** | Share live location for order assignment |
+| **Order Requests** | Receive real-time delivery requests |
+| **Accept/Reject** | Accept or reject orders within timeout |
+| **Mark Delivered** | Complete deliveries and update status |
+| **Profile Management** | Edit details, change password |
+| **Availability Toggle** | Go online/offline for orders |
+| **Earnings Stats** | Track total deliveries and active orders |
+
+---
+
+## 📁 File Structure
 
 ```
-mediiquick/
-│
-├── 📄 Customer Pages
-│   ├── index.html              # Homepage — browse & order medicines
-│   ├── profile.html            # Customer dashboard (cart, orders, address)
-│   ├── login.html              # Unified login (User/Admin/Rider tabs)
-│   ├── signupuser.html         # Customer registration
-│   ├── myprofile.html          # Customer profile editor
-│   └── my_order.html           # Order tracking & history
-│
-├── 📄 Admin Pages
-│   ├── adminpage.html          # Admin dashboard (full management)
-│   ├── admin-login.html        # Dedicated admin login
-│   └── admin-signup.html       # Pharmacy partner registration
-│
-├── 📄 Rider Pages
-│   ├── delivery-dashboard.html # Rider portal
-│   └── delivery-signup.html    # Delivery boy registration
-│
-├── 📄 Shared
-│   ├── firebase-config.js      # Firebase initialization (shared across all pages)
-│   └── utils.js                # Helper functions (haversine distance, password hash)
-│
-└── 📄 Documentation
-    └── README.md               # This file
+MediiQuick/
+├── index.html              # Customer landing page
+├── profile.html            # Customer dashboard (shop, cart)
+├── my_order.html           # Customer order tracking
+├── myprofile.html          # Customer profile management
+├── login.html              # Unified login (User/Admin/Rider)
+├── signupuser.html         # Customer registration
+├── signup.html             # Pharmacy admin registration
+├── adminpage.html          # Pharmacy admin dashboard
+├── delivery-dashboard.html # Rider dashboard
+├── delivery-signup.html    # Rider registration
+├── firebase-config.js      # Firebase configuration
+├── utils.js                # Shared utilities
+└── images/                 # Product images
 ```
 
 ---
 
-## 🚀 Installation & Setup
+## 🗄️ Firebase Collections
+
+| Collection | Purpose | Key Fields |
+|------------|---------|------------|
+| `users` | Customer data | name, email, mobile, lat, lng, address |
+| `admins` | Pharmacy admin data | shopName, email, mobile, city, servedPins, deliveryRadius, password |
+| `pharmacyProfiles` | Pharmacy settings | city, servedPins, deliveryRadius, lat, lng |
+| `riders` | Delivery riders | name, phone, vehicle, city, deliveryRange, status, lat, lng |
+| `medicines` | Medicine inventory | name, category, catKey, quantity, price |
+| `customCategories` | Custom categories | key, label, icon, color |
+| `orders` | Customer orders | orderId, items, total, status, deliveryAddr, assignedAdminId |
+| `riderRequests` | Rider assignment requests | orderId, riderIds, acceptedBy, expiresAt |
+| `carts` | Saved carts | items, updatedAt |
+| `userAddresses` | Saved addresses | name, phone, street, city, pin |
+
+---
+
+## 🔐 Authentication
+
+| Role | Login Method | Credentials |
+|------|--------------|-------------|
+| Customer | Firebase Auth (Email/Password) | Email + Password |
+| Pharmacy Admin | Firestore + Firebase Auth | Admin ID/Email + Password |
+| Rider | Firestore + Firebase Auth (synthetic email) | Phone + Password |
+
+---
+
+## 🧠 Key Business Logic
+
+### Pharmacy Assignment (PIN + City Validation)
+
+```
+Order → Delivery PIN → India Post API → Real City
+                                    ↓
+                    Match with pharmacy's servedPins + city
+                                    ↓
+                        Assign to matching pharmacy
+```
+
+**Critical Fix:** Orders are only assigned if BOTH PIN code AND real city match the pharmacy's served area. Prevents misassignment.
+
+### Order Status Flow
+
+```
+Pending → Confirmed → Packing → On the Way → Delivered
+                    ↓
+            Rider Request (10 min timeout)
+                    ↓
+         Accepted → On the Way
+         Rejected by all → Cancelled
+```
+
+### Real-time Updates
+
+- Firestore `onSnapshot()` listeners for orders, medicines, categories
+- Live dashboard updates without page refresh
+- Rider request popup with countdown timer
+
+---
+
+## 📱 Responsive Design
+
+- Mobile-first approach using CSS Grid/Flexbox
+- Breakpoints: 480px, 600px, 768px, 1100px
+- Touch-friendly buttons and inputs
+- Cart drawer slides from right on mobile
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | HTML5, CSS3, JavaScript (ES6+) |
+| Backend | Firebase Firestore (NoSQL) |
+| Authentication | Firebase Auth |
+| APIs | India Post PIN Code API, OpenStreetMap Nominatim |
+| Hosting | Firebase Hosting / Any static host |
+| Icons | Font Awesome 6 |
+| Fonts | Google Fonts (Poppins, Inter) |
+
+---
+
+## 🚦 Getting Started
 
 ### Prerequisites
-- Modern web browser (Chrome, Firefox, Edge, Safari)
-- Internet connection (for Firebase and CDN resources)
-- Firebase account (free tier works)
+- Firebase account
+- Node.js (optional, for local server)
 
-### Step 1: Clone or Download
-```bash
-git clone <repository-url>
-cd mediiquick
-```
+### Setup Instructions
 
-### Step 2: Firebase Configuration
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/mediiquick.git
+   cd mediiquick
+   ```
 
-Create a Firebase project at [https:  console.firebase.google.com/](https:  console.firebase.google.com/)
+2. **Create Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Create new project
+   - Enable Email/Password authentication
+   - Create Firestore database (start in test mode)
 
-Enable these services:
-- **Firestore Database** (create in test mode)
-- **Authentication** (Email/Password sign-in method)
+3. **Update Firebase Config**
+   - Copy your Firebase config from Project Settings
+   - Replace config in `firebase-config.js`
 
-Update `firebase-config.js` with your credentials:
+4. **Deploy Firestore Security Rules**
+   ```javascript
+   // Example rules (customize as needed)
+   match /orders/{orderId} {
+     allow read: if request.auth != null;
+     allow write: if request.auth != null;
+   }
+   ```
 
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-### Step 3: Run Locally
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (npx)
-npx serve
-
-# Using VS Code Live Server
-Right-click index.html → Open with Live Server
-
-# Or open directly (limited functionality due to CORS)
-open index.html
-```
-
-### Step 4: Firebase Security Rules (Recommended)
-
-```javascript
-   Firestore Rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;     Test mode only
-    }
-  }
-}
-```
-
-> ⚠️ **Production:** Implement proper authentication-based security rules before going live.
-
----
-
-## 🔐 Authentication System Details
-
-| Role | Login Credentials | Session Key | Registration Page | Password Storage |
-|------|-------------------|-------------|-------------------|------------------|
-| **Customer** | Email + Password | `mq_user` | `signupuser.html` | Firebase Auth |
-| **Admin** | Admin ID or Email + Password | `mq_admin_session` | `admin-signup.html` | SHA-256 hashed |
-| **Rider** | Phone Number + Password | `mq_db_session` | `delivery-signup.html` | SHA-256 hashed |
-
-### Password Hashing (SHA-256 with Salt)
-```javascript
-async function hashPassword(plain) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plain + 'mq_salt_2024');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-```
-
----
-
-## 💾 Data Storage Strategy
-
-### Firebase Firestore (Primary - Real-time)
-| Collection | Purpose | Real-time Sync |
-|------------|---------|----------------|
-| `orders` | All customer orders | ✅ via onSnapshot |
-| `medicines` | Medicine inventory | ✅ via onSnapshot |
-| `riders` | Delivery boy profiles | ✅ via onSnapshot |
-| `riderRequests` | Broadcast requests | ✅ via onSnapshot |
-| `customCategories` | Admin categories | ✅ on page load |
-| `pharmacyProfiles` | Pharmacy settings | ✅ on page load |
-| `carts` | User cart data | ✅ on page load |
-| `userAddresses` | Saved addresses | ✅ on page load |
-| `admins` | Admin accounts | 🔒 write only |
-| `users` | Customer accounts | 🔒 write only |
-
-### localStorage (Secondary - Session Only)
-| Key | Purpose | Expiry |
-|-----|---------|--------|
-| `mq_user` | Customer session | 24 hours |
-| `mq_admin_session` | Admin session | 24 hours |
-| `mq_db_session` | Rider session | 24 hours |
-
-> **Note:** The project uses **Firestore as the single source of truth**. localStorage only stores session tokens for authentication persistence.
-
----
-
-## 📊 Order Status Flow
-
-```
-┌──────────┐     ┌───────────┐     ┌─────────┐     ┌──────────────┐     ┌───────────┐
-│ PENDING  │────▶│ CONFIRMED │────▶│ PACKING │────▶│ PENDING_     │────▶│ ON_THE_   │
-│ (Placed  │     │ (Admin    │     │ (Admin  │     │ ACCEPTANCE   │     │ WAY       │
-│ by user) │     │ confirms) │     │ packs)  │     │ (Awaiting    │     │ (Rider    │
-└──────────┘     └───────────┘     └─────────┘     │ rider)       │     │ accepted) │
-                                                    └──────────────┘     └───────────┘
-                                                                                │
-                                                                                ▼
-┌───────────┐     ┌───────────┐                                              ┌───────────┐
-│ CANCELLED │◀────│  REJECTED │                                              │ DELIVERED │
-│ (Admin or │     │ (All      │                                              │ (Rider    │
-│ customer) │     │ riders    │                                              │ marks)    │
-└───────────┘     │ rejected) │                                              └───────────┘
-                  └───────────┘
-```
-
----
-
-## 🚴 Rider Request System (Real-time)
-
-### Broadcast Flow
-1. **Admin** clicks "Send Request to All Riders" during `packing` status
-2. Firestore `riderRequests` collection gets a new document with:
-   - Order details (customer name, address, items, total)
-   - List of rider IDs to notify
-   - 10-minute expiry timestamp
-3. All available riders receive real-time notification via `onSnapshot`
-4. **First rider to accept** gets the order
-5. Order status changes to `on_the_way` with assigned rider
-6. If **all riders reject** → order automatically cancelled
-7. If **no response in 10 minutes** → request expires, order returns to `packing`
-
-### Rider Request Document Structure
-```javascript
-{
-  orderId: "MQ12345678",
-  customerName: "John Doe",
-  address: "Sector 62, Noida",
-  city: "Noida",
-  total: 450,
-  payMethod: "COD",
-  items: "Paracetamol x2, Dolo 650 x1",
-  distanceKm: 4.2,
-  riderIds: ["DB123", "DB456", "DB789"],
-  rejectedBy: ["DB456"],
-  sentAt: 1712345678900,
-  expiresAt: 1712346278900,     +10 minutes
-  acceptedBy: null,
-  expired: false,
-  processedByAdmin: false
-}
-```
-
----
-
-## 🛠️ Key Functions Reference
-
-### Customer Side (profile.html)
-```javascript
-addToCart(id)                 Add medicine to cart
-changeQty(id, delta)          Update quantity
-placeOrder()                  Validate address → find admin → save to Firestore
-trackOrder(orderId)           Real-time status updates via onSnapshot
-saveAddress(address)          Save to Firestore userAddresses collection
-loadAddresses()               Load from Firestore memory cache
-```
-
-### Admin Side (adminpage.html)
-```javascript
-saveMedicine()                Add/update medicine, sync to Firestore
-bulkImport(csvData)           Parse CSV, add medicines, update Firestore
-updateOrderStatus()           Update status, broadcast to riders if packing→pending_acceptance
-broadcastToRiders()           Create rider request document in Firestore
-deleteDeliveryBoy(id)         Remove rider from Firestore riders collection
-renderOrders()                Real-time via onSnapshot subscription
-renderMedicines()             Load from window._mqMedCache (Firestore sync)
-```
-
-### Rider Side (delivery-dashboard.html)
-```javascript
-acceptRequest(orderId)        Update rider request (acceptedBy), update order status
-rejectRequest(orderId)        Update rejectedBy array, check if all rejected
-markDelivered(orderId)        Update order status to delivered, free rider
-setStatus(status)             Update availability in Firestore riders collection
-getMe()                       Fetch rider profile from Firestore
-subscribeRiderRequests()      Real-time listener for new requests
-```
-
----
-
-## 📱 Responsive Design Breakpoints
-
-| Device | Breakpoint | Layout Changes |
-|--------|------------|----------------|
-| **Desktop** | > 1100px | Full sidebar, 6-column medicine grid |
-| **Tablet** | 768px - 1100px | Collapsed sidebar, 4-column grid, hidden features panel |
-| **Mobile** | < 580px | Bottom navigation bar, 2-column grid, stacked forms |
-
----
-
-## 🧪 Testing Credentials
-
-### Customer Account
-```
-Email: test@example.com
-Password: Test@123
-```
-
-### Admin Account
-```
-Admin ID: ADMIN-123456
-Email: admin@pharmacy.com
-Password: Admin@123
-```
-
-### Rider Account
-```
-Phone: 9876543210
-Password: Rider@123
-```
-
----
-
-## 📦 Dependencies (CDN)
-
-| Library | Version | Purpose | CDN URL |
-|---------|---------|---------|---------|
-| Firebase | 10.12.0 | Backend & real-time sync | `https:  www.gstatic.com/firebasejs/10.12.0/firebase-*.js` |
-| Font Awesome | 6.4.0 | Icons | `https:  cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css` |
-| Google Fonts | - | Poppins font | `https:  fonts.googleapis.com/css2?family=Poppins` |
+5. **Run Locally**
+   ```bash
+   # Using Python
+   python -m http.server 8000
+   
+   # Using VS Code Live Server
+   # Right-click index.html → Open with Live Server
+   ```
 
 ---
 
 ## 🔧 Environment Variables
 
-Create a `.env` file (optional) or directly edit `firebase-config.js`:
+Create a `.env` file (for production) or update directly in `firebase-config.js`:
 
-```env
-FIREBASE_API_KEY=your_api_key
-FIREBASE_AUTH_DOMAIN=your_auth_domain
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_storage_bucket
-FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-FIREBASE_APP_ID=your_app_id
+```javascript
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 ```
 
 ---
 
-## 🐛 Known Issues & Workarounds
+## 🧪 Testing Accounts
 
-| Issue | Status | Workaround |
-|-------|--------|-------------|
-| Social login (Google/Facebook) | 🚧 Coming soon | Use email/password registration |
-| SMS notifications | 🚧 Planned | Email notifications only |
-| Push notifications | 🚧 Planned | Browser notifications available for new orders |
-| Offline mode | 🚧 Limited | Firestore offline persistence enabled for reads |
+| Role | Email/ID | Password |
+|------|----------|----------|
+| Customer | test@example.com | Test@123 |
+| Admin | admin@pharmacy.com | Admin@123 |
+| Rider | 9876543210 | Rider@123 |
 
----
-
-## 🔜 Future Enhancements
-
-- [ ] **Live chat** between customer and pharmacy
-- [ ] **Prescription upload** for scheduled drugs
-- [ ] **Multi-pharmacy order splitting** (different items from different pharmacies)
-- [ ] **Delivery route optimization** for multiple orders
-- [ ] **Push notifications** (Web Push API)
-- [ ] **Invoice PDF generation** for orders
-- [ ] **Loyalty points system** with rewards
-- [ ] **Scheduled deliveries** for future dates
-- [ ] **Medicine subscription** (monthly automatic refill)
-- [ ] **Rating & review** system for medicines and riders
+> *Register new accounts via signup pages*
 
 ---
 
-## 👥 Development Team
+## 📊 Database Schema
 
-Built with ❤️ for MediiQuick — Your trusted medicine delivery partner.
+### orders collection
+```javascript
+{
+  orderId: "MQ12345678",
+  customerName: "John Doe",
+  customerEmail: "john@example.com",
+  items: [{ med: {...}, qty: 2 }],
+  total: 250,
+  status: "pending|confirmed|packing|on_the_way|delivered|cancelled",
+  placedAt: 1700000000000,
+  deliveryAddr: { street, city, pin, lat, lng },
+  assignedAdminId: "ADMIN123",
+  deliveryBoy: { id, name, phone }
+}
+```
+
+### medicines collection
+```javascript
+{
+  id: 1,
+  name: "Dolo 650",
+  category: "Fever & Pain",
+  catKey: "fever",
+  quantity: 100,
+  price: 25
+}
+```
+
+---
+
+## 🐛 Known Issues & Fixes
+
+| Issue | Fix |
+|-------|-----|
+| Orders assigned to wrong pharmacy | Added PIN + real city validation via India Post API |
+| Rider request timeout not working | Fixed 10-minute expiration timer |
+| Cart not syncing across devices | Implemented Firestore cart sync |
+| Out of stock showing incorrectly | Added `outOfStock` flag based on quantity=0 |
+
+---
+
+## 📈 Future Enhancements
+
+- [ ] Push notifications for order updates
+- [ ] Razorpay/Paytm payment gateway integration
+- [ ] Pharmacy earnings dashboard with payouts
+- [ ] Rider earnings tracking and withdrawal
+- [ ] Prescription upload for medicines
+- [ ] Chat support between customer and pharmacy
+- [ ] Loyalty points and referral system
+- [ ] Admin panel for platform management
+
+---
+
+## 👨‍💻 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open Pull Request
 
 ---
 
 ## 📄 License
 
-This project is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgements
+
+- [Firebase](https://firebase.google.com/) for backend services
+- [Font Awesome](https://fontawesome.com/) for icons
+- [India Post API](https://api.postalpincode.in/) for PIN validation
+- [OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/) for geocoding
 
 ---
 
 ## 📞 Support
 
-For technical issues or feature requests:
-- 📧 Email: support@mediiquick.com
-- 📱 Phone: +91-XXXXXXXXXX
+For support, email support@mediiquick.com or raise an issue in the GitHub repository.
 
 ---
 
-## 📝 Changelog
-
-### Version 1.0.0 (April 2026)
-- ✅ Initial release with full customer, admin, and rider functionality
-- ✅ Firebase Firestore integration for real-time sync
-- ✅ Zepto/Blinkit-style admin assignment system
-- ✅ Real-time rider request broadcasting with 10-min expiry
-- ✅ Bulk medicine import via CSV
-- ✅ Order tracking with ETA countdown
-- ✅ Multi-address support for customers
-
----
-
-*Last Updated: April 2026*
+**Made with ❤️ for faster medicine delivery**
+```

@@ -676,11 +676,11 @@
       grid-column: span 2;
     }
 
-    /* @media(max-width:480px) {
+    @media(max-width:480px) {
       .addr-form-full {
         grid-column: span 1;
       }
-    } */
+    }
 
     /* Large tablet */
     @media (max-width:1100px) {
@@ -1099,6 +1099,35 @@
       font-size: 14px;
       padding: 12px 0;
     }
+
+    /* ===== RESPONSIVE FIXES ===== */
+    @media(max-width:480px) {
+      .header-inner { padding: 0 12px; flex-wrap: nowrap; }
+      .logo h1 { font-size: 1rem; }
+      .location-bar { display: none; }
+    }
+    @media(max-width:600px) {
+      .profile-layout { flex-direction: column; }
+      .profile-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e5e7eb; padding: 16px; }
+      .profile-main { padding: 16px; }
+    }
+    @media(max-width:500px) {
+      .tab-row { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+      .tab-row::-webkit-scrollbar { display: none; }
+      .tab-btn { flex-shrink: 0; font-size: 12px; }
+    }
+    @media(max-width:480px) {
+      .addr-form-grid { grid-template-columns: 1fr; }
+      .addr-form-full { grid-column: span 1; }
+      .pw-form-grid { grid-template-columns: 1fr; }
+    }
+    @media(max-width:768px) {
+      .addr-form-input, input[type="text"], input[type="tel"],
+      input[type="email"], input[type="password"], select { font-size: 16px; }
+    }
+    @media(max-width:700px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media(max-width:400px) { .footer-grid { grid-template-columns: 1fr; } }
+    /* ===== END RESPONSIVE FIXES ===== */
   </style>
 </head>
 
@@ -1430,8 +1459,44 @@
 
   <script>
     (function () {
-      const _mqU = localStorage.getItem('mq_user') || localStorage.getItem('mq_user');
-      if (!_mqU) { window.location.href = 'login.html'; }
+      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, signOut }) => {
+          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc, updateDoc }) => {
+            let _app;
+            try { _app = getApp(); } catch(e) {
+              _app = initializeApp({
+                apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                authDomain: "mediiquick-25a65.firebaseapp.com",
+                projectId: "mediiquick-25a65",
+                storageBucket: "mediiquick-25a65.firebasestorage.app",
+                messagingSenderId: "480632265996",
+                appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+              });
+            }
+            const _auth = getAuth(_app);
+            const _fdb = getFirestore(_app);
+
+            // Expose signOut for logout button
+            window._myProfileSignOut = () => signOut(_auth).then(() => {
+              localStorage.removeItem('mq_user');
+              window.location.href = 'login.html';
+            });
+
+            onAuthStateChanged(_auth, async (user) => {
+              if (!user) { window.location.href = 'login.html'; return; }
+              // Sync Firestore data → localStorage so loadUser() works
+              try {
+                const snap = await getDoc(doc(_fdb, 'users', user.uid));
+                if (snap.exists()) {
+                  const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
+                  localStorage.setItem('mq_user', JSON.stringify(merged));
+                  if (typeof loadUser === 'function') loadUser();
+                }
+              } catch(e) { console.warn('myprofile auth sync failed:', e); }
+            });
+          });
+        });
+      });
     })();
 
     let userData = {};
@@ -1595,16 +1660,12 @@
       if (editField === 'email') document.getElementById('sidebarEmail').textContent = val;
 
       try {
-        localStorage.setItem('mq_user', JSON.stringify(userData));
-
-        const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
-        const idx = users.findIndex(u => u.email === userData.email);
-        if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
-
-         
+        // Primary: Firestore
         if (window.__mpFirestore) {
           window.__mpFirestore.saveProfileFieldToFirestore(editField, val);
         }
+        // Secondary: keep localStorage in sync for this session
+        localStorage.setItem('mq_user', JSON.stringify(userData));
       } catch (e) { }
 
       closeModal();
@@ -1617,22 +1678,34 @@
       if (!np || !cp) return showToast('⚠️ Please fill both fields');
       if (np !== cp) return showToast('⚠️ Passwords do not match');
       if (np.length < 6) return showToast('⚠️ Password must be at least 6 characters');
-      userData.password = np;
-      try {
-        localStorage.setItem('mq_user', JSON.stringify(userData));
-        const users = JSON.parse(localStorage.getItem('mq_users') || '[]');
-        const idx = users.findIndex(u => u.email === userData.email);
-        if (idx >= 0) { users[idx] = userData; localStorage.setItem('mq_users', JSON.stringify(users)); }
-      } catch (e) { }
+      // Update password via Firebase Auth
+      if (window._myProfileSignOut) {
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ updatePassword }) => {
+          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth }) => {
+              try {
+                const user = getAuth(getApp()).currentUser;
+                if (user) updatePassword(user, np).then(() => showToast('✅ Password updated!')).catch(e => {
+                  if (e.code === 'auth/requires-recent-login') showToast('⚠️ Please logout and login again to change password');
+                  else showToast('⚠️ Password update failed');
+                });
+              } catch(e) { showToast('⚠️ Password update failed'); }
+            });
+          });
+        });
+      }
       document.getElementById('newPassword').value = '';
       document.getElementById('confirmPassword').value = '';
-      showToast('✅ Password updated!');
     }
 
     function logout() {
       if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('mq_user');  
-        window.location.href = 'login.html';
+        localStorage.removeItem('mq_user');
+        if (window._myProfileSignOut) {
+          window._myProfileSignOut();
+        } else {
+          window.location.href = 'login.html';
+        }
       }
     }
 

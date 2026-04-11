@@ -887,11 +887,16 @@
             margin-bottom: 32px;
         }
 
-        /* @media(max-width:700px) {
+        @media(max-width:700px) {
             .footer-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-        } */
+        }
+        @media(max-width:400px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
 
         .footer-brand .brand-name {
@@ -1445,7 +1450,101 @@
                 overflow-x: hidden;
             }
         }
-    </style>
+    
+        /* ===== RESPONSIVE FIXES ===== */
+
+        /* Header: hide location-bar on tiny screens */
+        @media(max-width:480px) {
+            .location-bar {
+                display: none;
+            }
+            .header-inner {
+                flex-wrap: nowrap;
+                padding: 0 12px;
+            }
+            .logo h1 {
+                font-size: 1rem;
+            }
+        }
+
+        /* Cart drawer: full width on tiny screens */
+        @media(max-width:400px) {
+            .cart-drawer {
+                width: 100%;
+            }
+        }
+
+        /* Hero: compact on mobile */
+        @media(max-width:600px) {
+            .hero img {
+                height: 220px;
+            }
+            .hero-overlay {
+                padding: 20px;
+            }
+            .hero-content h2 {
+                font-size: 1.4rem;
+            }
+            .hero-content p {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            .search-bar {
+                max-width: 100%;
+            }
+            .search-bar input {
+                font-size: 16px;
+            }
+        }
+
+        /* Medicines grid: 2 col on mobile */
+        @media(max-width:480px) {
+            .medicines-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .med-img-wrap,
+            .med-img-wrap img {
+                height: 110px;
+            }
+        }
+
+        /* Footer bottom: stack on mobile */
+        @media(max-width:480px) {
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* iOS input zoom fix */
+        @media(max-width:768px) {
+            input, select {
+                font-size: 16px;
+            }
+        }
+
+        /* Checkout overlay: 1 col form on mobile */
+        @media(max-width:480px) {
+            .co-box {
+                border-radius: 14px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .co-body {
+                padding: 16px 16px 20px;
+            }
+            .co-head {
+                padding: 16px 16px 0;
+            }
+        }
+        /* ===== END RESPONSIVE FIXES ===== */
+</style>
 </head>
 
 <body>
@@ -1745,14 +1844,16 @@
                 }
             } catch (e) { }
 
+            // Cart sync — Firebase Auth uid se
             try {
-                const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                if (user.uid) {
-                    const snap = await getDoc(doc(_db, 'carts', user.uid));
+                const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+                const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+                const _fbUser = getAuth(getApp()).currentUser;
+                if (_fbUser) {
+                    const snap = await getDoc(doc(_db, 'carts', _fbUser.uid));
                     if (snap.exists() && snap.data().items) {
-                        const cartKey = 'mq_cart_' + (user.email || '').toLowerCase().trim();
+                        const cartKey = 'mq_cart_' + (_fbUser.email || '').toLowerCase().trim();
                         localStorage.setItem(cartKey, JSON.stringify(snap.data().items));
-                        // Trigger re-render
                         window.dispatchEvent(new StorageEvent('storage', { key: 'mq_user' }));
                     }
                 }
@@ -2273,7 +2374,14 @@
         }
 
         function handleCheckout() {
-            const isLoggedIn = !!(localStorage.getItem('mq_user')); // BUG FIX #4: removed redundant A||A
+            // Check Firebase Auth state for checkout guard
+            const _fbAuthCheck = (() => {
+              try {
+                return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+              } catch(e) { return Promise.resolve(null); }
+            })();
+            // Fallback: check localStorage while Firebase loads
+            const isLoggedIn = !!(localStorage.getItem('mq_user'));
             if (!isLoggedIn) {
                 closeCart();
                 document.getElementById('loginModalOverlay').classList.add('show');
@@ -2404,12 +2512,19 @@
                     const lng = pos.coords.longitude;
                     loader.style.display = 'none';
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                    const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                    cu.lat = lat; cu.lng = lng;
-                    localStorage.setItem('mq_user', JSON.stringify(cu));
-                    const allU = JSON.parse(localStorage.getItem('mq_users') || '[]');
-                    const i = allU.findIndex(u => (u.email || '').toLowerCase() === (cu.email || '').toLowerCase());
-                    if (i !== -1) { allU[i].lat = lat; allU[i].lng = lng; localStorage.setItem('mq_users', JSON.stringify(allU)); }
+                    // Update GPS in Firestore
+                    try {
+                      const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                      cu.lat = lat; cu.lng = lng;
+                      localStorage.setItem('mq_user', JSON.stringify(cu));
+                      if (cu.uid) {
+                        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
+                          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
+                            try { updateDoc(doc(getFirestore(getApp()), 'users', cu.uid), { lat, lng }).catch(()=>{}); } catch(e) {}
+                          });
+                        });
+                      }
+                    } catch(e) {}
                 } catch (e) { loader.style.display = 'none'; }
             }, function () {
                 loader.style.display = 'none';
@@ -2477,19 +2592,62 @@
             document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
             updateCartDrawer();
 
-            try {
-                const user = JSON.parse(localStorage.getItem('mq_user') || 'null');
-                const authArea = document.getElementById('headerAuthArea');
-                if (user && user.name && user.email) {
-                    authArea.innerHTML = `
+            // Auth header — Firebase Auth based
+            (function() {
+              import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, signOut }) => {
+                  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
+                    let _app;
+                    try { _app = getApp(); } catch(e) {
+                      _app = initializeApp({
+                        apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                        authDomain: "mediiquick-25a65.firebaseapp.com",
+                        projectId: "mediiquick-25a65",
+                        storageBucket: "mediiquick-25a65.firebasestorage.app",
+                        messagingSenderId: "480632265996",
+                        appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                      });
+                    }
+                    const _auth = getAuth(_app);
+                    const _fdb = getFirestore(_app);
+
+                    // Expose signOut globally for logout button
+                    window._indexSignOut = () => signOut(_auth).then(() => {
+                      localStorage.removeItem('mq_user');
+                      window.location.reload();
+                    });
+
+                    onAuthStateChanged(_auth, async (user) => {
+                      const authArea = document.getElementById('headerAuthArea');
+                      if (!authArea) return;
+
+                      if (user) {
+                        // Fetch name from Firestore
+                        let displayName = user.email.split('@')[0];
+                        let displayEmail = user.email;
+                        try {
+                          const snap = await getDoc(doc(_fdb, 'users', user.uid));
+                          if (snap.exists()) {
+                            const d = snap.data();
+                            displayName = d.name || d.fullName || displayName;
+                            displayEmail = d.email || displayEmail;
+                            // Sync localStorage for cart key + order reads
+                            const merged = { uid: user.uid, email: displayEmail, name: displayName, ...d, expiresAt: Date.now()+86400000 };
+                            localStorage.setItem('mq_user', JSON.stringify(merged));
+                            loadCart();
+                            updateCartDrawer();
+                          }
+                        } catch(e) {}
+
+                        authArea.innerHTML = `
                         <div class="acct-dropdown-wrap">
                             <button id="accountBtn" class="acct-btn">
-                                ${user.name.charAt(0).toUpperCase()}
+                                ${displayName.charAt(0).toUpperCase()}
                             </button>
                             <div id="accountDropdown" class="acct-dropdown">
                                 <div class="acct-dropdown-header">
-                                    <div class="acct-dropdown-name">${user.name}</div>
-                                    <div class="acct-dropdown-email">${user.email}</div>
+                                    <div class="acct-dropdown-name">${displayName}</div>
+                                    <div class="acct-dropdown-email">${displayEmail}</div>
                                 </div>
                                 <a href="#" onclick="goToProtected('myprofile.html');return false;" class="acct-dropdown-link">
                                     <i class="fas fa-user acct-dropdown-link-icon"></i> My Profile
@@ -2502,30 +2660,46 @@
                                 </a>
                             </div>
                         </div>`;
-                    document.getElementById('accountBtn').addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const dd = document.getElementById('accountDropdown');
-                        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                        document.getElementById('accountBtn').addEventListener('click', function(e) {
+                          e.stopPropagation();
+                          const dd = document.getElementById('accountDropdown');
+                          dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                        });
+                        document.addEventListener('click', function() {
+                          const dd = document.getElementById('accountDropdown');
+                          if (dd) dd.style.display = 'none';
+                        });
+                      } else {
+                        localStorage.removeItem('mq_user');
+                        authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
+                        loadCart();
+                        updateCartDrawer();
+                      }
                     });
-                    document.addEventListener('click', function () {
-                        const dd = document.getElementById('accountDropdown');
-                        if (dd) dd.style.display = 'none';
-                    });
-
-                } else {
-                    authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
-                }
-            } catch (e) { }
+                  });
+                });
+              });
+            })();
         });
 
         function goToProtected(page) {
-            const user = localStorage.getItem('mq_user'); // BUG FIX #4: removed redundant A||A
+            // Firebase Auth — currentUser is fastest check once onAuthStateChanged has fired
+            const user = localStorage.getItem('mq_user'); // sync fallback (populated by onAuthStateChanged above)
+            if (user) {
+                window.location.href = page;
+            } else {
+                document.getElementById('loginModalOverlay').classList.add('show');
+            }
         }
 
         function doLogoutIndex() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('mq_user'); // BUG FIX #4: removed duplicate removeItem below
-                window.location.reload();
+                localStorage.removeItem('mq_user');
+                if (window._indexSignOut) {
+                    window._indexSignOut();
+                } else {
+                    window.location.reload();
+                }
             }
         }
 

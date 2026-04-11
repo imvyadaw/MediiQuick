@@ -1006,6 +1006,28 @@
         .eta-label-cancelled {
             color: #dc2626;
         }
+
+        /* ===== RESPONSIVE FIXES ===== */
+        @media(max-width:600px) {
+            .order-card { flex-direction: column; }
+            .order-left { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+        }
+        @media(max-width:480px) {
+            .header-inner { flex-wrap: nowrap; padding: 0 12px; }
+            .logo h1 { font-size: 1rem; }
+            .header-search { display: none; }
+            .order-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+            main { padding: 14px 12px 40px; }
+        }
+        @media(max-width:500px) {
+            .filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
+            .filter-tabs::-webkit-scrollbar { display: none; }
+            .filter-tab { flex-shrink: 0; font-size: 12px; padding: 7px 12px; }
+        }
+        @media(max-width:768px) { input, select, textarea { font-size: 16px; } }
+        @media(max-width:700px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width:400px) { .footer-grid { grid-template-columns: 1fr; } }
+        /* ===== END RESPONSIVE FIXES ===== */
     </style>
 </head>
 
@@ -1090,9 +1112,41 @@
      
 
     <script>
-        const _mqUserRaw = localStorage.getItem('mq_user');
-        if (!_mqUserRaw) { window.location.href = 'login.html'; }
-        else { try { const _u = JSON.parse(_mqUserRaw); if (_u.expiresAt && Date.now() > _u.expiresAt) { localStorage.removeItem('mq_user'); window.location.href = 'login.html'; } } catch (e) { localStorage.removeItem('mq_user'); window.location.href = 'login.html'; } }
+        // Auth guard — Firebase Auth based
+        (function() {
+          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
+              import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
+                let _app;
+                try { _app = getApp(); } catch(e) {
+                  _app = initializeApp({
+                    apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                    authDomain: "mediiquick-25a65.firebaseapp.com",
+                    projectId: "mediiquick-25a65",
+                    storageBucket: "mediiquick-25a65.firebasestorage.app",
+                    messagingSenderId: "480632265996",
+                    appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                  });
+                }
+                const _auth = getAuth(_app);
+                const _fdb = getFirestore(_app);
+                onAuthStateChanged(_auth, async (user) => {
+                  if (!user) { window.location.href = 'login.html'; return; }
+                  // Sync Firestore → localStorage for loadOrders() which reads mq_user
+                  try {
+                    const snap = await getDoc(doc(_fdb, 'users', user.uid));
+                    if (snap.exists()) {
+                      const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
+                      localStorage.setItem('mq_user', JSON.stringify(merged));
+                      if (typeof loadOrders === 'function') loadOrders();
+                      if (typeof renderOrders === 'function') renderOrders();
+                    }
+                  } catch(e) { console.warn('my_order auth sync:', e); }
+                });
+              });
+            });
+          });
+        })();
 
         const ALL_MEDS = [
             { id: 'm1', name: 'Paracetamol', sub: 'Paracetamol 500mg', price: 40, mrp: 50 },

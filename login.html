@@ -3,10 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login / Signup — MediiQuick</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MediiQuick — Login Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -14,81 +15,37 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1a2e1a 50%, #0f2a0f 100%);
+      background: linear-gradient(135deg, #0a1f0a 0%, #0c2b1a 50%, #0a1f12 100%);
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow: hidden;
     }
 
-    body::before {
-      content: '';
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      background: rgba(22, 163, 74, .07);
-      top: -150px;
-      right: -100px;
+    /* floating background pills */
+    .bg-pill {
+      position: fixed;
+      background: rgba(74, 222, 128, 0.06);
+      border-radius: 100px;
       pointer-events: none;
+      z-index: 0;
     }
 
-    body::after {
-      content: '';
-      position: absolute;
-      width: 350px;
-      height: 350px;
-      border-radius: 50%;
-      background: rgba(22, 163, 74, .05);
-      bottom: -100px;
-      left: -80px;
-      pointer-events: none;
-    }
-
-    .pill {
-      position: absolute;
-      border-radius: 50px;
-      opacity: .06;
-      background: #4ade80;
-      pointer-events: none;
-    }
-
-    .pill1 {
-      width: 120px;
-      height: 40px;
-      top: 20%;
-      left: 5%;
-      transform: rotate(-25deg);
-    }
-
-    .pill2 {
-      width: 80px;
-      height: 28px;
-      top: 60%;
-      right: 7%;
-      transform: rotate(15deg);
-    }
-
-    .pill3 {
-      width: 60px;
-      height: 22px;
-      bottom: 25%;
-      left: 10%;
-      transform: rotate(30deg);
-    }
-
+    /* header */
     .header {
-      padding: 18px 40px;
+      padding: 16px 24px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       position: relative;
       z-index: 10;
+      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .logo {
@@ -99,231 +56,211 @@
     }
 
     .logo img {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      object-fit: cover;
     }
 
     .logo h1 {
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       font-weight: 800;
-      color: #fff;
+      color: white;
+      letter-spacing: -0.3px;
     }
 
     .logo h1 span {
       color: #4ade80;
     }
 
-    .header-link {
-      color: rgba(255, 255, 255, .6);
-      font-size: 13px;
+    .home-link {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: color .2s;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 40px;
+      transition: all 0.2s;
     }
 
-    .header-link:hover {
-      color: #4ade80;
+    .home-link:hover {
+      background: #16a34a;
+      color: white;
     }
 
+    /* main container */
     .main {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 24px 20px;
       position: relative;
       z-index: 10;
     }
 
+    /* card */
     .card {
-      background: #fff;
-      border-radius: 24px;
+      background: white;
+      border-radius: 32px;
       width: 100%;
-      max-width: 900px;
-      box-shadow: 0 32px 80px rgba(0, 0, 0, .4);
-      overflow: hidden;
+      max-width: 1000px;
       display: flex;
-      min-height: 580px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
     }
 
+    /* left panel */
     .left-panel {
-      width: 42%;
-      background: linear-gradient(155deg, #15803d, #16a34a, #059669);
+      width: 40%;
+      background: linear-gradient(145deg, #0e3a2a, #0a2a1a);
+      padding: 40px 28px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 32px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .left-panel::before {
-      content: '';
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .06);
-      top: -80px;
-      right: -80px;
-    }
-
-    .left-panel::after {
-      content: '';
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .04);
-      bottom: -60px;
-      left: -60px;
+      color: white;
     }
 
     .lp-icon {
-      width: 90px;
-      height: 90px;
-      background: rgba(255, 255, 255, .2);
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.8rem;
-      margin: 0 auto 24px;
-      border: 2px solid rgba(255, 255, 255, .3);
-      position: relative;
-      z-index: 1;
+      font-size: 2.4rem;
+      margin-bottom: 28px;
+      border: 1px solid rgba(74, 222, 128, 0.4);
     }
 
     .left-panel h2 {
       font-size: 1.6rem;
       font-weight: 800;
-      color: #fff;
-      margin-bottom: 12px;
-      position: relative;
-      z-index: 1;
+      margin-bottom: 10px;
     }
 
     .left-panel p {
-      font-size: 13px;
-      color: rgba(255, 255, 255, .85);
-      line-height: 1.7;
+      font-size: 0.85rem;
+      opacity: 0.85;
+      line-height: 1.5;
       margin-bottom: 28px;
-      position: relative;
-      z-index: 1;
     }
 
     .lp-features {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      width: 100%;
-      position: relative;
-      z-index: 1;
+      gap: 12px;
     }
 
     .lp-feat {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, .12);
-      border-radius: 10px;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.07);
       padding: 10px 14px;
-      color: #fff;
-      font-size: 13px;
+      border-radius: 12px;
+      font-size: 0.8rem;
       font-weight: 500;
     }
 
     .lp-feat i {
-      font-size: 15px;
-      opacity: .9;
+      color: #4ade80;
+      width: 20px;
     }
 
+    /* right panel */
     .right-panel {
       flex: 1;
-      padding: 40px 40px;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
+      padding: 36px 32px;
+      background: white;
     }
 
+    /* tabs */
     .tab-row {
       display: flex;
-      background: #f1f5f9;
-      border-radius: 14px;
+      background: #f0f2f5;
+      border-radius: 60px;
       padding: 5px;
-      gap: 4px;
+      gap: 6px;
       margin-bottom: 28px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 11px 8px;
       border: none;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .25s;
       background: transparent;
-      color: #64748b;
+      padding: 12px 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #5a6e8a;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .tab-btn.active {
-      background: #fff;
+      background: white;
       color: #16a34a;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
+    /* forms */
     .form-section {
       display: none;
+      animation: fadeIn 0.25s ease;
     }
 
     .form-section.active {
       display: block;
     }
 
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .section-title {
-      font-size: 1.2rem;
+      font-size: 1.35rem;
       font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 4px;
+      color: #0a1a2a;
+      margin-bottom: 6px;
     }
 
     .section-sub {
-      font-size: 13px;
-      color: #64748b;
+      font-size: 0.8rem;
+      color: #6c7a8e;
       margin-bottom: 24px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .form-group label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-bottom: 7px;
-    }
-
-    .form-group label i {
-      color: #16a34a;
-      width: 15px;
-      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #4a5a72;
+      display: block;
+      margin-bottom: 8px;
     }
 
     .input-wrap {
@@ -332,25 +269,24 @@
 
     .input-wrap input {
       width: 100%;
+      padding: 14px 16px;
       border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 13px 16px;
-      font-size: 14px;
-      font-family: 'Poppins', sans-serif;
-      color: #1a1a2e;
-      outline: none;
-      transition: all .2s;
-      background: #fff;
+      border-radius: 18px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      background: white;
     }
 
     .input-wrap input:focus {
       border-color: #16a34a;
-      box-shadow: 0 0 0 3px rgba(22, 163, 74, .08);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
     }
 
-    .input-wrap input.err {
+    .input-wrap input.error {
       border-color: #ef4444;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+      background: #fff9f9;
     }
 
     .pw-toggle {
@@ -362,20 +298,16 @@
       border: none;
       cursor: pointer;
       color: #94a3b8;
-      font-size: 15px;
-    }
-
-    .pw-toggle:hover {
-      color: #374151;
+      font-size: 1rem;
     }
 
     .err-msg {
-      font-size: 12px;
+      font-size: 0.7rem;
       color: #ef4444;
       display: none;
       align-items: center;
-      gap: 4px;
-      margin-top: 5px;
+      gap: 5px;
+      margin-top: 6px;
     }
 
     .err-msg.show {
@@ -386,70 +318,57 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 7px;
-    }
-
-    .forgot-row label {
-      margin-bottom: 0;
+      margin-bottom: 8px;
     }
 
     .forgot-link {
-      font-size: 12px;
+      font-size: 0.7rem;
       color: #16a34a;
+      font-weight: 700;
       text-decoration: none;
-      font-weight: 600;
-    }
-
-    .forgot-link:hover {
-      text-decoration: underline;
     }
 
     .submit-btn {
       width: 100%;
       background: #16a34a;
-      color: #fff;
+      color: white;
       border: none;
-      padding: 15px;
-      border-radius: 12px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
       cursor: pointer;
-      transition: all .2s;
+      transition: all 0.2s;
+      margin-top: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin-top: 4px;
+      gap: 10px;
     }
 
     .submit-btn:hover {
-      background: #15803d;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(22, 163, 74, .4);
-    }
-
-    .submit-btn:active {
-      transform: translateY(0);
+      background: #0e7937;
+      transform: scale(0.98);
     }
 
     .submit-btn.loading {
+      opacity: 0.7;
       pointer-events: none;
-      opacity: .8;
     }
 
     .btn-spinner {
       width: 18px;
       height: 18px;
-      border: 2px solid rgba(255, 255, 255, .4);
-      border-top-color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
       border-radius: 50%;
-      animation: spin .7s linear infinite;
+      animation: spin 0.7s linear infinite;
       display: none;
     }
 
     .submit-btn.loading .btn-spinner {
-      display: block;
+      display: inline-block;
     }
 
     @keyframes spin {
@@ -462,7 +381,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 16px 0;
+      margin: 20px 0;
     }
 
     .divider-line {
@@ -472,28 +391,25 @@
     }
 
     .divider span {
-      font-size: 12px;
-      color: #94a3b8;
-      font-weight: 600;
+      font-size: 0.7rem;
+      color: #8a9aba;
     }
 
     .social-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     .social-btn {
       flex: 1;
       border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 11px;
-      background: #fff;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
+      border-radius: 40px;
+      padding: 10px;
+      background: white;
       font-weight: 600;
-      color: #374151;
-      transition: all .2s;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -503,142 +419,55 @@
     .social-btn:hover {
       border-color: #16a34a;
       background: #f0fdf4;
-      color: #16a34a;
     }
 
     .bottom-link {
       text-align: center;
-      font-size: 13px;
-      color: #64748b;
-      margin-top: 16px;
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #5a6e8a;
     }
 
     .bottom-link a {
       color: #16a34a;
+      font-weight: 700;
       text-decoration: none;
-      font-weight: 700;
     }
 
-    .bottom-link a:hover {
-      text-decoration: underline;
-    }
+    /* Responsive */
+    @media (max-width: 780px) {
+      .card {
+        flex-direction: column;
+        max-width: 480px;
+      }
 
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 999;
-      transition: transform .3s;
-      pointer-events: none;
-      white-space: nowrap;
-      color: #fff;
-      background: #0f172a;
-    }
-
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    #toast.t-success {
-      background: #16a34a;
-    }
-
-    #toast.t-error {
-      background: #ef4444;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .6);
-      z-index: 500;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal-box {
-      background: #fff;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 380px;
-      padding: 32px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
-    }
-
-    .modal-box h3 {
-      font-size: 1.1rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .modal-box p {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-
-    .modal-close {
-      float: right;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #94a3b8;
-      margin-top: -4px;
-    }
-
-    .modal-close:hover {
-      color: #374151;
-    }
-
-    .modal-btn {
-      width: 100%;
-      background: #16a34a;
-      color: #fff;
-      border: none;
-      padding: 13px;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
-    .modal-btn:hover {
-      background: #15803d;
-    }
-
-    .modal-cancel {
-      width: 100%;
-      background: #f1f5f9;
-      color: #475569;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-
-
-    /* @media(max-width:700px) {
       .left-panel {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 24px;
+      }
+
+      .lp-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+        margin-bottom: 0;
+      }
+
+      .left-panel h2 {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+      }
+
+      .left-panel p {
+        margin-bottom: 0;
+        font-size: 0.75rem;
+      }
+
+      .lp-features {
         display: none;
       }
 
@@ -646,86 +475,39 @@
         padding: 28px 24px;
       }
 
-      .card {
-        max-width: 480px;
-      }
-
-      .header {
-        padding: 14px 16px;
-      }
-    } */
-
-    /* Large tablet */
-    @media (max-width:1100px) {
-      .card {
-        max-width: 800px;
-      }
-
-      .left-panel {
-        width: 38%;
-        padding: 32px 22px;
-      }
-    }
-
-    /* Tablet */
-    @media (max-width:768px) {
-      .card {
-        max-width: 560px;
-        min-height: unset;
-      }
-
-      .left-panel {
-        width: 34%;
-        padding: 28px 16px;
-      }
-
-      .left-panel h2 {
-        font-size: 1.2rem;
-      }
-
-      .lp-features {
-        display: none;
-      }
-
-      .left-panel p {
-        margin-bottom: 0;
-        font-size: 12px;
-      }
-
       .tab-btn {
         padding: 10px 6px;
-        flex-direction: column;
-        font-size: 10px;
+        font-size: 0.75rem;
       }
     }
 
-    /* Mobile */
-    @media (max-width:580px) {
+    @media (max-width: 550px) {
       .header {
         padding: 12px 16px;
       }
 
-      .card {
-        border-radius: 18px;
-        flex-direction: column;
-        max-width: 100%;
-        min-height: unset;
+      .logo h1 {
+        font-size: 1.1rem;
       }
 
-      .left-panel {
-        width: 100%;
-        flex-direction: row;
-        padding: 14px 18px;
-        border-radius: 0;
-        min-height: unset;
-      }
-
-      .lp-features {
-        display: none;
+      .home-link {
+        padding: 6px 12px;
+        font-size: 0.75rem;
       }
 
       .right-panel {
         padding: 22px 18px;
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+      }
+
+      .tab-btn {
+        flex-direction: column;
+        gap: 4px;
+        font-size: 0.7rem;
+        padding: 8px 4px;
       }
 
       .social-row {
@@ -733,62 +515,18 @@
       }
 
       .input-wrap input {
-        font-size: 16px;
+        font-size: 1rem;
+        padding: 13px 14px;
       }
 
-      html,
-      body {
-        overflow-x: hidden;
+      .submit-btn {
+        padding: 13px;
       }
-    }
-
-    /* ── Utility classes ── */
-    .form-group-0 {
-      margin-bottom: 0;
-    }
-
-    .form-group-mt {
-      margin-top: 20px;
-    }
-
-    .form-group-mt-sm {
-      margin-top: 8px;
-    }
-
-    .icon-facebook {
-      color: #1877f2;
-    }
-
-    .admin-login-link {
-      color: #64748b;
-      font-weight: 500;
     }
   </style>
 </head>
 
 <body>
-
-  <div class="pill pill1"></div>
-  <div class="pill pill2"></div>
-  <div class="pill pill3"></div>
-
-  <div id="toast"><span id="toast-msg"></span></div>
-
-  <div class="modal-overlay" id="forgotModal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeForgot()">✕</button>
-      <h3>🔑 Forgot Password?</h3>
-      <p>Enter your registered email — we'll send a password reset link.</p>
-      <div class="form-group form-group-0">
-        <label><i class="fas fa-envelope"></i> Email Address</label>
-        <div class="input-wrap">
-          <input type="email" id="forgot-email" placeholder="you@email.com">
-        </div>
-      </div>
-      <button class="modal-btn" onclick="sendReset()">📧 Send Reset Link</button>
-      <button class="modal-cancel" onclick="closeForgot()">Cancel</button>
-    </div>
-  </div>
 
   <header class="header">
     <a href="index.html" class="logo">
@@ -797,171 +535,106 @@
         alt="MediiQuick">
       <h1>Medii<span>Quick</span></h1>
     </a>
-    <a href="index.html" class="header-link"><i class="fas fa-arrow-left"></i> Go to Home</a>
+    <a href="index.html" class="home-link"><i class="fas fa-arrow-left"></i> Home</a>
   </header>
 
   <main class="main">
     <div class="card">
-
       <div class="left-panel">
-        <div class="lp-icon">💊</div>
-        <h2>Welcome Back!</h2>
-        <p>MediiQuick — your medicines delivered in <strong>30 minutes</strong>!</p>
-        <div class="lp-features">
-          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed delivery</div>
+        <div class="lp-icon" id="panelIcon">💊</div>
+        <div>
+          <h2 id="panelTitle">Welcome Back!</h2>
+          <p id="panelDesc">Medicines delivered in <strong>30 minutes</strong>!</p>
+        </div>
+        <div class="lp-features" id="panelFeatures">
+          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div>
           <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
-          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
-          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>
+          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div>
+          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>
         </div>
       </div>
 
       <div class="right-panel">
-
         <div class="tab-row">
-          <button class="tab-btn active" id="tab-user" onclick="switchTab('user')">
-            <i class="fas fa-user"></i> User Login
-          </button>
-          <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">
-            <i class="fas fa-store"></i> Admin Login
-          </button>
-          <button class="tab-btn" id="tab-rider" onclick="switchTab('rider')">
-            <i class="fas fa-motorcycle"></i> Rider Login
-          </button>
+          <button class="tab-btn active" onclick="switchTab('user')"><i class="fas fa-user"></i> User</button>
+          <button class="tab-btn" onclick="switchTab('admin')"><i class="fas fa-store"></i> Admin</button>
+          <button class="tab-btn" onclick="switchTab('rider')"><i class="fas fa-motorcycle"></i> Rider</button>
         </div>
 
-
-        <div class="form-section active" id="sec-user">
+        <!-- User Login -->
+        <div id="sec-user" class="form-section active">
           <div class="section-title">👋 User Login</div>
-          <div class="section-sub">Login Your Account </div>
-
+          <div class="section-sub">Access your account</div>
           <div class="form-group">
             <label><i class="fas fa-envelope"></i> Email Address</label>
-            <div class="input-wrap">
-              <input type="email" id="u-email" placeholder="you@email.com">
-            </div>
+            <div class="input-wrap"><input type="email" id="u-email" placeholder="you@email.com"></div>
             <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
           </div>
-
           <div class="form-group">
-            <div class="forgot-row">
-              <label><i class="fas fa-lock"></i> Password</label>
-              <a href="#" class="forgot-link" onclick="openForgot();return false;">Forgot Password?</a>
-            </div>
-            <div class="input-wrap">
-              <input type="password" id="u-pass" placeholder="••••••••">
-              <button class="pw-toggle" onclick="togglePw('u-pass',this)" type="button"><i
-                  class="fas fa-eye"></i></button>
-            </div>
+            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
+                onclick="openForgot();return false;">Forgot?</a></div>
+            <div class="input-wrap"><input type="password" id="u-pass" placeholder="••••••••"><button class="pw-toggle"
+                onclick="togglePw('u-pass',this)"><i class="fas fa-eye"></i></button></div>
             <span class="err-msg" id="u-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
           </div>
-
-          <button class="submit-btn" id="userLoginBtn" onclick="doUserLogin()">
-            <div class="btn-spinner"></div>
-            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login</span>
-          </button>
-
+          <button class="submit-btn" id="userLoginBtn" onclick="doUserLogin()"><span class="btn-spinner"></span><span
+              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login</span></button>
           <div class="divider">
-            <div class="divider-line"></div><span>or continue with</span>
+            <div class="divider-line"></div><span>or</span>
             <div class="divider-line"></div>
           </div>
-
-          <div class="social-row">
-            <button class="social-btn" onclick="socialLogin('Google')">
-              <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google
-            </button>
-            <button class="social-btn" onclick="socialLogin('Facebook')">
-              <i class="fab fa-facebook icon-facebook"></i> Facebook
-            </button>
-          </div>
-
-          <div class="bottom-link">
-            Don't have an account? <a href="signupuser.html">Create Account</a>
-          </div>
+          <div class="social-row"><button class="social-btn" onclick="socialLogin('Google')"><img
+                src="https://www.google.com/favicon.ico" width="16"> Google</button><button class="social-btn"
+              onclick="socialLogin('Facebook')"><i class="fab fa-facebook"></i> Facebook</button></div>
+          <div class="bottom-link">Don't have an account? <a href="signupuser.html">Create Account</a></div>
         </div>
 
-
-        <div class="form-section" id="sec-admin">
+        <!-- Admin Login -->
+        <div id="sec-admin" class="form-section">
           <div class="section-title">🏥 Admin Login</div>
-          <div class="section-sub">Login to your pharmacy partner dashboard</div>
-
+          <div class="section-sub">Manage your pharmacy dashboard</div>
+          <div class="form-group"><label><i class="fas fa-id-badge"></i> Admin ID or Email</label>
+            <div class="input-wrap"><input type="text" id="a-id" placeholder="ADMIN-123 or email"></div><span
+              class="err-msg" id="a-err-id">ID/Email required</span>
+          </div>
           <div class="form-group">
-            <label><i class="fas fa-id-badge"></i> Admin ID or Email</label>
-            <div class="input-wrap">
-              <input type="text" id="a-id" placeholder="ADMIN-123456 or email">
-            </div>
-            <span class="err-msg" id="a-err-id"><i class="fas fa-circle-exclamation"></i> Admin ID or email
-              required</span>
+            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
+                onclick="openForgot();return false;">Forgot?</a></div>
+            <div class="input-wrap"><input type="password" id="a-pass" placeholder="••••••••"><button class="pw-toggle"
+                onclick="togglePw('a-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
+              id="a-err-pass">Password required</span>
           </div>
-
-          <div class="form-group">
-            <div class="forgot-row">
-              <label><i class="fas fa-lock"></i> Password</label>
-              <a href="#" class="forgot-link" onclick="openForgot();return false;">Forgot Password?</a>
-            </div>
-            <div class="input-wrap">
-              <input type="password" id="a-pass" placeholder="••••••••">
-              <button class="pw-toggle" onclick="togglePw('a-pass',this)" type="button"><i
-                  class="fas fa-eye"></i></button>
-            </div>
-            <span class="err-msg" id="a-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
-          </div>
-
-          <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()">
-            <div class="btn-spinner"></div>
-            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
-          </button>
-
-          <div class="bottom-link form-group-mt">
-            New pharmacy partner? <a href="admin-signup.html">Register Your Pharmacy</a>
-          </div>
-          <div class="bottom-link form-group-mt-sm">
-            <a href="admin-login.html" class="admin-login-link">Go to dedicated Admin Login →</a>
-          </div>
+          <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()"><span class="btn-spinner"></span><span
+              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span></button>
+          <div class="bottom-link">New pharmacy? <a href="signup.html">Register Your Pharmacy</a></div>
         </div>
 
-        <!-- RIDER LOGIN SECTION -->
-        <div class="form-section" id="sec-rider">
+        <!-- Rider Login -->
+        <div id="sec-rider" class="form-section">
           <div class="section-title">🏍️ Rider Login</div>
-          <div class="section-sub">Login to your rider dashboard to manage deliveries</div>
-
-          <div class="form-group">
-            <label><i class="fas fa-phone"></i> Phone Number</label>
-            <div class="input-wrap">
-              <input type="tel" id="r-phone" maxlength="10" placeholder="10-digit number"
-                oninput="this.value=this.value.replace(/\D/g,'')">
-            </div>
-            <span class="err-msg" id="r-err-phone"><i class="fas fa-circle-exclamation"></i> Valid 10-digit number
-              required</span>
+          <div class="section-sub">Manage deliveries</div>
+          <div class="form-group"><label><i class="fas fa-phone"></i> Phone Number</label>
+            <div class="input-wrap"><input type="tel" id="r-phone" maxlength="10" placeholder="9876543210"
+                oninput="this.value=this.value.replace(/\D/g,'')"></div><span class="err-msg" id="r-err-phone">10-digit
+              number required</span>
           </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-lock"></i> Password</label>
-            <div class="input-wrap">
-              <input type="password" id="r-pass" placeholder="••••••••">
-              <button class="pw-toggle" onclick="togglePw('r-pass',this)" type="button"><i
-                  class="fas fa-eye"></i></button>
-            </div>
-            <span class="err-msg" id="r-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+          <div class="form-group"><label><i class="fas fa-lock"></i> Password</label>
+            <div class="input-wrap"><input type="password" id="r-pass" placeholder="••••••••"><button class="pw-toggle"
+                onclick="togglePw('r-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
+              id="r-err-pass">Password required</span>
           </div>
-
-          <button class="submit-btn" id="riderLoginBtn" onclick="doRiderLogin()">
-            <div class="btn-spinner"></div>
-            <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
-          </button>
-
-          <div class="bottom-link form-group-mt">
-            New rider? <a href="delivery-signup.html">Create Rider Account</a>
-          </div>
+          <button class="submit-btn" id="riderLoginBtn" onclick="doRiderLogin()"><span class="btn-spinner"></span><span
+              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span></button>
+          <div class="bottom-link">New rider? <a href="delivery-signup.html">Create Rider Account</a></div>
         </div>
-
       </div>
     </div>
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -976,63 +649,15 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-     
+    // Helper: Hash password (same as in admin-signup)
     async function hashPassword(plain) {
       const encoder = new TextEncoder();
       const data = encoder.encode(plain + 'mq_salt_2024');
       const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-         
-    window.switchTab = function (type) {
-      ['user', 'admin', 'rider'].forEach(t => {
-        document.getElementById('sec-' + t).classList.toggle('active', t === type);
-        document.getElementById('tab-' + t).classList.toggle('active', t === type);
-      });
-      const icon = document.querySelector('.lp-icon');
-      const heading = document.querySelector('.left-panel h2');
-      const para = document.querySelector('.left-panel p');
-      const feats = document.querySelector('.lp-features');
-      if (type === 'admin') {
-        icon.textContent = '🏥';
-        heading.textContent = 'Admin Portal';
-        para.textContent = 'Manage your pharmacy — orders, inventory, and delivery all in one place.';
-        feats.innerHTML = `
-          <div class="lp-feat"><i class="fas fa-box"></i> Manage all orders easily</div>
-          <div class="lp-feat"><i class="fas fa-pills"></i> Full inventory control</div>
-          <div class="lp-feat"><i class="fas fa-motorcycle"></i> Assign & track riders</div>
-          <div class="lp-feat"><i class="fas fa-chart-line"></i> Sales & revenue analytics</div>`;
-      } else if (type === 'rider') {
-        icon.textContent = '🏍️';
-        heading.textContent = 'Rider Portal';
-        para.textContent = 'Login to manage your deliveries with MediiQuick.';
-        feats.innerHTML = `
-          <div class="lp-feat"><i class="fas fa-box-open"></i> View your assigned orders</div>
-          <div class="lp-feat"><i class="fas fa-toggle-on"></i> Set your availability status</div>
-          <div class="lp-feat"><i class="fas fa-check-circle"></i> Mark orders as delivered</div>
-          <div class="lp-feat"><i class="fas fa-history"></i> Track your delivery history</div>`;
-      } else {
-        icon.textContent = '💊';
-        heading.textContent = 'Welcome Back!';
-        para.innerHTML = 'MediiQuick — your medicines delivered in <strong>30 minutes</strong>!';
-        feats.innerHTML = `
-          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed delivery</div>
-          <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
-          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine medicines</div>
-          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 customer support</div>`;
-      }
-    };
-
-    window.togglePw = function (id, btn) {
-      const input = document.getElementById(id);
-      const icon = btn.querySelector('i');
-      input.type = input.type === 'password' ? 'text' : 'password';
-      icon.className = input.type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
-    };
-
-     
+    // Helper: Get GPS
     function getGPS() {
       return new Promise(resolve => {
         if (!navigator.geolocation) return resolve({ lat: null, lng: null });
@@ -1044,281 +669,374 @@
       });
     }
 
-     
-    function setLoading(btnId, state) {
-      const btn = document.getElementById(btnId);
-      btn.classList.toggle('loading', state);
-      const spinner = btn.querySelector('.btn-spinner');
-      const text = btn.querySelector('.btn-text');
-      if (spinner) spinner.style.display = state ? 'block' : 'none';
-      if (text) text.style.opacity = state ? '.6' : '1';
+    // Toast notification
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const existing = document.getElementById('mq-toast-login');
+      if (existing) existing.remove();
+      if (toastTimer) clearTimeout(toastTimer);
+
+      const toast = document.createElement('div');
+      toast.id = 'mq-toast-login';
+      toast.style.cssText = `
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: ${type === 'error' ? '#ef4444' : '#16a34a'};
+      color: white;
+      padding: 12px 28px;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 1000;
+      transition: transform 0.25s;
+      white-space: nowrap;
+      max-width: 90vw;
+      white-space: normal;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+    `;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+
+      setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(0)'; }, 10);
+
+      toastTimer = setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(80px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
     }
 
-    
-    window.doUserLogin = async function () {
-      const email = document.getElementById('u-email').value.trim().toLowerCase();
-      const pass = document.getElementById('u-pass').value;
-      let valid = true;
+    // Loading state
+    function setLoading(btnId, state) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.classList.toggle('loading', state);
+    }
 
-      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      document.getElementById('u-err-email').classList.toggle('show', !emailOk);
-      document.getElementById('u-email').classList.toggle('err', !emailOk);
-      if (!emailOk) valid = false;
+    // Toggle password visibility
+    window.togglePw = function (id, btn) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.innerHTML = inp.type === 'text' ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    };
 
-      const passOk = pass.length >= 1;
-      document.getElementById('u-err-pass').classList.toggle('show', !passOk);
-      document.getElementById('u-pass').classList.toggle('err', !passOk);
-      if (!passOk) valid = false;
+    // Switch tabs
+    window.switchTab = function (type) {
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`sec-${type}`).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
 
-      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
+      const icon = document.getElementById('panelIcon');
+      const title = document.getElementById('panelTitle');
+      const desc = document.getElementById('panelDesc');
+      const features = document.getElementById('panelFeatures');
 
-      setLoading('userLoginBtn', true);
-      try {
-         
-        const userCred = await signInWithEmailAndPassword(auth, email, pass);
-        const firebaseUser = userCred.user;
-
-        
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        let userData = { name: firebaseUser.displayName || email.split('@')[0], email, mobile: '' };
-        if (userSnap.exists()) {
-          userData = { ...userSnap.data(), id: userSnap.id };
-        }
-
-         
-        const gps = await getGPS();
-        if (gps.lat && userSnap.exists()) {
-          try {
-            await updateDoc(userDocRef, { lat: gps.lat, lng: gps.lng });
-          } catch (e) { }
-        }
-
-        
-        const userSession = {
-          uid: firebaseUser.uid,
-          name: userData.name || email.split('@')[0],
-          email: userData.email,
-          mobile: userData.mobile || '',
-          lat: gps.lat,
-          lng: gps.lng,
-          loginAt: Date.now(),
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000
-        };
-        localStorage.setItem('mq_user', JSON.stringify(userSession));
-
-        showToast('✓ Login successful!', 'success');
-        setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
-
-      } catch (err) {
-        setLoading('userLoginBtn', false);
-        if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-          showToast('⚠ No account found with this email.', 'error');
-        } else if (err.code === 'auth/wrong-password') {
-          showToast('⚠ Incorrect password. Please try again.', 'error');
-        } else if (err.code === 'auth/too-many-requests') {
-          showToast('⚠ Too many attempts. Please wait and try again.', 'error');
-        } else {
-          showToast('⚠ Login failed: ' + (err.message || 'Unknown error'), 'error');
-        }
+      if (type === 'admin') {
+        icon.innerHTML = '🏥';
+        title.innerText = 'Admin Portal';
+        desc.innerText = 'Manage pharmacy, orders & inventory.';
+        features.innerHTML = `<div class="lp-feat"><i class="fas fa-box"></i> Order management</div><div class="lp-feat"><i class="fas fa-pills"></i> Inventory control</div><div class="lp-feat"><i class="fas fa-motorcycle"></i> Rider assignment</div><div class="lp-feat"><i class="fas fa-chart-line"></i> Analytics</div>`;
+      } else if (type === 'rider') {
+        icon.innerHTML = '🏍️';
+        title.innerText = 'Rider Portal';
+        desc.innerText = 'Manage your deliveries & earnings.';
+        features.innerHTML = `<div class="lp-feat"><i class="fas fa-box-open"></i> Assigned orders</div><div class="lp-feat"><i class="fas fa-toggle-on"></i> Availability status</div><div class="lp-feat"><i class="fas fa-check-circle"></i> Mark delivered</div><div class="lp-feat"><i class="fas fa-history"></i> Delivery history</div>`;
+      } else {
+        icon.innerHTML = '💊';
+        title.innerText = 'Welcome Back!';
+        desc.innerHTML = 'Medicines delivered in <strong>30 minutes</strong>!';
+        features.innerHTML = `<div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div><div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div><div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div><div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>`;
       }
     };
 
-     
+    // USER LOGIN
+    window.doUserLogin = async function () {
+      const email = document.getElementById('u-email').value.trim().toLowerCase();
+      const pass = document.getElementById('u-pass').value;
+
+      let valid = true;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('u-err-email').classList.add('show');
+        document.getElementById('u-email').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('u-err-email').classList.remove('show');
+        document.getElementById('u-email').classList.remove('error');
+      }
+      if (!pass) {
+        document.getElementById('u-err-pass').classList.add('show');
+        document.getElementById('u-pass').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('u-err-pass').classList.remove('show');
+        document.getElementById('u-pass').classList.remove('error');
+      }
+      if (!valid) return;
+
+      setLoading('userLoginBtn', true);
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, email, pass);
+        const userSnap = await getDoc(doc(db, 'users', userCred.user.uid));
+        const gps = await getGPS();
+        if (gps.lat && userSnap.exists()) {
+          await updateDoc(doc(db, 'users', userCred.user.uid), { lat: gps.lat, lng: gps.lng });
+        }
+
+        // Store session with expiry
+        const session = {
+          uid: userCred.user.uid,
+          name: userSnap.exists() ? userSnap.data().name : email.split('@')[0],
+          email: email,
+          mobile: userSnap.exists() ? userSnap.data().mobile : '',
+          lat: gps.lat,
+          lng: gps.lng,
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+        };
+        localStorage.setItem('mq_user', JSON.stringify(session));
+
+        showToast('✓ Login successful!', 'success');
+        setTimeout(() => window.location.href = 'profile.html', 1000);
+      } catch (err) {
+        setLoading('userLoginBtn', false);
+        if (err.code === 'auth/user-not-found') {
+          showToast('No account found with this email', 'error');
+        } else if (err.code === 'auth/wrong-password') {
+          showToast('Incorrect password', 'error');
+        } else {
+          showToast('Login failed. Please try again.', 'error');
+        }
+        console.error(err);
+      }
+    };
+
+    // ADMIN LOGIN
     window.doAdminLogin = async function () {
       const id = document.getElementById('a-id').value.trim();
       const pass = document.getElementById('a-pass').value;
-      let valid = true;
 
-      const idOk = id.length >= 3;
-      document.getElementById('a-err-id').classList.toggle('show', !idOk);
-      document.getElementById('a-id').classList.toggle('err', !idOk);
-      if (!idOk) valid = false;
-
-      const passOk = pass.length >= 1;
-      document.getElementById('a-err-pass').classList.toggle('show', !passOk);
-      document.getElementById('a-pass').classList.toggle('err', !passOk);
-      if (!passOk) valid = false;
-
-      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
+      if (!id) {
+        document.getElementById('a-err-id').classList.add('show');
+        return;
+      } else {
+        document.getElementById('a-err-id').classList.remove('show');
+      }
+      if (!pass) {
+        document.getElementById('a-err-pass').classList.add('show');
+        return;
+      } else {
+        document.getElementById('a-err-pass').classList.remove('show');
+      }
 
       setLoading('adminLoginBtn', true);
       try {
         const adminsRef = collection(db, 'admins');
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id);
-
-         
-        let snap;
-        if (isEmail) {
-          snap = await getDocs(query(adminsRef, where('email', '==', id.toLowerCase())));
-        } else {
-          snap = await getDocs(query(adminsRef, where('adminId', '==', id.toUpperCase())));
-        }
+        const q = isEmail
+          ? query(adminsRef, where('email', '==', id.toLowerCase()))
+          : query(adminsRef, where('adminId', '==', id.toUpperCase()));
+        const snap = await getDocs(q);
 
         if (snap.empty) {
           setLoading('adminLoginBtn', false);
-          showToast('⚠ No admin account found. Please register first.', 'error');
+          showToast('Invalid admin credentials', 'error');
           return;
         }
 
         const adminData = snap.docs[0].data();
-        const adminDocId = snap.docs[0].id;
+        const hash = await hashPassword(pass);
 
-        
-        const adminEnteredHash = await hashPassword(pass);
-        const adminStored = adminData.password || '';
-        const adminPassOk = adminStored === adminEnteredHash || adminStored === pass;
-        if (!adminPassOk) {
+        if (adminData.password !== hash && adminData.password !== pass) {
           setLoading('adminLoginBtn', false);
-          showToast('⚠ Incorrect password.', 'error');
+          showToast('Invalid password', 'error');
           return;
         }
 
-         
         const gps = await getGPS();
         if (gps.lat) {
-          try {
-            await updateDoc(doc(db, 'admins', adminDocId), { lat: gps.lat, lng: gps.lng });
-          } catch (e) { }
+          await updateDoc(doc(db, 'admins', snap.docs[0].id), { lat: gps.lat, lng: gps.lng });
         }
 
-        
-        const adminSession = {
-          docId: adminDocId,
+        // Firebase Auth sign-in (required for adminpage auth guard)
+        const adminEmail = adminData.email;
+        try {
+          await signInWithEmailAndPassword(auth, adminEmail, pass);
+        } catch (authErr) {
+          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email') {
+            // First login — create Firebase Auth account
+            try {
+              const newCred = await createUserWithEmailAndPassword(auth, adminEmail, pass);
+              await setDoc(doc(db, 'admins', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
+            } catch (createErr) {
+              if (createErr.code !== 'auth/email-already-in-use') {
+                console.warn('Firebase Auth create failed:', createErr.code);
+              }
+              // Try sign in again
+              await signInWithEmailAndPassword(auth, adminEmail, pass).catch(() => {});
+            }
+          } else if (authErr.code === 'auth/wrong-password') {
+            setLoading('adminLoginBtn', false);
+            showToast('Invalid password', 'error');
+            return;
+          }
+          // Other errors — continue, Firestore already verified
+        }
+
+        const session = {
+          docId: snap.docs[0].id,
           email: adminData.email,
           shopName: adminData.shopName || '',
           adminName: adminData.adminName || '',
           adminId: adminData.adminId || '',
           city: adminData.city || '',
-          mobile: adminData.mobile || '',
-          mobile2: adminData.mobile2 || '',
-          location: adminData.location || '',
-          drugLicense: adminData.drugLicense || '',
-          pin: adminData.pin || '',
-          gst: adminData.gst || '',
-          openTime: adminData.openTime || '',
-          closeTime: adminData.closeTime || '',
-          shopType: adminData.shopType || '',
-          deliveryRadius: adminData.deliveryRadius ? String(adminData.deliveryRadius) : '5',
+          deliveryRadius: adminData.deliveryRadius || '5',
           servedPins: adminData.servedPins || [],
           lat: gps.lat || adminData.lat || null,
           lng: gps.lng || adminData.lng || null,
-          loginAt: Date.now(),
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
         };
-        localStorage.setItem('mq_admin_session', JSON.stringify(adminSession));
+        localStorage.setItem('mq_admin_session', JSON.stringify(session));
 
         showToast('✓ Admin login successful!', 'success');
-        setTimeout(() => { window.location.href = 'adminpage.html'; }, 1000);
-
+        setTimeout(() => window.location.href = 'adminpage.html', 1000);
       } catch (err) {
         setLoading('adminLoginBtn', false);
-        showToast('⚠ Login failed. Please try again.', 'error');
+        showToast('Login failed. Please try again.', 'error');
         console.error(err);
       }
     };
 
-    
+    // RIDER LOGIN
     window.doRiderLogin = async function () {
       const phone = document.getElementById('r-phone').value.trim();
       const pass = document.getElementById('r-pass').value;
 
-      document.getElementById('r-err-phone').classList.remove('show');
-      document.getElementById('r-err-pass').classList.remove('show');
-      document.getElementById('r-phone').classList.remove('err');
-      document.getElementById('r-pass').classList.remove('err');
-
-      let valid = true;
       if (!/^[6-9]\d{9}$/.test(phone)) {
         document.getElementById('r-err-phone').classList.add('show');
-        document.getElementById('r-phone').classList.add('err');
-        valid = false;
+        return;
+      } else {
+        document.getElementById('r-err-phone').classList.remove('show');
       }
       if (!pass) {
         document.getElementById('r-err-pass').classList.add('show');
-        document.getElementById('r-pass').classList.add('err');
-        valid = false;
+        return;
+      } else {
+        document.getElementById('r-err-pass').classList.remove('show');
       }
-      if (!valid) { showToast('⚠ Please enter correct details', 'error'); return; }
 
       setLoading('riderLoginBtn', true);
       try {
-        const ridersRef = collection(db, 'riders');
-        const snap = await getDocs(query(ridersRef, where('phone', '==', phone)));
-
+        const snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
         if (snap.empty) {
           setLoading('riderLoginBtn', false);
-          document.getElementById('r-err-phone').innerHTML = '<i class="fas fa-circle-exclamation"></i> No account found with this number';
-          document.getElementById('r-err-phone').classList.add('show');
-          document.getElementById('r-phone').classList.add('err');
-          showToast('⚠ No rider account found with this number', 'error');
+          showToast('No rider account found with this phone number', 'error');
           return;
         }
 
         const riderData = snap.docs[0].data();
-        const riderDocId = snap.docs[0].id;
+        const hash = await hashPassword(pass);
 
-         
-        const riderEnteredHash = await hashPassword(pass);
-        const riderStored = riderData.password || '';
-        const riderPassOk = riderStored === riderEnteredHash || riderStored === pass;
-        if (!riderPassOk) {
+        if (riderData.password !== hash && riderData.password !== pass) {
           setLoading('riderLoginBtn', false);
-          document.getElementById('r-err-pass').innerHTML = '<i class="fas fa-circle-exclamation"></i> Incorrect password';
-          document.getElementById('r-err-pass').classList.add('show');
-          document.getElementById('r-pass').classList.add('err');
-          showToast('⚠ Incorrect password', 'error');
+          showToast('Invalid password', 'error');
           return;
         }
 
-        
         const gps = await getGPS();
         if (gps.lat) {
-          try {
-            await updateDoc(doc(db, 'riders', riderDocId), { lat: gps.lat, lng: gps.lng });
-          } catch (e) { }
+          await updateDoc(doc(db, 'riders', snap.docs[0].id), { lat: gps.lat, lng: gps.lng });
         }
 
-        
-        const riderSession = {
-          docId: riderDocId,
-          id: riderData.id,
+        // Firebase Auth sign-in with synthetic email (required for delivery-dashboard auth guard)
+        const syntheticEmail = phone + '@mq.app';
+        try {
+          await signInWithEmailAndPassword(auth, syntheticEmail, pass);
+        } catch (authErr) {
+          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email') {
+            try {
+              const newCred = await createUserWithEmailAndPassword(auth, syntheticEmail, pass);
+              await setDoc(doc(db, 'riders', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
+            } catch (createErr) {
+              if (createErr.code !== 'auth/email-already-in-use') {
+                console.warn('Firebase Auth rider create failed:', createErr.code);
+              }
+              await signInWithEmailAndPassword(auth, syntheticEmail, pass).catch(() => {});
+            }
+          }
+          // Other errors — continue, Firestore already verified
+        }
+
+        const session = {
+          docId: snap.docs[0].id,
           name: riderData.name,
-          phone: riderData.phone,
-          city: riderData.city,
+          phone: phone,
+          city: riderData.city || '',
+          vehicle: riderData.vehicle || 'bike',
+          deliveryRange: riderData.deliveryRange || 10,
           lat: gps.lat || riderData.lat || null,
           lng: gps.lng || riderData.lng || null,
-          loggedInAt: Date.now(),
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
         };
-        localStorage.setItem('mq_db_session', JSON.stringify(riderSession));
+        localStorage.setItem('mq_db_session', JSON.stringify(session));
 
         showToast('✓ Rider login successful!', 'success');
-        setTimeout(() => { window.location.href = 'delivery-dashboard.html'; }, 1000);
-
+        setTimeout(() => window.location.href = 'delivery-dashboard.html', 1000);
       } catch (err) {
         setLoading('riderLoginBtn', false);
-        showToast('⚠ Login failed. Please try again.', 'error');
+        showToast('Login failed. Please try again.', 'error');
         console.error(err);
       }
     };
 
-    
-    window.openForgot = function () { document.getElementById('forgotModal').classList.add('show'); };
-    window.closeForgot = function () { document.getElementById('forgotModal').classList.remove('show'); };
+    // Forgot Password Modal
+    const forgotModal = document.createElement('div');
+    forgotModal.id = 'forgotModal';
+    forgotModal.className = 'modal-overlay';
+    forgotModal.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  `;
+    forgotModal.innerHTML = `
+    <div class="modal-box" style="background: white; border-radius: 28px; max-width: 360px; width: 100%; padding: 28px; text-align: center;">
+      <button class="modal-close" onclick="closeForgot()" style="float: right; background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
+      <h3 style="font-weight: 800; margin-bottom: 8px;">🔐 Reset Password</h3>
+      <p style="margin-bottom: 16px; color: #6b7280;">Enter your registered email</p>
+      <input type="email" id="forgot-email" placeholder="you@example.com" style="width: 100%; padding: 14px; border-radius: 40px; border: 1.5px solid #e2e8f0; margin: 0 0 16px 0;">
+      <button class="modal-btn" onclick="sendResetLink()" style="background: #16a34a; color: white; border: none; padding: 12px; border-radius: 40px; width: 100%; font-weight: 700; cursor: pointer;">Send Reset Link</button>
+    </div>
+  `;
+    document.body.appendChild(forgotModal);
 
-    window.sendReset = async function () {
+    window.openForgot = function () {
+      document.getElementById('forgotModal').style.display = 'flex';
+    };
+
+    window.closeForgot = function () {
+      document.getElementById('forgotModal').style.display = 'none';
+    };
+
+    window.sendResetLink = async function () {
       const email = document.getElementById('forgot-email').value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('⚠ Please enter a valid email', 'error'); return;
+        showToast('Enter valid email', 'error');
+        return;
       }
       try {
         await sendPasswordResetEmail(auth, email);
         closeForgot();
-        showToast('📧 Reset link sent to ' + email, 'success');
+        showToast('✓ Reset link sent! Check your email.', 'success');
       } catch (err) {
-        showToast('⚠ Could not send reset email. Check the address.', 'error');
+        showToast('Email not found. Please register first.', 'error');
       }
     };
 
@@ -1326,36 +1044,15 @@
       showToast(`${provider} login coming soon!`);
     };
 
-     
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('tab') === 'admin') switchTab('admin');
-    if (params.get('tab') === 'rider') switchTab('rider');
-
-     
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        const active = document.querySelector('.form-section.active').id;
-        if (active === 'sec-user') doUserLogin();
-        if (active === 'sec-admin') doAdminLogin();
-        if (active === 'sec-rider') doRiderLogin();
-      }
-    });
-
-    let toastTimer;
-    window.showToast = function (msg, type = '') {
-      const t = document.getElementById('toast');
-      t.className = type === 'success' ? 't-success show' : type === 'error' ? 't-error show' : 'show';
-      document.getElementById('toast-msg').textContent = msg;
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.className = t.className.replace(' show', ''), 3000);
-    };
-
-    function showToast(msg, type = '') { window.showToast(msg, type); }
+    // Check URL params for default tab
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'admin') {
+      setTimeout(() => { document.querySelectorAll('.tab-btn')[1].click(); }, 100);
+    }
+    if (urlParams.get('tab') === 'rider') {
+      setTimeout(() => { document.querySelectorAll('.tab-btn')[2].click(); }, 100);
+    }
   </script>
-  <script type="module">
-    import { auth, db } from "./firebase-config.js";
-  </script>
-
 </body>
 
 </html>
