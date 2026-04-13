@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick — Upload Prescription</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --bg:#f5f7fa; --card:#fff; --text:#1a1a2e; --sub:#6b7280; --border:#e5e7eb; --header:#fff; --green:#16a34a; }
+    body.dark { --bg:#0d1117; --card:#161b22; --text:#e6edf3; --sub:#8b949e; --border:#30363d; --header:#161b22; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); transition:background 0.3s; }
+
+    .header { background:var(--header); box-shadow:0 2px 12px rgba(0,0,0,.07); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .logo { font-size:1.2rem; font-weight:700; color:var(--text); text-decoration:none; }
+    .logo span { color:var(--green); }
+    .hdr-right { display:flex; gap:10px; align-items:center; }
+    .back-btn { border:1.5px solid var(--border); background:none; color:var(--text); border-radius:40px; padding:7px 16px; cursor:pointer; font-family:'Poppins',sans-serif; font-size:0.82rem; font-weight:600; }
+    .dark-btn { background:none; border:none; font-size:1.25rem; cursor:pointer; }
+
+    .page { max-width:700px; margin:0 auto; padding:32px 20px; }
+    .page-title { font-size:1.5rem; font-weight:700; margin-bottom:4px; }
+    .page-sub { color:var(--sub); font-size:0.83rem; margin-bottom:28px; line-height:1.5; }
+
+    /* Info Banner */
+    .info-banner { background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1.5px solid #bbf7d0; border-radius:16px; padding:16px 20px; margin-bottom:24px; display:flex; gap:14px; align-items:flex-start; }
+    .info-icon { font-size:1.4rem; flex-shrink:0; margin-top:2px; }
+    .info-text { font-size:0.82rem; color:#166534; line-height:1.6; }
+    .info-text strong { font-weight:700; display:block; margin-bottom:2px; }
+    body.dark .info-banner { background:rgba(22,163,74,0.1); border-color:rgba(22,163,74,0.3); }
+    body.dark .info-text { color:#4ade80; }
+
+    /* Upload Zone */
+    .upload-zone { border:2.5px dashed var(--border); border-radius:24px; padding:48px 24px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--card); margin-bottom:20px; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color:var(--green); background:rgba(22,163,74,0.04); }
+    .upload-icon { font-size:3rem; margin-bottom:14px; }
+    .upload-title { font-size:1.05rem; font-weight:700; margin-bottom:6px; color:var(--text); }
+    .upload-sub { font-size:0.8rem; color:var(--sub); margin-bottom:20px; }
+    .upload-btn-file { background:var(--green); color:white; border:none; padding:11px 28px; border-radius:40px; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.88rem; cursor:pointer; }
+    .upload-hint { margin-top:12px; font-size:0.72rem; color:var(--sub); }
+
+    /* Preview */
+    .preview-area { background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:20px; margin-bottom:20px; display:none; }
+    .preview-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .preview-title { font-weight:700; font-size:0.95rem; }
+    .preview-clear { background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.8rem; font-weight:600; font-family:'Poppins',sans-serif; }
+    .preview-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; }
+    .preview-item { position:relative; border-radius:12px; overflow:hidden; background:var(--bg); aspect-ratio:1; display:flex; align-items:center; justify-content:center; }
+    .preview-item img { width:100%; height:100%; object-fit:cover; border-radius:12px; }
+    .preview-item .pdf-icon { font-size:2.5rem; }
+    .preview-item .remove-img { position:absolute; top:6px; right:6px; background:rgba(239,68,68,0.9); color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .preview-item .file-name { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.6); color:white; font-size:0.6rem; padding:4px 6px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* Form */
+    .form-card { background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:24px; margin-bottom:20px; }
+    .form-title { font-weight:700; font-size:0.95rem; margin-bottom:16px; }
+    .form-group { margin-bottom:16px; }
+    .form-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--sub); display:block; margin-bottom:6px; }
+    .form-input { width:100%; padding:11px 16px; border:1.5px solid var(--border); border-radius:14px; background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; font-size:0.88rem; transition:border 0.2s; }
+    .form-input:focus { outline:none; border-color:var(--green); }
+    .form-textarea { width:100%; padding:11px 16px; border:1.5px solid var(--border); border-radius:14px; background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; font-size:0.88rem; resize:vertical; min-height:80px; }
+    .form-select { width:100%; padding:11px 16px; border:1.5px solid var(--border); border-radius:14px; background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; font-size:0.88rem; }
+
+    /* Submit */
+    .submit-btn { width:100%; background:var(--green); color:white; border:none; padding:14px; border-radius:40px; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:10px; }
+    .submit-btn:hover { background:#0e7937; }
+    .submit-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+    /* Past Prescriptions */
+    .past-section { margin-top:28px; }
+    .past-title { font-size:1rem; font-weight:700; margin-bottom:14px; }
+    .rx-item { background:var(--card); border:1.5px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:12px; display:flex; align-items:center; gap:14px; }
+    .rx-icon { width:44px; height:44px; background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .rx-info { flex:1; }
+    .rx-name { font-size:0.88rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .rx-sub { font-size:0.72rem; color:var(--sub); }
+    .rx-status { font-size:0.72rem; font-weight:700; padding:4px 12px; border-radius:40px; }
+    .rx-status.pending { background:#fef9c3; color:#ca8a04; }
+    .rx-status.reviewed { background:#dcfce7; color:#16a34a; }
+    .rx-status.rejected { background:#fee2e2; color:#dc2626; }
+
+    /* Toast */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a2e; color:white; padding:12px 24px; border-radius:40px; font-size:0.85rem; font-weight:600; z-index:999; transition:transform 0.3s; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* Progress Bar */
+    .progress-wrap { display:none; margin-bottom:16px; }
+    .progress-bar { height:6px; background:var(--border); border-radius:40px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(to right,#16a34a,#4ade80); border-radius:40px; transition:width 0.3s; }
+    .progress-label { font-size:0.75rem; color:var(--sub); margin-top:6px; text-align:center; }
+
+    @media (max-width:500px) {
+      .preview-grid { grid-template-columns:1fr 1fr; }
+      .page { padding:20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header class="header">
+  <a href="profile.html" class="logo">Medii<span>Quick</span></a>
+  <div class="hdr-right">
+    <button class="dark-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-title">💊 Upload Prescription</div>
+  <div class="page-sub">Upload your doctor's prescription and our pharmacist will review it. We'll prepare your medicines and notify you.</div>
+
+  <div class="info-banner">
+    <div class="info-icon">ℹ️</div>
+    <div class="info-text">
+      <strong>How it works</strong>
+      Upload a clear photo or PDF of your prescription. Our pharmacist reviews it within 30 minutes and adds the medicines to your cart.
+    </div>
+  </div>
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="this.classList.remove('drag-over')">
+    <div class="upload-icon">📋</div>
+    <div class="upload-title">Drop your prescription here</div>
+    <div class="upload-sub">Or click to browse files</div>
+    <button class="upload-btn-file" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fas fa-upload"></i> Choose Files</button>
+    <div class="upload-hint">Supported: JPG, PNG, PDF · Max 5MB per file · Up to 5 files</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*,.pdf" multiple style="display:none" onchange="handleFiles(this.files)">
+
+  <!-- Preview -->
+  <div class="preview-area" id="previewArea">
+    <div class="preview-header">
+      <div class="preview-title" id="previewCount">0 files selected</div>
+      <button class="preview-clear" onclick="clearFiles()">✕ Clear all</button>
+    </div>
+    <div class="preview-grid" id="previewGrid"></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">Uploading...</div>
+  </div>
+
+  <!-- Form Details -->
+  <div class="form-card">
+    <div class="form-title">📝 Additional Details</div>
+    <div class="form-group">
+      <label class="form-label">Doctor's Name (Optional)</label>
+      <input class="form-input" id="doctorName" type="text" placeholder="Dr. Sharma">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Delivery Address</label>
+      <select class="form-select" id="deliveryAddr">
+        <option value="">-- Select saved address or enter below --</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Special Instructions</label>
+      <textarea class="form-textarea" id="rxNotes" placeholder="E.g. Need generic brands, have allergies to penicillin..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Urgency</label>
+      <select class="form-select" id="rxUrgency">
+        <option value="normal">Normal (30–45 mins)</option>
+        <option value="urgent">Urgent (ASAP)</option>
+        <option value="scheduled">Scheduled (Choose time)</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitPrescription()">
+    <i class="fas fa-paper-plane"></i> Submit Prescription
+  </button>
+
+  <!-- Past Prescriptions -->
+  <div class="past-section">
+    <div class="past-title">📂 Previous Prescriptions</div>
+    <div id="pastRxList"><div style="color:var(--sub);font-size:0.85rem;">Loading...</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const cfg = {
+    apiKey:"AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+    authDomain:"mediiquick-25a65.firebaseapp.com",
+    projectId:"mediiquick-25a65",
+    storageBucket:"mediiquick-25a65.firebasestorage.app",
+    messagingSenderId:"480632265996",
+    appId:"1:480632265996:web:d58747c0a12e780eddfd29"
+  };
+  const app = (() => { try { return getApp(); } catch(e) { return initializeApp(cfg); } })();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let selectedFiles = [];
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Drag & drop
+  window.handleDragOver = function(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.add('drag-over');
+  };
+  window.handleDrop = function(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  };
+
+  window.handleFiles = function(files) {
+    const validTypes = ['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    Array.from(files).forEach(file => {
+      if (selectedFiles.length >= 5) { showToast('Maximum 5 files allowed'); return; }
+      if (!validTypes.includes(file.type)) { showToast(`${file.name}: Invalid file type`); return; }
+      if (file.size > maxSize) { showToast(`${file.name}: Too large (max 5MB)`); return; }
+      selectedFiles.push(file);
+    });
+
+    renderPreviews();
+  };
+
+  function renderPreviews() {
+    const area = document.getElementById('previewArea');
+    const grid = document.getElementById('previewGrid');
+    const count = document.getElementById('previewCount');
+
+    if (selectedFiles.length === 0) { area.style.display = 'none'; return; }
+    area.style.display = 'block';
+    count.textContent = `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} selected`;
+
+    grid.innerHTML = '';
+    selectedFiles.forEach((file, idx) => {
+      const div = document.createElement('div');
+      div.className = 'preview-item';
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          div.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${file.name}</div>`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        div.innerHTML = `<div class="pdf-icon">📄</div><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${file.name}</div>`;
+      }
+      grid.appendChild(div);
+    });
+  }
+
+  window.removeFile = function(idx) {
+    selectedFiles.splice(idx, 1);
+    renderPreviews();
+  };
+
+  window.clearFiles = function() {
+    selectedFiles = [];
+    document.getElementById('fileInput').value = '';
+    renderPreviews();
+  };
+
+  // Convert file to base64 for Firestore storage (small files only, ideally use Firebase Storage)
+  function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  window.submitPrescription = async function() {
+    if (!currentUser) { showToast('Please login first'); return; }
+    if (selectedFiles.length === 0) { showToast('Please upload at least one prescription image'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+    const progressWrap = document.getElementById('progressWrap');
+    const progressFill = document.getElementById('progressFill');
+    const progressLabel = document.getElementById('progressLabel');
+    progressWrap.style.display = 'block';
+
+    try {
+      // Convert images to base64 (for Firestore - works for small prescriptions)
+      // For production, use Firebase Storage instead
+      const attachments = [];
+      for (let i = 0; i < selectedFiles.length; i++) {
+        progressFill.style.width = `${((i + 0.5) / selectedFiles.length) * 80}%`;
+        progressLabel.textContent = `Processing file ${i + 1} of ${selectedFiles.length}...`;
+
+        const file = selectedFiles[i];
+        // Store metadata only for PDFs (too large for base64 in Firestore)
+        if (file.type === 'application/pdf' || file.size > 500000) {
+          attachments.push({ name: file.name, type: file.type, size: file.size, data: null, note: 'Large file - stored as reference' });
+        } else {
+          const b64 = await fileToBase64(file);
+          attachments.push({ name: file.name, type: file.type, size: file.size, data: b64 });
+        }
+      }
+
+      progressFill.style.width = '90%';
+      progressLabel.textContent = 'Saving prescription...';
+
+      const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+      const userData = userSnap.exists() ? userSnap.data() : {};
+
+      const rxDoc = {
+        uid: currentUser.uid,
+        customerName: userData.name || currentUser.email,
+        customerEmail: currentUser.email,
+        customerPhone: userData.mobile || '',
+        doctorName: document.getElementById('doctorName').value.trim(),
+        deliveryAddr: document.getElementById('deliveryAddr').value,
+        notes: document.getElementById('rxNotes').value.trim(),
+        urgency: document.getElementById('rxUrgency').value,
+        attachments: attachments.map(a => ({ name: a.name, type: a.type, size: a.size, data: a.data })),
+        fileCount: attachments.length,
+        status: 'pending',
+        submittedAt: Date.now(),
+        reviewedAt: null,
+        reviewedBy: null,
+        reviewNotes: '',
+      };
+
+      await addDoc(collection(db, 'prescriptions'), rxDoc);
+
+      progressFill.style.width = '100%';
+      progressLabel.textContent = 'Submitted!';
+
+      setTimeout(() => {
+        progressWrap.style.display = 'none';
+        clearFiles();
+        document.getElementById('doctorName').value = '';
+        document.getElementById('rxNotes').value = '';
+        showToast('✅ Prescription submitted! We\'ll review it within 30 minutes.');
+        loadPastPrescriptions();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Prescription';
+      }, 1000);
+
+    } catch(e) {
+      console.error(e);
+      progressWrap.style.display = 'none';
+      showToast('Upload failed. Please try again or contact support.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Prescription';
+    }
+  };
+
+  async function loadPastPrescriptions() {
+    const listEl = document.getElementById('pastRxList');
+    if (!currentUser) return;
+    try {
+      const q = query(collection(db, 'prescriptions'), where('uid', '==', currentUser.uid));
+      const snap = await getDocs(q);
+      const rxs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.submittedAt||0) - (a.submittedAt||0));
+
+      if (!rxs.length) { listEl.innerHTML = `<div style="color:var(--sub);font-size:0.85rem;">No prescriptions uploaded yet.</div>`; return; }
+
+      const statusMap = { pending:['pending','⏳ Under Review'], reviewed:['reviewed','✅ Reviewed'], rejected:['rejected','❌ Rejected'] };
+
+      listEl.innerHTML = rxs.map(rx => {
+        const [cls, label] = statusMap[rx.status] || ['pending','⏳ Pending'];
+        return `<div class="rx-item">
+          <div class="rx-icon">📋</div>
+          <div class="rx-info">
+            <div class="rx-name">${rx.fileCount || 1} file${rx.fileCount !== 1 ? 's' : ''} · ${rx.urgency === 'urgent' ? '🚨 Urgent' : 'Normal'}</div>
+            <div class="rx-sub">Submitted ${rx.submittedAt ? new Date(rx.submittedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}${rx.doctorName ? ' · Dr. ' + rx.doctorName : ''}${rx.reviewNotes ? ' · Note: ' + rx.reviewNotes : ''}</div>
+          </div>
+          <div class="rx-status ${cls}">${label}</div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      listEl.innerHTML = `<div style="color:var(--sub);font-size:0.85rem;">Could not load prescriptions.</div>`;
+    }
+  }
+
+  // Load saved addresses
+  async function loadAddresses(uid) {
+    try {
+      const snap = await getDocs(collection(db, 'users', uid, 'addresses'));
+      const select = document.getElementById('deliveryAddr');
+      snap.docs.forEach(d => {
+        const a = d.data();
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${a.street}, ${a.city} — ${a.pin}`;
+        select.appendChild(opt);
+      });
+    } catch(e) {}
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+
+    // ── Single-device session watch ──
+    const localSession = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
+    if (localSession.sessionToken) {
+      onSnapshot(doc(db, 'users', user.uid), (snap) => {
+        if (!snap.exists()) return;
+        const liveToken = snap.data().sessionToken;
+        const ls = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
+        if (ls.sessionToken && liveToken && ls.sessionToken !== liveToken) {
+          signOut(auth).then(() => { localStorage.removeItem('mq_user'); window.location.href = 'login.html?session=displaced'; });
+        }
+      });
+    }
+
+    await loadAddresses(user.uid);
+    await loadPastPrescriptions();
+  });
+</script>
+
+<script>
+  window.toggleDark = function() {
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
+    document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+  };
+  if (localStorage.getItem('mq_dark_mode') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('darkBtn').textContent = '☀️';
+  }
+</script>
+</body>
+</html>

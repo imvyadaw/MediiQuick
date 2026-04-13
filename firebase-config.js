@@ -1,5 +1,5 @@
 // firebase-config.js — Single source of truth for Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -12,15 +12,12 @@ const firebaseConfig = {
   appId: "1:480632265996:web:d58747c0a12e780eddfd29"
 };
 
-// Singleton — prevent duplicate init
-let app, auth, db;
-try {
-  const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-  try { app = getApp(); } catch (e) { app = initializeApp(firebaseConfig); }
-} catch (e) { app = initializeApp(firebaseConfig); }
+// Singleton — prevent duplicate-app error (no top-level await needed)
+let app;
+try { app = getApp(); } catch (e) { app = initializeApp(firebaseConfig); }
 
-auth = getAuth(app);
-db = getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 export { auth, db, app };
 

@@ -1173,6 +1173,7 @@
           <i class="fas fa-map-marker-alt"></i>
           <span id="riderGpsHeaderText">📡 Loading...</span>
         </div>
+        <button class="header-btn" onclick="window.location.href='rider-wallet.html'" style="background:#dcfce7;color:#16a34a;border-color:#86efac;"><i class="fas fa-wallet"></i> Wallet</button>
         <button class="header-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
     </div>
@@ -1307,8 +1308,9 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -1318,19 +1320,48 @@
       messagingSenderId: "480632265996",
       appId: "1:480632265996:web:d58747c0a12e780eddfd29"
     };
-    const app = initializeApp(firebaseConfig);
+    const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    setPersistence(auth, browserSessionPersistence).catch(() => {});
 
 
     let session = null;
     try { session = JSON.parse(localStorage.getItem('mq_db_session')); } catch (e) { }
+
+    // FIX: Check expiry before redirect
+    if (session && session.expiresAt && Date.now() > session.expiresAt) {
+      localStorage.removeItem('mq_db_session');
+      session = null;
+    }
     if (!session || !session.docId) {
       window.location.replace('login.html?tab=rider');
     }
-    if (session && session.expiresAt && Date.now() > session.expiresAt) {
-      localStorage.removeItem('mq_db_session');
-      window.location.replace('login.html?tab=rider');
+
+    // FIX: Also verify via Firebase Auth state (catches tab-overwrite scenarios)
+    onAuthStateChanged(auth, (user) => {
+      if (!user && (!session || !session.docId)) {
+        window.location.replace('login.html?tab=rider');
+      }
+    });
+
+    // ── Single-device session enforcement for rider ──
+    // Poll Firestore every 30s to check if another device has logged in
+    async function startRiderSessionWatch() {
+      if (!session || !session.docId || !session.sessionToken) return;
+      const { doc: _doc, onSnapshot: _onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      _onSnapshot(_doc(db, 'riders', session.docId), (snap) => {
+        if (!snap.exists()) return;
+        const liveToken = snap.data().sessionToken;
+        const localToken = (() => { try { return JSON.parse(localStorage.getItem('mq_db_session') || '{}').sessionToken; } catch(e) { return null; } })();
+        if (localToken && liveToken && localToken !== liveToken) {
+          // New login from another device — force logout here
+          localStorage.removeItem('mq_db_session');
+          window.location.href = 'login.html?tab=rider&session=displaced';
+        }
+      });
     }
+    if (session && session.docId) startRiderSessionWatch();
 
 
     let _riderCache = null;
@@ -1352,7 +1383,10 @@
           _riderCache = { docId: snap.docs[0].id, ...snap.docs[0].data() };
           return _riderCache;
         }
-      } catch (e) { console.error('getMe error:', e); }
+      } catch (e) {
+        console.error('getMe error:', e.code || e);
+        // permission-denied = auth not ready, caller should retry
+      }
       return null;
     }
 
@@ -1522,7 +1556,9 @@
 
 
     function subscribeActiveOrder() {
-      onSnapshot(
+      // FIX: Store unsubscribe to prevent memory leak
+      if (window._mqUnsub_activeOrder) window._mqUnsub_activeOrder();
+      window._mqUnsub_activeOrder = onSnapshot(
         query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)),
         (snap) => {
           window._mqActiveOrderCache = snap.docs.map(d => d.data());
@@ -1580,8 +1616,33 @@
     window.acceptOrder = async function (orderId) {
       const now = Date.now();
 
+      // FIX #2: distanceKm bhi save karo taaki earning sahi calculate ho
+      let distanceKm = null;
       try {
-        await updateDoc(doc(db, 'orders', orderId), { status: 'on_the_way', statusUpdatedAt: now, riderAcceptedAt: now });
+        const me = await getMe();
+        if (me && me.lat && me.lng) {
+          // riderRequests se distanceKm fetch karo
+          const reqSnap = await getDoc(doc(db, 'riderRequests', orderId));
+          if (reqSnap.exists() && reqSnap.data().distanceKm != null) {
+            distanceKm = reqSnap.data().distanceKm;
+          } else if (reqSnap.exists() && reqSnap.data().customerLat && reqSnap.data().customerLng) {
+            // Fallback: haversine calculate karo
+            const R = 6371;
+            const dL = (reqSnap.data().customerLat - me.lat) * Math.PI / 180;
+            const dO = (reqSnap.data().customerLng - me.lng) * Math.PI / 180;
+            const a = Math.sin(dL/2)**2 + Math.cos(me.lat*Math.PI/180)*Math.cos(reqSnap.data().customerLat*Math.PI/180)*Math.sin(dO/2)**2;
+            distanceKm = parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2));
+          }
+        }
+      } catch (e) { console.warn('distanceKm fetch failed:', e); }
+
+      try {
+        await updateDoc(doc(db, 'orders', orderId), {
+          status: 'on_the_way',
+          statusUpdatedAt: now,
+          riderAcceptedAt: now,
+          distanceKm: distanceKm  // FIX #2: distance save karo
+        });
         await deleteDoc(doc(db, 'riderRequests', orderId));
       } catch (e) { console.warn('acceptOrder Firestore error:', e); }
       showToast('✅ Order accepted! Go deliver it!');
@@ -1789,17 +1850,50 @@
     let _currentRequestId = null;
     let _timerInterval = null;
     let _riderRequestsCache = [];
+    const _rejectedOrderIds = new Set(); // FIX: track locally rejected orders to prevent re-popup
 
+
+    async function ensureAuth() {
+      // If already signed in, return immediately
+      if (auth.currentUser) return true;
+      // Try signing in with synthetic email using session data
+      if (!session || !session.phone) return false;
+      const syntheticEmail = session.phone + '@rider.mq.app';
+      // We don't have password in session — use onAuthStateChanged to wait briefly
+      return new Promise((resolve) => {
+        const unsub = onAuthStateChanged(auth, (user) => {
+          unsub();
+          resolve(!!user);
+        });
+        // Timeout after 3s
+        setTimeout(() => resolve(false), 3000);
+      });
+    }
 
     async function subscribeRiderRequests() {
+      // Ensure Firebase Auth — needed for Firestore rules (riders: read if request.auth != null)
+      await ensureAuth();
+
       const me = await getMe();
-      if (!me) return;
+      if (!me) {
+        // Retry after 2s if getMe failed (auth may not be ready)
+        setTimeout(subscribeRiderRequests, 2000);
+        return;
+      }
       const myDocId = me.docId;
-      onSnapshot(
+      if (window._mqUnsub_riderReqs) window._mqUnsub_riderReqs();
+      window._mqUnsub_riderReqs = onSnapshot(
         query(collection(db, 'riderRequests'), where('riderIds', 'array-contains', myDocId)),
         (snap) => {
           _riderRequestsCache = snap.docs.map(d => ({ orderId: d.id, ...d.data() }));
           checkForNewRequests();
+        },
+        (err) => {
+          console.warn('riderRequests listener error:', err.code);
+          // Retry on permission error after auth resolves
+          if (err.code === 'permission-denied') {
+            setTimeout(subscribeRiderRequests, 3000);
+          }
         }
       );
     }
@@ -1817,6 +1911,7 @@
         !r.acceptedBy &&
         !r.expired &&
         now < r.expiresAt &&
+        !_rejectedOrderIds.has(r.orderId) &&
         !(Array.isArray(r.rejectedBy) && r.rejectedBy.includes(myDocId))
       );
       if (!myReq) {
@@ -1858,11 +1953,15 @@
       } catch (e) { showToast('⚠️ Network error, try again'); return; }
 
 
+      // FIX: Local cache mein bhi acceptedBy set karo taaki snapshot race condition se dobara popup na aaye
+      if (req) req.acceptedBy = myDocId;
+
       try {
         await updateDoc(doc(db, 'orders', orderId), {
           deliveryBoy: { docId: me.docId, name: me.name, phone: me.phone },
           status: 'on_the_way',
-          statusUpdatedAt: Date.now()
+          statusUpdatedAt: Date.now(),
+          distanceKm: req.distanceKm ?? null
         });
       } catch (e) { console.warn('Order Firestore update failed:', e); }
 
@@ -1876,6 +1975,9 @@
       if (!_currentRequestId) return;
       const orderId = _currentRequestId;
       const myDocId = (_riderCache && _riderCache.docId) || session.docId;
+
+      // FIX: Immediately mark as rejected locally so snapshot race condition doesn't re-show popup
+      _rejectedOrderIds.add(orderId);
 
 
       const req = _riderRequestsCache.find(r => r.orderId === orderId);
@@ -1980,6 +2082,12 @@
 
     subscribeRiderRequests();
     subscribeActiveOrder();
+
+    // FIX: Cleanup all Firestore listeners on page unload
+    window.addEventListener('beforeunload', () => {
+      if (window._mqUnsub_activeOrder) window._mqUnsub_activeOrder();
+      if (window._mqUnsub_riderReqs) window._mqUnsub_riderReqs();
+    }, { once: true });
 
     setInterval(() => { renderAll(); }, 3000);
 

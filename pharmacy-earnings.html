@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick — Pharmacy Earnings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #fff;
+      --text: #1a1a2e;
+      --sub: #6b7280;
+      --border: #e5e7eb;
+      --header: #fff;
+      --green: #16a34a;
+    }
+
+    body.dark {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --sub: #8b949e;
+      --border: #30363d;
+      --header: #161b22;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .header {
+      background: var(--header);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .logo span {
+      color: var(--green);
+    }
+
+    .hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      border: 1.5px solid var(--border);
+      background: none;
+      color: var(--text);
+      border-radius: 40px;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .dark-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      color: var(--sub);
+      font-size: 0.83rem;
+      margin-bottom: 24px;
+    }
+
+    /* Filter Row */
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-select {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 40px;
+      background: var(--card);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .withdraw-btn {
+      margin-left: auto;
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 9px 22px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* Stat Cards */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 22px;
+    }
+
+    .stat-icon {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--sub);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .stat-change {
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+
+    .up {
+      color: #16a34a;
+    }
+
+    .down {
+      color: #ef4444;
+    }
+
+    /* Chart Bar */
+    .chart-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 150px;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 8px 8px 0 0;
+      background: linear-gradient(to top, #16a34a, #4ade80);
+      min-height: 4px;
+      transition: height 0.6s ease;
+    }
+
+    .bar-label {
+      font-size: 0.68rem;
+      color: var(--sub);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .bar-val {
+      font-size: 0.68rem;
+      color: var(--sub);
+    }
+
+    /* Orders Table */
+    .table-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tbl th {
+      padding: 10px 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sub);
+      background: var(--bg);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tbl td {
+      padding: 12px 20px;
+      font-size: 0.84rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .tbl tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tbl tr:hover td {
+      background: rgba(22, 163, 74, 0.04);
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .badge-delivered {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .badge-pending {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .badge-cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .amt {
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .empty {
+      padding: 60px;
+      text-align: center;
+      color: var(--sub);
+      font-size: 0.88rem;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Withdraw Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 28px;
+      width: 340px;
+      max-width: 90vw;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .modal-cancel {
+      width: 100%;
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    @media (max-width:600px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tbl th:nth-child(3),
+      .tbl td:nth-child(3) {
+        display: none;
+      }
+
+      .bar-chart {
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="modal-overlay" id="withdrawModal">
+    <div class="modal-box">
+      <div class="modal-title">💰 Request Withdrawal</div>
+      <p style="color:var(--sub);font-size:0.82rem;margin-bottom:16px;">Available balance: <strong id="modalBal"
+          style="color:var(--green);">₹0</strong></p>
+      <input class="modal-input" id="wdAmount" type="number" placeholder="Enter amount (₹)" min="100">
+      <input class="modal-input" id="wdUpi" type="text" placeholder="Your UPI ID (e.g. name@upi)">
+      <button class="modal-btn" onclick="submitWithdrawal()">Request Withdrawal</button>
+      <button class="modal-cancel" onclick="closeWithdraw()">Cancel</button>
+    </div>
+  </div>
+
+  <header class="header">
+    <a href="adminpage.html" class="logo">Medii<span>Quick</span> — Earnings</a>
+    <div class="hdr-right">
+      <button class="dark-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Dashboard</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="page-title">💰 Pharmacy Earnings</div>
+    <div class="page-sub" id="shopNameSub">Loading your pharmacy data...</div>
+
+    <div class="filter-row">
+      <select class="filter-select" id="periodFilter" onchange="applyFilter()">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="90">Last 3 Months</option>
+        <option value="365">This Year</option>
+        <option value="0">All Time</option>
+      </select>
+      <button class="withdraw-btn" onclick="openWithdraw()"><i class="fas fa-wallet"></i> Withdraw</button>
+    </div>
+
+    <div class="stats" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-val" id="s-revenue">—</div>
+        <div class="stat-change up" id="s-rev-change"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-val" id="s-orders">—</div>
+        <div class="stat-change up" id="s-ord-change"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Delivered</div>
+        <div class="stat-val" id="s-delivered">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-label">Avg Order Value</div>
+        <div class="stat-val" id="s-avg">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-label">Available Balance</div>
+        <div class="stat-val" id="s-balance" style="color:var(--green);">—</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>📊 Daily Revenue (Last 7 Days)</span>
+      </div>
+      <div class="bar-chart" id="barChart">
+        <div class="empty">Loading chart...</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <span>Recent Orders</span>
+        <span id="orderCountBadge" style="color:var(--sub);font-size:0.82rem;font-weight:500;"></span>
+      </div>
+      <div id="ordersTableWrap">
+        <div class="empty">
+          <div class="spinner"></div>Loading orders...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const cfg = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
+    const app = (() => { try { return getApp(); } catch (e) { return initializeApp(cfg); } })();
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Get admin session
+    let adminSession = null;
+    let allOrders = [];
+
+    try {
+      adminSession = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+    } catch (e) { }
+
+    if (!adminSession?.docId) {
+      window.location.href = 'login.html?tab=admin';
+    }
+
+    document.getElementById('shopNameSub').textContent = `${adminSession.shopName || 'Your Pharmacy'} — Earnings & Revenue`;
+
+    // FIX: sessionToken multi-tab logout hata diya — college demo ke liye multi-tab allowed
+
+    let _ordersUnsub = null;
+
+    function subscribeOrders() {
+      // FIX: getDocs → onSnapshot for real-time updates
+      // FIX: Both docId and adminId queries run, results merged
+      const docId = adminSession.docId || '';
+      const adminId = adminSession.adminId || '';
+
+      if (!docId && !adminId) {
+        document.getElementById('ordersTableWrap').innerHTML = '<div class="empty">⚠️ Admin session not found. Please login again.</div>';
+        return;
+      }
+
+      // Show loading
+      document.getElementById('ordersTableWrap').innerHTML = '<div class="empty" style="padding:40px;"><div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16a34a;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;"></div>Loading orders...</div>';
+
+      const q1 = query(collection(db, 'orders'), where('assignedAdminId', '==', docId));
+
+      // Real-time listener on docId query
+      if (_ordersUnsub) _ordersUnsub();
+      _ordersUnsub = onSnapshot(q1, async (snap1) => {
+        const seen = new Set();
+        allOrders = [];
+        snap1.docs.forEach(d => {
+          seen.add(d.id);
+          allOrders.push({ id: d.id, ...d.data() });
+        });
+
+        // Also fetch adminId-based orders if different
+        if (adminId && adminId !== docId) {
+          try {
+            const q2 = query(collection(db, 'orders'), where('assignedAdminId', '==', adminId));
+            const snap2 = await getDocs(q2);
+            snap2.docs.forEach(d => {
+              if (!seen.has(d.id)) {
+                seen.add(d.id);
+                allOrders.push({ id: d.id, ...d.data() });
+              }
+            });
+          } catch(e) { console.warn('adminId query failed:', e); }
+        }
+
+        applyFilter();
+      }, (e) => {
+        console.error('loadOrders error:', e);
+        document.getElementById('ordersTableWrap').innerHTML = `<div class="empty">⚠️ Failed to load orders. Error: ${e.code || e.message}</div>`;
+      });
+    }
+
+    // Firebase Auth guard — but also allow if localStorage session valid
+    onAuthStateChanged(auth, (user) => {
+      if (!user && !adminSession?.docId) {
+        window.location.href = 'login.html?tab=admin';
+        return;
+      }
+      subscribeOrders();
+    });
+
+    // FIX: Agar Auth slow hai toh localStorage session se directly load karo
+    if (adminSession?.docId) {
+      setTimeout(() => {
+        if (allOrders.length === 0) subscribeOrders();
+      }, 2000);
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (_ordersUnsub) _ordersUnsub();
+    });
+
+    window.applyFilter = function () {
+      const days = parseInt(document.getElementById('periodFilter').value);
+      const cutoff = days > 0 ? Date.now() - days * 86400000 : 0;
+      const filtered = days > 0 ? allOrders.filter(o => (o.placedAt || 0) >= cutoff) : allOrders;
+
+      const delivered = filtered.filter(o => o.status === 'delivered');
+      const totalRev = delivered.reduce((s, o) => s + (o.total || 0), 0);
+      const avgVal = delivered.length ? Math.round(totalRev / delivered.length) : 0;
+      // 15% platform fee
+      const balance = Math.round(totalRev * 0.85);
+
+      document.getElementById('s-revenue').textContent = '₹' + totalRev.toLocaleString('en-IN');
+      document.getElementById('s-orders').textContent = filtered.length;
+      document.getElementById('s-delivered').textContent = delivered.length;
+      document.getElementById('s-avg').textContent = avgVal ? '₹' + avgVal : '—';
+      document.getElementById('s-balance').textContent = '₹' + balance.toLocaleString('en-IN');
+      document.getElementById('modalBal').textContent = '₹' + balance.toLocaleString('en-IN');
+      document.getElementById('orderCountBadge').textContent = `${filtered.length} orders`;
+
+      renderChart(filtered);
+      renderTable(filtered);
+    };
+
+    function renderChart(orders) {
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const label = d.toLocaleDateString('en-IN', { weekday: 'short' });
+        const dayStart = new Date(d.setHours(0, 0, 0, 0)).getTime();
+        const dayEnd = dayStart + 86400000;
+        const revenue = orders
+          .filter(o => o.status === 'delivered' && o.placedAt >= dayStart && o.placedAt < dayEnd)
+          .reduce((s, o) => s + (o.total || 0), 0);
+        days.push({ label, revenue });
+      }
+
+      const maxRev = Math.max(...days.map(d => d.revenue), 1);
+      const chart = document.getElementById('barChart');
+      chart.innerHTML = days.map(d => `
+      <div class="bar-col">
+        <div class="bar-val">₹${d.revenue > 0 ? (d.revenue >= 1000 ? (d.revenue / 1000).toFixed(1) + 'k' : d.revenue) : ''}</div>
+        <div class="bar" style="height:${Math.max(8, (d.revenue / maxRev) * 130)}px" title="₹${d.revenue}"></div>
+        <div class="bar-label">${d.label}</div>
+      </div>`).join('');
+    }
+
+    function renderTable(orders) {
+      const sorted = [...orders].sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0)).slice(0, 50);
+      if (!sorted.length) {
+        document.getElementById('ordersTableWrap').innerHTML = `<div class="empty">No orders found for this period</div>`;
+        return;
+      }
+
+      const statusBadge = s => {
+        const map = { delivered: 'badge-delivered', pending: 'badge-pending', cancelled: 'badge-cancelled' };
+        return `<span class="badge ${map[s] || 'badge-pending'}">${s || 'pending'}</span>`;
+      };
+
+      document.getElementById('ordersTableWrap').innerHTML = `
+      <table class="tbl">
+        <thead><tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Invoice</th>
+        </tr></thead>
+        <tbody>
+          ${sorted.map(o => `<tr>
+            <td style="font-family:monospace;font-size:0.78rem;">${o.orderId || o.id.slice(0, 8)}</td>
+            <td>${o.customerName || '—'}</td>
+            <td>${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</td>
+            <td>${o.placedAt ? new Date(o.placedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}</td>
+            <td>${statusBadge(o.status)}</td>
+            <td class="amt">₹${(o.total || 0).toLocaleString('en-IN')}</td>
+            <td><a href="invoice.html?orderId=${o.orderId || o.id}" style="color:var(--green);font-size:0.8rem;font-weight:600;">🧾 View</a></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    }
+
+    window.openWithdraw = function () { document.getElementById('withdrawModal').classList.add('open'); };
+    window.closeWithdraw = function () { document.getElementById('withdrawModal').classList.remove('open'); };
+
+    window.submitWithdrawal = async function () {
+      const amount = parseInt(document.getElementById('wdAmount').value);
+      const upi = document.getElementById('wdUpi').value.trim();
+      if (!amount || amount < 100) { alert('Minimum withdrawal is ₹100'); return; }
+      if (!upi) { alert('Please enter your UPI ID'); return; }
+
+      try {
+        await addDoc(collection(db, 'withdrawalRequests'), {
+          adminId: adminSession.docId,
+          shopName: adminSession.shopName,
+          amount,
+          upiId: upi,
+          requestedAt: Date.now(),
+          status: 'pending'
+        });
+        closeWithdraw();
+        alert(`✅ Withdrawal of ₹${amount} requested! It will be processed within 2-3 business days.`);
+      } catch (e) {
+        alert('Failed to submit request. Please try again.');
+        console.error(e);
+      }
+    };
+
+  </script>
+
+  <script>
+    window.toggleDark = function () {
+      const isDark = document.body.classList.toggle('dark');
+      localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
+      document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+    };
+    if (localStorage.getItem('mq_dark_mode') === '1') {
+      document.body.classList.add('dark');
+      document.getElementById('darkBtn').textContent = '☀️';
+    }
+  </script>
+</body>
+
+</html>

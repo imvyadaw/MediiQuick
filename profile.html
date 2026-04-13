@@ -2101,6 +2101,140 @@
         }
 
         /* ===== END RESPONSIVE FIXES ===== */
+
+        /* ===== DARK MODE ===== */
+        body.dark-mode {
+            background: #0d1117 !important;
+            color: #c9d1d9 !important;
+        }
+
+        body.dark-mode .header {
+            background: #161b22 !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-mode .logo h1 {
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .location-bar {
+            background: #0d2416 !important;
+            border-color: #196130 !important;
+        }
+
+        body.dark-mode .loc-label,
+        body.dark-mode .loc-val {
+            color: #c9d1d9 !important;
+        }
+
+        body.dark-mode .section {
+            background: #161b22 !important;
+        }
+
+        body.dark-mode .med-card {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+        }
+
+        body.dark-mode .med-name {
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .med-sub {
+            color: #8b949e !important;
+        }
+
+        body.dark-mode .search-bar {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+        }
+
+        body.dark-mode #medicine-search {
+            background: #1c2128 !important;
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode #medicine-search::placeholder {
+            color: #6e7681 !important;
+        }
+
+        body.dark-mode .cat-btn {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+            color: #c9d1d9 !important;
+        }
+
+        body.dark-mode .cat-btn.active {
+            background: #196130 !important;
+            border-color: #16a34a !important;
+            color: white !important;
+        }
+
+        body.dark-mode .section-title {
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .cart-drawer {
+            background: #161b22 !important;
+        }
+
+        body.dark-mode .cart-header {
+            background: #0d1117 !important;
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .cart-item {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+        }
+
+        body.dark-mode .cart-item-name {
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .account-dropdown {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+        }
+
+        body.dark-mode .account-dropdown a {
+            color: #c9d1d9 !important;
+        }
+
+        body.dark-mode .account-dropdown a:hover {
+            background: #0d2416 !important;
+        }
+
+        body.dark-mode .co-modal {
+            background: #0d1117 !important;
+        }
+
+        body.dark-mode .co-card {
+            background: #161b22 !important;
+            border-color: #30363d !important;
+        }
+
+        body.dark-mode .co-input {
+            background: #1c2128 !important;
+            border-color: #30363d !important;
+            color: #e6edf3 !important;
+        }
+
+        body.dark-mode .co-label {
+            color: #8b949e !important;
+        }
+
+        body.dark-mode .footer {
+            background: #0d1117 !important;
+        }
+
+        body.dark-mode .hero {
+            filter: brightness(0.85);
+        }
+
+        body.dark-mode .med-price-row .price {
+            color: #4ade80 !important;
+        }
     </style>
 </head>
 
@@ -2152,6 +2286,11 @@
                     <div id="savedAddrPicker" class="addr-picker-wrap"></div>
 
                     <div id="newAddrFormWrap">
+                        <button type="button" id="gps-pin-btn" onclick="useGPSForPin()"
+                            style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;color:#15803d;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;margin-bottom:14px;width:100%;justify-content:center;transition:background .2s;">
+                            <i class="fas fa-location-crosshairs"></i>
+                            <span id="gps-pin-btn-text">📍 Use My Current Location</span>
+                        </button>
                         <div class="form-row">
                             <div class="co-form-group"><label>Full Name *</label><input type="text" id="addr-name"
                                     placeholder=" "><span class="co-err-msg" id="err-name">Name
@@ -2384,12 +2523,17 @@
             </div>
 
             <div class="header-right">
+                <button onclick="toggleDarkMode()" title="Toggle Dark Mode"
+                    style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:6px;border-radius:8px;transition:background 0.2s;"
+                    id="dmToggleBtn">🌙</button>
                 <div class="account-menu-wrap">
                     <button class="account-btn" id="accountBtn">👤</button>
                     <div class="account-dropdown" id="accountDropdown">
                         <a href="myprofile.html"><i class="fas fa-user dropdown-link-icon"></i>Profile</a>
                         <a href="my_order.html"><i class="fas fa-box dropdown-link-icon"></i>My Orders</a>
-                        <a href="#"><i class="fas fa-heart dropdown-link-icon"></i>Wishlist</a>
+                        <a href="wishlist.html"><i class="fas fa-heart dropdown-link-icon"></i>Wishlist</a>
+                        <a href="prescription-upload.html"><i
+                                class="fas fa-file-prescription dropdown-link-icon"></i>Upload Prescription</a>
                         <a href="#" onclick="doLogout();return false;" class="dropdown-logout"><i
                                 class="fas fa-sign-out-alt dropdown-link-icon"></i>Logout</a>
                     </div>
@@ -2600,7 +2744,9 @@
         async function findAdminForOrder(deliveryPin, deliveryCity, deliveryLat, deliveryLng) {
             try {
                 const snap = await getDocs(collection(_db, 'pharmacyProfiles'));
-                if (snap.empty) return null;
+                // FIX: Return object with status — 3 cases
+                // { status: 'found', adminId } | { status: 'offline' } | { status: 'not_registered' }
+                if (snap.empty) return { status: 'not_registered' };
 
                 const pin = (deliveryPin || '').toString().trim();
                 const city = (deliveryCity || '').toLowerCase().trim();
@@ -2663,7 +2809,13 @@
                 const admins = snap.docs.map(d => ({ adminId: d.id, ...d.data() }));
 
                 // ✅ STRICT MATCHING: PIN + City dono sahi hone chahiye
+                // ✅ ONLINE CHECK: Sirf wahi admin match hoga jo currently logged in hai
                 for (const a of admins) {
+                    // ❌ Admin logged out hai — skip karo, order nahi jaayega
+                    if (!a.isOnline) {
+                        console.log('[MQ] Admin', a.adminId, 'is offline/not logged in — skipping');
+                        continue;
+                    }
                     const servedPins = (a.servedPins || []).map(p => p.toString().trim());
                     const pharmCity = (a.city || '').toLowerCase().trim();
                     const pharmLat = a.lat || null;
@@ -2677,7 +2829,7 @@
                     // Agar PIN Greater Noida ka hai aur admin Delhi ka, toh cityMatches = false → skip
                     if (pinInAdminList && cityMatches) {
                         console.log('[MQ] Matched admin', a.adminId, 'via PIN+City');
-                        return a.adminId;
+                        return { status: 'found', adminId: a.adminId };
                     }
 
                     // ❌ PIN match kiya lekin city alag → yeh order is admin ka NAHI hai
@@ -2693,12 +2845,12 @@
                             const dist = _haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
                             if (dist <= radius) {
                                 console.log('[MQ] Matched admin', a.adminId, 'via city+GPS dist:', dist.toFixed(1), 'km');
-                                return a.adminId;
+                                return { status: 'found', adminId: a.adminId }; // FIX: was returning plain string
                             }
                         } else {
                             // No GPS, city match kafi hai
                             console.log('[MQ] Matched admin', a.adminId, 'via city (no GPS)');
-                            return a.adminId;
+                            return { status: 'found', adminId: a.adminId }; // FIX: was returning plain string
                         }
                     }
                 }
@@ -2706,6 +2858,7 @@
                 // GPS-only fallback — sirf tab jab verified city bhi match ho
                 if (deliveryLat && deliveryLng) {
                     const gpsFallback = admins.find(a => {
+                        if (!a.isOnline) return false; // ✅ Offline admin ko skip karo
                         if (!a.lat || !a.lng) return false;
                         const pharmCity = (a.city || '').toLowerCase().trim();
                         // GPS fallback bhi city-aware hona chahiye
@@ -2716,14 +2869,26 @@
                     });
                     if (gpsFallback) {
                         console.log('[MQ] Matched admin', gpsFallback.adminId, 'via GPS fallback');
-                        return gpsFallback.adminId;
+                        return { status: 'found', adminId: gpsFallback.adminId };
                     }
                 }
 
-                return null;
+                // No online admin found — check if any admin is registered but offline
+                const anyRegistered = snap.docs.some(d => {
+                    const a = d.data();
+                    const servedPins = (a.servedPins || []).map(p => p.toString().trim());
+                    const pharmCity = (a.city || '').toLowerCase().trim();
+                    const pinMatch = pin && servedPins.includes(pin);
+                    const cityMatch = _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
+                    return pinMatch || (!servedPins.length && cityMatch);
+                });
+                if (anyRegistered) {
+                    return { status: 'offline' }; // Registered but currently offline
+                }
+                return { status: 'not_registered' }; // No pharmacy in this area
             } catch (e) {
                 console.warn('[MQ] Admin lookup failed:', e);
-                return null;
+                return { status: 'not_registered' };
             }
         }
 
@@ -2790,12 +2955,9 @@
             const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
             const uid = user.uid;
 
-            // FIX: Parallel Firestore calls — 3x faster on mobile
-            await Promise.all([
-                syncAdminMedicinesFromFirestore(),
-                syncCustomCatsFromFirestore(),
-                loadAddressesFromFirestore(uid)
-            ]);
+            await syncAdminMedicinesFromFirestore();
+            await syncCustomCatsFromFirestore();
+            await loadAddressesFromFirestore(uid);
 
             if (uid) {
                 const fsCart = await loadCartFromFirestore(uid);
@@ -2862,6 +3024,7 @@
                             });
                         }
                         const _auth = getAuth(_app);
+                        // browserSessionPersistence REMOVED — tab close par logout hota tha
                         const _db = getFirestore(_app);
                         window._profileAuth = _auth;
                         window._profileSignOut = () => import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js")
@@ -2877,6 +3040,8 @@
                                     const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 86400000 };
                                     localStorage.setItem('mq_user', JSON.stringify(merged));
                                     if (window._mpLoadUser) window._mpLoadUser();
+                                    // sessionToken check & onSnapshot displacement REMOVED
+                                    // Ab multi-tab/multi-device login allowed hai — koi kick-out nahi hoga
                                 }
                             } catch (e) { }
                             // GPS update to Firestore
@@ -3150,7 +3315,7 @@
         let cart = {};
         function getCartQty(id) { return cart[id] ? cart[id].qty : 0; }
         function getCartKey() {
-            const user = localStorage.getItem('mq_user') || localStorage.getItem('mq_user');
+            const user = localStorage.getItem('mq_user');
             if (user) {
                 try {
                     const userData = JSON.parse(user);
@@ -3164,6 +3329,20 @@
 
         function loadCart() {
             try {
+                // If user came via Reorder button, load those items into cart
+                const reorderRaw = localStorage.getItem('mq_reorder_cart');
+                if (reorderRaw) {
+                    const reorderItems = JSON.parse(reorderRaw);
+                    localStorage.removeItem('mq_reorder_cart');
+                    cart = {};
+                    reorderItems.forEach(item => {
+                        if (item.med && item.med.id != null) {
+                            cart[item.med.id] = { med: item.med, qty: item.qty || 1 };
+                        }
+                    });
+                    localStorage.setItem(getCartKey(), JSON.stringify(cart));
+                    return;
+                }
                 const cartKey = getCartKey();
                 const savedCart = localStorage.getItem(cartKey);
                 if (savedCart) {
@@ -3732,6 +3911,108 @@
         function formatExp(el) { let v = el.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4); el.value = v; }
 
 
+        async function useGPSForPin() {
+            const btn = document.getElementById('gps-pin-btn');
+            const btnText = document.getElementById('gps-pin-btn-text');
+            if (!navigator.geolocation) { alert('GPS not supported.'); return; }
+
+            btn.disabled = true;
+            btnText.textContent = '📡 Detecting location...';
+            btn.style.opacity = '0.7';
+
+             
+            function fillField(id, value) {
+                if (!value) return;
+                const el = document.getElementById(id);
+                if (!el || el.value) return;  
+                el.value = value;
+                el.style.background = '#f0fdf4';
+                el.style.borderColor = '#86efac';
+                el.addEventListener('input', () => { el.style.background = ''; el.style.borderColor = ''; }, { once: true });
+            }
+
+            
+            function setStateDropdown(stateStr) {
+                const stateEl = document.getElementById('addr-state');
+                if (!stateEl || !stateStr) return;
+                const apiState = stateStr.toLowerCase().trim();
+                const opts = Array.from(stateEl.options);
+                const match = opts.find(o => {
+                    const v = (o.value || o.text || '').toLowerCase().trim();
+                    if (!v || v === 'select state') return false;
+                    return v === apiState || v.includes(apiState) || apiState.includes(v);
+                });
+                if (match) { stateEl.value = match.value || match.text; stateEl.style.background = '#f0fdf4'; stateEl.style.borderColor = '#86efac'; stateEl.addEventListener('input', () => { stateEl.style.background = ''; stateEl.style.borderColor = ''; }, { once: true }); }
+            }
+
+            navigator.geolocation.getCurrentPosition(async function (pos) {
+                try {
+                    const { latitude: lat, longitude: lng } = pos.coords;
+                    btnText.textContent = '🔍 Fetching address...';
+
+                     
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+                        { headers: { 'Accept-Language': 'en' } }
+                    );
+                    const data = await res.json();
+                    const a = data.address || {};
+
+                    
+                    const pin = (a.postcode || '').replace(/\D/g, '').substring(0, 6);
+
+                   
+                    const streetParts = [a.house_number, a.road, a.neighbourhood || a.suburb || a.quarter].filter(Boolean);
+                    const street = streetParts.join(', ');
+
+                     
+                    const city = a.city || a.town || a.village || a.district || a.county || '';
+
+                    const state = a.state || '';
+
+                     
+                    if (street) fillField('addr-street', street);
+                    if (city) fillField('addr-city', city);
+                    if (state) setStateDropdown(state);
+
+                    if (pin.length === 6) {
+                        const pinEl = document.getElementById('addr-pin');
+                        if (pinEl) {
+                            pinEl.value = pin;
+                            pinEl.style.background = '#fefce8';
+                            pinEl.style.borderColor = '#fbbf24';
+                            // Warning: PIN approximate
+                            let pinWarn = document.getElementById('gps-pin-warn');
+                            if (!pinWarn) {
+                                pinWarn = document.createElement('div');
+                                pinWarn.id = 'gps-pin-warn';
+                                pinWarn.style.cssText = 'font-size:11px;color:#b45309;margin-top:4px;font-weight:500;';
+                                pinEl.parentNode.appendChild(pinWarn);
+                            }
+                            pinWarn.textContent = '⚠️ PIN approximate hai — verify/edit zaroor karo';
+                            pinEl.addEventListener('input', () => { pinEl.style.background = ''; pinEl.style.borderColor = ''; pinWarn.textContent = ''; }, { once: true });
+                            onPinInput(pin);  
+                        }
+                        btnText.textContent = '✅ Address filled — please verify!';
+                    } else {
+                         
+                        btnText.textContent = '✅ Address filled (PIN missing — enter manually)';
+                    }
+
+                    setTimeout(() => { btnText.textContent = '📍 Use My Current Location'; btn.disabled = false; btn.style.opacity = '1'; }, 3500);
+
+                } catch (e) {
+                    console.error('GPS address fetch error:', e);
+                    btnText.textContent = '⚠️ Failed — try again';
+                    setTimeout(() => { btnText.textContent = '📍 Use My Current Location'; btn.disabled = false; btn.style.opacity = '1'; }, 2000);
+                }
+            }, function (err) {
+                btnText.textContent = err.code === 1 ? '🚫 Location denied — enter manually' : '⚠️ GPS error — try again';
+                btn.disabled = false; btn.style.opacity = '1';
+                setTimeout(() => { btnText.textContent = '📍 Use My Current Location'; }, 3000);
+            }, { enableHighAccuracy: true, timeout: 10000 });
+        }
+
         let _pinFetchTimer = null;
         function onPinInput(val) {
             if (val.length !== 6 || !/^\d{6}$/.test(val)) return;
@@ -3749,7 +4030,7 @@
                         if (city) {
                             const cityEl = document.getElementById('addr-city');
                             if (cityEl) {
-                                // Always update city based on PIN — override any manually typed value
+                                
                                 cityEl.value = city;
                             }
                         }
@@ -3758,7 +4039,7 @@
                             if (stateEl) {
                                 const apiState = state.toLowerCase().trim();
                                 const opts = Array.from(stateEl.options);
-                                // Try exact match first, then partial match
+                                
                                 const match = opts.find(o => {
                                     const optVal = (o.value || o.text || '').toLowerCase().trim();
                                     if (!optVal || optVal === 'select state') return false;
@@ -3769,11 +4050,10 @@
                                 if (match) {
                                     stateEl.value = match.value || match.text;
                                 } else {
-                                    // API se jo state mila usse directly set karo — "Other" fallback
-                                    // Pehle check karo "Other" option hai ya nahi
+                                     
                                     const otherOpt = opts.find(o => (o.value || o.text || '').toLowerCase() === 'other');
                                     if (otherOpt) stateEl.value = otherOpt.value || otherOpt.text;
-                                    // State naam directly add karo as a new option agar match nahi mila
+                                     
                                     const newOpt = document.createElement('option');
                                     newOpt.value = state;
                                     newOpt.text = state;
@@ -3838,67 +4118,69 @@
                 try { currentUser = JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch (e) { }
                 if (!currentUser.email) { showToast('⚠ Please login to place an order'); return; }
 
-                // FIX: Nominatim + India Post API dono parallel chalao — 3-4 sec bachega
-                let _geoResult = null;
+                const _geoResult = await geocodeByPin(pin);
+                const _deliveryLat = _geoResult?.lat || null;
+                const _deliveryLng = _geoResult?.lng || null;
+
+                 
                 let realPinCity = null;
                 if (pin && pin.length === 6) {
                     try {
-                        const [geoResult, pinRes] = await Promise.allSettled([
-                            geocodeByPin(pin),
-                            Promise.race([
-                                fetch('https://api.postalpincode.in/pincode/' + pin),
-                                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
-                            ])
+                        const pinRes = await Promise.race([
+                            fetch('https://api.postalpincode.in/pincode/' + pin),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
                         ]);
-                        if (geoResult.status === 'fulfilled') _geoResult = geoResult.value;
-                        if (pinRes.status === 'fulfilled') {
-                            try {
-                                const pinData = await pinRes.value.json();
-                                if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
-                                    const po = pinData[0].PostOffice[0];
-                                    realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
-                                    console.log('[MQ] Order PIN', pin, '→ Real city:', realPinCity, '| User entered:', city.toLowerCase());
-                                }
-                            } catch (e) { console.warn('[MQ] PIN city parse failed:', e); }
+                        const pinData = await pinRes.json();
+                        if (pinData && pinData[0] && pinData[0].Status === 'Success' && pinData[0].PostOffice && pinData[0].PostOffice.length > 0) {
+                            const po = pinData[0].PostOffice[0];
+                            realPinCity = (po.District || po.Division || po.Name || '').toLowerCase().trim();
+                            console.log('[MQ] Order PIN', pin, '→ Real city:', realPinCity, '| User entered:', city.toLowerCase());
                         }
                     } catch (e) {
-                        console.warn('[MQ] PIN/Geo parallel fetch failed:', e);
+                        console.warn('[MQ] PIN real-city fetch failed:', e);
                     }
                 }
-                const _deliveryLat = _geoResult?.lat || null;
-                const _deliveryLng = _geoResult?.lng || null;
 
                 const payNowBtn = document.getElementById('payNowBtn');
                 if (payNowBtn) { payNowBtn.disabled = true; payNowBtn.textContent = '🔍 Checking availability...'; }
 
                 let assignedAdminId = null;
 
-                if (window.__mqFirestore && window.__mqFirestoreReady) {
-                    assignedAdminId = await window.__mqFirestore.findAdminForOrder(pin, city, _deliveryLat, _deliveryLng);
-                } else {
-
-                    assignedAdminId = await new Promise(function (resolve) {
+                const _getAdminResult = async () => {
+                    if (window.__mqFirestore && window.__mqFirestoreReady) {
+                        return await window.__mqFirestore.findAdminForOrder(pin, city, _deliveryLat, _deliveryLng);
+                    }
+                    return await new Promise(function (resolve) {
                         let tries = 0;
                         const interval = setInterval(async function () {
                             tries++;
                             if (window.__mqFirestore && window.__mqFirestoreReady) {
                                 clearInterval(interval);
                                 resolve(await window.__mqFirestore.findAdminForOrder(pin, city, _deliveryLat, _deliveryLng));
-                            } else if (tries >= 16) { // 16 × 500ms = 8s
+                            } else if (tries >= 16) {
                                 clearInterval(interval);
-                                resolve(null);
+                                resolve({ status: 'not_registered' });
                             }
                         }, 500);
                     });
-                }
+                };
 
+                const _adminResult = await _getAdminResult();
                 if (payNowBtn) { payNowBtn.disabled = false; payNowBtn.textContent = 'Pay Now →'; }
 
-
-                if (!assignedAdminId) {
-                    showToast('😔 Sorry! Delivery is not available in your area yet.');
-                    return; // ❌ Order place NAHI hoga
+                 
+                if (!_adminResult || _adminResult.status === 'not_registered') {
+                     
+                    showToast('🚧 Coming Soon! Service not available in your area yet.', 'error');
+                    return;
                 }
+                if (_adminResult.status === 'offline') {
+                     
+                    showToast('⏰ Service temporarily unavailable. Please try again later.', 'warning');
+                    return;
+                }
+                
+                assignedAdminId = _adminResult.adminId;
 
 
                 const orderId = 'MQ' + Date.now().toString().slice(-8);
@@ -3922,12 +4204,13 @@
                     customerLng: currentUser.lng || null,
                     customerPin: pin,
                     city: city,
-                    // ✅ realPinCity: PIN API se verified actual city store karo
-                    // Admin page yeh use karega strict city+PIN matching ke liye
+                     
                     realPinCity: realPinCity || city,
                     items: items,
                     total: total + cod,
                     codCharge: cod,
+                     
+                    codChargeForRider: cod,
                     payMethod: getPayLabel(),
                     date: new Date().toLocaleDateString('en-IN'),
                     placedAt: Date.now(),
@@ -3999,18 +4282,6 @@
             document.getElementById('accountDropdown').classList.remove('show');
         });
 
-        // GPS Cache helper — 30 min tak cache valid
-        function saveGPSCache(lat, lng) {
-            try { localStorage.setItem('mq_gps_cache', JSON.stringify({ lat, lng, savedAt: Date.now() })); } catch (e) { }
-        }
-        function getGPSCache() {
-            try {
-                const c = JSON.parse(localStorage.getItem('mq_gps_cache') || 'null');
-                if (c && Date.now() - c.savedAt < 30 * 60 * 1000) return c;
-            } catch (e) { }
-            return null;
-        }
-
         function changeLocation() {
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
@@ -4018,30 +4289,14 @@
                 text.innerHTML = '❌ GPS not supported';
                 return;
             }
-
-            // FIX: Cache check karo pehle — instant result!
-            const cached = getGPSCache();
-            if (cached) {
-                text.textContent = cached.lat.toFixed(5) + ', ' + cached.lng.toFixed(5);
-                try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = cached.lat; cu.lng = cached.lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
-                // Background mein fresh GPS bhi lo silently
-                navigator.geolocation.getCurrentPosition(function (pos) {
-                    saveGPSCache(pos.coords.latitude, pos.coords.longitude);
-                }, function () { }, { enableHighAccuracy: false, timeout: 5000 });
-                return;
-            }
-
             text.textContent = '📡 Detecting...';
             loader.style.display = 'inline-block';
-            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
             navigator.geolocation.getCurrentPosition(function (pos) {
                 try {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
                     loader.style.display = 'none';
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                    // GPS cache save karo
-                    saveGPSCache(lat, lng);
                     // Update Firestore (Firebase Auth user)
                     if (window._profileAuth) {
                         const user = window._profileAuth.currentUser;
@@ -4066,7 +4321,7 @@
                         text.innerHTML = '⚠️ GPS off — please allow in browser settings';
                     }
                 } catch (e) { text.innerHTML = '⚠️ GPS off — please allow in browser settings'; }
-            }, { enableHighAccuracy: !isMobile, timeout: isMobile ? 5000 : 10000 });
+            }, { enableHighAccuracy: true, timeout: 10000 });
         }
 
         document.getElementById('medicine-search').addEventListener('keydown', function (e) {
@@ -4076,51 +4331,34 @@
         document.addEventListener('DOMContentLoaded', function () {
             const loader = document.getElementById('loc-loader');
             const text = document.getElementById('loc-text');
-            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            loader.style.display = 'inline-block';
 
-            // FIX: GPS cache check — instant result doosri baar se!
-            const cachedGPS = getGPSCache();
-            if (cachedGPS) {
-                loader.style.display = 'none';
-                text.textContent = cachedGPS.lat.toFixed(5) + ', ' + cachedGPS.lng.toFixed(5);
-                try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = cachedGPS.lat; cu.lng = cachedGPS.lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
-                // Background mein silently refresh
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (pos) {
-                        saveGPSCache(pos.coords.latitude, pos.coords.longitude);
-                        try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = pos.coords.latitude; cu.lng = pos.coords.longitude; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
-                    }, function () { }, { enableHighAccuracy: false, timeout: 5000 });
-                }
-            } else {
-                loader.style.display = 'inline-block';
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (pos) {
-                        try {
-                            const lat = pos.coords.latitude;
-                            const lng = pos.coords.longitude;
-                            loader.style.display = 'none';
-                            text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                            saveGPSCache(lat, lng);
-                            const cuRaw = localStorage.getItem('mq_user');
-                            const cu = JSON.parse(cuRaw || '{}');
-                            cu.lat = lat; cu.lng = lng;
-                            localStorage.setItem('mq_user', JSON.stringify(cu));
-                        } catch (e) { loader.style.display = 'none'; }
-                    }, function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (pos) {
+                    try {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
                         loader.style.display = 'none';
-                        try {
-                            const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                            if (cu.lat && cu.lng) {
-                                text.textContent = cu.lat.toFixed(5) + ', ' + cu.lng.toFixed(5);
-                            } else {
-                                text.innerHTML = '⚠️ GPS off — please allow';
-                            }
-                        } catch (e) { text.innerHTML = '⚠️ GPS off — please allow'; }
-                    }, { enableHighAccuracy: !isMobile, timeout: isMobile ? 5000 : 10000 });
-                } else {
+                        text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
+                        const cuRaw = localStorage.getItem('mq_user');
+                        const cu = JSON.parse(cuRaw || '{}');
+                        cu.lat = lat; cu.lng = lng;
+                        localStorage.setItem('mq_user', JSON.stringify(cu));
+                    } catch (e) { loader.style.display = 'none'; }
+                }, function () {
                     loader.style.display = 'none';
-                    text.textContent = 'GPS not supported';
-                }
+                    try {
+                        const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                        if (cu.lat && cu.lng) {
+                            text.textContent = cu.lat.toFixed(5) + ', ' + cu.lng.toFixed(5);
+                        } else {
+                            text.innerHTML = '⚠️ GPS off — please allow';
+                        }
+                    } catch (e) { text.innerHTML = '⚠️ GPS off — please allow'; }
+                }, { enableHighAccuracy: true, timeout: 10000 });
+            } else {
+                loader.style.display = 'none';
+                text.textContent = 'GPS not supported';
             }
 
             updateCartDrawer();
@@ -4152,6 +4390,108 @@
             });
         });
 
+    </script>
+
+    <script>
+        // ── Dark Mode ──
+        window.toggleDarkMode = function () {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
+            const btn = document.getElementById('dmToggleBtn');
+            if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+        };
+        // Apply on load
+        (function () {
+            if (localStorage.getItem('mq_dark_mode') === '1') {
+                document.body.classList.add('dark-mode');
+                const btn = document.getElementById('dmToggleBtn');
+                if (btn) btn.textContent = '☀️';
+            }
+        })();
+
+         
+        window.MQWishlist = {
+            _items: [],
+            _uid: null,
+            _db: null,
+
+            init: async function (uid, db) {
+                this._uid = uid;
+                this._db = db;
+                try {
+                    const { doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                    const snap = await getDoc(doc(db, 'wishlists', uid));
+                    this._items = snap.exists() ? (snap.data().items || []) : [];
+                    this._renderHearts();
+                } catch (e) { console.warn('Wishlist load failed:', e); }
+            },
+
+            toggle: async function (medId, medName, price) {
+                const idx = this._items.findIndex(i => i.id === medId);
+                if (idx >= 0) {
+                    this._items.splice(idx, 1);
+                    this._showToast('Removed from wishlist', '❌');
+                } else {
+                    this._items.push({ id: medId, name: medName, price, addedAt: Date.now() });
+                    this._showToast('Added to wishlist!', '❤️');
+                }
+                this._renderHearts();
+                await this._save();
+            },
+
+            _save: async function () {
+                if (!this._uid || !this._db) return;
+                try {
+                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                    await setDoc(doc(this._db, 'wishlists', this._uid), { items: this._items, updatedAt: Date.now() });
+                } catch (e) { console.warn('Wishlist save failed:', e); }
+            },
+
+            _renderHearts: function () {
+                document.querySelectorAll('.wishlist-btn').forEach(btn => {
+                    const id = btn.dataset.id;
+                    const isWished = this._items.some(i => i.id === id);
+                    btn.innerHTML = isWished ? '❤️' : '🤍';
+                    btn.title = isWished ? 'Remove from wishlist' : 'Add to wishlist';
+                    btn.style.color = isWished ? '#ef4444' : '#94a3b8';
+                });
+            },
+
+            _showToast: function (msg, icon) {
+                const t = document.getElementById('toast');
+                const m = document.getElementById('toast-msg');
+                if (t && m) {
+                    m.textContent = msg;
+                    const ico = t.querySelector('.toast-icon');
+                    if (ico) ico.textContent = icon;
+                    t.classList.add('show');
+                    setTimeout(() => t.classList.remove('show'), 2000);
+                }
+            }
+        };
+
+        (function initWishlistWhenReady() {
+            const check = () => {
+                try {
+                    const s = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                    if (s.uid && window._profileAuth) {
+                        // Lazy init db
+                        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
+                            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore }) => {
+                                const db = getFirestore(getApp());
+                                window.MQWishlist.init(s.uid, db);
+                            });
+                        });
+                        return true;
+                    }
+                    return false;
+                } catch (e) { return false; }
+            };
+            if (!check()) {
+                const interval = setInterval(() => { if (check()) clearInterval(interval); }, 500);
+                setTimeout(() => clearInterval(interval), 10000);
+            }
+        })();
     </script>
 
 </body>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick — Rider Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #fff;
+      --text: #1a1a2e;
+      --sub: #6b7280;
+      --border: #e5e7eb;
+      --header: #fff;
+      --green: #16a34a;
+    }
+
+    body.dark {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --sub: #8b949e;
+      --border: #30363d;
+      --header: #161b22;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s;
+    }
+
+    .header {
+      background: var(--header);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-txt {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo-txt span {
+      color: var(--green);
+    }
+
+    .hdr-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .back-btn {
+      border: 1.5px solid var(--border);
+      background: none;
+      color: var(--text);
+      border-radius: 40px;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .dark-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .page {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    /* Wallet Hero Card */
+    .wallet-hero {
+      background: linear-gradient(135deg, #0e3a2a, #16a34a);
+      border-radius: 24px;
+      padding: 28px 32px;
+      color: white;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wallet-hero::before {
+      content: '';
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 50%;
+    }
+
+    .wh-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+
+    .wh-balance {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .wh-sub {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      margin-bottom: 20px;
+    }
+
+    .wh-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .wh-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .wh-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .wh-btn.primary {
+      background: white;
+      color: #16a34a;
+    }
+
+    .wh-btn.primary:hover {
+      background: #f0fdf4;
+    }
+
+    /* Stats Row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--sub);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    /* Transaction List */
+    .section-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tx-item:last-child {
+      border-bottom: none;
+    }
+
+    .tx-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .tx-icon.earn {
+      background: #dcfce7;
+    }
+
+    .tx-icon.withdraw {
+      background: #fee2e2;
+    }
+
+    .tx-icon.bonus {
+      background: #fef9c3;
+    }
+
+    .tx-info {
+      flex: 1;
+    }
+
+    .tx-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .tx-sub {
+      font-size: 0.72rem;
+      color: var(--sub);
+      margin-top: 2px;
+    }
+
+    .tx-amount {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .tx-amount.credit {
+      color: #16a34a;
+    }
+
+    .tx-amount.debit {
+      color: #ef4444;
+    }
+
+    .empty-tx {
+      padding: 40px;
+      text-align: center;
+      color: var(--sub);
+      font-size: 0.85rem;
+    }
+
+    /* Withdraw Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 28px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      color: var(--sub);
+      font-size: 0.82rem;
+      margin-bottom: 20px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .quick-amounts {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .qa-btn {
+      border: 1.5px solid var(--border);
+      background: none;
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .qa-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .modal-submit {
+      width: 100%;
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .modal-cancel {
+      width: 100%;
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 11px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-pad {
+      padding: 50px;
+      text-align: center;
+      color: var(--sub);
+    }
+
+    @media (max-width:500px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="modal-overlay" id="withdrawModal">
+    <div class="modal-box">
+      <div class="modal-title">💸 Withdraw Earnings</div>
+      <div class="modal-sub">Available: <strong id="modalAvail" style="color:var(--green);">₹0</strong> — Minimum ₹100
+      </div>
+      <div class="quick-amounts">
+        <button class="qa-btn" onclick="setAmount(100)">₹100</button>
+        <button class="qa-btn" onclick="setAmount(200)">₹200</button>
+        <button class="qa-btn" onclick="setAmount(500)">₹500</button>
+        <button class="qa-btn" id="qaAll" onclick="setMax()">All</button>
+      </div>
+      <input class="modal-input" id="wdAmount" type="number" placeholder="Enter amount (₹)" min="100">
+      <input class="modal-input" id="wdUpi" type="text" placeholder="UPI ID (e.g. 9876543210@upi)">
+      <button class="modal-submit" onclick="submitWithdrawal()">Request Withdrawal</button>
+      <button class="modal-cancel" onclick="closeWithdraw()">Cancel</button>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="logo-txt">Medii<span>Quick</span> — Wallet</div>
+    <div class="hdr-right">
+      <button class="dark-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <div id="walletContent">
+      <div class="loading-pad">
+        <div class="spinner"></div>Loading wallet...
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const cfg = {
+      apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+      authDomain: "mediiquick-25a65.firebaseapp.com",
+      projectId: "mediiquick-25a65",
+      storageBucket: "mediiquick-25a65.firebasestorage.app",
+      messagingSenderId: "480632265996",
+      appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+    };
+    const app = (() => { try { return getApp(); } catch (e) { return initializeApp(cfg); } })();
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let riderSession = null;
+    let walletData = { totalEarned: 0, withdrawn: 0, pending: 0, transactions: [] };
+
+    try { riderSession = JSON.parse(localStorage.getItem('mq_db_session') || '{}'); } catch (e) { }
+    if (!riderSession?.docId) { window.location.href = 'login.html?tab=rider'; }
+
+    // ── Single-device session watch for rider ──
+    if (riderSession?.docId && riderSession?.sessionToken) {
+      onSnapshot(doc(db, 'riders', riderSession.docId), (snap) => {
+        if (!snap.exists()) return;
+        const liveToken = snap.data().sessionToken;
+        const localToken = (() => { try { return JSON.parse(localStorage.getItem('mq_db_session') || '{}').sessionToken; } catch (e) { return null; } })();
+        if (localToken && liveToken && localToken !== liveToken) {
+          localStorage.removeItem('mq_db_session');
+          window.location.href = 'login.html?tab=rider&session=displaced';
+        }
+      });
+    }
+
+    // Earning formula: ₹30 base + ₹4/km + ₹2/item + ₹15 emergency bonus + COD charge (rider ko milega)
+    function calcEarning(order) {
+      const base = 30;
+      const dist = parseFloat(order.distanceKm) || 0;
+      const itemCount = (order.items || []).reduce((s, i) => s + (parseInt(i.qty) || 1), 0);
+      const emergency = order.isEmergency ? 15 : 0;
+      // FIX #5: COD charge rider ko milti hai — platform fee nahi
+      // codChargeForRider field profile.html mein set hoti hai order place karte waqt
+      const codBonus = parseFloat(order.codChargeForRider || order.codCharge || 0);
+      return base + Math.round(dist * 4) + (itemCount * 2) + emergency + codBonus;
+    }
+
+    async function loadWallet() {
+      try {
+        // Fetch delivered orders assigned to this rider
+        const ordQ = query(collection(db, 'orders'), where('deliveryBoy.docId', '==', riderSession.docId), where('status', '==', 'delivered'));
+        const ordSnap = await getDocs(ordQ);
+        const deliveredOrders = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Fetch withdrawal requests
+        const wdQ = query(collection(db, 'riderWithdrawals'), where('riderId', '==', riderSession.docId));
+        let withdrawals = [];
+        try {
+          const wdSnap = await getDocs(wdQ);
+          withdrawals = wdSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) { }
+
+        const totalEarned = deliveredOrders.reduce((s, o) => s + calcEarning(o), 0);
+        const totalWithdrawn = withdrawals.filter(w => w.status === 'completed').reduce((s, w) => s + (w.amount || 0), 0);
+        const pendingWd = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + (w.amount || 0), 0);
+        const available = totalEarned - totalWithdrawn - pendingWd;
+
+        walletData = { totalEarned, withdrawn: totalWithdrawn, pending: pendingWd, available, deliveredOrders, withdrawals };
+        document.getElementById('modalAvail').textContent = '₹' + available.toLocaleString('en-IN');
+        document.getElementById('qaAll').textContent = '₹' + available;
+
+        renderWallet();
+      } catch (e) {
+        console.error(e);
+        document.getElementById('walletContent').innerHTML = `<div style="padding:60px;text-align:center;color:var(--sub);">⚠️ Failed to load wallet data.</div>`;
+      }
+    }
+
+    function renderWallet() {
+      const { totalEarned, withdrawn, pending, available, deliveredOrders, withdrawals } = walletData;
+
+      // Build transaction timeline
+      const txns = [];
+      deliveredOrders.forEach(o => {
+        const dist = parseFloat(o.distanceKm) || 0;
+        const cod = parseFloat(o.codChargeForRider || o.codCharge || 0);
+        const earning = calcEarning(o);
+        const subParts = [];
+        if (dist > 0) subParts.push(dist.toFixed(1) + ' km');
+        if (cod > 0) subParts.push('+₹' + cod + ' COD');
+        const subLine = subParts.length ? (o.customerName || 'Customer') + ' · ' + subParts.join(', ') : (o.customerName || 'Customer');
+        txns.push({ type: 'earn', icon: '🛵', title: `Delivery #${o.orderId || o.id.slice(0, 8)}`, sub: subLine, amount: earning, ts: o.placedAt || 0 });
+      });
+      withdrawals.forEach(w => {
+        txns.push({ type: w.status === 'completed' ? 'withdraw' : 'pending', icon: w.status === 'completed' ? '💸' : '⏳', title: `Withdrawal — ${w.upiId || 'UPI'}`, sub: w.status === 'completed' ? 'Paid' : 'Pending', amount: w.amount, ts: w.requestedAt || 0 });
+      });
+      txns.sort((a, b) => b.ts - a.ts);
+
+      document.getElementById('walletContent').innerHTML = `
+      <div class="wallet-hero">
+        <div class="wh-label">Available Balance</div>
+        <div class="wh-balance">₹${available.toLocaleString('en-IN')}</div>
+        <div class="wh-sub">Total earned: ₹${totalEarned.toLocaleString('en-IN')} · Withdrawn: ₹${withdrawn.toLocaleString('en-IN')}${pending ? ' · Pending: ₹' + pending : ''}</div>
+        <div class="wh-actions">
+          <button class="wh-btn primary" onclick="openWithdraw()"><i class="fas fa-wallet"></i> Withdraw</button>
+          <button class="wh-btn" onclick="shareEarnings()"><i class="fas fa-share-alt"></i> Share</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-label">Deliveries</div><div class="stat-val">${deliveredOrders.length}</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Avg/Delivery</div><div class="stat-val">₹${deliveredOrders.length ? Math.round(totalEarned / deliveredOrders.length) : 30}</div></div>
+        <div class="stat-card"><div class="stat-icon">🛣️</div><div class="stat-label">Total Distance</div><div class="stat-val">${deliveredOrders.reduce((s,o) => s + (parseFloat(o.distanceKm)||0), 0).toFixed(1)} km</div></div>
+        <div class="stat-card"><div class="stat-icon">🏦</div><div class="stat-label">Withdrawn</div><div class="stat-val">₹${withdrawn.toLocaleString('en-IN')}</div></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">📜 Transaction History (${txns.length})</div>
+        ${txns.length === 0 ? '<div class="empty-tx">No transactions yet. Start delivering to earn!</div>' :
+          txns.map(t => `
+            <div class="tx-item">
+              <div class="tx-icon ${t.type === 'earn' ? 'earn' : t.type === 'bonus' ? 'bonus' : 'withdraw'}">${t.icon}</div>
+              <div class="tx-info">
+                <div class="tx-title">${t.title}</div>
+                <div class="tx-sub">${t.sub}${t.ts ? ' · ' + new Date(t.ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''}</div>
+              </div>
+              <div class="tx-amount ${t.type === 'earn' || t.type === 'bonus' ? 'credit' : 'debit'}">
+                ${t.type === 'earn' || t.type === 'bonus' ? '+' : '−'}₹${(t.amount || 0).toLocaleString('en-IN')}
+              </div>
+            </div>`).join('')}
+      </div>`;
+    }
+
+    window.openWithdraw = function () { document.getElementById('withdrawModal').classList.add('open'); };
+    window.closeWithdraw = function () { document.getElementById('withdrawModal').classList.remove('open'); };
+    window.setAmount = function (v) { document.getElementById('wdAmount').value = v; };
+    window.setMax = function () { document.getElementById('wdAmount').value = walletData.available || 0; };
+
+    window.submitWithdrawal = async function () {
+      const amount = parseInt(document.getElementById('wdAmount').value);
+      const upi = document.getElementById('wdUpi').value.trim();
+      if (!amount || amount < 100) { alert('Minimum withdrawal is ₹100'); return; }
+      if (amount > walletData.available) { alert('Amount exceeds available balance'); return; }
+      if (!upi) { alert('Please enter UPI ID'); return; }
+
+      try {
+        await addDoc(collection(db, 'riderWithdrawals'), {
+          riderId: riderSession.docId,
+          riderName: riderSession.name,
+          riderPhone: riderSession.phone,
+          amount, upiId: upi,
+          requestedAt: Date.now(),
+          status: 'pending'
+        });
+        closeWithdraw();
+        alert(`✅ Withdrawal of ₹${amount} requested! Processed in 1-2 business days.`);
+        // Sign in anonymously so Firestore rules pass (no real Firebase Auth in this project)
+        loadWallet(); // refresh after withdraw
+      } catch (e) { alert('Failed. Please try again.'); console.error(e); }
+    };
+
+    window.shareEarnings = function () {
+      const msg = `I've earned ₹${walletData.totalEarned.toLocaleString('en-IN')} delivering ${walletData.deliveredOrders.length} orders on MediiQuick! 🚴‍♂️💊`;
+      if (navigator.share) { navigator.share({ title: 'My Earnings', text: msg }); }
+      else { navigator.clipboard.writeText(msg).then(() => alert('Copied to clipboard!')); }
+    };
+
+    // Sign in anonymously so Firestore rules pass (no real Firebase Auth in this project)
+    signInAnonymously(auth).catch(() => { }).finally(() => loadWallet());
+  </script>
+
+  <script>
+    window.toggleDark = function () {
+      const isDark = document.body.classList.toggle('dark');
+      localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
+      document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+    };
+    if (localStorage.getItem('mq_dark_mode') === '1') {
+      document.body.classList.add('dark');
+      document.getElementById('darkBtn').textContent = '☀️';
+    }
+  </script>
+</body>
+
+</html>

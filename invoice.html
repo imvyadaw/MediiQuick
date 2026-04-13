@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediiQuick — Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#f5f7fa; color:#1a1a2e; }
+
+    .top-bar { background:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,.06); position:sticky; top:0; z-index:50; }
+    .logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:#1a1a2e; }
+    .logo h1 { font-size:1.2rem; font-weight:700; } .logo span { color:#16a34a; }
+    .btn-row { display:flex; gap:10px; }
+    .btn { padding:9px 20px; border-radius:40px; font-family:'Poppins',sans-serif; font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn-print { background:#16a34a; color:white; border:none; }
+    .btn-back { background:none; border:1.5px solid #e5e7eb; color:#374151; }
+
+    .container { max-width:800px; margin:32px auto; padding:0 20px; }
+
+    /* Invoice Card */
+    .invoice { background:white; border-radius:24px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .inv-header { background:linear-gradient(135deg,#0e3a2a,#16a34a); color:white; padding:32px 40px; display:flex; justify-content:space-between; align-items:flex-start; }
+    .inv-logo { font-size:1.8rem; font-weight:800; } .inv-logo span { color:#4ade80; }
+    .inv-logo-sub { font-size:0.78rem; opacity:0.8; margin-top:2px; }
+    .inv-meta { text-align:right; }
+    .inv-meta h2 { font-size:1.4rem; font-weight:700; margin-bottom:4px; }
+    .inv-meta .inv-num { font-size:0.82rem; opacity:0.85; background:rgba(255,255,255,0.15); padding:4px 12px; border-radius:40px; display:inline-block; }
+
+    .inv-body { padding:32px 40px; }
+    .inv-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px; }
+    .inv-section h3 { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#6b7280; margin-bottom:8px; }
+    .inv-section p { font-size:0.88rem; color:#1a1a2e; line-height:1.6; }
+    .inv-section .highlight { font-weight:700; font-size:1rem; color:#1a1a2e; }
+    .status-badge { display:inline-block; padding:4px 14px; border-radius:40px; font-size:0.75rem; font-weight:700; }
+    .status-delivered { background:#dcfce7; color:#16a34a; }
+    .status-pending { background:#fef9c3; color:#ca8a04; }
+    .status-cancelled { background:#fee2e2; color:#dc2626; }
+    .status-on_the_way { background:#dbeafe; color:#2563eb; }
+
+    .inv-items { margin-bottom:28px; }
+    .inv-items-header { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; padding:10px 16px; background:#f8fafc; border-radius:12px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#6b7280; margin-bottom:8px; }
+    .inv-item { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; align-items:center; padding:12px 16px; border-bottom:1px solid #f1f5f9; }
+    .inv-item:last-child { border-bottom:none; }
+    .item-name { font-size:0.88rem; font-weight:600; color:#1a1a2e; }
+    .item-sub { font-size:0.72rem; color:#6b7280; }
+    .item-cell { font-size:0.88rem; color:#374151; text-align:right; }
+
+    .inv-totals { background:#f8fafc; border-radius:16px; padding:20px 24px; }
+    .total-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:0.88rem; color:#374151; }
+    .total-row.border-top { border-top:1.5px solid #e5e7eb; margin-top:8px; padding-top:14px; }
+    .total-row.grand { font-size:1.05rem; font-weight:800; color:#1a1a2e; }
+    .total-row .label { color:#6b7280; }
+    .total-row.grand .label { color:#1a1a2e; }
+    .total-row .val { font-weight:600; }
+    .total-row.grand .val { color:#16a34a; font-size:1.2rem; }
+
+    .inv-footer { padding:24px 40px; border-top:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .inv-footer-note { font-size:0.75rem; color:#9ca3af; }
+    .inv-stamp { background:#dcfce7; color:#16a34a; padding:8px 20px; border-radius:40px; font-size:0.8rem; font-weight:700; }
+
+    .loading-state { text-align:center; padding:80px 20px; color:#6b7280; }
+    .spinner { width:36px; height:36px; border:3px solid #e5e7eb; border-top-color:#16a34a; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .error-state { text-align:center; padding:80px 20px; }
+    .error-icon { font-size:3rem; margin-bottom:12px; }
+
+    @media print {
+      .top-bar { display:none !important; }
+      body { background:white !important; }
+      .container { margin:0 auto; padding:0; max-width:100%; }
+      .invoice { box-shadow:none !important; border-radius:0 !important; }
+      .btn-row { display:none !important; }
+    }
+    @media (max-width:600px) {
+      .inv-header { flex-direction:column; gap:16px; padding:24px; }
+      .inv-meta { text-align:left; }
+      .inv-body { padding:24px; }
+      .inv-row { grid-template-columns:1fr; }
+      .inv-footer { padding:20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="my_order.html" class="logo">
+    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6ab4d9fc-53f8-46cf-b443-33dacb111091.png" width="34" height="34" style="border-radius:8px;" alt="">
+    <h1>Medii<span>Quick</span></h1>
+  </a>
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+    <button class="btn btn-print" onclick="window.print()"><i class="fas fa-download"></i> Download PDF</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="invoiceArea">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading invoice...</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const cfg = {
+    apiKey:"AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+    authDomain:"mediiquick-25a65.firebaseapp.com",
+    projectId:"mediiquick-25a65",
+    storageBucket:"mediiquick-25a65.firebasestorage.app",
+    messagingSenderId:"480632265996",
+    appId:"1:480632265996:web:d58747c0a12e780eddfd29"
+  };
+  const app = (() => { try { return getApp(); } catch(e) { return initializeApp(cfg); } })();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('orderId');
+
+  function getStatusBadge(status) {
+    const map = {
+      delivered: ['status-delivered','✅ Delivered'],
+      pending: ['status-pending','⏳ Pending'],
+      cancelled: ['status-cancelled','❌ Cancelled'],
+      on_the_way: ['status-on_the_way','🚴 On the Way'],
+      confirmed: ['status-delivered','📋 Confirmed'],
+      packing: ['status-pending','📦 Packing'],
+    };
+    const [cls, label] = map[status] || ['status-pending', status];
+    return `<span class="status-badge ${cls}">${label}</span>`;
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function renderInvoice(order, adminData) {
+    const items = order.items || [];
+    const subtotal = items.reduce((s, i) => s + ((i.med?.price || i.price || 0) * (i.qty || 1)), 0);
+    const delivery = order.deliveryCharge || (subtotal > 299 ? 0 : 29);
+    const cod = order.paymentMethod === 'cod' ? 20 : 0;
+    const discount = order.discount || 0;
+    const total = order.total || (subtotal + delivery + cod - discount);
+
+    document.getElementById('invoiceArea').innerHTML = `
+      <div class="invoice">
+        <div class="inv-header">
+          <div>
+            <div class="inv-logo">Medii<span>Quick</span></div>
+            <div class="inv-logo-sub">Medicine Delivery Platform</div>
+            <div style="margin-top:12px;font-size:0.78rem;opacity:0.75;">
+              ${adminData?.shopName || 'MediiQuick Pharmacy'}<br>
+              ${adminData?.city || ''} ${adminData?.state || ''}
+            </div>
+          </div>
+          <div class="inv-meta">
+            <h2>INVOICE</h2>
+            <div class="inv-num">#${order.orderId || orderId}</div>
+            <div style="margin-top:10px;font-size:0.78rem;opacity:0.8;">
+              Placed: ${formatDate(order.placedAt)}<br>
+              ${order.deliveredAt ? 'Delivered: ' + formatDate(order.deliveredAt) : ''}
+            </div>
+            <div style="margin-top:10px;">${getStatusBadge(order.status)}</div>
+          </div>
+        </div>
+
+        <div class="inv-body">
+          <div class="inv-row">
+            <div class="inv-section">
+              <h3>Billed To</h3>
+              <p class="highlight">${order.customerName || '—'}</p>
+              <p>${order.customerEmail || ''}</p>
+              <p>${order.customerPhone || ''}</p>
+            </div>
+            <div class="inv-section">
+              <h3>Delivery Address</h3>
+              <p>${order.deliveryAddr?.name || ''}</p>
+              <p>${order.deliveryAddr?.street || ''}</p>
+              <p>${order.deliveryAddr?.city || ''} — ${order.deliveryAddr?.pin || ''}</p>
+              <p>${order.deliveryAddr?.phone || ''}</p>
+            </div>
+          </div>
+
+          <div class="inv-row">
+            <div class="inv-section">
+              <h3>Payment Method</h3>
+              <p class="highlight">${{upi:'UPI / PhonePe / GPay', card:'Credit / Debit Card', netbanking:'Net Banking', cod:'Cash on Delivery'}[order.paymentMethod] || order.paymentMethod || '—'}</p>
+            </div>
+            <div class="inv-section">
+              <h3>Delivery Partner</h3>
+              <p class="highlight">${order.deliveryBoy?.name || 'MediiQuick Rider'}</p>
+              <p>${order.deliveryBoy?.phone || ''}</p>
+            </div>
+          </div>
+
+          <div class="inv-items">
+            <div class="inv-items-header">
+              <span>Medicine</span>
+              <span style="text-align:right">Unit Price</span>
+              <span style="text-align:right">Qty</span>
+              <span style="text-align:right">Total</span>
+            </div>
+            ${items.map(i => {
+              const med = i.med || i;
+              const price = med.price || i.price || 0;
+              const qty = i.qty || 1;
+              return `<div class="inv-item">
+                <div><div class="item-name">${med.name || 'Medicine'}</div><div class="item-sub">${med.sub || med.category || ''}</div></div>
+                <div class="item-cell">₹${price.toLocaleString('en-IN')}</div>
+                <div class="item-cell">×${qty}</div>
+                <div class="item-cell" style="font-weight:600;color:#16a34a;">₹${(price*qty).toLocaleString('en-IN')}</div>
+              </div>`;
+            }).join('')}
+          </div>
+
+          <div class="inv-totals">
+            <div class="total-row"><span class="label">Subtotal</span><span class="val">₹${subtotal.toLocaleString('en-IN')}</span></div>
+            <div class="total-row"><span class="label">Delivery Charge</span><span class="val">${delivery === 0 ? '<span style="color:#16a34a;">FREE</span>' : '₹' + delivery}</span></div>
+            ${cod ? `<div class="total-row"><span class="label">COD Charge</span><span class="val">₹${cod}</span></div>` : ''}
+            ${discount ? `<div class="total-row"><span class="label">Discount</span><span class="val" style="color:#16a34a;">−₹${discount}</span></div>` : ''}
+            <div class="total-row border-top grand">
+              <span class="label">Grand Total</span>
+              <span class="val">₹${total.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-footer">
+          <div class="inv-footer-note">Thank you for choosing MediiQuick! For queries: support@mediiquick.com</div>
+          ${order.status === 'delivered' ? '<div class="inv-stamp">✅ PAID & DELIVERED</div>' : ''}
+        </div>
+      </div>`;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    if (!orderId) {
+      document.getElementById('invoiceArea').innerHTML = `
+        <div class="error-state">
+          <div class="error-icon">📄</div>
+          <p>No order ID found. Please go back to your orders and click View Invoice.</p>
+          <br><a href="my_order.html" style="color:#16a34a;font-weight:700;">← My Orders</a>
+        </div>`;
+      return;
+    }
+
+    try {
+      // Try to find order by orderId field
+      const { collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const q = query(collection(db, 'orders'), where('orderId', '==', orderId), where('customerEmail', '==', user.email));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        document.getElementById('invoiceArea').innerHTML = `
+          <div class="error-state">
+            <div class="error-icon">🔍</div>
+            <p>Order not found. It may belong to a different account.</p>
+            <br><a href="my_order.html" style="color:#16a34a;font-weight:700;">← My Orders</a>
+          </div>`;
+        return;
+      }
+
+      const order = snap.docs[0].data();
+      let adminData = null;
+      if (order.assignedAdminId) {
+        try {
+          const adminSnap = await getDoc(doc(db, 'admins', order.assignedAdminId));
+          if (adminSnap.exists()) adminData = adminSnap.data();
+        } catch(e) {}
+      }
+
+      renderInvoice(order, adminData);
+    } catch(e) {
+      console.error(e);
+      document.getElementById('invoiceArea').innerHTML = `
+        <div class="error-state">
+          <div class="error-icon">⚠️</div>
+          <p>Failed to load invoice. Please try again.</p>
+          <br><a href="my_order.html" style="color:#16a34a;font-weight:700;">← My Orders</a>
+        </div>`;
+    }
+  });
+</script>
+</body>
+</html>

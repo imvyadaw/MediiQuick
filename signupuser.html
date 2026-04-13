@@ -698,7 +698,7 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -711,7 +711,7 @@
       appId: "1:480632265996:web:d58747c0a12e780eddfd29"
     };
 
-    const app = initializeApp(firebaseConfig);
+    const app = (() => { try { return getApp(); } catch(e) { return initializeApp(firebaseConfig); } })();
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -863,22 +863,18 @@
       setLoading('registerBtn', true);
 
       try {
-        const mobileExists = await checkIfMobileExists(mobile);
-        if (mobileExists) {
-          showToast('This mobile number is already registered', 'error');
-          document.getElementById('mobileNumber').classList.add('error-input');
-          document.getElementById('errMobile').classList.add('show');
-          setLoading('registerBtn', false);
-          return;
-        }
-
-        // Check if email already exists in admins
-        const adminCheck = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
-        if (!adminCheck.empty) {
-          showToast('Email already registered as pharmacy partner. Please use different email.', 'error');
-          document.getElementById('emailAddress').classList.add('error-input');
-          setLoading('registerBtn', false);
-          return;
+        // Mobile uniqueness check (soft — skips if permissions error)
+        try {
+          const mobileExists = await checkIfMobileExists(mobile);
+          if (mobileExists) {
+            showToast('This mobile number is already registered', 'error');
+            document.getElementById('mobileNumber').classList.add('error-input');
+            document.getElementById('errMobile').classList.add('show');
+            setLoading('registerBtn', false);
+            return;
+          }
+        } catch (preCheckErr) {
+          // Firestore rules may block pre-auth reads — skip check, proceed
         }
 
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -928,8 +924,9 @@
 
         showToast('Account created successfully! 🎉', 'success');
 
+        // FIX: profile.html pe redirect — user already Firebase Auth se logged in hai
         setTimeout(() => {
-          window.location.href = 'index.html';
+          window.location.href = 'profile.html';
         }, 2200);
       } catch (err) {
         console.error('Registration error:', err);

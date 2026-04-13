@@ -1009,24 +1009,83 @@
 
         /* ===== RESPONSIVE FIXES ===== */
         @media(max-width:600px) {
-            .order-card { flex-direction: column; }
-            .order-left { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+            .order-card {
+                flex-direction: column;
+            }
+
+            .order-left {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 14px;
+            }
         }
+
         @media(max-width:480px) {
-            .header-inner { flex-wrap: nowrap; padding: 0 12px; }
-            .logo h1 { font-size: 1rem; }
-            .header-search { display: none; }
-            .order-header { flex-direction: column; align-items: flex-start; gap: 6px; }
-            main { padding: 14px 12px 40px; }
+            .header-inner {
+                flex-wrap: nowrap;
+                padding: 0 12px;
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+            }
+
+            .header-search {
+                display: none;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            main {
+                padding: 14px 12px 40px;
+            }
         }
+
         @media(max-width:500px) {
-            .filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
-            .filter-tabs::-webkit-scrollbar { display: none; }
-            .filter-tab { flex-shrink: 0; font-size: 12px; padding: 7px 12px; }
+            .filter-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                scrollbar-width: none;
+                padding-bottom: 4px;
+            }
+
+            .filter-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .filter-tab {
+                flex-shrink: 0;
+                font-size: 12px;
+                padding: 7px 12px;
+            }
         }
-        @media(max-width:768px) { input, select, textarea { font-size: 16px; } }
-        @media(max-width:700px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width:400px) { .footer-grid { grid-template-columns: 1fr; } }
+
+        @media(max-width:768px) {
+
+            input,
+            select,
+            textarea {
+                font-size: 16px;
+            }
+        }
+
+        @media(max-width:700px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width:400px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* ===== END RESPONSIVE FIXES ===== */
     </style>
 </head>
@@ -1109,43 +1168,45 @@
         <div id="ordersList"></div>
     </main>
 
-     
+
 
     <script>
         // Auth guard — Firebase Auth based
-        (function() {
-          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
-            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
-              import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
-                let _app;
-                try { _app = getApp(); } catch(e) {
-                  _app = initializeApp({
-                    apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
-                    authDomain: "mediiquick-25a65.firebaseapp.com",
-                    projectId: "mediiquick-25a65",
-                    storageBucket: "mediiquick-25a65.firebasestorage.app",
-                    messagingSenderId: "480632265996",
-                    appId: "1:480632265996:web:d58747c0a12e780eddfd29"
-                  });
-                }
-                const _auth = getAuth(_app);
-                const _fdb = getFirestore(_app);
-                onAuthStateChanged(_auth, async (user) => {
-                  if (!user) { window.location.href = 'login.html'; return; }
-                  // Sync Firestore → localStorage for loadOrders() which reads mq_user
-                  try {
-                    const snap = await getDoc(doc(_fdb, 'users', user.uid));
-                    if (snap.exists()) {
-                      const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
-                      localStorage.setItem('mq_user', JSON.stringify(merged));
-                      if (typeof loadOrders === 'function') loadOrders();
-                      if (typeof renderOrders === 'function') renderOrders();
-                    }
-                  } catch(e) { console.warn('my_order auth sync:', e); }
+        (function () {
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
+                    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
+                        let _app;
+                        try { _app = getApp(); } catch (e) {
+                            _app = initializeApp({
+                                apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                                authDomain: "mediiquick-25a65.firebaseapp.com",
+                                projectId: "mediiquick-25a65",
+                                storageBucket: "mediiquick-25a65.firebasestorage.app",
+                                messagingSenderId: "480632265996",
+                                appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                            });
+                        }
+                        const _auth = getAuth(_app);
+                        const _fdb = getFirestore(_app);
+                        onAuthStateChanged(_auth, async (user) => {
+                            if (!user) { window.location.href = 'login.html'; return; }
+                            // Sync Firestore → localStorage for loadOrders() which reads mq_user
+                            try {
+                                const snap = await getDoc(doc(_fdb, 'users', user.uid));
+                                if (snap.exists()) {
+                                    // FIX: sessionToken multi-tab logout loop hata diya
+                                    // Multi-tab use allowed hai — college demo ke liye zaroori
+                                    const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 86400000 };
+                                    localStorage.setItem('mq_user', JSON.stringify(merged));
+                                    if (typeof loadOrders === 'function') loadOrders();
+                                    if (typeof renderOrders === 'function') renderOrders();
+                                }
+                            } catch (e) { console.warn('my_order auth sync:', e); }
+                        });
+                    });
                 });
-              });
             });
-          });
         })();
 
         const ALL_MEDS = [
@@ -1192,7 +1253,7 @@
         function getStatus(order) {
             if (order.status === 'cancelled') return 'cancelled';
 
-           
+
             if (order.status === 'pending_acceptance') return 'packing';
 
             if (['on_the_way', 'delivered', 'packing', 'confirmed'].includes(order.status)) {
@@ -1270,32 +1331,8 @@
                 const userEmail = (currentUser.email || '').toLowerCase().trim();
                 if (!userEmail && !currentUser.uid) { orders = []; return; }
 
-                
-                let allOrders = window._mqOrderCache || [];
-
-                
-                try {
-                    const localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
-                    if (localOrders.length > 0) {
-                        
-                        localOrders.forEach(lo => {
-                            if (!allOrders.find(o => o.orderId === lo.orderId)) {
-                                allOrders.push(lo);
-                            }
-                        });
-                    }
-                } catch (e) { }
-
-                
-                try {
-                    const userKey = 'mq_orders_' + userEmail;
-                    const userOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
-                    userOrders.forEach(lo => {
-                        if (!allOrders.find(o => o.orderId === lo.orderId)) {
-                            allOrders.push(lo);
-                        }
-                    });
-                } catch (e) { }
+                // FIX: Sirf Firestore cache use karo — localStorage ghost orders remove
+                const allOrders = window._mqOrderCache || [];
 
                 orders = allOrders.filter(o => {
                     const orderEmail = (o.customerEmail || o.email || '').toLowerCase().trim();
@@ -1303,7 +1340,6 @@
                     return orderEmail === userEmail || (currentUser.uid && orderUid === currentUser.uid);
                 });
 
-                
                 orders.sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0));
 
             } catch (e) { orders = []; }
@@ -1316,10 +1352,10 @@
             if (!u.email && !u.uid) window.location.href = 'login.html';
         } catch (e) { window.location.href = 'login.html'; }
 
-         
+
         window.addEventListener('storage', function (e) {
             if (e.key === 'mq_user') {
-                 
+
                 try {
                     const u = JSON.parse(e.newValue || '{}');
                     if (!u.email && !u.uid) window.location.href = 'login.html';
@@ -1436,7 +1472,8 @@
             } else if (status === 'confirmed' || status === 'pending') {
                 actionsHTML = `<button class="btn btn-red" onclick="cancelOrder('${order.orderId}')">✕ Cancel Order</button>`;
             } else if (status === 'packing') {
-                actionsHTML = `<div style="font-size:12px;color:#1d4ed8;background:#dbeafe;padding:7px 12px;border-radius:8px;font-weight:600;">📦 Order is being packed...</div>`;
+                actionsHTML = `<div style="font-size:12px;color:#1d4ed8;background:#dbeafe;padding:7px 12px;border-radius:8px;font-weight:600;display:inline-block;">📦 Order is being packed...</div>
+                <button class="btn btn-red" style="margin-left:8px;" onclick="cancelOrder('${order.orderId}')">✕ Cancel Order</button>`;
             } else if (status === 'on_the_way') {
                 actionsHTML = `<button class="btn btn-outline" onclick="showRiderInfo('${order.orderId}')">📞 Call Rider</button>`;
             } else if (status === 'cancelled') {
@@ -1553,16 +1590,71 @@
             renderAll();
         }
 
-        function cancelOrder(orderId) {
-            if (!confirm('Are you sure you want to cancel this order?')) return;
+        // ✅ localStorage se order completely remove karo (ghost orders ke liye)
+        function _removeOrderFromLocalStorage(orderId) {
             try {
-                
-                let stored = window._mqOrderCache || [];
-                const o = stored.find(x => x.orderId === orderId);
+                // Cache se remove
+                window._mqOrderCache = (window._mqOrderCache || []).filter(x => x.orderId !== orderId);
+
+                // mq_orders se remove
+                let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                localStorage.setItem('mq_orders', JSON.stringify(localOrders.filter(x => x.orderId !== orderId)));
+
+                // mq_orders_<email> se remove
+                const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
+                if (userEmail) {
+                    const userKey = 'mq_orders_' + userEmail;
+                    let userOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    localStorage.setItem(userKey, JSON.stringify(userOrders.filter(x => x.orderId !== orderId)));
+                }
+            } catch (e) { console.warn('[MQ] localStorage remove failed:', e); }
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+
+            let stored = window._mqOrderCache || [];
+            const o = stored.find(x => x.orderId === orderId);
+
+            // Delivered ya on_the_way order cancel nahi ho sakta
+            if (o && (o.status === 'on_the_way' || o.status === 'delivered')) {
+                showToast('❌ This order cannot be cancelled at this stage.', 'error');
+                return;
+            }
+
+            try {
+                // ✅ Pehle check karo — kya yeh order Firestore mein hai?
+                let existsInFirestore = false;
+                if (window._mqFirestore) {
+                    try {
+                        const { doc, getDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+                        const orderRef = doc(window._mqFirestore, 'orders', orderId);
+                        const orderSnap = await getDoc(orderRef);
+
+                        if (orderSnap.exists()) {
+                            // ✅ Firestore mein hai — properly cancel karo
+                            existsInFirestore = true;
+                            await updateDoc(orderRef, { status: 'cancelled', cancelledAt: Date.now() });
+                            console.log('[MQ] Order cancelled in Firestore:', orderId);
+                        } else {
+                            // ❌ Ghost order — Firestore mein exist nahi karta
+                            // Sirf localStorage se remove karo
+                            console.warn('[MQ] Ghost order detected:', orderId, '— removing from localStorage only');
+                            _removeOrderFromLocalStorage(orderId);
+                            showToast('🗑️ Ghost order removed. It was not saved in database.');
+                            loadOrders();
+                            renderAll();
+                            return;
+                        }
+                    } catch (fsErr) {
+                        console.warn('[MQ] Firestore check failed, falling back to localStorage cancel:', fsErr);
+                    }
+                }
+
+                // localStorage mein bhi cancel karo (Firestore success ke baad)
                 if (o) { o.status = 'cancelled'; o.cancelledAt = Date.now(); }
                 window._mqOrderCache = stored;
 
-               
                 try {
                     let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
                     const lo = localOrders.find(x => x.orderId === orderId);
@@ -1570,7 +1662,6 @@
                     localStorage.setItem('mq_orders', JSON.stringify(localOrders));
                 } catch (e) { }
 
-                
                 try {
                     const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
                     if (userEmail) {
@@ -1582,31 +1673,19 @@
                     }
                 } catch (e) { }
 
-                
-                import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
-                    .then(({ getFirestore, doc, updateDoc }) => {
-                       
-                        try {
-                            if (window._mqFirestore && o) {
-                                
-                                updateDoc(doc(window._mqFirestore, 'orders', o.orderId), {
-                                    status: 'cancelled',
-                                    cancelledAt: Date.now()
-                                }).catch(() => { });
-                            }
-                        } catch (e) { }
-                    }).catch(() => { });
-
                 showToast('✓ Order cancelled successfully!');
                 loadOrders();
                 renderAll();
-            } catch (e) { }
+            } catch (e) {
+                showToast('❌ Failed to cancel order. Please try again.', 'error');
+                console.error('[MQ] cancelOrder error:', e);
+            }
         }
 
         function reorder(orderId) {
             const order = orders.find(o => o.orderId === orderId);
             if (order && order.items && order.items.length > 0) {
-                 
+
                 try {
                     localStorage.setItem('mq_reorder_cart', JSON.stringify(order.items));
                 } catch (e) { }
@@ -1626,7 +1705,7 @@
 
         renderAll();
 
-        
+
         window._mqLoadOrders = loadOrders;
         window._mqRenderAll = renderAll;
 
@@ -1645,9 +1724,9 @@
         }, 10000);
     </script>
 
-    
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1658,7 +1737,7 @@
             messagingSenderId: "480632265996",
             appId: "1:480632265996:web:d58747c0a12e780eddfd29"
         };
-        const _app = initializeApp(firebaseConfig);
+        const _app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
         const _db = getFirestore(_app);
         window._mqFirestore = _db; // Expose for cancelOrder
 
@@ -1672,47 +1751,101 @@
             } catch (e) { return { email: '', uid: '' }; }
         }
 
-         
+
+        // ✅ Ghost orders purge — localStorage mein jo orders hain but Firestore mein nahi, unhe hata do
+        function _purgeGhostOrders(firestoreOrderIds) {
+            if (!firestoreOrderIds || firestoreOrderIds.length === 0) return;
+            const fsIds = new Set(firestoreOrderIds);
+
+            try {
+                // mq_orders purge
+                let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                const cleanLocal = localOrders.filter(o => {
+                    // Agar order 5 minute se purana hai aur Firestore mein nahi → ghost hai
+                    const isOld = (Date.now() - (o.placedAt || 0)) > 5 * 60 * 1000;
+                    return !isOld || fsIds.has(o.orderId);
+                });
+                if (cleanLocal.length !== localOrders.length) {
+                    localStorage.setItem('mq_orders', JSON.stringify(cleanLocal));
+                    console.log('[MQ] Purged', localOrders.length - cleanLocal.length, 'ghost order(s) from mq_orders');
+                }
+
+                // mq_orders_<email> purge
+                const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
+                if (userEmail) {
+                    const userKey = 'mq_orders_' + userEmail;
+                    let userOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    const cleanUser = userOrders.filter(o => {
+                        const isOld = (Date.now() - (o.placedAt || 0)) > 5 * 60 * 1000;
+                        return !isOld || fsIds.has(o.orderId);
+                    });
+                    if (cleanUser.length !== userOrders.length) {
+                        localStorage.setItem(userKey, JSON.stringify(cleanUser));
+                        console.log('[MQ] Purged', userOrders.length - cleanUser.length, 'ghost order(s) from', userKey);
+                    }
+                }
+
+                // _mqOrderCache purge
+                if (window._mqOrderCache) {
+                    window._mqOrderCache = window._mqOrderCache.filter(o => {
+                        const isOld = (Date.now() - (o.placedAt || 0)) > 5 * 60 * 1000;
+                        return !isOld || fsIds.has(o.orderId);
+                    });
+                }
+            } catch (e) { console.warn('[MQ] Ghost purge failed:', e); }
+        }
+
         async function subscribeOrderUpdates() {
             try {
                 const { email, uid } = getUserIdentifiers();
                 if (!email && !uid) return;
 
-                
+
                 const q = query(collection(_db, 'orders'), where('customerEmail', '==', email));
 
-                onSnapshot(q, (snap) => {
+                // FIX: Store unsubscribe function to prevent memory leak
+                window._mqOrderUnsubscribe = onSnapshot(q, (snap) => {
                     const emailOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                    
+                    // ✅ Ghost orders purge — Firestore se confirm hone ke baad
+                    const fsOrderIds = emailOrders.map(o => o.orderId).filter(Boolean);
+
                     if (uid) {
                         const uidQ = query(collection(_db, 'orders'), where('userId', '==', uid));
                         getDocs(uidQ).then(uidSnap => {
                             const uidOrders = uidSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                            
                             const merged = [...emailOrders];
                             uidOrders.forEach(uo => {
                                 if (!merged.find(eo => eo.orderId === uo.orderId)) merged.push(uo);
                             });
+                            const allFsIds = merged.map(o => o.orderId).filter(Boolean);
+                            _purgeGhostOrders(allFsIds); // ✅ Ghost purge
                             window._mqOrderCache = merged;
                             if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
                         }).catch(() => {
+                            _purgeGhostOrders(fsOrderIds); // ✅ Ghost purge fallback
                             window._mqOrderCache = emailOrders;
                             if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
                         });
                     } else {
+                        _purgeGhostOrders(fsOrderIds); // ✅ Ghost purge
                         window._mqOrderCache = emailOrders;
                         if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
                     }
                 }, (err) => {
                     console.warn('Firestore order subscription error:', err);
-                    
+
                     if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
                 });
 
+                // FIX: Cleanup listener when user leaves page
+                window.addEventListener('beforeunload', () => {
+                    if (window._mqOrderUnsubscribe) { window._mqOrderUnsubscribe(); }
+                }, { once: true });
+
             } catch (e) {
                 console.warn('Firestore subscription failed:', e);
-                 
+
                 if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
             }
         }

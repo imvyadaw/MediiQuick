@@ -1979,6 +1979,10 @@
         <button class="header-btn" onclick="showView('profile')">
           <i class="fas fa-user-cog"></i> Profile
         </button>
+        <button class="header-btn" onclick="window.location.href='pharmacy-earnings.html'"
+          style="background:#dcfce7;color:#16a34a;border-color:#86efac;">
+          <i class="fas fa-wallet"></i> Earnings
+        </button>
       </div>
     </div>
   </header>
@@ -2062,12 +2066,13 @@
               <div class="sub">Unique buyers</div>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card stat-card-clickable" onclick="window.location.href='pharmacy-earnings.html'"
+            title="View detailed earnings">
             <div class="stat-icon purple"><i class="fas fa-rupee-sign"></i></div>
             <div class="stat-info">
               <div class="label">Revenue</div>
               <div class="value" id="statRevenue">₹0</div>
-              <div class="sub">Delivered orders</div>
+              <div class="sub">Tap for detailed earnings →</div>
             </div>
           </div>
         </div>
@@ -2887,18 +2892,36 @@
 
 
   <script type="module">
-    import { db as _db } from './firebase-config.js';
+    import { db as _db, app as _app } from './firebase-config.js';
     import { collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // FIX: XSS prevention — escape all user-supplied strings before inserting into innerHTML
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    window._mqEscape = escapeHTML; // expose for inline scripts
+    window.escapeHTML = escapeHTML;  // FIX: make available in regular script scope
 
 
     function subscribeOrders() {
       try {
-        onSnapshot(collection(_db, 'orders'), (snap) => {
+        // FIX: Store unsubscribe to prevent memory leak
+        if (window._mqUnsub_orders) window._mqUnsub_orders();
+        window._mqUnsub_orders = onSnapshot(collection(_db, 'orders'), (snap) => {
           window._mqOrderCache = snap.docs.map(d => ({ orderId: d.id, ...d.data() }));
-          // Re-render orders & dashboard whenever Firestore sends new data
-          if (typeof renderOrders === 'function') renderOrders();
-          if (typeof renderDashboard === 'function') renderDashboard();
-          if (window._adminReRender) window._adminReRender();
+          if (window._adminReRender) {
+            window._adminReRender();
+          } else {
+            if (typeof renderDashboard === 'function') renderDashboard();
+            if (typeof renderOrders === 'function') renderOrders();
+          }
         });
       } catch (e) { console.warn('Orders subscription failed:', e); }
     }
@@ -2922,12 +2945,7 @@
         const snap = await getDocs(collection(_db, 'customCategories'));
         const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
         window._mqCatCache = cats;
-        // LocalStorage mein bhi sync karo
-        try {
-          const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-          const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
-          localStorage.setItem(key, JSON.stringify(cats));
-        } catch (e) { }
+        // FIX: localStorage sync hata diya — window._mqCatCache hi use karo
         // Re-render cat grids if medicine modal is open
         if (document.getElementById('medModal')?.classList.contains('show')) {
           renderCatGrid(window._selectedCatKeyBackup || selectedCatKey || '');
@@ -3012,41 +3030,57 @@
 
 
     function subscribeDeliveryBoys() {
-      onSnapshot(collection(_db, 'riders'), (snap) => {
+      // FIX: Store unsubscribe to prevent memory leak
+      if (window._mqUnsub_riders) window._mqUnsub_riders();
+      window._mqUnsub_riders = onSnapshot(collection(_db, 'riders'), (snap) => {
         window._mqDeliveryBoysCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         if (window._adminRenderDeliveryBoys) window._adminRenderDeliveryBoys();
       });
     }
 
-    loadMedicinesFromFirestore();
-    loadCustomCatsFromFirestore();
-    subscribeOrders();
-    subscribeDeliveryBoys();
-  </script>
-
-  <script type="module">
-    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    let _app;
-    try { _app = getApp(); } catch(e) {
-      _app = initializeApp({
-        apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
-        authDomain: "mediiquick-25a65.firebaseapp.com",
-        projectId: "mediiquick-25a65",
-        storageBucket: "mediiquick-25a65.firebasestorage.app",
-        messagingSenderId: "480632265996",
-        appId: "1:480632265996:web:d58747c0a12e780eddfd29"
-      });
+    function _mqWaitAndInit(tries) {
+      if (typeof renderOrders === 'function' && typeof renderMedicines === 'function') {
+        loadMedicinesFromFirestore();
+        loadCustomCatsFromFirestore();
+        subscribeOrders();
+        subscribeDeliveryBoys();
+      } else if (tries < 50) {
+        setTimeout(() => _mqWaitAndInit(tries + 1), 100);
+      }
     }
-    const _auth = getAuth(_app);
-    const _fdb = getFirestore(_app);
+    _mqWaitAndInit(0);
 
-    window._mqAdminSignOut = () => signOut(_auth).then(() => {
-      localStorage.removeItem('mq_admin_session');
-      window.location.href = 'login.html?tab=admin';
-    });
+    // FIX: Cleanup all Firestore listeners when admin leaves page
+    window.addEventListener('beforeunload', () => {
+      if (window._mqUnsub_orders) window._mqUnsub_orders();
+      if (window._mqUnsub_riders) window._mqUnsub_riders();
+    }, { once: true });
+
+    // ─── AUTH GUARD (merged into single module block) ───────────────────────
+
+    const _auth = getAuth(_app);
+    setPersistence(_auth, browserSessionPersistence).catch(() => { });
+    const _fdb = _db;
+
+    window._mqAdminSignOut = async () => {
+      // ✅ Logout hone par Firestore mein isOnline: false karo
+      // Taaki is admin ke area mein naye orders na jaayein
+      try {
+        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        const adminDocId = session.docId || session.adminId;
+        if (adminDocId) {
+          const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          await _updateDoc(_doc(_fdb, 'pharmacyProfiles', adminDocId), { isOnline: false, lastLogoutAt: Date.now() });
+          console.log('[MQ Admin] isOnline set to FALSE in pharmacyProfiles');
+        }
+      } catch (e) {
+        console.warn('[MQ Admin] Could not set isOnline=false:', e);
+      }
+      signOut(_auth).then(() => {
+        localStorage.removeItem('mq_admin_session');
+        window.location.href = 'login.html?tab=admin';
+      });
+    };
 
     // Check localStorage immediately (fast, synchronous) — set by login.html
     const _lsSession = (() => {
@@ -3054,7 +3088,7 @@
         const s = JSON.parse(localStorage.getItem('mq_admin_session') || 'null');
         if (s && s.expiresAt && Date.now() < s.expiresAt && s.docId) return s;
         return null;
-      } catch(e) { return null; }
+      } catch (e) { return null; }
     })();
 
     if (_lsSession) {
@@ -3088,7 +3122,10 @@
         window._mqAdminData = { docId: snap.docs[0].id, ...adminData };
         const nameEl = document.getElementById('headerPharmacyName');
         if (nameEl && adminData.shopName) nameEl.textContent = adminData.shopName;
-        // Refresh localStorage session
+
+        // Single-device session check REMOVED — ab multi-tab/multi-device allowed hai
+
+        // Refresh localStorage session — ALL fields included
         const legacySession = {
           docId: snap.docs[0].id,
           email: adminData.email,
@@ -3100,10 +3137,31 @@
           servedPins: adminData.servedPins || [],
           lat: adminData.lat || null,
           lng: adminData.lng || null,
+          // FIX: Registration fields bhi refresh karo
+          location: adminData.location || '',
+          mobile: adminData.mobile || '',
+          mobile2: adminData.mobile2 || '',
+          drugLicense: adminData.drugLicense || '',
+          pin: adminData.pin || '',
+          gst: adminData.gst || '',
+          openTime: adminData.openTime || '',
+          closeTime: adminData.closeTime || '',
+          shopType: adminData.shopType || '',
           expiresAt: Date.now() + 86400000
         };
         localStorage.setItem('mq_admin_session', JSON.stringify(legacySession));
-      } catch(e) {
+
+        // ✅ Admin login hua — Firestore mein isOnline: true mark karo
+        // Taaki customer ke order mein yeh admin match ho sake
+        try {
+          const adminDocId = snap.docs[0].id;
+          const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          await _updateDoc(_doc(_fdb, 'pharmacyProfiles', adminDocId), { isOnline: true, lastLoginAt: Date.now() });
+          console.log('[MQ Admin] isOnline set to TRUE in pharmacyProfiles');
+        } catch (e) {
+          console.warn('[MQ Admin] Could not set isOnline=true:', e);
+        }
+      } catch (e) {
         console.error('Admin auth check failed:', e);
         // On error, keep user on page if localStorage session valid
         if (!_lsSession) window.location.href = 'login.html?tab=admin';
@@ -3119,8 +3177,11 @@
 
     // FIX: Define _adminReRender so Firestore real-time listener can trigger re-render
     window._adminReRender = function () {
-      if (typeof renderOrders === 'function') renderOrders();
       if (typeof renderDashboard === 'function') renderDashboard();
+      const av = document.querySelector('.view.active')?.id;
+      if (av === 'view-orders' && typeof renderOrders === 'function') renderOrders();
+      if (av === 'view-medicines' && typeof renderMedicines === 'function') { loadMedicines(); renderMedicines(); }
+      if (av === 'view-customers' && typeof renderCustomers === 'function') renderCustomers();
     };
 
     // FIX: getDistanceKm fallback in case utils.js doesn't export it
@@ -3157,14 +3218,11 @@
     }
 
     function loadMedicines() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(getMedKey()) || '[]');
-        medicines = saved.length ? saved : SAMPLE_MEDICINES;
-      } catch (e) { medicines = SAMPLE_MEDICINES; }
+      // FIX: Sirf Firestore cache use karo — stale localStorage data ignore
+      medicines = window._mqMedCache || [];
     }
     function saveMedicinesLS() {
-      localStorage.setItem(getMedKey(), JSON.stringify(medicines));
-
+      // FIX: localStorage write hata diya — Firestore primary source hai
       window._mqMedCache = medicines;
       window._mqMedUpdated = Date.now();
 
@@ -3193,37 +3251,33 @@
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
 
-
+        // Priority 1: Firestore cache (most fresh)
         if (window._mqAdminProfileCache && window._mqAdminProfileCache.name) {
           const profile = { ...window._mqAdminProfileCache };
-
           if (session.lat && !profile.lat) profile.lat = session.lat;
           if (session.lng && !profile.lng) profile.lng = session.lng;
           if (session.adminId && !profile.adminId) profile.adminId = session.adminId;
           return profile;
         }
 
-
-        const lsProfile = JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}');
-        if (lsProfile && lsProfile.name) {
-          if (session.lat && !lsProfile.lat) lsProfile.lat = session.lat;
-          if (session.lng && !lsProfile.lng) lsProfile.lng = session.lng;
-          if (session.adminId && !lsProfile.adminId) lsProfile.adminId = session.adminId;
-          window._mqAdminProfileCache = lsProfile; // seed cache
-          return lsProfile;
-        }
-
-
+        // Priority 2: mq_admin_session — all fields from login
         const profile = {};
         if (session.shopName) profile.name = session.shopName;
         if (session.shopName) profile.shopName = session.shopName;
         if (session.adminName) profile.owner = session.adminName;
         if (session.location) profile.address = session.location;
         if (session.mobile) profile.phone = session.mobile;
+        if (session.mobile2) profile.mobile2 = session.mobile2;
         if (session.email) profile.email = session.email;
         if (session.drugLicense) profile.license = session.drugLicense;
         if (session.city) profile.city = session.city;
+        if (session.pin) profile.pin = session.pin;
+        if (session.gst) profile.gst = session.gst;
+        if (session.openTime) profile.openTime = session.openTime;
+        if (session.closeTime) profile.closeTime = session.closeTime;
+        if (session.shopType) profile.shopType = session.shopType;
         if (session.deliveryRadius) profile.deliveryRadius = session.deliveryRadius;
+        if (session.servedPins !== undefined) profile.servedPins = session.servedPins;
         if (session.lat) profile.lat = session.lat;
         if (session.lng) profile.lng = session.lng;
         if (session.adminId) profile.adminId = session.adminId;
@@ -3288,6 +3342,16 @@
               if (!fsProfile.openTime) fsProfile.openTime = session.openTime || '';
               if (!fsProfile.closeTime) fsProfile.closeTime = session.closeTime || '';
               if (!fsProfile.shopType) fsProfile.shopType = session.shopType || '';
+              // FIX: servedPins pharmacyProfiles mein nahi hota — session se lo
+              if (!fsProfile.servedPins || fsProfile.servedPins.length === 0) {
+                fsProfile.servedPins = session.servedPins || [];
+              }
+              // FIX: license, phone, address bhi session se fallback karo
+              if (!fsProfile.license) fsProfile.license = session.drugLicense || '';
+              if (!fsProfile.phone) fsProfile.phone = session.mobile || '';
+              if (!fsProfile.address) fsProfile.address = session.location || '';
+              if (!fsProfile.owner) fsProfile.owner = session.adminName || '';
+              if (!fsProfile.name) fsProfile.name = session.shopName || '';
               window._mqAdminProfileCache = fsProfile;
 
               renderProfile();
@@ -3314,6 +3378,8 @@
                   deliveryRadius: regData.deliveryRadius,
                   adminId: regData.adminId,
                   mobile2: regData.mobile2 || '',
+                  // FIX: servedPins regData se lo (signup mein save hua tha)
+                  servedPins: regData.servedPins || session.servedPins || [],
                   lat: session.lat || regData.lat || null,
                   lng: session.lng || regData.lng || null,
                 };
@@ -3485,7 +3551,7 @@
       }
 
       if (name === 'dashboard') renderDashboard();
-      if (name === 'medicines') renderMedicines();
+      if (name === 'medicines') { loadMedicines(); renderMedicines(); }
       if (name === 'orders') renderOrders();
       if (name === 'analytics') renderAnalytics();
       if (name === 'profile') renderProfile();
@@ -3503,7 +3569,15 @@
 
       const lowCount = medicines.filter(m => m.quantity < 10).length;
       const pendingCount = orders.filter(o => ['pending', 'confirmed', 'packing', 'on_the_way', 'pending_acceptance'].includes(o.status)).length;
-      const revenue = allOrders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
+      // FIX: Revenue sirf is admin ke delivered orders se calculate karo
+      const _sess = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
+      const _myDocId = _sess.docId || '';
+      const _myAdminId = _sess.adminId || '';
+      const revenue = allOrders.filter(o => {
+        if (o.status !== 'delivered') return false;
+        const aid = o.assignedAdminId || '';
+        return aid === _myDocId || (_myAdminId && aid === _myAdminId);
+      }).reduce((s, o) => s + (o.total || 0), 0);
       const customers = new Set(orders.map(o => o.customerEmail || o.name || 'Unknown')).size;
       const availableDB = boys.filter(b => b.status === 'available').length;
       const activeDeliveries = orders.filter(o => o.status === 'on_the_way').length;
@@ -3580,10 +3654,10 @@
         const pct = Math.min(100, (m.quantity / 100) * 100);
         return `<tr>
       <td>${i + 1}</td>
-      <td><strong>${m.name}</strong></td>
-      <td style="font-size:12px;color:var(--muted);">${m.category || '—'}</td>
-      <td>${m.quantity}</td>
-      <td>₹${m.price}</td>
+      <td><strong>${escapeHTML(m.name)}</strong></td>
+      <td style="font-size:12px;color:var(--muted);">${escapeHTML(m.category || '—')}</td>
+      <td>${escapeHTML(m.quantity)}</td>
+      <td>₹${escapeHTML(m.price)}</td>
       <td>
         <span class="badge ${low ? 'badge-low' : 'badge-ok'}">${low ? '⚠ Low' : '✅ OK'}</span>
         <div class="stock-bar" style="margin-top:4px;width:80px;">
@@ -3618,22 +3692,12 @@
     let selectedNewCatIcon = '💊';
 
     function getCustomCats() {
-      // Firestore cache ko prefer karo, fallback to localStorage
-      if (window._mqCatCache) return window._mqCatCache;
-      try {
-        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
-        return JSON.parse(localStorage.getItem(key) || '[]');
-      } catch (e) { return []; }
+      // FIX: Sirf Firestore cache use karo — localStorage fallback hata diya
+      return window._mqCatCache || [];
     }
     function saveCustomCats(cats) {
       window._mqCatCache = cats;
-      // LocalStorage mein bhi save karo taaki page reload pe data rahe
-      try {
-        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        const key = session.adminId ? 'mq_custom_cats_' + session.adminId : 'mq_custom_cats';
-        localStorage.setItem(key, JSON.stringify(cats));
-      } catch (e) { }
+      // FIX: localStorage write hata diya — Firestore primary hai
       if (window.__adminFirestore) {
         cats.forEach(c => window.__adminFirestore.saveCustomCatToFirestore(c));
       }
@@ -3947,31 +4011,31 @@
         return;
       }
       tbl.innerHTML = list.map(o => {
-        const items = (o.items || []).map(i => `${i.med?.name || i.name}×${i.qty}`).join(', ') || '—';
-        const addr = o.deliveryAddr ? `${o.deliveryAddr.city || ''}` : (o.city || '—');
-        const custName = o.customerName || o.name || o.customer || 'Guest';
-        const custEmail = o.customerEmail ? `<br><small style="color:#6b7280;">${o.customerEmail}</small>` : '';
-        const phone = o.deliveryAddr?.phone || '—';
-        const orderPin = o.deliveryAddr?.pin || '';
+        const items = (o.items || []).map(i => escapeHTML(`${i.med?.name || i.name}×${i.qty}`)).join(', ') || '—';
+        const addr = o.deliveryAddr ? escapeHTML(o.deliveryAddr.city || '') : escapeHTML(o.city || '—');
+        const custName = escapeHTML(o.customerName || o.name || o.customer || 'Guest');
+        const custEmail = o.customerEmail ? `<br><small style="color:#6b7280;">${escapeHTML(o.customerEmail)}</small>` : '';
+        const phone = escapeHTML(o.deliveryAddr?.phone || '—');
+        const orderPin = escapeHTML(o.deliveryAddr?.pin || '');
 
         let rangeBadge = '';
         if (orderPin) {
           rangeBadge = `<br><span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:1px 5px;border-radius:4px;font-weight:700;">📮 ${orderPin}</span>`;
         }
         return `<tr>
-      <td><strong>${o.orderId || '—'}</strong>${rangeBadge}</td>
+      <td><strong>${escapeHTML(o.orderId || '—')}</strong>${rangeBadge}</td>
       <td>${custName}${custEmail}</td>
       <td style="font-size:12px;"><a href="tel:${phone}" style="color:var(--green);font-weight:600;">📞 ${phone}</a></td>
       <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${items}">${items}</td>
       <td><strong style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</strong></td>
       <td>${addr}</td>
-      <td>${o.payMethod || '—'}</td>
+      <td>${escapeHTML(o.payMethod || '—')}</td>
       <td>${statusBadge(o.status)}</td>
-      <td style="font-size:11px;">${o.date || '—'}</td>
+      <td style="font-size:11px;">${escapeHTML(o.date || '—')}</td>
       <td class="td-actions">
-        <button class="act-btn act-view" onclick="openQuickActions('${o.orderId}')" style="background:#dcfce7;color:#16a34a;" title="Quick Actions">⚡</button>
-        <button class="act-btn act-view" onclick="viewOrderDetail('${o.orderId}')">👁</button>
-        <button class="act-btn act-update" onclick="openStatusModal('${o.orderId}','${o.status}')">✏️</button>
+        <button class="act-btn act-view" onclick="openQuickActions('${escapeHTML(o.orderId)}')" style="background:#dcfce7;color:#16a34a;" title="Quick Actions">⚡</button>
+        <button class="act-btn act-view" onclick="viewOrderDetail('${escapeHTML(o.orderId)}')">👁</button>
+        <button class="act-btn act-update" onclick="openStatusModal('${escapeHTML(o.orderId)}','${escapeHTML(o.status)}')">✏️</button>
       </td>
     </tr>`;
       }).join('');
@@ -4185,6 +4249,20 @@
       const orders = loadOrders();
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
+
+      // FIX: Agar order already accepted ya on_the_way hai toh request mat bhejo
+      if (o.status === "on_the_way" || o.status === "delivered") {
+        showToast("⚠️ Order already accepted by a rider!", "warning");
+        closeModal("quickStatusModal");
+        return;
+      }
+      // FIX: Agar Firestore cache mein already acceptedBy set hai toh mat bhejo
+      const existingReqCheck = (window._mqRiderRequestsCache || []).find(r => r.orderId === orderId);
+      if (existingReqCheck && existingReqCheck.acceptedBy) {
+        showToast("⚠️ A rider has already accepted this order!", "warning");
+        closeModal("quickStatusModal");
+        return;
+      }
 
       const profile = loadProfile();
       const pharmLat = profile.lat, pharmLng = profile.lng;
@@ -4408,15 +4486,16 @@
         const delivered = orders.filter(o => o.deliveryBoy?.id === b.id && o.status === 'delivered').length;
         const statusMap = { available: '<span class="badge badge-on_the_way">✅ Available</span>', busy: '<span class="badge badge-confirmed">🔴 Busy</span>', offline: '<span class="badge badge-cancelled">⚫ Offline</span>' };
         const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
+        // FIX: Escape all user-supplied values to prevent XSS
         return `<tr>
-          <td><strong>${b.name}</strong><br><small style="color:var(--muted);">${vMap[b.vehicle] || b.vehicle}</small></td>
-          <td><a href="tel:${b.phone}" style="color:var(--green);font-weight:600;">📞 ${b.phone}</a></td>
-          <td>${statusMap[b.status] || b.status}</td>
+          <td><strong>${escapeHTML(b.name)}</strong><br><small style="color:var(--muted);">${escapeHTML(vMap[b.vehicle] || b.vehicle)}</small></td>
+          <td><a href="tel:${escapeHTML(b.phone)}" style="color:var(--green);font-weight:600;">📞 ${escapeHTML(b.phone)}</a></td>
+          <td>${statusMap[b.status] || escapeHTML(b.status)}</td>
           <td class="td-center">${activeOrders}</td>
           <td class="td-center">${delivered}</td>
           <td class="td-actions">
-            <button class="act-btn act-edit" onclick="editDeliveryBoy('${b.id}')">✏️</button>
-            <button class="act-btn ${b.status === 'available' ? 'act-del' : 'act-view'}" onclick="toggleDBStatus('${b.id}')">
+            <button class="act-btn act-edit" onclick="editDeliveryBoy('${escapeHTML(b.id)}')">✏️</button>
+            <button class="act-btn ${b.status === 'available' ? 'act-del' : 'act-view'}" onclick="toggleDBStatus('${escapeHTML(b.id)}')">
               ${b.status === 'offline' ? '▶️' : '⏸️'}
             </button>
           </td>
@@ -4495,23 +4574,24 @@
       tbl.innerHTML = customers.map((c, i) => {
         const lastOrder = c.orders.sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0))[0];
         const isRepeat = c.orders.length > 1;
+        // FIX: Escape all customer fields to prevent XSS
         return `<tr>
           <td class="td-small small-muted">${i + 1}</td>
           <td>
             <div class="d-flex-center-8">
-              <div class="cust-avatar-sm" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:13px;">${c.name.charAt(0).toUpperCase()}</div>
+              <div class="cust-avatar-sm" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:13px;">${escapeHTML(c.name.charAt(0).toUpperCase())}</div>
               <div>
-                <div class="cust-name-sm">${c.name}</div>
+                <div class="cust-name-sm">${escapeHTML(c.name)}</div>
                 ${isRepeat ? '<span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:10px;font-weight:700;">REPEAT</span>' : ''}
               </div>
             </div>
           </td>
-          <td class="td-small small-muted">${c.email}</td>
-          <td><i class="fas fa-map-marker-alt" style="color:var(--green);margin-right:4px;font-size:11px;"></i>${c.city}</td>
+          <td class="td-small small-muted">${escapeHTML(c.email)}</td>
+          <td><i class="fas fa-map-marker-alt" style="color:var(--green);margin-right:4px;font-size:11px;"></i>${escapeHTML(c.city)}</td>
           <td class="td-center" style="font-weight:700;">${c.orders.length}</td>
           <td style="font-weight:700;color:var(--green);">₹${c.totalSpent.toLocaleString('en-IN')}</td>
-          <td style="font-size:12px;color:var(--muted);">${lastOrder?.date || '—'}</td>
-          <td><button class="act-btn act-view" onclick="viewCustomerDetail('${c.email}')">👁 View</button></td>
+          <td style="font-size:12px;color:var(--muted);">${escapeHTML(lastOrder?.date || '—')}</td>
+          <td><button class="act-btn act-view" onclick="viewCustomerDetail('${escapeHTML(c.email)}')">👁 View</button></td>
         </tr>`;
       }).join('');
     }
@@ -4673,8 +4753,7 @@
       window._mqAdminProfileCache = p;
 
 
-      localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
-
+      // FIX: mq_pharmacy_profile localStorage write hata diya — Firestore is source of truth
 
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
@@ -4886,11 +4965,11 @@
       showToast(`🗑️ ${removed} order${removed !== 1 ? 's' : ''} removed from history!`);
     }
 
-    function handleLogout() {
+    async function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('mq_admin_session');
         if (window._mqAdminSignOut) {
-          window._mqAdminSignOut();
+          await window._mqAdminSignOut();
         } else {
           window.location.href = 'login.html?tab=admin';
         }
@@ -4907,13 +4986,13 @@
       if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
     });
 
-    let toastTimer;
+    let _adminToastTimer;
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.className = 'toast show' + (type ? ' ' + type : '');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+      clearTimeout(_adminToastTimer);
+      _adminToastTimer = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
     function refreshAll() {
@@ -4926,8 +5005,9 @@
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
 
-        const lsProfile = JSON.parse(localStorage.getItem('mq_pharmacy_profile') || '{}');
-        if (lsProfile.name) return;
+        // FIX: mq_pharmacy_profile localStorage read hata diya
+        // Agar Firestore cache already loaded hai toh skip karo
+        if (window._mqAdminProfileCache && window._mqAdminProfileCache.name) return;
 
         if (session.shopName || session.adminName) {
           const p = {
@@ -4950,8 +5030,6 @@
           };
           window._mqAdminProfileCache = p;
 
-          localStorage.setItem('mq_pharmacy_profile', JSON.stringify(p));
-
           (function tryFirestore(attempt) {
             if (window.__adminFirestore && session.adminId) {
               window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, p);
@@ -4965,6 +5043,7 @@
 
     loadMedicines();
     renderDashboard();
+    renderOrders();
     renderProfile();
 
     initAdminProfile();
@@ -4979,8 +5058,9 @@
     };
     window._adminLoadMedicines = function () {
       loadMedicines();
-      renderMedicines();
       renderDashboard();
+      const av = document.querySelector('.view.active')?.id;
+      if (av === 'view-medicines') renderMedicines();
     };
 
     window._adminRenderDeliveryBoys = function () {
@@ -5310,7 +5390,13 @@
 
           if (req.acceptedBy && !req.processedByAdmin) {
             const o = orders.find(x => x.orderId === req.orderId);
-            if (o && o.status === 'pending_acceptance') {
+            // FIX: Order pehle se on_the_way hai toh sirf processedByAdmin set karo, dobara process mat karo
+            if (o && o.status === 'on_the_way' && !req.processedByAdmin) {
+              try {
+                await _setDoc(_doc(_db, 'riderRequests', req.orderId), { processedByAdmin: true }, { merge: true });
+              } catch (e) { }
+              req.processedByAdmin = true;
+            } else if (o && o.status === 'pending_acceptance') {
               const boys = getDeliveryBoys();
               const acceptedRider = boys.find(b => b.id === req.acceptedBy) ||
                 { id: req.acceptedBy, name: 'Rider', phone: '' };
@@ -5323,6 +5409,8 @@
               try {
                 await _setDoc(_doc(_db, 'riderRequests', req.orderId), { processedByAdmin: true }, { merge: true });
               } catch (e) { }
+              // FIX: local cache bhi update karo taaki dobara process na ho
+              req.processedByAdmin = true;
               showToast(`🏍️ ${acceptedRider.name} accepted the order! Out for delivery.`);
             }
           }
@@ -5370,9 +5458,7 @@
 
   </script>
   <script src="utils.js"></script>
-  <script type="module">
-    import { auth, db } from "./firebase-config.js";
-  </script>
+
 
 
   <div class="modal-overlay" id="clearHistoryModal">
@@ -5425,4 +5511,4 @@
 
 </body>
 
-</html>
+</html> 

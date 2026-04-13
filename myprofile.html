@@ -1260,6 +1260,9 @@
         <button class="nav-item" onclick="showSection('settings')" id="nav-settings">
           <i class="fas fa-cog"></i> Settings
         </button>
+        <a href="prescription-upload.html" class="nav-item" style="text-decoration:none;display:flex;align-items:center;gap:10px;">
+          <i class="fas fa-file-prescription"></i> Upload Prescription
+        </a>
         <button class="logout-btn" onclick="logout()">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
@@ -1348,6 +1351,7 @@
 
         <div class="settings-card">
           <div class="settings-label">🔒 Change Password</div>
+          <input class="settings-input" type="password" id="currentPassword" placeholder="Current password..." />
           <input class="settings-input" type="password" id="newPassword" placeholder="New password..." />
           <input class="settings-input" type="password" id="confirmPassword" placeholder="Confirm new password..." />
           <button class="settings-btn" onclick="changePassword()">Update Password</button>
@@ -1437,16 +1441,16 @@
         const q = _uid
           ? query(collection(_db, 'orders'), where('userId', '==', _uid))
           : query(collection(_db, 'orders'), where('customerEmail', '==', _email));
-        onSnapshot(q, (snap) => {
+        // FIX: Store unsubscribe to prevent memory leak
+        if (window._mqUnsub_mpOrders) window._mqUnsub_mpOrders();
+        window._mqUnsub_mpOrders = onSnapshot(q, (snap) => {
           const fsOrders = snap.docs.map(d => d.data());
-          
           window._mqOrderCache = fsOrders;
           if (window._mpLoadOrders) window._mpLoadOrders();
         });
       } catch (e) { console.warn('Orders subscription failed:', e); }
     }
 
-    
     window.__mpFirestore = {
       saveProfileFieldToFirestore,
       saveAddressesToFirestore,
@@ -1455,6 +1459,11 @@
     loadProfileFromFirestore();
     loadAddressesFromFirestore();
     subscribeOrders();
+
+    // FIX: Cleanup listener on page unload
+    window.addEventListener('beforeunload', () => {
+      if (window._mqUnsub_mpOrders) window._mqUnsub_mpOrders();
+    }, { once: true });
   </script>
 
   <script>
@@ -1488,9 +1497,29 @@
               try {
                 const snap = await getDoc(doc(_fdb, 'users', user.uid));
                 if (snap.exists()) {
+                  // ── Single-device session check ──
+                  const localSession = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
+                  const firestoreToken = snap.data().sessionToken;
+                  if (localSession.sessionToken && firestoreToken && localSession.sessionToken !== firestoreToken) {
+                    await signOut(_auth);
+                    localStorage.removeItem('mq_user');
+                    window.location.href = 'login.html?session=displaced';
+                    return;
+                  }
                   const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
                   localStorage.setItem('mq_user', JSON.stringify(merged));
                   if (typeof loadUser === 'function') loadUser();
+
+                  // Real-time session watch
+                  const { onSnapshot: _onSnap } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                  _onSnap(doc(_fdb, 'users', user.uid), (liveSnap) => {
+                    if (!liveSnap.exists()) return;
+                    const ls = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
+                    const liveToken = liveSnap.data().sessionToken;
+                    if (ls.sessionToken && liveToken && ls.sessionToken !== liveToken) {
+                      signOut(_auth).then(() => { localStorage.removeItem('mq_user'); window.location.href = 'login.html?session=displaced'; });
+                    }
+                  });
                 }
               } catch(e) { console.warn('myprofile auth sync failed:', e); }
             });
@@ -1503,7 +1532,7 @@
 
     function loadUser() {
       try {
-        const raw = localStorage.getItem('mq_user') || localStorage.getItem('mq_user') || '{}';
+        const raw = localStorage.getItem('mq_user') || '{}';
         userData = JSON.parse(raw);
       } catch (e) { userData = {}; }
 
@@ -1673,29 +1702,45 @@
     }
 
     function changePassword() {
+      const current = document.getElementById('currentPassword').value;
       const np = document.getElementById('newPassword').value;
       const cp = document.getElementById('confirmPassword').value;
-      if (!np || !cp) return showToast('⚠️ Please fill both fields');
-      if (np !== cp) return showToast('⚠️ Passwords do not match');
-      if (np.length < 6) return showToast('⚠️ Password must be at least 6 characters');
-      // Update password via Firebase Auth
-      if (window._myProfileSignOut) {
-        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ updatePassword }) => {
-          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
-            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth }) => {
-              try {
-                const user = getAuth(getApp()).currentUser;
-                if (user) updatePassword(user, np).then(() => showToast('✅ Password updated!')).catch(e => {
-                  if (e.code === 'auth/requires-recent-login') showToast('⚠️ Please logout and login again to change password');
-                  else showToast('⚠️ Password update failed');
-                });
-              } catch(e) { showToast('⚠️ Password update failed'); }
+      if (!current) return showToast('⚠️ Please enter your current password');
+      if (!np || !cp) return showToast('⚠️ Please fill all password fields');
+      if (np !== cp) return showToast('⚠️ New passwords do not match');
+      if (np.length < 8) return showToast('⚠️ New password must be at least 8 characters');
+      if (current === np) return showToast('⚠️ New password must be different from current password');
+
+      // FIX: Re-authenticate first before calling updatePassword (Firebase requires this)
+      Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js")
+      ]).then(([{ getAuth, EmailAuthProvider, reauthenticateWithCredential, updatePassword }, { getApp }]) => {
+        try {
+          const user = getAuth(getApp()).currentUser;
+          if (!user) { showToast('⚠️ Please login again to change password'); return; }
+          const credential = EmailAuthProvider.credential(user.email, current);
+          reauthenticateWithCredential(user, credential)
+            .then(() => updatePassword(user, np))
+            .then(() => {
+              showToast('✅ Password updated successfully!');
+              document.getElementById('currentPassword').value = '';
+              document.getElementById('newPassword').value = '';
+              document.getElementById('confirmPassword').value = '';
+            })
+            .catch(e => {
+              if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+                showToast('⚠️ Current password is incorrect');
+              } else if (e.code === 'auth/requires-recent-login') {
+                showToast('⚠️ Please logout and login again, then retry');
+              } else if (e.code === 'auth/too-many-requests') {
+                showToast('⚠️ Too many attempts. Please try later.');
+              } else {
+                showToast('⚠️ Password update failed. Please try again.');
+              }
             });
-          });
-        });
-      }
-      document.getElementById('newPassword').value = '';
-      document.getElementById('confirmPassword').value = '';
+        } catch(e) { showToast('⚠️ Password update failed'); }
+      });
     }
 
     function logout() {
@@ -1883,7 +1928,9 @@
       showToast('🗑️ Address deleted!');
     }
 
-    loadUser();
+    // loadUser() is called by onAuthStateChanged after Firestore sync completes.
+    // Call it here only as a fallback so UI isn't blank if auth already resolved.
+    if (localStorage.getItem('mq_user')) loadUser();
     loadOrders();
     loadAddresses();
 

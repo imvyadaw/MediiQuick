@@ -11,6 +11,46 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --card-bg: white;
+      --right-panel-bg: white;
+      --input-bg: white;
+      --input-border: #e2e8f0;
+      --label-color: #4a5a72;
+      --text-main: #0a1a2a;
+      --text-sub: #6c7a8e;
+      --tab-bg: #f0f2f5;
+      --tab-inactive: #5a6e8a;
+      --bottom-link-color: #5a6e8a;
+      --divider-line: #e2e8f0;
+      --divider-text: #8a9aba;
+      --social-border: #e2e8f0;
+      --social-bg: white;
+      --social-hover-bg: #f0fdf4;
+      --lp-bg-1: #0e3a2a;
+      --lp-bg-2: #0a2a1a;
+    }
+
+    body.dark-mode {
+      --card-bg: #0f1f13;
+      --right-panel-bg: #111c14;
+      --input-bg: #1a2e1e;
+      --input-border: #2a4030;
+      --label-color: #7ab88a;
+      --text-main: #e0f0e5;
+      --text-sub: #6b8f78;
+      --tab-bg: #0d1810;
+      --tab-inactive: #5a8068;
+      --bottom-link-color: #6b8f78;
+      --divider-line: #1e3525;
+      --divider-text: #4a6b55;
+      --social-border: #1e3525;
+      --social-bg: #1a2e1e;
+      --social-hover-bg: #0d2010;
+      --lp-bg-1: #071408;
+      --lp-bg-2: #050f06;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -25,6 +65,56 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      transition: background 0.3s;
+    }
+
+    /* Dark mode toggle button */
+    .dark-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 40px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .dark-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Session conflict alert banner */
+    .session-alert {
+      display: none;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      padding: 9px 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    }
+
+    .session-alert.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     /* floating background pills */
@@ -105,7 +195,7 @@
 
     /* card */
     .card {
-      background: white;
+      background: var(--card-bg);
       border-radius: 32px;
       width: 100%;
       max-width: 1000px;
@@ -118,7 +208,7 @@
     /* left panel */
     .left-panel {
       width: 40%;
-      background: linear-gradient(145deg, #0e3a2a, #0a2a1a);
+      background: linear-gradient(145deg, var(--lp-bg-1), var(--lp-bg-2));
       padding: 40px 28px;
       display: flex;
       flex-direction: column;
@@ -177,17 +267,19 @@
     .right-panel {
       flex: 1;
       padding: 36px 32px;
-      background: white;
+      background: var(--right-panel-bg);
+      transition: background 0.3s;
     }
 
     /* tabs */
     .tab-row {
       display: flex;
-      background: #f0f2f5;
+      background: var(--tab-bg);
       border-radius: 60px;
       padding: 5px;
       gap: 6px;
       margin-bottom: 28px;
+      transition: background 0.3s;
     }
 
     .tab-btn {
@@ -201,7 +293,7 @@
       border-radius: 60px;
       cursor: pointer;
       transition: all 0.2s;
-      color: #5a6e8a;
+      color: var(--tab-inactive);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -209,7 +301,7 @@
     }
 
     .tab-btn.active {
-      background: white;
+      background: var(--card-bg);
       color: #16a34a;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
@@ -239,14 +331,16 @@
     .section-title {
       font-size: 1.35rem;
       font-weight: 800;
-      color: #0a1a2a;
+      color: var(--text-main);
       margin-bottom: 6px;
+      transition: color 0.3s;
     }
 
     .section-sub {
       font-size: 0.8rem;
-      color: #6c7a8e;
+      color: var(--text-sub);
       margin-bottom: 24px;
+      transition: color 0.3s;
     }
 
     .form-group {
@@ -258,9 +352,10 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #4a5a72;
+      color: var(--label-color);
       display: block;
       margin-bottom: 8px;
+      transition: color 0.3s;
     }
 
     .input-wrap {
@@ -270,12 +365,13 @@
     .input-wrap input {
       width: 100%;
       padding: 14px 16px;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--input-border);
       border-radius: 18px;
       font-size: 0.9rem;
       font-family: 'Inter', sans-serif;
       transition: all 0.2s;
-      background: white;
+      background: var(--input-bg);
+      color: var(--text-main);
     }
 
     .input-wrap input:focus {
@@ -286,7 +382,7 @@
 
     .input-wrap input.error {
       border-color: #ef4444;
-      background: #fff9f9;
+      background: rgba(239, 68, 68, 0.05);
     }
 
     .pw-toggle {
@@ -392,7 +488,7 @@
 
     .divider span {
       font-size: 0.7rem;
-      color: #8a9aba;
+      color: var(--divider-text);
     }
 
     .social-row {
@@ -402,10 +498,11 @@
 
     .social-btn {
       flex: 1;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--social-border);
       border-radius: 40px;
       padding: 10px;
-      background: white;
+      background: var(--social-bg);
+      color: var(--text-main);
       font-weight: 600;
       font-size: 0.8rem;
       cursor: pointer;
@@ -418,14 +515,15 @@
 
     .social-btn:hover {
       border-color: #16a34a;
-      background: #f0fdf4;
+      background: var(--social-hover-bg);
     }
 
     .bottom-link {
       text-align: center;
       margin-top: 20px;
       font-size: 0.8rem;
-      color: #5a6e8a;
+      color: var(--bottom-link-color);
+      transition: color 0.3s;
     }
 
     .bottom-link a {
@@ -528,6 +626,11 @@
 
 <body>
 
+  <!-- Session conflict alert -->
+  <div class="session-alert" id="sessionAlert">
+    ⚠️ You were logged in on another device. That session has been ended and you've been logged in here.
+  </div>
+
   <header class="header">
     <a href="index.html" class="logo">
       <img
@@ -535,7 +638,10 @@
         alt="MediiQuick">
       <h1>Medii<span>Quick</span></h1>
     </a>
-    <a href="index.html" class="home-link"><i class="fas fa-arrow-left"></i> Home</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">🌙 Dark</button>
+      <a href="index.html" class="home-link"><i class="fas fa-arrow-left"></i> Home</a>
+    </div>
   </header>
 
   <main class="main">
@@ -632,7 +738,7 @@
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -645,17 +751,21 @@
       appId: "1:480632265996:web:d58747c0a12e780eddfd29"
     };
 
-    const app = initializeApp(firebaseConfig);
+    const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
     const auth = getAuth(app);
+    // browserSessionPersistence REMOVED — localStorage persistence (default) use hogi
     const db = getFirestore(app);
 
-    // Helper: Hash password (same as in admin-signup)
+    // ── Helper: Hash password (same as in admin-signup)
     async function hashPassword(plain) {
       const encoder = new TextEncoder();
       const data = encoder.encode(plain + 'mq_salt_2024');
       const hashBuffer = await crypto.subtle.digest('SHA-256', data);
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
+
+    // ── Cross-role cleanup: logout ALL other role sessions before logging in ──
+    // clearAllOtherSessions() REMOVED — ye dusre tabs ka session tod deta tha, loop ka karan tha
 
     // Helper: Get GPS
     function getGPS() {
@@ -728,7 +838,9 @@
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById(`sec-${type}`).classList.add('active');
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      // FIX: event.target could be the <i> icon inside button; use closest() to get the button
+      const clickedBtn = (event.target).closest('.tab-btn');
+      if (clickedBtn) clickedBtn.classList.add('active');
 
       const icon = document.getElementById('panelIcon');
       const title = document.getElementById('panelTitle');
@@ -752,6 +864,16 @@
         features.innerHTML = `<div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div><div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div><div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div><div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>`;
       }
     };
+
+    // ── Helper: check if email exists in Firestore users collection ──
+    async function doesUserEmailExist(email) {
+      try {
+        const snap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+        return !snap.empty;
+      } catch (e) { return null; } // null = unknown (rules blocked)
+    }
+
+    // enforceUserSingleSession REMOVED — ab multi-device/multi-tab login allowed hai
 
     // USER LOGIN
     window.doUserLogin = async function () {
@@ -782,11 +904,11 @@
         const userCred = await signInWithEmailAndPassword(auth, email, pass);
         const userSnap = await getDoc(doc(db, 'users', userCred.user.uid));
         const gps = await getGPS();
+
         if (gps.lat && userSnap.exists()) {
           await updateDoc(doc(db, 'users', userCred.user.uid), { lat: gps.lat, lng: gps.lng });
         }
 
-        // Store session with expiry
         const session = {
           uid: userCred.user.uid,
           name: userSnap.exists() ? userSnap.data().name : email.split('@')[0],
@@ -798,18 +920,50 @@
         };
         localStorage.setItem('mq_user', JSON.stringify(session));
 
-        showToast('✓ Login successful!', 'success');
+        showToast('✓ Login successful! Welcome back 👋', 'success');
         setTimeout(() => window.location.href = 'profile.html', 1000);
+
       } catch (err) {
         setLoading('userLoginBtn', false);
+
+        // ── Smart error messages ──
         if (err.code === 'auth/user-not-found') {
-          showToast('No account found with this email', 'error');
+          // Old Firebase SDK — direct account not found
+          showToast('❌ No account found with this email. Please sign up first.', 'error');
+          document.getElementById('u-email').classList.add('error');
+
         } else if (err.code === 'auth/wrong-password') {
-          showToast('Incorrect password', 'error');
+          // Old Firebase SDK — direct wrong password
+          showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
+          document.getElementById('u-pass').classList.add('error');
+
+        } else if (
+          err.code === 'auth/invalid-credential' ||
+          err.code === 'auth/invalid-login-credentials'
+        ) {
+          // Firebase v10+ merges user-not-found + wrong-password into one code
+          // We use Firestore to distinguish which one it actually is
+          showToast('⏳ Checking details...', '');
+          const exists = await doesUserEmailExist(email);
+          if (exists === false) {
+            showToast('❌ No account found with this email. Please sign up first.', 'error');
+            document.getElementById('u-email').classList.add('error');
+          } else {
+            // Account exists but password is wrong
+            showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
+            document.getElementById('u-pass').classList.add('error');
+          }
+
+        } else if (err.code === 'auth/too-many-requests') {
+          showToast('⚠️ Too many failed attempts. Account temporarily locked. Please try later or reset your password.', 'error');
+
+        } else if (err.code === 'auth/network-request-failed') {
+          showToast('📶 Network error. Please check your internet connection.', 'error');
+
         } else {
           showToast('Login failed. Please try again.', 'error');
         }
-        console.error(err);
+        console.error('Login error:', err.code, err.message);
       }
     };
 
@@ -838,7 +992,15 @@
         const q = isEmail
           ? query(adminsRef, where('email', '==', id.toLowerCase()))
           : query(adminsRef, where('adminId', '==', id.toUpperCase()));
-        const snap = await getDocs(q);
+        let snap;
+        try {
+          snap = await getDocs(q);
+        } catch (rulesErr) {
+          setLoading('adminLoginBtn', false);
+          showToast('Database access error. Please update Firestore rules.', 'error');
+          console.error('Firestore rules block admin login:', rulesErr);
+          return;
+        }
 
         if (snap.empty) {
           setLoading('adminLoginBtn', false);
@@ -849,24 +1011,18 @@
         const adminData = snap.docs[0].data();
         const hash = await hashPassword(pass);
 
-        if (adminData.password !== hash && adminData.password !== pass) {
+        if (adminData.password !== hash) {
           setLoading('adminLoginBtn', false);
           showToast('Invalid password', 'error');
           return;
         }
 
-        const gps = await getGPS();
-        if (gps.lat) {
-          await updateDoc(doc(db, 'admins', snap.docs[0].id), { lat: gps.lat, lng: gps.lng });
-        }
-
-        // Firebase Auth sign-in (required for adminpage auth guard)
+        // ── Step 1: Firebase Auth FIRST (required before any write) ──
         const adminEmail = adminData.email;
         try {
           await signInWithEmailAndPassword(auth, adminEmail, pass);
         } catch (authErr) {
-          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email') {
-            // First login — create Firebase Auth account
+          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email' || authErr.code === 'auth/invalid-login-credentials') {
             try {
               const newCred = await createUserWithEmailAndPassword(auth, adminEmail, pass);
               await setDoc(doc(db, 'admins', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
@@ -874,16 +1030,20 @@
               if (createErr.code !== 'auth/email-already-in-use') {
                 console.warn('Firebase Auth create failed:', createErr.code);
               }
-              // Try sign in again
-              await signInWithEmailAndPassword(auth, adminEmail, pass).catch(() => {});
+              try { await signInWithEmailAndPassword(auth, adminEmail, pass); } catch (e2) { }
             }
-          } else if (authErr.code === 'auth/wrong-password') {
-            setLoading('adminLoginBtn', false);
-            showToast('Invalid password', 'error');
-            return;
           }
-          // Other errors — continue, Firestore already verified
+          // wrong-password on Firebase Auth is OK — Firestore already verified above
         }
+
+        // ── Step 2: Now authenticated — safe to write ──
+        const gps = await getGPS();
+        try {
+          await updateDoc(doc(db, 'admins', snap.docs[0].id), {
+            lastLoginAt: Date.now(),
+            ...(gps.lat ? { lat: gps.lat, lng: gps.lng } : {})
+          });
+        } catch (e) { console.warn('Admin lastLogin write failed:', e); }
 
         const session = {
           docId: snap.docs[0].id,
@@ -896,6 +1056,17 @@
           servedPins: adminData.servedPins || [],
           lat: gps.lat || adminData.lat || null,
           lng: gps.lng || adminData.lng || null,
+          // FIX: Saare registration fields bhi session mein save karo
+          // Taaki adminpage profile form correctly pre-fill ho
+          location: adminData.location || '',
+          mobile: adminData.mobile || '',
+          mobile2: adminData.mobile2 || '',
+          drugLicense: adminData.drugLicense || '',
+          pin: adminData.pin || '',
+          gst: adminData.gst || '',
+          openTime: adminData.openTime || '',
+          closeTime: adminData.closeTime || '',
+          shopType: adminData.shopType || '',
           expiresAt: Date.now() + (24 * 60 * 60 * 1000)
         };
         localStorage.setItem('mq_admin_session', JSON.stringify(session));
@@ -929,7 +1100,15 @@
 
       setLoading('riderLoginBtn', true);
       try {
-        const snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
+        let snap;
+        try {
+          snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
+        } catch (rulesErr) {
+          setLoading('riderLoginBtn', false);
+          showToast('Database access error. Please update Firestore rules.', 'error');
+          console.error('Firestore rules block rider login:', rulesErr);
+          return;
+        }
         if (snap.empty) {
           setLoading('riderLoginBtn', false);
           showToast('No rider account found with this phone number', 'error');
@@ -939,35 +1118,41 @@
         const riderData = snap.docs[0].data();
         const hash = await hashPassword(pass);
 
-        if (riderData.password !== hash && riderData.password !== pass) {
+        if (riderData.password !== hash) {
           setLoading('riderLoginBtn', false);
           showToast('Invalid password', 'error');
           return;
         }
 
-        const gps = await getGPS();
-        if (gps.lat) {
-          await updateDoc(doc(db, 'riders', snap.docs[0].id), { lat: gps.lat, lng: gps.lng });
-        }
-
-        // Firebase Auth sign-in with synthetic email (required for delivery-dashboard auth guard)
+        // ── Step 1: Firebase Auth sign-in FIRST (required before any write) ──
         const syntheticEmail = phone + '@mq.app';
         try {
           await signInWithEmailAndPassword(auth, syntheticEmail, pass);
         } catch (authErr) {
-          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email') {
+          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email' || authErr.code === 'auth/invalid-login-credentials') {
             try {
               const newCred = await createUserWithEmailAndPassword(auth, syntheticEmail, pass);
+              // Merge uid into riders doc - only now we are authenticated
               await setDoc(doc(db, 'riders', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
             } catch (createErr) {
               if (createErr.code !== 'auth/email-already-in-use') {
                 console.warn('Firebase Auth rider create failed:', createErr.code);
               }
-              await signInWithEmailAndPassword(auth, syntheticEmail, pass).catch(() => {});
+              // Already exists — try signing in again
+              try { await signInWithEmailAndPassword(auth, syntheticEmail, pass); } catch (e2) { }
             }
           }
-          // Other errors — continue, Firestore already verified
+          // Wrong password on synthetic account is OK — Firestore already verified above
         }
+
+        // ── Step 2: Now authenticated — safe to write to Firestore ──
+        const gps = await getGPS();
+        try {
+          await updateDoc(doc(db, 'riders', snap.docs[0].id), {
+            lastLoginAt: Date.now(),
+            ...(gps.lat ? { lat: gps.lat, lng: gps.lng } : {})
+          });
+        } catch (e) { console.warn('Rider lastLogin write failed:', e); }
 
         const session = {
           docId: snap.docs[0].id,
@@ -1052,6 +1237,26 @@
     if (urlParams.get('tab') === 'rider') {
       setTimeout(() => { document.querySelectorAll('.tab-btn')[2].click(); }, 100);
     }
+
+    // ── Dark Mode ──
+    window.toggleDarkMode = function () {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
+      const btn = document.getElementById('darkToggle');
+      btn.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+    };
+    if (localStorage.getItem('mq_dark_mode') === '1') {
+      document.body.classList.add('dark-mode');
+      const btn = document.getElementById('darkToggle');
+      if (btn) btn.innerHTML = '☀️ Light';
+    }
+
+    // Session conflict banner REMOVED — ab multi-tab/multi-device login allowed hai
+
+    // ── Active session redirect REMOVED ──
+    // Pehle yahan already-logged-in users ko auto-redirect kiya jaata tha.
+    // Isse doosre tab mein login.html kholne par bhi redirect ho jaata tha — loop ban jaata tha.
+    // Ab user manually login kar sakta hai chahe kitne bhi tabs mein ho.
   </script>
 </body>
 

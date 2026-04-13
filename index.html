@@ -2380,8 +2380,16 @@
                 return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
               } catch(e) { return Promise.resolve(null); }
             })();
-            // Fallback: check localStorage while Firebase loads
-            const isLoggedIn = !!(localStorage.getItem('mq_user'));
+            // FIX: Validate session expiry, not just existence
+            let isLoggedIn = false;
+            try {
+              const raw = localStorage.getItem('mq_user');
+              if (raw) {
+                const sess = JSON.parse(raw);
+                isLoggedIn = !!(sess && sess.email && (!sess.expiresAt || Date.now() < sess.expiresAt));
+                if (!isLoggedIn) localStorage.removeItem('mq_user'); // clear expired session
+              }
+            } catch(e) { isLoggedIn = false; }
             if (!isLoggedIn) {
                 closeCart();
                 document.getElementById('loginModalOverlay').classList.add('show');

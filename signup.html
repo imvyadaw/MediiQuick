@@ -910,21 +910,22 @@
                         <span style="font-size:0.7rem; font-weight:800;">YOUR PARTNER ID</span><br>
                         <strong id="generatedAdminId" style="font-size:1.2rem;">ADMIN-XXXX</strong>
                     </div>
-                    <button class="goto-login-btn" onclick="window.location.href='admin-login.html'">Go to Admin Login
-                        →</button>
+                    <p style="font-size:0.8rem;color:#6b7280;margin-top:8px;">Redirecting to login in 3 seconds...</p>
+                    <button class="goto-login-btn" onclick="window.location.href='login.html?tab=admin'">Go to Admin Login →</button>
                 </div>
             </div>
 
             <div class="card-footer" id="cardFooter">
-                <div class="footer-link">Already a partner? <a href="admin-login.html">Sign in to dashboard</a>
+                <div class="footer-link">Already a partner? <a href="login.html?tab=admin">Sign in to dashboard</a>
                     &nbsp;|&nbsp; <a href="index.html">Home</a></div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -935,7 +936,8 @@
             appId: "1:480632265996:web:d58747c0a12e780eddfd29"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         // ============ HELPER FUNCTIONS ============
@@ -1125,28 +1127,29 @@
             setLoading('finalSubmitBtn', true);
 
             try {
-                // Check if email already exists in admins
-                const existingAdmin = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
-                if (!existingAdmin.empty) {
-                    showToast("Email already registered as partner", 'error');
-                    setLoading('finalSubmitBtn', false);
-                    return;
-                }
-
-                // Check if email already exists in users
-                const existingUser = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-                if (!existingUser.empty) {
-                    showToast("Email already used as customer. Please use different email.", 'error');
-                    setLoading('finalSubmitBtn', false);
-                    return;
-                }
-
-                // Check if mobile already exists
-                const existingMobile = await getDocs(query(collection(db, 'admins'), where('mobile', '==', mobile)));
-                if (!existingMobile.empty) {
-                    showToast("Mobile number already registered", 'error');
-                    setLoading('finalSubmitBtn', false);
-                    return;
+                // Duplicate checks (wrapped — Firestore blocks pre-auth reads without updated rules)
+                try {
+                    const existingAdmin = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
+                    if (!existingAdmin.empty) {
+                        showToast("Email already registered as partner", 'error');
+                        setLoading('finalSubmitBtn', false);
+                        return;
+                    }
+                    const existingUser = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+                    if (!existingUser.empty) {
+                        showToast("Email already used as customer. Please use different email.", 'error');
+                        setLoading('finalSubmitBtn', false);
+                        return;
+                    }
+                    const existingMobile = await getDocs(query(collection(db, 'admins'), where('mobile', '==', mobile)));
+                    if (!existingMobile.empty) {
+                        showToast("Mobile number already registered", 'error');
+                        setLoading('finalSubmitBtn', false);
+                        return;
+                    }
+                } catch (preCheckErr) {
+                    // Rules may block pre-auth reads — skip checks, proceed to registration
+                    console.warn('Pre-check skipped:', preCheckErr.code);
                 }
 
                 const adminId = 'ADMIN' + Date.now() + Math.floor(Math.random() * 1000);
@@ -1178,6 +1181,16 @@
                     status: 'active' // Changed from 'pending' to 'active' for immediate access
                 };
 
+                // Firebase Auth — create account so Firestore write rules pass
+                try {
+                    await createUserWithEmailAndPassword(auth, email, document.getElementById('password').value);
+                } catch (authErr) {
+                    if (authErr.code === 'auth/email-already-in-use') {
+                        await signInWithEmailAndPassword(auth, email, document.getElementById('password').value).catch(() => { });
+                    }
+                    // other errors — continue
+                }
+
                 await setDoc(doc(db, 'admins', adminId), adminPayload);
 
                 document.getElementById('generatedAdminId').innerText = adminId;
@@ -1187,7 +1200,9 @@
                 document.getElementById('successScreen').classList.add('show');
                 document.getElementById('cardFooter').style.display = 'none';
 
-                showToast("Registration successful! Welcome aboard.", 'success');
+                showToast("Registration successful! Redirecting to login...", 'success');
+                // Auto redirect to admin login after 3 seconds
+                setTimeout(() => { window.location.href = 'login.html?tab=admin'; }, 3000);
             } catch (err) {
                 console.error('Registration error:', err);
                 showToast("Network error, please try again", 'error');

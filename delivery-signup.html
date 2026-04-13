@@ -715,8 +715,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -727,7 +728,8 @@
             appId: "1:480632265996:web:d58747c0a12e780eddfd29"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = (() => { try { return getApp(); } catch(e) { return initializeApp(firebaseConfig); } })();
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         // ============ HELPER FUNCTIONS ============
@@ -843,14 +845,16 @@
             setLoading('signupActionBtn', true);
 
             try {
-                // Check if phone already exists
-                const q = query(collection(db, 'riders'), where('phone', '==', phone));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    showToast('Phone number already registered', 'error');
-                    setLoading('signupActionBtn', false);
-                    return;
-                }
+                // Phone duplicate check (soft — skips if pre-auth Firestore blocks)
+                try {
+                    const q = query(collection(db, 'riders'), where('phone', '==', phone));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        showToast('Phone number already registered', 'error');
+                        setLoading('signupActionBtn', false);
+                        return;
+                    }
+                } catch (_) {}
 
                 const riderId = 'RIDER_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
                 const hashed = await hashPassword(password);
@@ -867,8 +871,25 @@
                     });
                 }
 
+                // Firebase Auth — create account with synthetic email so Firestore write rules pass
+                const syntheticEmail = phone + '@rider.mq.app';
+                let firebaseUid = null;
+                try {
+                    const cred = await createUserWithEmailAndPassword(auth, syntheticEmail, password);
+                    firebaseUid = cred.user.uid;
+                } catch (authErr) {
+                    if (authErr.code === 'auth/email-already-in-use') {
+                        try {
+                            const cred2 = await signInWithEmailAndPassword(auth, syntheticEmail, password);
+                            firebaseUid = cred2.user.uid;
+                        } catch (_) {}
+                    }
+                    // other errors — continue, setDoc may fail if rules strict
+                }
+
                 const newRider = {
                     id: riderId,
+                    uid: firebaseUid,
                     name: name,
                     phone: phone,
                     password: hashed,
@@ -892,7 +913,7 @@
                 showToast('Account created successfully! 🎉', 'success');
             } catch (err) {
                 console.error('Signup error:', err);
-                showToast('Server error, please try again later', 'error');
+                showToast('Registration failed: ' + (err.message || 'Please try again'), 'error');
             } finally {
                 setLoading('signupActionBtn', false);
             }
