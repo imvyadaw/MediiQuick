@@ -4047,20 +4047,25 @@
       if (!o) return;
       const items = (o.items || []).map(i => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6;"><span>${i.med?.name || i.name} × ${i.qty}</span><span>₹${(i.med?.price || 0) * i.qty}</span></div>`).join('');
       const addr = o.deliveryAddr;
+      const _subtotal = (o.items || []).reduce((s,i) => s + ((i.med?.price || 0) * (i.qty || 1)), 0);
+      const _cod = o.codCharge || 0;
+      const _delivery = o.deliveryCharge || 0;
       document.getElementById('orderDetailContent').innerHTML = `
     <div class="detail-row"><span class="detail-label">Order ID:</span><span class="detail-val"><strong>${o.orderId}</strong></span></div>
     <div class="detail-row"><span class="detail-label">Customer:</span><span class="detail-val">${o.customerName || o.name || 'Guest'}</span></div>
+    ${o.customerPhone || addr?.phone ? `<div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-val"><a href="tel:${o.customerPhone || addr?.phone}" style="color:var(--green);font-weight:600;">📞 ${o.customerPhone || addr?.phone}</a></span></div>` : ''}
     ${o.customerEmail ? `<div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${o.customerEmail}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-val">${statusBadge(o.status)}</span></div>
     <div class="detail-row"><span class="detail-label">Payment:</span><span class="detail-val">${o.payMethod || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Date:</span><span class="detail-val">${o.date || '—'}</span></div>
-    ${addr ? `<div class="detail-row"><span class="detail-label">Address:</span><span class="detail-val">${addr.street}, ${addr.city}, ${addr.state} - ${addr.pin}</span></div>
-    <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-val">${addr.phone || '—'}</span></div>` : ''}
+    ${addr ? `<div class="detail-row"><span class="detail-label">Address:</span><span class="detail-val">${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.pin || ''}</span></div>` : ''}
     <hr class="hr-modal" />
     <div class="order-items-title">Items Ordered:</div>
     ${items}
+    ${_delivery > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:var(--muted);"><span>Delivery Charge</span><span>₹${_delivery}</span></div>` : '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:var(--green);"><span>Delivery Charge</span><span>FREE</span></div>'}
+    ${_cod > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:var(--muted);"><span>COD Charge</span><span>₹${_cod}</span></div>` : ''}
     <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;border-top:2px solid var(--green-border);margin-top:4px;">
-      <span>Total</span><span style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</span>
+      <span>Grand Total</span><span style="color:var(--green);">₹${(o.total || 0).toLocaleString('en-IN')}</span>
     </div>`;
       openModal('orderModal');
     }

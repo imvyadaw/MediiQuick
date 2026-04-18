@@ -46,9 +46,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
-    // read:true — rider dashboard listens to riderRequests without guaranteed auth
+    // FIX 4: riderRequests — riders read their own, admins read all
+    // rider dashboard authenticated hone ke baad hi read kare
     match /riderRequests/{id} {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
 
@@ -75,6 +76,26 @@ service cloud.firestore {
     // Admin earnings / payout records
     match /adminPayouts/{docId} {
       allow read, write: if request.auth != null;
+    }
+
+    // Support tickets — customers/riders create, admins manage
+    // FIX 4: Rate-limited writes — only authenticated or guests with valid structure
+    // read:true so customers can read their own ticket status
+    match /supportTickets/{ticketId} {
+      allow read: if true;
+      // Allow unauthenticated users to CREATE (guest support) but validate fields
+      allow create: if request.resource.data.keys().hasAll(['ticketId','status','createdAt'])
+                    && request.resource.data.status == 'open'
+                    && request.resource.data.resolved == false;
+      // Only authenticated users (admin/agent) can update/delete tickets
+      allow update, delete: if request.auth != null;
+    }
+    match /supportTickets/{ticketId}/messages/{msgId} {
+      allow read: if true;
+      // Anyone can add a message (guest users too) but must have required fields
+      allow create: if request.resource.data.keys().hasAll(['text','senderType','timestamp'])
+                    && request.resource.data.text.size() < 2000;
+      allow update, delete: if request.auth != null;
     }
 
   }

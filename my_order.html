@@ -1502,7 +1502,8 @@
                         <div class="price-box">
                             <div class="price-row"><span>MRP Total</span><span>₹${mrpTotal}</span></div>
                             <div class="price-row"><span>Discount</span><span class="save">-₹${Math.max(0, discount)}</span></div>
-                            <div class="price-row"><span>Delivery</span><span class="${order.codCharge > 0 ? '' : 'save'}">${order.codCharge > 0 ? '+₹' + order.codCharge + ' (COD)' : 'FREE'}</span></div>
+                            <div class="price-row"><span>Delivery Charge</span><span class="save">${order.deliveryCharge > 0 ? '₹' + order.deliveryCharge : 'FREE'}</span></div>
+                            ${order.codCharge > 0 ? `<div class="price-row"><span>COD Charge</span><span>+₹${order.codCharge}</span></div>` : ''}
                             <div class="price-row total"><span>Amount Paid</span><span>₹${total}</span></div>
                         </div>
                     </div>

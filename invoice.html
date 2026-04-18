@@ -147,8 +147,11 @@
   function renderInvoice(order, adminData) {
     const items = order.items || [];
     const subtotal = items.reduce((s, i) => s + ((i.med?.price || i.price || 0) * (i.qty || 1)), 0);
-    const delivery = order.deliveryCharge || (subtotal > 299 ? 0 : 29);
-    const cod = order.paymentMethod === 'cod' ? 20 : 0;
+    // deliveryCharge stored in order (0 = free). If field missing, derive from total.
+    const delivery = (order.deliveryCharge !== undefined && order.deliveryCharge !== null)
+      ? order.deliveryCharge : 0;
+    // codCharge stored directly; fallback: detect from payMethod label
+    const cod = order.codCharge ?? ((order.payMethod === 'Cash on Delivery' || order.paymentMethod === 'cod') ? 20 : 0);
     const discount = order.discount || 0;
     const total = order.total || (subtotal + delivery + cod - discount);
 
@@ -180,7 +183,7 @@
               <h3>Billed To</h3>
               <p class="highlight">${order.customerName || '—'}</p>
               <p>${order.customerEmail || ''}</p>
-              <p>${order.customerPhone || ''}</p>
+              <p>${order.customerPhone || order.deliveryAddr?.phone || ''}</p>
             </div>
             <div class="inv-section">
               <h3>Delivery Address</h3>
@@ -194,7 +197,7 @@
           <div class="inv-row">
             <div class="inv-section">
               <h3>Payment Method</h3>
-              <p class="highlight">${{upi:'UPI / PhonePe / GPay', card:'Credit / Debit Card', netbanking:'Net Banking', cod:'Cash on Delivery'}[order.paymentMethod] || order.paymentMethod || '—'}</p>
+              <p class="highlight">${{upi:'UPI / PhonePe / GPay', card:'Credit / Debit Card', nb:'Net Banking', netbanking:'Net Banking', cod:'Cash on Delivery', 'Cash on Delivery':'Cash on Delivery', 'UPI':'UPI / PhonePe / GPay', 'Card':'Credit / Debit Card'}[order.payMethod || order.paymentMethod] || order.payMethod || order.paymentMethod || '—'}</p>
             </div>
             <div class="inv-section">
               <h3>Delivery Partner</h3>

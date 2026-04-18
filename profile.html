@@ -3008,51 +3008,78 @@
 
         // Auth guard — Firebase Auth based
         (function () {
-            // Import Firebase Auth and check login state
-            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
-                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
-                    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
-                        let _app;
-                        try { _app = getApp(); } catch (e) {
-                            _app = initializeApp({
-                                apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
-                                authDomain: "mediiquick-25a65.firebaseapp.com",
-                                projectId: "mediiquick-25a65",
-                                storageBucket: "mediiquick-25a65.firebasestorage.app",
-                                messagingSenderId: "480632265996",
-                                appId: "1:480632265996:web:d58747c0a12e780eddfd29"
-                            });
-                        }
-                        const _auth = getAuth(_app);
-                        // browserSessionPersistence REMOVED — tab close par logout hota tha
-                        const _db = getFirestore(_app);
-                        window._profileAuth = _auth;
-                        window._profileSignOut = () => import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js")
-                            .then(({ signOut }) => signOut(_auth).then(() => { localStorage.removeItem('mq_user'); window.location.href = 'index.html'; }));
+            // ── FIX: Firebase Auth ki jagah sirf localStorage se session check ──
+            // Problem: Ek browser mein sirf ek Firebase Auth user hota hai.
+            // Jab Admin/Rider login karta hai doosre tab mein, Firebase Auth
+            // User ko kick out kar deta tha — onAuthStateChanged null fire karta tha — logout ho jaata tha.
+            // Solution: User session sirf mq_user localStorage se verify karo. Firebase Auth ki zaroorat nahi.
 
-                        onAuthStateChanged(_auth, async (user) => {
-                            if (!user) { window.location.href = 'login.html'; return; }
-                            // Keep mq_user in sync for legacy reads on this page
-                            try {
-                                const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-                                const snap = await getDoc(doc(_db, 'users', user.uid));
+            function checkUserSession() {
+                try {
+                    const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
+                    if (!session || !session.uid) {
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                    // Session expiry check
+                    if (session.expiresAt && Date.now() > session.expiresAt) {
+                        localStorage.removeItem('mq_user');
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                    return true;
+                } catch (e) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+            }
+
+            // Page load par check karo
+            if (!checkUserSession()) return;
+
+            // Logout function
+            window._profileSignOut = function () {
+                localStorage.removeItem('mq_user');
+                window.location.href = 'login.html';
+            };
+
+            // Firestore se user data sync karo (background mein — logout nahi karega)
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc, updateDoc }) => {
+                    let _app;
+                    try { _app = getApp(); } catch (e) {
+                        _app = initializeApp({
+                            apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                            authDomain: "mediiquick-25a65.firebaseapp.com",
+                            projectId: "mediiquick-25a65",
+                            storageBucket: "mediiquick-25a65.firebasestorage.app",
+                            messagingSenderId: "480632265996",
+                            appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                        });
+                    }
+                    const _db = getFirestore(_app);
+
+                    // Background mein Firestore se latest data fetch karo
+                    try {
+                        const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
+                        if (session && session.uid) {
+                            getDoc(doc(_db, 'users', session.uid)).then(snap => {
                                 if (snap.exists()) {
-                                    const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 86400000 };
+                                    const merged = { ...session, ...snap.data(), uid: session.uid, email: session.email, expiresAt: Date.now() + 86400000 };
                                     localStorage.setItem('mq_user', JSON.stringify(merged));
                                     if (window._mpLoadUser) window._mpLoadUser();
-                                    // sessionToken check & onSnapshot displacement REMOVED
-                                    // Ab multi-tab/multi-device login allowed hai — koi kick-out nahi hoga
                                 }
-                            } catch (e) { }
+                            }).catch(() => { });
+
                             // GPS update to Firestore
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(function (pos) {
                                     const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                                    updateDoc(doc(_db, 'users', user.uid), { lat, lng }).catch(() => { });
+                                    updateDoc(doc(_db, 'users', session.uid), { lat, lng }).catch(() => { });
                                 }, function () { });
                             }
-                        });
-                    });
+                        }
+                    } catch (e) { }
                 });
             });
         })();
@@ -3920,18 +3947,18 @@
             btnText.textContent = '📡 Detecting location...';
             btn.style.opacity = '0.7';
 
-             
+
             function fillField(id, value) {
                 if (!value) return;
                 const el = document.getElementById(id);
-                if (!el || el.value) return;  
+                if (!el || el.value) return;
                 el.value = value;
                 el.style.background = '#f0fdf4';
                 el.style.borderColor = '#86efac';
                 el.addEventListener('input', () => { el.style.background = ''; el.style.borderColor = ''; }, { once: true });
             }
 
-            
+
             function setStateDropdown(stateStr) {
                 const stateEl = document.getElementById('addr-state');
                 if (!stateEl || !stateStr) return;
@@ -3950,7 +3977,7 @@
                     const { latitude: lat, longitude: lng } = pos.coords;
                     btnText.textContent = '🔍 Fetching address...';
 
-                     
+
                     const res = await fetch(
                         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
                         { headers: { 'Accept-Language': 'en' } }
@@ -3958,19 +3985,19 @@
                     const data = await res.json();
                     const a = data.address || {};
 
-                    
+
                     const pin = (a.postcode || '').replace(/\D/g, '').substring(0, 6);
 
-                   
+
                     const streetParts = [a.house_number, a.road, a.neighbourhood || a.suburb || a.quarter].filter(Boolean);
                     const street = streetParts.join(', ');
 
-                     
+
                     const city = a.city || a.town || a.village || a.district || a.county || '';
 
                     const state = a.state || '';
 
-                     
+
                     if (street) fillField('addr-street', street);
                     if (city) fillField('addr-city', city);
                     if (state) setStateDropdown(state);
@@ -3991,11 +4018,11 @@
                             }
                             pinWarn.textContent = '⚠️ PIN approximate hai — verify/edit zaroor karo';
                             pinEl.addEventListener('input', () => { pinEl.style.background = ''; pinEl.style.borderColor = ''; pinWarn.textContent = ''; }, { once: true });
-                            onPinInput(pin);  
+                            onPinInput(pin);
                         }
                         btnText.textContent = '✅ Address filled — please verify!';
                     } else {
-                         
+
                         btnText.textContent = '✅ Address filled (PIN missing — enter manually)';
                     }
 
@@ -4030,7 +4057,7 @@
                         if (city) {
                             const cityEl = document.getElementById('addr-city');
                             if (cityEl) {
-                                
+
                                 cityEl.value = city;
                             }
                         }
@@ -4039,7 +4066,7 @@
                             if (stateEl) {
                                 const apiState = state.toLowerCase().trim();
                                 const opts = Array.from(stateEl.options);
-                                
+
                                 const match = opts.find(o => {
                                     const optVal = (o.value || o.text || '').toLowerCase().trim();
                                     if (!optVal || optVal === 'select state') return false;
@@ -4050,10 +4077,10 @@
                                 if (match) {
                                     stateEl.value = match.value || match.text;
                                 } else {
-                                     
+
                                     const otherOpt = opts.find(o => (o.value || o.text || '').toLowerCase() === 'other');
                                     if (otherOpt) stateEl.value = otherOpt.value || otherOpt.text;
-                                     
+
                                     const newOpt = document.createElement('option');
                                     newOpt.value = state;
                                     newOpt.text = state;
@@ -4122,7 +4149,7 @@
                 const _deliveryLat = _geoResult?.lat || null;
                 const _deliveryLng = _geoResult?.lng || null;
 
-                 
+
                 let realPinCity = null;
                 if (pin && pin.length === 6) {
                     try {
@@ -4168,18 +4195,18 @@
                 const _adminResult = await _getAdminResult();
                 if (payNowBtn) { payNowBtn.disabled = false; payNowBtn.textContent = 'Pay Now →'; }
 
-                 
+
                 if (!_adminResult || _adminResult.status === 'not_registered') {
-                     
+
                     showToast('🚧 Coming Soon! Service not available in your area yet.', 'error');
                     return;
                 }
                 if (_adminResult.status === 'offline') {
-                     
+
                     showToast('⏰ Service temporarily unavailable. Please try again later.', 'warning');
                     return;
                 }
-                
+
                 assignedAdminId = _adminResult.adminId;
 
 
@@ -4204,14 +4231,17 @@
                     customerLng: currentUser.lng || null,
                     customerPin: pin,
                     city: city,
-                     
+
                     realPinCity: realPinCity || city,
                     items: items,
                     total: total + cod,
                     codCharge: cod,
-                     
+                    deliveryCharge: 0,
+
                     codChargeForRider: cod,
                     payMethod: getPayLabel(),
+                    paymentMethod: selectedPayMethod,
+                    customerPhone: addrPhone,
                     date: new Date().toLocaleDateString('en-IN'),
                     placedAt: Date.now(),
                     status: 'pending',
@@ -4257,11 +4287,7 @@
         function doLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('mq_user');
-                if (window._profileSignOut) {
-                    window._profileSignOut();
-                } else {
-                    window.location.href = 'index.html';
-                }
+                window.location.href = 'login.html';
             }
         }
 
@@ -4409,7 +4435,7 @@
             }
         })();
 
-         
+
         window.MQWishlist = {
             _items: [],
             _uid: null,
