@@ -662,9 +662,9 @@
 
       <div class="right-panel">
         <div class="tab-row">
-          <button class="tab-btn active" onclick="switchTab('user')"><i class="fas fa-user"></i> User</button>
-          <button class="tab-btn" onclick="switchTab('admin')"><i class="fas fa-store"></i> Admin</button>
-          <button class="tab-btn" onclick="switchTab('rider')"><i class="fas fa-motorcycle"></i> Rider</button>
+          <button class="tab-btn active" onclick="switchTab('user', event)"><i class="fas fa-user"></i> User</button>
+          <button class="tab-btn" onclick="switchTab('admin', event)"><i class="fas fa-store"></i> Admin</button>
+          <button class="tab-btn" onclick="switchTab('rider', event)"><i class="fas fa-motorcycle"></i> Rider</button>
         </div>
 
         <!-- User Login -->
@@ -834,12 +834,12 @@
     };
 
     // Switch tabs
-    window.switchTab = function (type) {
+    window.switchTab = function (type, event) {
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById(`sec-${type}`).classList.add('active');
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       // FIX: event.target could be the <i> icon inside button; use closest() to get the button
-      const clickedBtn = (event.target).closest('.tab-btn');
+      const clickedBtn = event && event.target ? event.target.closest('.tab-btn') : null;
       if (clickedBtn) clickedBtn.classList.add('active');
 
       const icon = document.getElementById('panelIcon');
@@ -1257,6 +1257,26 @@
     // Pehle yahan already-logged-in users ko auto-redirect kiya jaata tha.
     // Isse doosre tab mein login.html kholne par bhi redirect ho jaata tha — loop ban jaata tha.
     // Ab user manually login kar sakta hai chahe kitne bhi tabs mein ho.
+
+    // ── Enter key support — Customer, Admin, Rider ──
+    document.getElementById('u-email').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doUserLogin();
+    });
+    document.getElementById('u-pass').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doUserLogin();
+    });
+    document.getElementById('a-id').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doAdminLogin();
+    });
+    document.getElementById('a-pass').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doAdminLogin();
+    });
+    document.getElementById('r-phone').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doRiderLogin();
+    });
+    document.getElementById('r-pass').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doRiderLogin();
+    });
   </script>
 </body>
 
