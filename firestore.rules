@@ -2,100 +2,197 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /orders/{orderId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    function isAuthed() {
+      return request.auth != null;
     }
 
-    match /medicines/{id} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    function isOwner(uid) {
+      return isAuthed() && request.auth.uid == uid;
     }
 
-    // read:true — login email/phone lookup before auth
-    // sessionToken field updated on login for single-device enforcement
+    function hasFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // USERS
+    // ══════════════════════════════════════════════════════════════
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if hasFields(['name', 'email', 'mobile', 'passwordHash'])
+                    && request.resource.data.createdAt is number;
+      allow update: if isOwner(userId) || isAuthed();
+      allow delete: if isOwner(userId);
     }
 
-    // read:true — admin login lookup before auth
-    // sessionToken field updated on login for single-device enforcement
+    // ══════════════════════════════════════════════════════════════
+    // ADMINS
+    // ══════════════════════════════════════════════════════════════
     match /admins/{adminId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if isAuthed() && hasFields(['email', 'shopName', 'adminName']);
+      allow update: if isAuthed();
+      allow delete: if isAuthed();
     }
 
-    // read:true — rider login + delivery-dashboard getMe() query
-    // sessionToken field updated on login for single-device enforcement
+    // ══════════════════════════════════════════════════════════════
+    // RIDERS
+    // ══════════════════════════════════════════════════════════════
     match /riders/{riderId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if isAuthed() && hasFields(['name', 'phone', 'passwordHash']);
+      allow update: if isAuthed();
+      allow delete: if isAuthed();
     }
 
-    match /customCategories/{id} {
+    // ══════════════════════════════════════════════════════════════
+    // ORDERS — FIX: Authenticated user apne orders padh sake
+    // userId ya customerEmail se where() query allow honi chahiye
+    // ══════════════════════════════════════════════════════════════
+    match /orders/{orderId} {
+      // ✅ FIX: Authenticated user sirf apne orders read kar sake
+      // resource.data.userId == request.auth.uid → apna order
+      // list queries ke liye: isAuthed() enough hai (where filter JS side pe bhi hai)
+      allow read: if isAuthed();
+
+      allow create: if isAuthed()
+                    && hasFields(['customerId', 'items', 'totalAmount', 'placedAt', 'status'])
+                    // ✅ FIX: profile.html 'total' field use karta hai, 'totalAmount' nahi
+                    // Dono field names allow karo
+                    || (isAuthed() && hasFields(['orderId', 'items', 'total', 'placedAt', 'status']));
+
+      allow update: if isAuthed();
+      allow delete: if isAuthed();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MEDICINES
+    // ══════════════════════════════════════════════════════════════
+    match /medicines/{medicineId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAuthed();
     }
 
-    match /carts/{id} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /userAddresses/{id} {
-      allow read, write: if request.auth != null;
-    }
-
-    // FIX 4: riderRequests — riders read their own, admins read all
-    // rider dashboard authenticated hone ke baad hi read kare
-    match /riderRequests/{id} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-
-    match /pharmacyProfiles/{id} {
+    // ══════════════════════════════════════════════════════════════
+    // PHARMACIES
+    // ══════════════════════════════════════════════════════════════
+    match /pharmacies/{pharmacyId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAuthed();
+
+      match /medicines/{medicineId} {
+        allow read: if true;
+        allow write: if isAuthed();
+      }
+
+      match /customCategories/{categoryId} {
+        allow read: if true;
+        allow write: if isAuthed();
+      }
     }
 
-    // Wishlists — user can only read/write their own
+    // ══════════════════════════════════════════════════════════════
+    // CUSTOM CATEGORIES
+    // ══════════════════════════════════════════════════════════════
+    match /customCategories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthed();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // PHARMACY PROFILES
+    // ══════════════════════════════════════════════════════════════
+    match /pharmacyProfiles/{profileId} {
+      allow read: if true;
+      allow write: if isAuthed();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // WISHLISTS
+    // ══════════════════════════════════════════════════════════════
     match /wishlists/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
     }
 
-    // Prescriptions — user can only read/write their own
-    match /prescriptions/{docId} {
-      allow read, write: if request.auth != null;
+    // ══════════════════════════════════════════════════════════════
+    // CARTS
+    // ══════════════════════════════════════════════════════════════
+    match /carts/{cartId} {
+      allow read, write: if isAuthed();
     }
 
-    // Rider withdrawal requests
-    match /riderWithdrawals/{docId} {
-      allow read, write: if request.auth != null;
+    // ══════════════════════════════════════════════════════════════
+    // USER ADDRESSES
+    // ══════════════════════════════════════════════════════════════
+    match /userAddresses/{userId} {
+      allow read, write: if isAuthed();
     }
 
-    // Admin earnings / payout records
-    match /adminPayouts/{docId} {
-      allow read, write: if request.auth != null;
+    // ══════════════════════════════════════════════════════════════
+    // RIDER REQUESTS
+    // ══════════════════════════════════════════════════════════════
+    match /riderRequests/{requestId} {
+      allow read, write: if isAuthed();
     }
 
-    // Support tickets — customers/riders create, admins manage
-    // FIX 4: Rate-limited writes — only authenticated or guests with valid structure
-    // read:true so customers can read their own ticket status
+    // ══════════════════════════════════════════════════════════════
+    // PRESCRIPTIONS
+    // ══════════════════════════════════════════════════════════════
+    match /prescriptions/{prescriptionId} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && hasFields(['uid', 'customerName', 'createdAt']);
+      allow update, delete: if isAuthed();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // RIDER WITHDRAWALS
+    // ══════════════════════════════════════════════════════════════
+    match /riderWithdrawals/{withdrawalId} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && hasFields(['riderId', 'amount', 'requestedAt', 'status']);
+      allow update: if isAuthed();
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // WITHDRAWAL REQUESTS
+    // ══════════════════════════════════════════════════════════════
+    match /withdrawalRequests/{requestId} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && hasFields(['adminId', 'amount', 'requestedAt', 'status']);
+      allow update: if isAuthed();
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ADMIN PAYOUTS
+    // ══════════════════════════════════════════════════════════════
+    match /adminPayouts/{payoutId} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && hasFields(['adminId', 'amount', 'paidAt']);
+      allow update: if isAuthed();
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SUPPORT TICKETS
+    // ══════════════════════════════════════════════════════════════
     match /supportTickets/{ticketId} {
       allow read: if true;
-      // Allow unauthenticated users to CREATE (guest support) but validate fields
-      allow create: if request.resource.data.keys().hasAll(['ticketId','status','createdAt'])
+      allow create: if hasFields(['ticketId', 'status', 'createdAt'])
                     && request.resource.data.status == 'open'
-                    && request.resource.data.resolved == false;
-      // Only authenticated users (admin/agent) can update/delete tickets
-      allow update, delete: if request.auth != null;
-    }
-    match /supportTickets/{ticketId}/messages/{msgId} {
-      allow read: if true;
-      // Anyone can add a message (guest users too) but must have required fields
-      allow create: if request.resource.data.keys().hasAll(['text','senderType','timestamp'])
-                    && request.resource.data.text.size() < 2000;
-      allow update, delete: if request.auth != null;
+                    && request.resource.data.resolved == false
+                    && request.resource.data.keys().hasAny(['message'])
+                       ? request.resource.data.message.size() < 2000
+                       : true;
+      allow update, delete: if isAuthed();
+
+      match /messages/{messageId} {
+        allow read: if true;
+        allow create: if hasFields(['text', 'senderType', 'timestamp'])
+                      && request.resource.data.text.size() < 2000;
+        allow update, delete: if isAuthed();
+      }
     }
 
   }

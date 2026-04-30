@@ -609,6 +609,14 @@
 
                     <div class="double-grid">
                         <div class="input-field">
+                            <label><i class="fas fa-envelope"></i> Email address</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="emailAddr" placeholder="you@email.com" autocomplete="email">
+                            </div>
+                            <div class="error-text" id="errEmail"><i class="fas fa-circle-exclamation"></i> Valid email
+                                required</div>
+                        </div>
+                        <div class="input-field">
                             <label><i class="fas fa-motorcycle"></i> Vehicle</label>
                             <div class="input-wrapper">
                                 <select id="vehicleType">
@@ -728,7 +736,7 @@
             appId: "1:480632265996:web:d58747c0a12e780eddfd29"
         };
 
-        const app = (() => { try { return getApp(); } catch(e) { return initializeApp(firebaseConfig); } })();
+        const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
         const auth = getAuth(app);
         const db = getFirestore(app);
 
@@ -816,6 +824,7 @@
         window.doSignup = async function () {
             const name = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('mobileNum').value.trim();
+            const email = document.getElementById('emailAddr').value.trim().toLowerCase();
             const vehicle = document.getElementById('vehicleType').value;
             const city = document.getElementById('cityName').value.trim();
             const pincode = document.getElementById('pincodeVal').value.trim();
@@ -830,6 +839,7 @@
             let isValid = true;
             if (name.length < 2) { document.getElementById('errName').classList.add('show'); isValid = false; }
             if (!/^[6-9]\d{9}$/.test(phone)) { document.getElementById('errPhone').classList.add('show'); isValid = false; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('errEmail').classList.add('show'); isValid = false; }
             if (!city) { document.getElementById('errCity').classList.add('show'); isValid = false; }
             if (!/^\d{6}$/.test(pincode)) { document.getElementById('errPincode').classList.add('show'); isValid = false; }
             if (password.length < 6) { document.getElementById('errPass').classList.add('show'); isValid = false; }
@@ -845,7 +855,7 @@
             setLoading('signupActionBtn', true);
 
             try {
-                // Phone duplicate check (soft — skips if pre-auth Firestore blocks)
+                // Phone duplicate check
                 try {
                     const q = query(collection(db, 'riders'), where('phone', '==', phone));
                     const snap = await getDocs(q);
@@ -854,7 +864,19 @@
                         setLoading('signupActionBtn', false);
                         return;
                     }
-                } catch (_) {}
+                } catch (_) { }
+
+                // Email duplicate check
+                try {
+                    const qEmail = query(collection(db, 'riders'), where('email', '==', email));
+                    const snapEmail = await getDocs(qEmail);
+                    if (!snapEmail.empty) {
+                        showToast('Email already registered with another rider account', 'error');
+                        document.getElementById('errEmail').classList.add('show');
+                        setLoading('signupActionBtn', false);
+                        return;
+                    }
+                } catch (_) { }
 
                 const riderId = 'RIDER_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
                 const hashed = await hashPassword(password);
@@ -871,20 +893,19 @@
                     });
                 }
 
-                // Firebase Auth — create account with synthetic email so Firestore write rules pass
-                const syntheticEmail = phone + '@rider.mq.app';
+                // Firebase Auth — real email use karo (password reset ke liye kaam aayega)
                 let firebaseUid = null;
                 try {
-                    const cred = await createUserWithEmailAndPassword(auth, syntheticEmail, password);
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
                     firebaseUid = cred.user.uid;
                 } catch (authErr) {
                     if (authErr.code === 'auth/email-already-in-use') {
-                        try {
-                            const cred2 = await signInWithEmailAndPassword(auth, syntheticEmail, password);
-                            firebaseUid = cred2.user.uid;
-                        } catch (_) {}
+                        showToast('This email is already registered. Please use a different email or login.', 'error');
+                        document.getElementById('errEmail').classList.add('show');
+                        setLoading('signupActionBtn', false);
+                        return;
                     }
-                    // other errors — continue, setDoc may fail if rules strict
+                    // other auth errors — continue with null uid
                 }
 
                 const newRider = {
@@ -892,6 +913,7 @@
                     uid: firebaseUid,
                     name: name,
                     phone: phone,
+                    email: email,
                     password: hashed,
                     vehicle: vehicle,
                     city: city,

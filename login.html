@@ -672,9 +672,10 @@
           <div class="section-title">👋 User Login</div>
           <div class="section-sub">Access your account</div>
           <div class="form-group">
-            <label><i class="fas fa-envelope"></i> Email Address</label>
-            <div class="input-wrap"><input type="email" id="u-email" placeholder="you@email.com"></div>
-            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
+            <label><i class="fas fa-user"></i> Email or Phone Number</label>
+            <div class="input-wrap"><input type="text" id="u-email" placeholder="you@email.com or 9876543210"></div>
+            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email or 10-digit
+              phone required</span>
           </div>
           <div class="form-group">
             <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
@@ -688,10 +689,8 @@
           <div class="divider">
             <div class="divider-line"></div><span>or</span>
             <div class="divider-line"></div>
+            <br>
           </div>
-          <div class="social-row"><button class="social-btn" onclick="socialLogin('Google')"><img
-                src="https://www.google.com/favicon.ico" width="16"> Google</button><button class="social-btn"
-              onclick="socialLogin('Facebook')"><i class="fab fa-facebook"></i> Facebook</button></div>
           <div class="bottom-link">Don't have an account? <a href="signupuser.html">Create Account</a></div>
         </div>
 
@@ -705,7 +704,7 @@
           </div>
           <div class="form-group">
             <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
-                onclick="openForgot();return false;">Forgot?</a></div>
+                onclick="openAdminForgot();return false;">Forgot?</a></div>
             <div class="input-wrap"><input type="password" id="a-pass" placeholder="••••••••"><button class="pw-toggle"
                 onclick="togglePw('a-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
               id="a-err-pass">Password required</span>
@@ -719,12 +718,13 @@
         <div id="sec-rider" class="form-section">
           <div class="section-title">🏍️ Rider Login</div>
           <div class="section-sub">Manage deliveries</div>
-          <div class="form-group"><label><i class="fas fa-phone"></i> Phone Number</label>
-            <div class="input-wrap"><input type="tel" id="r-phone" maxlength="10" placeholder="9876543210"
-                oninput="this.value=this.value.replace(/\D/g,'')"></div><span class="err-msg" id="r-err-phone">10-digit
-              number required</span>
+          <div class="form-group"><label><i class="fas fa-user"></i> Phone Number or Email</label>
+            <div class="input-wrap"><input type="text" id="r-phone" placeholder="9876543210 or you@email.com"></div>
+            <span class="err-msg" id="r-err-phone">Valid phone number or email required</span>
           </div>
-          <div class="form-group"><label><i class="fas fa-lock"></i> Password</label>
+          <div class="form-group">
+            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
+                onclick="openRiderForgot();return false;">Forgot?</a></div>
             <div class="input-wrap"><input type="password" id="r-pass" placeholder="••••••••"><button class="pw-toggle"
                 onclick="togglePw('r-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
               id="r-err-pass">Password required</span>
@@ -875,13 +875,15 @@
 
     // enforceUserSingleSession REMOVED — ab multi-device/multi-tab login allowed hai
 
-    // USER LOGIN
+    // USER LOGIN — email ya phone dono se
     window.doUserLogin = async function () {
-      const email = document.getElementById('u-email').value.trim().toLowerCase();
+      const input = document.getElementById('u-email').value.trim();
       const pass = document.getElementById('u-pass').value;
+      const isPhone = /^[6-9]\d{9}$/.test(input);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
 
       let valid = true;
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (!isPhone && !isEmail) {
         document.getElementById('u-err-email').classList.add('show');
         document.getElementById('u-email').classList.add('error');
         valid = false;
@@ -901,7 +903,28 @@
 
       setLoading('userLoginBtn', true);
       try {
-        const userCred = await signInWithEmailAndPassword(auth, email, pass);
+        let loginEmail;
+
+        if (isPhone) {
+          // Phone se login — Firestore mein mobile field se email dhundo
+          const snap = await getDocs(query(collection(db, 'users'), where('mobile', '==', input)));
+          if (snap.empty) {
+            setLoading('userLoginBtn', false);
+            showToast('❌ No account found with this phone number. Please sign up first.', 'error');
+            document.getElementById('u-email').classList.add('error');
+            return;
+          }
+          loginEmail = snap.docs[0].data().email;
+          if (!loginEmail) {
+            setLoading('userLoginBtn', false);
+            showToast('❌ Account email not found. Please login with email.', 'error');
+            return;
+          }
+        } else {
+          loginEmail = input.toLowerCase();
+        }
+
+        const userCred = await signInWithEmailAndPassword(auth, loginEmail, pass);
         const userSnap = await getDoc(doc(db, 'users', userCred.user.uid));
         const gps = await getGPS();
 
@@ -911,12 +934,12 @@
 
         const session = {
           uid: userCred.user.uid,
-          name: userSnap.exists() ? userSnap.data().name : email.split('@')[0],
-          email: email,
+          name: userSnap.exists() ? userSnap.data().name : loginEmail.split('@')[0],
+          email: loginEmail,
           mobile: userSnap.exists() ? userSnap.data().mobile : '',
           lat: gps.lat,
           lng: gps.lng,
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
         };
         localStorage.setItem('mq_user', JSON.stringify(session));
 
@@ -926,14 +949,11 @@
       } catch (err) {
         setLoading('userLoginBtn', false);
 
-        // ── Smart error messages ──
         if (err.code === 'auth/user-not-found') {
-          // Old Firebase SDK — direct account not found
-          showToast('❌ No account found with this email. Please sign up first.', 'error');
+          showToast('❌ No account found. Please sign up first.', 'error');
           document.getElementById('u-email').classList.add('error');
 
         } else if (err.code === 'auth/wrong-password') {
-          // Old Firebase SDK — direct wrong password
           showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
           document.getElementById('u-pass').classList.add('error');
 
@@ -941,15 +961,12 @@
           err.code === 'auth/invalid-credential' ||
           err.code === 'auth/invalid-login-credentials'
         ) {
-          // Firebase v10+ merges user-not-found + wrong-password into one code
-          // We use Firestore to distinguish which one it actually is
           showToast('⏳ Checking details...', '');
-          const exists = await doesUserEmailExist(email);
+          const exists = await doesUserEmailExist(isPhone ? null : input.toLowerCase());
           if (exists === false) {
-            showToast('❌ No account found with this email. Please sign up first.', 'error');
+            showToast('❌ No account found. Please sign up first.', 'error');
             document.getElementById('u-email').classList.add('error');
           } else {
-            // Account exists but password is wrong
             showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
             document.getElementById('u-pass').classList.add('error');
           }
@@ -1067,7 +1084,7 @@
           openTime: adminData.openTime || '',
           closeTime: adminData.closeTime || '',
           shopType: adminData.shopType || '',
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
         };
         localStorage.setItem('mq_admin_session', JSON.stringify(session));
 
@@ -1080,12 +1097,14 @@
       }
     };
 
-    // RIDER LOGIN
+    // RIDER LOGIN — phone ya email dono se
     window.doRiderLogin = async function () {
-      const phone = document.getElementById('r-phone').value.trim();
+      const input = document.getElementById('r-phone').value.trim();
       const pass = document.getElementById('r-pass').value;
+      const isPhone = /^[6-9]\d{9}$/.test(input);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
 
-      if (!/^[6-9]\d{9}$/.test(phone)) {
+      if (!isPhone && !isEmail) {
         document.getElementById('r-err-phone').classList.add('show');
         return;
       } else {
@@ -1102,7 +1121,11 @@
       try {
         let snap;
         try {
-          snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', phone)));
+          const ridersRef = collection(db, 'riders');
+          const q = isPhone
+            ? query(ridersRef, where('phone', '==', input))
+            : query(ridersRef, where('email', '==', input.toLowerCase()));
+          snap = await getDocs(q);
         } catch (rulesErr) {
           setLoading('riderLoginBtn', false);
           showToast('Database access error. Please update Firestore rules.', 'error');
@@ -1111,7 +1134,7 @@
         }
         if (snap.empty) {
           setLoading('riderLoginBtn', false);
-          showToast('No rider account found with this phone number', 'error');
+          showToast(isPhone ? 'No rider account found with this phone number' : 'No rider account found with this email', 'error');
           return;
         }
 
@@ -1125,24 +1148,24 @@
         }
 
         // ── Step 1: Firebase Auth sign-in FIRST (required before any write) ──
-        const syntheticEmail = phone + '@mq.app';
+        // Rider ka synthetic email: phone walo ke liye phone@mq.app, email walo ke liye actual email
+        const syntheticEmail = isPhone
+          ? (riderData.email || (input + '@mq.app'))
+          : input.toLowerCase();
         try {
           await signInWithEmailAndPassword(auth, syntheticEmail, pass);
         } catch (authErr) {
           if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email' || authErr.code === 'auth/invalid-login-credentials') {
             try {
               const newCred = await createUserWithEmailAndPassword(auth, syntheticEmail, pass);
-              // Merge uid into riders doc - only now we are authenticated
               await setDoc(doc(db, 'riders', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
             } catch (createErr) {
               if (createErr.code !== 'auth/email-already-in-use') {
                 console.warn('Firebase Auth rider create failed:', createErr.code);
               }
-              // Already exists — try signing in again
               try { await signInWithEmailAndPassword(auth, syntheticEmail, pass); } catch (e2) { }
             }
           }
-          // Wrong password on synthetic account is OK — Firestore already verified above
         }
 
         // ── Step 2: Now authenticated — safe to write to Firestore ──
@@ -1154,16 +1177,25 @@
           });
         } catch (e) { console.warn('Rider lastLogin write failed:', e); }
 
+        // Generate a unique sessionToken for this login
+        const newToken = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        // Save token to Firestore so session-watch can verify
+        try {
+          await updateDoc(doc(db, 'riders', snap.docs[0].id), { sessionToken: newToken });
+        } catch (e) { console.warn('sessionToken write failed:', e); }
+
         const session = {
           docId: snap.docs[0].id,
           name: riderData.name,
-          phone: phone,
+          phone: riderData.phone || input,
+          email: riderData.email || '',
           city: riderData.city || '',
           vehicle: riderData.vehicle || 'bike',
           deliveryRange: riderData.deliveryRange || 10,
           lat: gps.lat || riderData.lat || null,
           lng: gps.lng || riderData.lng || null,
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          sessionToken: newToken,
+          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
         };
         localStorage.setItem('mq_db_session', JSON.stringify(session));
 
@@ -1176,54 +1208,227 @@
       }
     };
 
-    // Forgot Password Modal
-    const forgotModal = document.createElement('div');
-    forgotModal.id = 'forgotModal';
-    forgotModal.className = 'modal-overlay';
-    forgotModal.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 500;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  `;
-    forgotModal.innerHTML = `
-    <div class="modal-box" style="background: white; border-radius: 28px; max-width: 360px; width: 100%; padding: 28px; text-align: center;">
-      <button class="modal-close" onclick="closeForgot()" style="float: right; background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
-      <h3 style="font-weight: 800; margin-bottom: 8px;">🔐 Reset Password</h3>
-      <p style="margin-bottom: 16px; color: #6b7280;">Enter your registered email</p>
-      <input type="email" id="forgot-email" placeholder="you@example.com" style="width: 100%; padding: 14px; border-radius: 40px; border: 1.5px solid #e2e8f0; margin: 0 0 16px 0;">
-      <button class="modal-btn" onclick="sendResetLink()" style="background: #16a34a; color: white; border: none; padding: 12px; border-radius: 40px; width: 100%; font-weight: 700; cursor: pointer;">Send Reset Link</button>
-    </div>
-  `;
-    document.body.appendChild(forgotModal);
+    // ══════════════════════════════════════════
+    // FORGOT PASSWORD — Teen alag modals (User, Admin, Rider)
+    // ══════════════════════════════════════════
 
+    // ── Shared: Modal inject helper ──
+    function injectModal(id, html) {
+      const el = document.createElement('div');
+      el.id = id;
+      el.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;`;
+      el.innerHTML = html;
+      document.body.appendChild(el);
+    }
+
+    const modalBoxStyle = `background:white;border-radius:28px;max-width:360px;width:100%;padding:28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);`;
+    const inputStyle = `width:100%;padding:13px 16px;border-radius:40px;border:1.5px solid #e2e8f0;margin:0 0 12px 0;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;`;
+    const btnStyle = `background:#16a34a;color:white;border:none;padding:13px;border-radius:40px;width:100%;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;`;
+
+    // ── 1. USER FORGOT MODAL ──
+    injectModal('userForgotModal', `
+      <div style="${modalBoxStyle}">
+        <button onclick="document.getElementById('userForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
+        <div style="font-size:2rem;margin-bottom:10px;">🔐</div>
+        <h3 style="font-weight:800;margin-bottom:6px;">Reset Password</h3>
+        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email. We'll send a reset link.</p>
+        <input type="email" id="uf-email" placeholder="you@example.com" style="${inputStyle}">
+        <div id="uf-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
+        <button onclick="sendUserReset()" id="uf-btn" style="${btnStyle}">Send Reset Link</button>
+      </div>
+    `);
+
+    // ── 2. ADMIN FORGOT MODAL ──
+    injectModal('adminForgotModal', `
+      <div style="${modalBoxStyle}">
+        <button onclick="document.getElementById('adminForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
+        <div style="font-size:2rem;margin-bottom:10px;">🏥</div>
+        <h3 style="font-weight:800;margin-bottom:6px;">Admin Password Reset</h3>
+        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
+        <input type="email" id="af-input" placeholder="you@email.com" style="${inputStyle}">
+        <div id="af-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
+        <button onclick="sendAdminReset()" id="af-btn" style="${btnStyle}">Send Reset Link</button>
+      </div>
+    `);
+
+    // ── 3. RIDER FORGOT MODAL ──
+    injectModal('riderForgotModal', `
+      <div style="${modalBoxStyle}">
+        <button onclick="document.getElementById('riderForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
+        <div style="font-size:2rem;margin-bottom:10px;">🏍️</div>
+        <h3 style="font-weight:800;margin-bottom:6px;">Rider Password Reset</h3>
+        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
+        <input type="email" id="rf-input" placeholder="you@email.com" style="${inputStyle}">
+        <div id="rf-step2" style="display:none;">
+          <p style="font-size:0.8rem;color:#6b7280;margin-bottom:10px;">Enter new password</p>
+          <input type="password" id="rf-newpass" placeholder="New password (min 6 chars)" style="${inputStyle}">
+          <input type="password" id="rf-confirmpass" placeholder="Confirm new password" style="${inputStyle}">
+        </div>
+        <div id="rf-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
+        <button onclick="handleRiderReset()" id="rf-btn" style="${btnStyle}">Find My Account</button>
+      </div>
+    `);
+
+    // ── Open functions ──
     window.openForgot = function () {
-      document.getElementById('forgotModal').style.display = 'flex';
+      document.getElementById('userForgotModal').style.display = 'flex';
+      document.getElementById('uf-email').value = '';
+      document.getElementById('uf-msg').style.display = 'none';
+    };
+    window.openAdminForgot = function () {
+      document.getElementById('adminForgotModal').style.display = 'flex';
+      document.getElementById('af-input').value = '';
+      document.getElementById('af-msg').style.display = 'none';
+    };
+    window.openRiderForgot = function () {
+      document.getElementById('riderForgotModal').style.display = 'flex';
+      document.getElementById('rf-input').value = '';
+      document.getElementById('rf-step2').style.display = 'none';
+      document.getElementById('rf-msg').style.display = 'none';
+      document.getElementById('rf-btn').textContent = 'Find My Account';
+      window._riderResetDocId = null;
     };
 
-    window.closeForgot = function () {
-      document.getElementById('forgotModal').style.display = 'none';
-    };
+    // Helper: show msg inside modal
+    function modalMsg(id, msg, isError) {
+      const el = document.getElementById(id);
+      el.style.display = 'block';
+      el.style.color = isError ? '#ef4444' : '#16a34a';
+      el.textContent = msg;
+    }
 
-    window.sendResetLink = async function () {
-      const email = document.getElementById('forgot-email').value.trim();
+    // ── USER RESET — Firebase Auth email link ──
+    window.sendUserReset = async function () {
+      const email = document.getElementById('uf-email').value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('Enter valid email', 'error');
-        return;
+        modalMsg('uf-msg', '⚠️ Enter a valid email address', true); return;
       }
+      const btn = document.getElementById('uf-btn');
+      btn.textContent = 'Sending...'; btn.disabled = true;
       try {
         await sendPasswordResetEmail(auth, email);
-        closeForgot();
-        showToast('✓ Reset link sent! Check your email.', 'success');
+        modalMsg('uf-msg', '✓ Reset link sent! Check your inbox (and spam folder).', false);
+        btn.textContent = 'Sent ✓';
       } catch (err) {
-        showToast('Email not found. Please register first.', 'error');
+        btn.textContent = 'Send Reset Link'; btn.disabled = false;
+        if (err.code === 'auth/user-not-found') {
+          modalMsg('uf-msg', '❌ No account found with this email. Please sign up.', true);
+        } else {
+          modalMsg('uf-msg', '❌ Failed to send. Please try again.', true);
+        }
       }
     };
+
+    // ── ADMIN RESET — Admin ID ya email se, Firebase Auth email link ──
+    window.sendAdminReset = async function () {
+      const input = document.getElementById('af-input').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('af-msg', '⚠️ Enter a valid email address', true); return; }
+      const btn = document.getElementById('af-btn');
+      btn.textContent = 'Looking up...'; btn.disabled = true;
+
+      try {
+        const adminsRef = collection(db, 'admins');
+        const q = query(adminsRef, where('email', '==', input.toLowerCase()));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          modalMsg('af-msg', '❌ No admin account found with this email.', true);
+          btn.textContent = 'Send Reset Link'; btn.disabled = false;
+          return;
+        }
+
+        const adminEmail = snap.docs[0].data().email;
+        if (!adminEmail) {
+          modalMsg('af-msg', '❌ No email linked to this admin account.', true);
+          btn.textContent = 'Send Reset Link'; btn.disabled = false;
+          return;
+        }
+
+        await sendPasswordResetEmail(auth, adminEmail);
+        modalMsg('af-msg', `✓ Reset link sent to ${adminEmail}. Check your inbox.`, false);
+        btn.textContent = 'Sent ✓';
+      } catch (err) {
+        btn.textContent = 'Send Reset Link'; btn.disabled = false;
+        modalMsg('af-msg', '❌ Failed to send reset link. Please try again.', true);
+        console.error('Admin reset error:', err);
+      }
+    };
+
+    // ── RIDER RESET — 2 step: pehle account dhundo, phir naya password set karo ──
+    // (Rider ka Firebase Auth synthetic email hota hai, email reset link kaam nahi karta)
+    // Step 1: phone/email se rider dhundo
+    // Step 2: naya password enter karo → Firestore mein hash update karo
+    window._riderResetDocId = null;
+
+    window.handleRiderReset = async function () {
+      const btn = document.getElementById('rf-btn');
+
+      // Step 2: password set karna
+      if (window._riderResetDocId) {
+        const newPass = document.getElementById('rf-newpass').value;
+        const confirmPass = document.getElementById('rf-confirmpass').value;
+        if (newPass.length < 6) { modalMsg('rf-msg', '⚠️ Password must be at least 6 characters', true); return; }
+        if (newPass !== confirmPass) { modalMsg('rf-msg', '⚠️ Passwords do not match', true); return; }
+
+        btn.textContent = 'Updating...'; btn.disabled = true;
+        try {
+          const newHash = await hashPassword(newPass);
+          await updateDoc(doc(db, 'riders', window._riderResetDocId), { password: newHash });
+
+          // Firebase Auth password bhi update karo agar possible ho
+          try {
+            const riderSnap = await getDoc(doc(db, 'riders', window._riderResetDocId));
+            const riderData = riderSnap.data();
+            const synEmail = riderData.email || ((riderData.phone || '') + '@mq.app');
+            // Sign in with old cred not possible here — just note it's updated in Firestore
+          } catch (e) { }
+
+          modalMsg('rf-msg', '✓ Password updated successfully! You can now login.', false);
+          btn.textContent = 'Done ✓';
+          setTimeout(() => {
+            document.getElementById('riderForgotModal').style.display = 'none';
+          }, 2000);
+        } catch (err) {
+          btn.textContent = 'Update Password'; btn.disabled = false;
+          modalMsg('rf-msg', '❌ Failed to update password. Please try again.', true);
+          console.error('Rider reset step2 error:', err);
+        }
+        return;
+      }
+
+      // Step 1: account dhundo (sirf email se)
+      const input = document.getElementById('rf-input').value.trim();
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+      if (!isEmail) { modalMsg('rf-msg', '⚠️ Enter a valid email address', true); return; }
+
+      btn.textContent = 'Finding account...'; btn.disabled = true;
+      try {
+        const ridersRef = collection(db, 'riders');
+        const q = query(ridersRef, where('email', '==', input.toLowerCase()));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          modalMsg('rf-msg', '❌ No rider account found. Check your details.', true);
+          btn.textContent = 'Find My Account'; btn.disabled = false;
+          return;
+        }
+
+        window._riderResetDocId = snap.docs[0].id;
+        const riderData = snap.docs[0].data();
+        document.getElementById('rf-step2').style.display = 'block';
+        document.getElementById('rf-input').disabled = true;
+        modalMsg('rf-msg', `✓ Account found: ${riderData.name}. Now set a new password.`, false);
+        btn.textContent = 'Update Password'; btn.disabled = false;
+      } catch (err) {
+        btn.textContent = 'Find My Account'; btn.disabled = false;
+        modalMsg('rf-msg', '❌ Database error. Please try again.', true);
+        console.error('Rider reset step1 error:', err);
+      }
+    };
+
+    // Legacy aliases (agar koi purana call ho)
+    window.closeForgot = function () { document.getElementById('userForgotModal').style.display = 'none'; };
+    window.sendResetLink = window.sendUserReset;
 
     window.socialLogin = function (provider) {
       showToast(`${provider} login coming soon!`);
@@ -1259,22 +1464,23 @@
     // Ab user manually login kar sakta hai chahe kitne bhi tabs mein ho.
 
     // ── Enter key support — Customer, Admin, Rider ──
-    document.getElementById('u-email').addEventListener('keydown', function(e) {
+    document.getElementById('u-email').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doUserLogin();
     });
-    document.getElementById('u-pass').addEventListener('keydown', function(e) {
+    document.getElementById('u-pass').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doUserLogin();
     });
-    document.getElementById('a-id').addEventListener('keydown', function(e) {
+    // Note: u-email field ab text type hai, phone bhi accept karta hai
+    document.getElementById('a-id').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doAdminLogin();
     });
-    document.getElementById('a-pass').addEventListener('keydown', function(e) {
+    document.getElementById('a-pass').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doAdminLogin();
     });
-    document.getElementById('r-phone').addEventListener('keydown', function(e) {
+    document.getElementById('r-phone').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doRiderLogin();
     });
-    document.getElementById('r-pass').addEventListener('keydown', function(e) {
+    document.getElementById('r-pass').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doRiderLogin();
     });
   </script>

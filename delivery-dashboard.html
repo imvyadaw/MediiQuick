@@ -1173,7 +1173,8 @@
           <i class="fas fa-map-marker-alt"></i>
           <span id="riderGpsHeaderText">📡 Loading...</span>
         </div>
-        <button class="header-btn" onclick="window.location.href='rider-wallet.html'" style="background:#dcfce7;color:#16a34a;border-color:#86efac;"><i class="fas fa-wallet"></i> Wallet</button>
+        <button class="header-btn" onclick="window.location.href='rider-wallet.html'"
+          style="background:#dcfce7;color:#16a34a;border-color:#86efac;"><i class="fas fa-wallet"></i> Wallet</button>
         <button class="header-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
     </div>
@@ -1310,7 +1311,7 @@
   <script type="module">
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -1323,7 +1324,7 @@
     const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
     const db = getFirestore(app);
     const auth = getAuth(app);
-    setPersistence(auth, browserSessionPersistence).catch(() => {});
+    // browserLocalPersistence (default) — session tab close ke baad bhi rehta hai
 
 
     let session = null;
@@ -1338,30 +1339,11 @@
       window.location.replace('login.html?tab=rider');
     }
 
-    // FIX: Also verify via Firebase Auth state (catches tab-overwrite scenarios)
-    onAuthStateChanged(auth, (user) => {
-      if (!user && (!session || !session.docId)) {
-        window.location.replace('login.html?tab=rider');
-      }
-    });
+    // NOTE: Firebase Auth state check removed — app uses localStorage-based custom auth.
+    // onAuthStateChanged gives false negatives and causes unnecessary redirects.
 
-    // ── Single-device session enforcement for rider ──
-    // Poll Firestore every 30s to check if another device has logged in
-    async function startRiderSessionWatch() {
-      if (!session || !session.docId || !session.sessionToken) return;
-      const { doc: _doc, onSnapshot: _onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-      _onSnapshot(_doc(db, 'riders', session.docId), (snap) => {
-        if (!snap.exists()) return;
-        const liveToken = snap.data().sessionToken;
-        const localToken = (() => { try { return JSON.parse(localStorage.getItem('mq_db_session') || '{}').sessionToken; } catch(e) { return null; } })();
-        if (localToken && liveToken && localToken !== liveToken) {
-          // New login from another device — force logout here
-          localStorage.removeItem('mq_db_session');
-          window.location.href = 'login.html?tab=rider&session=displaced';
-        }
-      });
-    }
-    if (session && session.docId) startRiderSessionWatch();
+    // Single-device session watch hata diya — multi-tab use allowed hai
+    // (sessionToken mismatch se galat redirect hota tha)
 
 
     let _riderCache = null;
@@ -1378,10 +1360,22 @@
     async function getMe() {
       if (_riderCache) return _riderCache;
       try {
-        const snap = await getDocs(query(collection(db, 'riders'), where('phone', '==', session.phone)));
-        if (!snap.empty) {
-          _riderCache = { docId: snap.docs[0].id, ...snap.docs[0].data() };
-          return _riderCache;
+        // FIX: docId se direct getDoc — phone query se zyada reliable hai
+        // (phone-login aur email-login dono ke liye kaam karta hai)
+        if (session && session.docId) {
+          const snap = await getDoc(doc(db, 'riders', session.docId));
+          if (snap.exists()) {
+            _riderCache = { docId: snap.id, ...snap.data() };
+            return _riderCache;
+          }
+        }
+        // Fallback: phone se query (agar docId kisi reason se kaam na kare)
+        if (session && session.phone) {
+          const qSnap = await getDocs(query(collection(db, 'riders'), where('phone', '==', session.phone)));
+          if (!qSnap.empty) {
+            _riderCache = { docId: qSnap.docs[0].id, ...qSnap.docs[0].data() };
+            return _riderCache;
+          }
         }
       } catch (e) {
         console.error('getMe error:', e.code || e);
@@ -1630,8 +1624,8 @@
             const R = 6371;
             const dL = (reqSnap.data().customerLat - me.lat) * Math.PI / 180;
             const dO = (reqSnap.data().customerLng - me.lng) * Math.PI / 180;
-            const a = Math.sin(dL/2)**2 + Math.cos(me.lat*Math.PI/180)*Math.cos(reqSnap.data().customerLat*Math.PI/180)*Math.sin(dO/2)**2;
-            distanceKm = parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2));
+            const a = Math.sin(dL / 2) ** 2 + Math.cos(me.lat * Math.PI / 180) * Math.cos(reqSnap.data().customerLat * Math.PI / 180) * Math.sin(dO / 2) ** 2;
+            distanceKm = parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2));
           }
         }
       } catch (e) { console.warn('distanceKm fetch failed:', e); }
@@ -1856,10 +1850,8 @@
     async function ensureAuth() {
       // If already signed in, return immediately
       if (auth.currentUser) return true;
-      // Try signing in with synthetic email using session data
       if (!session || !session.phone) return false;
-      const syntheticEmail = session.phone + '@rider.mq.app';
-      // We don't have password in session — use onAuthStateChanged to wait briefly
+      // Wait for onAuthStateChanged to resolve (max 3s)
       return new Promise((resolve) => {
         const unsub = onAuthStateChanged(auth, (user) => {
           unsub();

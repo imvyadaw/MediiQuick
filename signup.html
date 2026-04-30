@@ -911,7 +911,8 @@
                         <strong id="generatedAdminId" style="font-size:1.2rem;">ADMIN-XXXX</strong>
                     </div>
                     <p style="font-size:0.8rem;color:#6b7280;margin-top:8px;">Redirecting to login in 3 seconds...</p>
-                    <button class="goto-login-btn" onclick="window.location.href='login.html?tab=admin'">Go to Admin Login →</button>
+                    <button class="goto-login-btn" onclick="window.location.href='login.html?tab=admin'">Go to Admin
+                        Login →</button>
                 </div>
             </div>
 
@@ -1244,6 +1245,18 @@
                         // City field — always update
                         const cityEl = document.getElementById('city');
                         if (cityEl && fetchedCity) cityEl.value = fetchedCity;
+
+                        // ✅ PIN se lat/lng bhi fetch karo (Nominatim) — admin GPS auto-set
+                        try {
+                            const geoUrl = `https://nominatim.openstreetmap.org/search?postalcode=${val}&countrycodes=in&format=json&limit=1`;
+                            const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'en' } });
+                            const geoData = await geoRes.json();
+                            if (geoData && geoData[0]) {
+                                geolocationLat = parseFloat(geoData[0].lat);
+                                geolocationLng = parseFloat(geoData[0].lon);
+                                console.log('[MQ Signup] PIN', val, '→ lat/lng:', geolocationLat, geolocationLng);
+                            }
+                        } catch (geoErr) { console.warn('[MQ Signup] PIN geocode failed:', geoErr); }
 
                         // Served PINs — apna PIN automatically add karo agar already nahi hai
                         const servedEl = document.getElementById('servedPins');

@@ -711,7 +711,7 @@
       appId: "1:480632265996:web:d58747c0a12e780eddfd29"
     };
 
-    const app = (() => { try { return getApp(); } catch(e) { return initializeApp(firebaseConfig); } })();
+    const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -915,7 +915,7 @@
           mobile: mobile,
           lat: lat,
           lng: lng,
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
         };
         localStorage.setItem('mq_user', JSON.stringify(session));
 

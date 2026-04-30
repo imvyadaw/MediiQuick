@@ -131,6 +131,130 @@
             background: #15803d;
         }
 
+        /* ── Role Login Dropdown ── */
+        .mq-login-wrapper {
+            position: relative;
+        }
+
+        .mq-role-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 14px);
+            right: 0;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
+            padding: 16px 12px 12px;
+            min-width: 240px;
+            z-index: 9999;
+            border: 1px solid #e5e7eb;
+            animation: dropIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .mq-role-dropdown.open {
+            display: block;
+        }
+
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .mq-dropdown-arrow {
+            position: absolute;
+            top: -7px;
+            right: 20px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-left: 1px solid #e5e7eb;
+            border-top: 1px solid #e5e7eb;
+            transform: rotate(45deg);
+            border-radius: 2px;
+        }
+
+        .mq-dropdown-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #9ca3af;
+            padding: 0 8px 8px;
+        }
+
+        .mq-role-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 12px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: #111827;
+            transition: background 0.15s, transform 0.15s;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+
+        .mq-role-card:hover {
+            background: #f0fdf4;
+            transform: translateX(3px);
+        }
+
+        .mq-role-icon {
+            font-size: 1.4rem;
+            width: 40px;
+            height: 40px;
+            background: #f0fdf4;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mq-role-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.2;
+        }
+
+        .mq-role-sub {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .mq-role-arrow {
+            margin-left: auto;
+            color: #d1d5db;
+            font-size: 11px;
+            transition: color 0.15s;
+        }
+
+        .mq-role-card:hover .mq-role-arrow {
+            color: #16a34a;
+        }
+
+        .mq-dropdown-divider {
+            height: 1px;
+            background: #f3f4f6;
+            margin: 8px 0;
+        }
+
+        .mq-signup-link {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            text-decoration: none;
+            padding: 6px 0 2px;
+            transition: color 0.15s;
+        }
+
+        .mq-signup-link:hover { color: #16a34a; }
+        .mq-signup-link strong { color: #16a34a; }
+
         .cart-btn {
             position: relative;
             background: none;
@@ -892,6 +1016,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         @media(max-width:400px) {
             .footer-grid {
                 grid-template-columns: 1fr;
@@ -1450,7 +1575,7 @@
                 overflow-x: hidden;
             }
         }
-    
+
         /* ===== RESPONSIVE FIXES ===== */
 
         /* Header: hide location-bar on tiny screens */
@@ -1458,10 +1583,12 @@
             .location-bar {
                 display: none;
             }
+
             .header-inner {
                 flex-wrap: nowrap;
                 padding: 0 12px;
             }
+
             .logo h1 {
                 font-size: 1rem;
             }
@@ -1479,19 +1606,24 @@
             .hero img {
                 height: 220px;
             }
+
             .hero-overlay {
                 padding: 20px;
             }
+
             .hero-content h2 {
                 font-size: 1.4rem;
             }
+
             .hero-content p {
                 font-size: 13px;
                 margin-bottom: 12px;
             }
+
             .search-bar {
                 max-width: 100%;
             }
+
             .search-bar input {
                 font-size: 16px;
             }
@@ -1503,6 +1635,7 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
+
             .med-img-wrap,
             .med-img-wrap img {
                 height: 110px;
@@ -1515,6 +1648,7 @@
                 flex-direction: column;
                 text-align: center;
             }
+
             .footer-links {
                 justify-content: center;
                 flex-wrap: wrap;
@@ -1523,7 +1657,9 @@
 
         /* iOS input zoom fix */
         @media(max-width:768px) {
-            input, select {
+
+            input,
+            select {
                 font-size: 16px;
             }
         }
@@ -1533,18 +1669,22 @@
             .co-box {
                 border-radius: 14px;
             }
+
             .form-row {
                 grid-template-columns: 1fr;
             }
+
             .co-body {
                 padding: 16px 16px 20px;
             }
+
             .co-head {
                 padding: 16px 16px 0;
             }
         }
+
         /* ===== END RESPONSIVE FIXES ===== */
-</style>
+    </style>
 </head>
 
 <body>
@@ -1608,7 +1748,39 @@
                     <span class="cart-badge" id="cart-badge">0</span>
                 </button>
                 <div id="headerAuthArea">
-                    <button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>
+                    <div class="mq-login-wrapper" id="mqLoginWrapper">
+                        <button class="login-btn" onclick="toggleLoginDropdown(event)">Login / Signup ▾</button>
+                        <div class="mq-role-dropdown" id="mqRoleDropdown">
+                            <div class="mq-dropdown-arrow"></div>
+                            <p class="mq-dropdown-label">Login as</p>
+                            <a class="mq-role-card" href="login.html?tab=user">
+                                <span class="mq-role-icon">👤</span>
+                                <div>
+                                    <div class="mq-role-name">User</div>
+                                    <div class="mq-role-sub">Order medicines</div>
+                                </div>
+                                <i class="fas fa-chevron-right mq-role-arrow"></i>
+                            </a>
+                            <a class="mq-role-card" href="login.html?tab=admin">
+                                <span class="mq-role-icon">🏥</span>
+                                <div>
+                                    <div class="mq-role-name">Admin</div>
+                                    <div class="mq-role-sub">Pharmacy dashboard</div>
+                                </div>
+                                <i class="fas fa-chevron-right mq-role-arrow"></i>
+                            </a>
+                            <a class="mq-role-card" href="login.html?tab=rider">
+                                <span class="mq-role-icon">🏍️</span>
+                                <div>
+                                    <div class="mq-role-name">Rider</div>
+                                    <div class="mq-role-sub">Manage deliveries</div>
+                                </div>
+                                <i class="fas fa-chevron-right mq-role-arrow"></i>
+                            </a>
+                            <div class="mq-dropdown-divider"></div>
+                            <a class="mq-signup-link" href="signupuser.html">New here? <strong>Create Account →</strong></a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2374,22 +2546,24 @@
         }
 
         function handleCheckout() {
+            // ✅ FIX #1: Block checkout if cart is empty
+            if (Object.keys(cart).length === 0) { showToast('⚠ Your cart is empty! Add medicines first.'); return; }
             // Check Firebase Auth state for checkout guard
             const _fbAuthCheck = (() => {
-              try {
-                return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-              } catch(e) { return Promise.resolve(null); }
+                try {
+                    return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+                } catch (e) { return Promise.resolve(null); }
             })();
             // FIX: Validate session expiry, not just existence
             let isLoggedIn = false;
             try {
-              const raw = localStorage.getItem('mq_user');
-              if (raw) {
-                const sess = JSON.parse(raw);
-                isLoggedIn = !!(sess && sess.email && (!sess.expiresAt || Date.now() < sess.expiresAt));
-                if (!isLoggedIn) localStorage.removeItem('mq_user'); // clear expired session
-              }
-            } catch(e) { isLoggedIn = false; }
+                const raw = localStorage.getItem('mq_user');
+                if (raw) {
+                    const sess = JSON.parse(raw);
+                    isLoggedIn = !!(sess && sess.email && (!sess.expiresAt || Date.now() < sess.expiresAt));
+                    if (!isLoggedIn) localStorage.removeItem('mq_user'); // clear expired session
+                }
+            } catch (e) { isLoggedIn = false; }
             if (!isLoggedIn) {
                 closeCart();
                 document.getElementById('loginModalOverlay').classList.add('show');
@@ -2522,17 +2696,17 @@
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
                     // Update GPS in Firestore
                     try {
-                      const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
-                      cu.lat = lat; cu.lng = lng;
-                      localStorage.setItem('mq_user', JSON.stringify(cu));
-                      if (cu.uid) {
-                        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
-                          import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
-                            try { updateDoc(doc(getFirestore(getApp()), 'users', cu.uid), { lat, lng }).catch(()=>{}); } catch(e) {}
-                          });
-                        });
-                      }
-                    } catch(e) {}
+                        const cu = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                        cu.lat = lat; cu.lng = lng;
+                        localStorage.setItem('mq_user', JSON.stringify(cu));
+                        if (cu.uid) {
+                            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, updateDoc }) => {
+                                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ getApp }) => {
+                                    try { updateDoc(doc(getFirestore(getApp()), 'users', cu.uid), { lat, lng }).catch(() => { }); } catch (e) { }
+                                });
+                            });
+                        }
+                    } catch (e) { }
                 } catch (e) { loader.style.display = 'none'; }
             }, function () {
                 loader.style.display = 'none';
@@ -2593,6 +2767,16 @@
             document.getElementById('medicine-search').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') searchMedicines();
             });
+            // Debounce: auto-search 300ms after user stops typing
+            (function () {
+                let _searchTimer = null;
+                document.getElementById('medicine-search').addEventListener('input', function () {
+                    clearTimeout(_searchTimer);
+                    const val = this.value.trim();
+                    if (!val) { clearSearch(); return; }
+                    _searchTimer = setTimeout(searchMedicines, 300);
+                });
+            })();
 
 
             loadCart();
@@ -2601,53 +2785,53 @@
             updateCartDrawer();
 
             // Auth header — Firebase Auth based
-            (function() {
-              import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
-                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, signOut }) => {
-                  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
-                    let _app;
-                    try { _app = getApp(); } catch(e) {
-                      _app = initializeApp({
-                        apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
-                        authDomain: "mediiquick-25a65.firebaseapp.com",
-                        projectId: "mediiquick-25a65",
-                        storageBucket: "mediiquick-25a65.firebasestorage.app",
-                        messagingSenderId: "480632265996",
-                        appId: "1:480632265996:web:d58747c0a12e780eddfd29"
-                      });
-                    }
-                    const _auth = getAuth(_app);
-                    const _fdb = getFirestore(_app);
+            (function () {
+                import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
+                    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, signOut }) => {
+                        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc }) => {
+                            let _app;
+                            try { _app = getApp(); } catch (e) {
+                                _app = initializeApp({
+                                    apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
+                                    authDomain: "mediiquick-25a65.firebaseapp.com",
+                                    projectId: "mediiquick-25a65",
+                                    storageBucket: "mediiquick-25a65.firebasestorage.app",
+                                    messagingSenderId: "480632265996",
+                                    appId: "1:480632265996:web:d58747c0a12e780eddfd29"
+                                });
+                            }
+                            const _auth = getAuth(_app);
+                            const _fdb = getFirestore(_app);
 
-                    // Expose signOut globally for logout button
-                    window._indexSignOut = () => signOut(_auth).then(() => {
-                      localStorage.removeItem('mq_user');
-                      window.location.reload();
-                    });
+                            // Expose signOut globally for logout button
+                            window._indexSignOut = () => signOut(_auth).then(() => {
+                                localStorage.removeItem('mq_user');
+                                window.location.reload();
+                            });
 
-                    onAuthStateChanged(_auth, async (user) => {
-                      const authArea = document.getElementById('headerAuthArea');
-                      if (!authArea) return;
+                            onAuthStateChanged(_auth, async (user) => {
+                                const authArea = document.getElementById('headerAuthArea');
+                                if (!authArea) return;
 
-                      if (user) {
-                        // Fetch name from Firestore
-                        let displayName = user.email.split('@')[0];
-                        let displayEmail = user.email;
-                        try {
-                          const snap = await getDoc(doc(_fdb, 'users', user.uid));
-                          if (snap.exists()) {
-                            const d = snap.data();
-                            displayName = d.name || d.fullName || displayName;
-                            displayEmail = d.email || displayEmail;
-                            // Sync localStorage for cart key + order reads
-                            const merged = { uid: user.uid, email: displayEmail, name: displayName, ...d, expiresAt: Date.now()+86400000 };
-                            localStorage.setItem('mq_user', JSON.stringify(merged));
-                            loadCart();
-                            updateCartDrawer();
-                          }
-                        } catch(e) {}
+                                if (user) {
+                                    // Fetch name from Firestore
+                                    let displayName = user.email.split('@')[0];
+                                    let displayEmail = user.email;
+                                    try {
+                                        const snap = await getDoc(doc(_fdb, 'users', user.uid));
+                                        if (snap.exists()) {
+                                            const d = snap.data();
+                                            displayName = d.name || d.fullName || displayName;
+                                            displayEmail = d.email || displayEmail;
+                                            // Sync localStorage for cart key + order reads
+                                            const merged = { uid: user.uid, email: displayEmail, name: displayName, ...d, expiresAt: Date.now() + 86400000 };
+                                            localStorage.setItem('mq_user', JSON.stringify(merged));
+                                            loadCart();
+                                            updateCartDrawer();
+                                        }
+                                    } catch (e) { }
 
-                        authArea.innerHTML = `
+                                    authArea.innerHTML = `
                         <div class="acct-dropdown-wrap">
                             <button id="accountBtn" class="acct-btn">
                                 ${displayName.charAt(0).toUpperCase()}
@@ -2668,25 +2852,25 @@
                                 </a>
                             </div>
                         </div>`;
-                        document.getElementById('accountBtn').addEventListener('click', function(e) {
-                          e.stopPropagation();
-                          const dd = document.getElementById('accountDropdown');
-                          dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                                    document.getElementById('accountBtn').addEventListener('click', function (e) {
+                                        e.stopPropagation();
+                                        const dd = document.getElementById('accountDropdown');
+                                        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                                    });
+                                    document.addEventListener('click', function () {
+                                        const dd = document.getElementById('accountDropdown');
+                                        if (dd) dd.style.display = 'none';
+                                    });
+                                } else {
+                                    localStorage.removeItem('mq_user');
+                                    authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
+                                    loadCart();
+                                    updateCartDrawer();
+                                }
+                            });
                         });
-                        document.addEventListener('click', function() {
-                          const dd = document.getElementById('accountDropdown');
-                          if (dd) dd.style.display = 'none';
-                        });
-                      } else {
-                        localStorage.removeItem('mq_user');
-                        authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
-                        loadCart();
-                        updateCartDrawer();
-                      }
                     });
-                  });
                 });
-              });
             })();
         });
 
@@ -2711,6 +2895,32 @@
             }
         }
 
+    </script>
+
+    <!-- ── Role Login Dropdown JS ── -->
+    <script>
+        function toggleLoginDropdown(e) {
+            e.stopPropagation();
+            const dd = document.getElementById('mqRoleDropdown');
+            dd.classList.toggle('open');
+        }
+
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('mqLoginWrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const dd = document.getElementById('mqRoleDropdown');
+                if (dd) dd.classList.remove('open');
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const dd = document.getElementById('mqRoleDropdown');
+                if (dd) dd.classList.remove('open');
+            }
+        });
     </script>
 
 </body>

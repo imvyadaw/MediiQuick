@@ -474,10 +474,14 @@
       onSnapshot(doc(db, 'wishlists', currentUid), (snap) => {
         wishlistItems = snap.exists() ? (snap.data().items || []) : [];
         renderWishlist();
+      }, (err) => {
+        // Auth expired ya permission denied — show empty state gracefully
+        console.warn('Wishlist listener error:', err.code);
+        wishlistItems = [];
+        renderWishlist();
       });
     })();
   </script>
-
   <script>
     // Dark mode - sync with rest of app (dark-mode.js system)
     window.toggleDark = function () {

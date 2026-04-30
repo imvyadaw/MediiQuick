@@ -598,20 +598,11 @@
       });
     }
 
-    // Firebase Auth guard — but also allow if localStorage session valid
-    onAuthStateChanged(auth, (user) => {
-      if (!user && !adminSession?.docId) {
-        window.location.href = 'login.html?tab=admin';
-        return;
-      }
+    // Auth guard — localStorage session only (Firebase Auth nahi — cross-role redirect fix)
+    if (!adminSession?.docId) {
+      window.location.href = 'login.html?tab=admin';
+    } else {
       subscribeOrders();
-    });
-
-    // FIX: Agar Auth slow hai toh localStorage session se directly load karo
-    if (adminSession?.docId) {
-      setTimeout(() => {
-        if (allOrders.length === 0) subscribeOrders();
-      }, 2000);
     }
 
     window.addEventListener('beforeunload', () => {

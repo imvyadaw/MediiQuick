@@ -2927,9 +2927,37 @@
     }
 
 
+    // Helper: current admin ka Firestore base path return karo
+    function _mqAdminId() {
+      try {
+        const s = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        return s.adminId || s.docId || null;
+      } catch (e) { return null; }
+    }
+    function _mqMedCol() {
+      const aid = _mqAdminId();
+      if (!aid) throw new Error('Admin not logged in');
+      return collection(_db, 'pharmacies', aid, 'medicines');
+    }
+    function _mqCatCol() {
+      const aid = _mqAdminId();
+      if (!aid) throw new Error('Admin not logged in');
+      return collection(_db, 'pharmacies', aid, 'customCategories');
+    }
+    function _mqMedDoc(id) {
+      const aid = _mqAdminId();
+      if (!aid) throw new Error('Admin not logged in');
+      return doc(_db, 'pharmacies', aid, 'medicines', String(id));
+    }
+    function _mqCatDoc(key) {
+      const aid = _mqAdminId();
+      if (!aid) throw new Error('Admin not logged in');
+      return doc(_db, 'pharmacies', aid, 'customCategories', key);
+    }
+
     async function loadMedicinesFromFirestore() {
       try {
-        const snap = await getDocs(collection(_db, 'medicines'));
+        const snap = await getDocs(_mqMedCol());
         if (snap.empty) return;
         const meds = snap.docs.map(d => ({ ...d.data(), id: parseInt(d.data().id || d.id) || d.data().id }));
 
@@ -2942,7 +2970,7 @@
 
     async function loadCustomCatsFromFirestore() {
       try {
-        const snap = await getDocs(collection(_db, 'customCategories'));
+        const snap = await getDocs(_mqCatCol());
         const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
         window._mqCatCache = cats;
         // FIX: localStorage sync hata diya — window._mqCatCache hi use karo
@@ -2961,12 +2989,12 @@
       db: _db,
       saveMedicineToFirestore: async (med) => {
         try {
-          await setDoc(doc(_db, 'medicines', String(med.id)), med);
+          await setDoc(_mqMedDoc(med.id), med);
         } catch (e) { console.warn('Medicine save failed:', e); }
       },
       deleteMedicineFromFirestore: async (id) => {
         try {
-          await deleteDoc(doc(_db, 'medicines', String(id)));
+          await deleteDoc(_mqMedDoc(id));
         } catch (e) { console.warn('Medicine delete failed:', e); }
       },
       saveOrderStatusToFirestore: async (orderId, updates) => {
@@ -2976,7 +3004,7 @@
       },
       saveCustomCatToFirestore: async (cat) => {
         try {
-          await setDoc(doc(_db, 'customCategories', cat.key), cat);
+          await setDoc(_mqCatDoc(cat.key), cat);
         } catch (e) { console.warn('Custom cat save failed:', e); }
       },
       saveRiderRequestToFirestore: async (reqId, req) => {
@@ -3013,17 +3041,17 @@
       },
       deleteCustomCatFromFirestore: async (key) => {
         try {
-          await deleteDoc(doc(_db, 'customCategories', key));
+          await deleteDoc(_mqCatDoc(key));
         } catch (e) { console.warn('Custom cat delete failed:', e); }
       },
       deleteMedicinesByCategory: async (catKey, catLabel) => {
         try {
-          const snap = await getDocs(collection(_db, 'medicines'));
+          const snap = await getDocs(_mqMedCol());
           const toDelete = snap.docs.filter(d => {
             const data = d.data();
             return data.catKey === catKey || data.category === catLabel;
           });
-          await Promise.all(toDelete.map(d => deleteDoc(doc(_db, 'medicines', d.id))));
+          await Promise.all(toDelete.map(d => deleteDoc(d.ref)));
         } catch (e) { console.warn('Category medicines delete failed:', e); }
       }
     };
@@ -3098,75 +3126,56 @@
       if (nameEl && _lsSession.shopName) nameEl.textContent = _lsSession.shopName;
     }
 
-    // Firebase Auth check — additional security layer
-    onAuthStateChanged(_auth, async (user) => {
-      if (!user) {
-        // No Firebase Auth session — check if localStorage session exists as fallback
-        if (!_lsSession) {
-          window.location.href = 'login.html?tab=admin';
-        }
-        // If localStorage session valid, allow access (user is authenticated via Firestore)
-        return;
-      }
-      // Firebase Auth user exists — verify they are admin in Firestore
-      try {
-        const snap = await getDocs(query(collection(_fdb, 'admins'), where('email', '==', user.email)));
-        if (snap.empty) {
-          // Not an admin — sign out
-          await signOut(_auth);
-          localStorage.removeItem('mq_admin_session');
-          window.location.href = 'login.html?tab=admin';
-          return;
-        }
-        const adminData = snap.docs[0].data();
-        window._mqAdminData = { docId: snap.docs[0].id, ...adminData };
-        const nameEl = document.getElementById('headerPharmacyName');
-        if (nameEl && adminData.shopName) nameEl.textContent = adminData.shopName;
-
-        // Single-device session check REMOVED — ab multi-tab/multi-device allowed hai
-
-        // Refresh localStorage session — ALL fields included
-        const legacySession = {
-          docId: snap.docs[0].id,
-          email: adminData.email,
-          shopName: adminData.shopName || '',
-          adminName: adminData.adminName || '',
-          adminId: adminData.adminId || '',
-          city: adminData.city || '',
-          deliveryRadius: adminData.deliveryRadius || '5',
-          servedPins: adminData.servedPins || [],
-          lat: adminData.lat || null,
-          lng: adminData.lng || null,
-          // FIX: Registration fields bhi refresh karo
-          location: adminData.location || '',
-          mobile: adminData.mobile || '',
-          mobile2: adminData.mobile2 || '',
-          drugLicense: adminData.drugLicense || '',
-          pin: adminData.pin || '',
-          gst: adminData.gst || '',
-          openTime: adminData.openTime || '',
-          closeTime: adminData.closeTime || '',
-          shopType: adminData.shopType || '',
-          expiresAt: Date.now() + 86400000
-        };
-        localStorage.setItem('mq_admin_session', JSON.stringify(legacySession));
-
-        // ✅ Admin login hua — Firestore mein isOnline: true mark karo
-        // Taaki customer ke order mein yeh admin match ho sake
+    // ✅ localStorage session se hi admin verify — Firebase Auth state ignore karo
+    // (kyunki ek browser mein sirf ek Firebase Auth user hota hai — cross-role tabs se conflict hota tha)
+    if (!_lsSession) {
+      window.location.href = 'login.html?tab=admin';
+    } else {
+      // Background mein Firestore se fresh data sync karo — logout nahi karega
+      (async () => {
         try {
-          const adminDocId = snap.docs[0].id;
-          const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-          await _updateDoc(_doc(_fdb, 'pharmacyProfiles', adminDocId), { isOnline: true, lastLoginAt: Date.now() });
-          console.log('[MQ Admin] isOnline set to TRUE in pharmacyProfiles');
+          const snap = await getDocs(query(collection(_fdb, 'admins'), where('email', '==', _lsSession.email)));
+          if (snap.empty) return; // Silently skip — don't logout on network issues
+          const adminData = snap.docs[0].data();
+          window._mqAdminData = { docId: snap.docs[0].id, ...adminData };
+          const nameEl = document.getElementById('headerPharmacyName');
+          if (nameEl && adminData.shopName) nameEl.textContent = adminData.shopName;
+
+          // Refresh localStorage session
+          const refreshed = {
+            docId: snap.docs[0].id,
+            email: adminData.email,
+            shopName: adminData.shopName || '',
+            adminName: adminData.adminName || '',
+            adminId: adminData.adminId || '',
+            city: adminData.city || '',
+            deliveryRadius: adminData.deliveryRadius || '5',
+            servedPins: adminData.servedPins || [],
+            lat: adminData.lat || null,
+            lng: adminData.lng || null,
+            location: adminData.location || '',
+            mobile: adminData.mobile || '',
+            mobile2: adminData.mobile2 || '',
+            drugLicense: adminData.drugLicense || '',
+            pin: adminData.pin || '',
+            gst: adminData.gst || '',
+            openTime: adminData.openTime || '',
+            closeTime: adminData.closeTime || '',
+            shopType: adminData.shopType || '',
+            expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
+          };
+          localStorage.setItem('mq_admin_session', JSON.stringify(refreshed));
+
+          // Set isOnline = true
+          try {
+            const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            await _updateDoc(_doc(_fdb, 'pharmacyProfiles', snap.docs[0].id), { isOnline: true, lastLoginAt: Date.now() });
+          } catch (e) { console.warn('[MQ Admin] Could not set isOnline=true:', e); }
         } catch (e) {
-          console.warn('[MQ Admin] Could not set isOnline=true:', e);
+          console.warn('[MQ Admin] Background sync failed — staying on page:', e);
         }
-      } catch (e) {
-        console.error('Admin auth check failed:', e);
-        // On error, keep user on page if localStorage session valid
-        if (!_lsSession) window.location.href = 'login.html?tab=admin';
-      }
-    });
+      })();
+    }
   </script>
 
   <script>
@@ -3408,9 +3417,12 @@
       a = a.toLowerCase().trim();
       b = b.toLowerCase().trim();
       if (a === b) return true;
-
-      const clean = s => s.replace(/^(new |greater |old |east |west |north |south )/i, '').trim();
-      return clean(a) === clean(b);
+      // Prefix/suffix clean
+      const clean = s => s.replace(/^(new |greater |old |east |west |north |south |navi )/i, '').trim();
+      if (clean(a) === clean(b)) return true;
+      // Ek dusre ke andar — e.g. "noida" in "gautam buddha nagar noida"
+      if (a.includes(b) || b.includes(a)) return true;
+      return false;
     }
 
 
@@ -3431,47 +3443,70 @@
     }
 
     function isOrderInRange(order, profile) {
-      // Delivery address se data lo
+
+      // ── Step 1: Assigned check ──
+      // Agar order kisi DOOSRE admin ne confirm kar liya → hide karo
+      const mySession = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
+      const myAdminId = mySession.adminId || mySession.docId || '';
+      const assignedTo = order.assignedAdminId || '';
+      if (assignedTo && myAdminId && assignedTo !== myAdminId) {
+        return false;
+      }
+
+      // ── Step 2: Data nikalo ──
+      const deliveryCity = (order.deliveryAddr?.city || order.realPinCity || order.city || '').toLowerCase().trim();
       const deliveryPin = (order.deliveryAddr?.pin || order.customerPin || '').toString().trim();
-      const deliveryCity = (order.deliveryAddr?.city || order.city || '').toLowerCase().trim();
-      const deliveryLat = order.deliveryAddr?.lat || null;
-      const deliveryLng = order.deliveryAddr?.lng || null;
+      const deliveryLat = parseFloat(order.deliveryAddr?.lat) || null;
+      const deliveryLng = parseFloat(order.deliveryAddr?.lng) || null;
 
-      const servedPins = (profile.servedPins || []).map(p => p.toString().trim());
       const pharmCity = (profile.city || '').toLowerCase().trim();
-      const pharmLat = profile.lat || null;
-      const pharmLng = profile.lng || null;
-      const radius = parseFloat(profile.deliveryRadius || 15);
+      const pharmPin = (profile.pin || '').toString().trim();
+      const pharmLat = parseFloat(profile.lat) || null;
+      const pharmLng = parseFloat(profile.lng) || null;
+      const radius = parseFloat(profile.deliveryRadius || 5);
 
-      // FIX: Koi bhi filter set nahi → sab orders dikhao
-      if (servedPins.length === 0 && !pharmCity && !pharmLat) return true;
-
-      // FIX: Order mein location info nahi → dikhao (drop mat karo)
-      if (!deliveryPin && !deliveryCity && !deliveryLat) return true;
-
-      // FIX: PIN match kafi hai — city spelling difference se orders drop hote the
-      if (servedPins.length > 0 && deliveryPin && servedPins.includes(deliveryPin)) {
+      // ── Step 3: Admin ka koi filter set nahi → sab dikhao ──
+      if (!pharmCity && !pharmPin && !pharmLat) {
+        console.log('[MQ Range] No admin filter set — showing all orders');
         return true;
       }
 
-      // City match check (flexible - cityMatch function use karo)
-      if (pharmCity && deliveryCity && cityMatch(pharmCity, deliveryCity)) {
+      // ── Step 4: Order mein koi location nahi → dikhao ──
+      if (!deliveryCity && !deliveryPin && !deliveryLat) {
+        console.log('[MQ Range] Order has no location info — showing');
+        return true;
+      }
+
+      // ── Step 5: PIN exact match → seedha show karo ──
+      if (pharmPin && deliveryPin && pharmPin === deliveryPin) {
+        console.log('[MQ Range] PIN exact match:', pharmPin, '→ SHOW');
+        return true;
+      }
+
+      // ── Step 6: City match ──
+      const cityMatched = cityMatch(pharmCity, deliveryCity);
+      console.log('[MQ Range] City check:', pharmCity, 'vs', deliveryCity, '→', cityMatched);
+
+      if (cityMatched) {
+        // Dono ke GPS hain → distance check karo
         if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
-          const distance = getDistanceKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
-          return distance <= radius;
+          const dist = haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
+          console.log('[MQ Range] GPS dist:', dist.toFixed(2), 'km, radius:', radius, '→', dist <= radius ? 'SHOW' : 'HIDE');
+          return dist <= radius;
         }
+        // GPS nahi → city match kaafi hai
+        console.log('[MQ Range] City matched, no GPS → SHOW');
         return true;
       }
 
-      // GPS distance only
+      // ── Step 7: GPS fallback (city alag hai) ──
       if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
-        const distance = getDistanceKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
-        return distance <= radius;
+        const dist = haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
+        console.log('[MQ Range] GPS fallback dist:', dist.toFixed(2), 'km → ', dist <= radius ? 'SHOW' : 'HIDE');
+        return dist <= radius;
       }
 
-      // FIX: Agar koi strict filter nahi set kiya toh order show karo
-      if (!pharmCity && !pharmLat && servedPins.length === 0) return true;
-
+      console.log('[MQ Range] No match found → HIDE. Order city:', deliveryCity, 'Admin city:', pharmCity);
       return false;
     }
 
@@ -4047,7 +4082,7 @@
       if (!o) return;
       const items = (o.items || []).map(i => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6;"><span>${i.med?.name || i.name} × ${i.qty}</span><span>₹${(i.med?.price || 0) * i.qty}</span></div>`).join('');
       const addr = o.deliveryAddr;
-      const _subtotal = (o.items || []).reduce((s,i) => s + ((i.med?.price || 0) * (i.qty || 1)), 0);
+      const _subtotal = (o.items || []).reduce((s, i) => s + ((i.med?.price || 0) * (i.qty || 1)), 0);
       const _cod = o.codCharge || 0;
       const _delivery = o.deliveryCharge || 0;
       document.getElementById('orderDetailContent').innerHTML = `
@@ -4100,13 +4135,22 @@
       o.status = newStatus;
       o.statusUpdatedAt = Date.now();
 
-
-      if (!o.assignedAdminId) {
-        const sess = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        if (sess.adminId) o.assignedAdminId = sess.adminId;
+      // ✅ assignedAdminId hamesha set karo — doosre admins se hide hoga
+      const sess = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+      if (!o.assignedAdminId && sess.adminId) {
+        o.assignedAdminId = sess.adminId;
       }
 
       saveOrdersLS(orders);
+
+      // ✅ Firestore mein turant sync — doosre admins ke page pe real-time hide hoga
+      if (window.__adminFirestore) {
+        window.__adminFirestore.saveOrderStatusToFirestore(orderId, {
+          status: newStatus,
+          assignedAdminId: o.assignedAdminId,
+          statusUpdatedAt: o.statusUpdatedAt
+        });
+      }
       closeModal('statusModal');
       renderOrders();
       renderDashboard();
@@ -4383,6 +4427,32 @@
       const labels = { packing: 'Packing started', on_the_way: 'Out for delivery', delivered: 'Delivered!', confirmed: 'Confirmed', cancelled: 'Cancelled' };
       showToast(`✅ ${orderId}: ${labels[newStatus] || newStatus}`);
       if (newStatus === 'cancelled') freeAssignedRider(orderId);
+
+      // ✅ FIX #12: Sync stock deduction to Firestore on confirmed (failsafe if client-side missed it)
+      if (newStatus === 'confirmed' && o.assignedAdminId && o.items && o.items.length > 0 && !o._stockDeducted) {
+        (async () => {
+          try {
+            const { getFirestore, doc: _doc, runTransaction } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+            const _fdb = getFirestore(getApp());
+            for (const item of o.items) {
+              const medId = (item.med?.id || '').replace(/^adm_/, '');
+              if (!medId) continue;
+              const medRef = _doc(_fdb, 'admins', o.assignedAdminId, 'medicines', medId);
+              await runTransaction(_fdb, async (tx) => {
+                const snap = await tx.get(medRef);
+                if (!snap.exists()) return;
+                const current = snap.data().quantity ?? 0;
+                const newQty = Math.max(0, current - (item.qty || 1));
+                tx.update(medRef, { quantity: newQty, outOfStock: newQty === 0 });
+              }).catch(e => console.warn('[MQ Admin] Stock deduct:', e));
+            }
+            // Mark as deducted so we don't double-deduct
+            o._stockDeducted = true;
+            saveOrdersLS(orders);
+          } catch (e) { console.warn('[MQ Admin] Stock deduction error:', e); }
+        })();
+      }
     }
 
     function broadcastToRiders(orderId) {
@@ -5505,7 +5575,7 @@
       <p id="delCatMedCount"
         style="font-size:12px;padding:8px 10px;border-radius:8px;margin:10px 0;background:#fef2f2;color:#dc2626;font-weight:600;">
       </p>
-      <p style="font-size:12px;color:#dc2626;background:#fef2f2;padding:8px 10px;border-radius:8px;">⚠️ Yeh action undo
+      <p style="font-size:12px;color:#dc2626;background:#fef2f2;padding:8px 10px;border-radius:8px;">⚠️ This action
         cannot be undone!</p>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('delCatModal')">Cancel</button>
@@ -5516,4 +5586,4 @@
 
 </body>
 
-</html> 
+</html>

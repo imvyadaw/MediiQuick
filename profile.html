@@ -2737,6 +2737,24 @@
         async function saveOrderToFirestore(orderData) {
             try {
                 await setDoc(doc(_db, 'orders', orderData.orderId), orderData);
+                // ✅ FIX #12: Deduct stock from medicines collection on order placement
+                if (orderData.assignedAdminId && orderData.items && orderData.items.length > 0) {
+                    const { runTransaction } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+                    for (const item of orderData.items) {
+                        const medId = (item.med?.id || '').replace(/^adm_/, '');
+                        if (!medId) continue;
+                        const medRef = doc(_db, 'admins', orderData.assignedAdminId, 'medicines', medId);
+                        try {
+                            await runTransaction(_db, async (tx) => {
+                                const snap = await tx.get(medRef);
+                                if (!snap.exists()) return;
+                                const current = snap.data().quantity ?? 0;
+                                const newQty = Math.max(0, current - (item.qty || 1));
+                                tx.update(medRef, { quantity: newQty, outOfStock: newQty === 0 });
+                            });
+                        } catch (e) { console.warn('[MQ] Stock deduct failed for', medId, e); }
+                    }
+                }
             } catch (e) { console.warn('Order Firestore save failed:', e); }
         }
 
@@ -2820,7 +2838,7 @@
                     const pharmCity = (a.city || '').toLowerCase().trim();
                     const pharmLat = a.lat || null;
                     const pharmLng = a.lng || null;
-                    const radius = parseFloat(a.deliveryRadius || 15);
+                    const radius = parseFloat(a.deliveryRadius || 5);
 
                     const pinInAdminList = pin && servedPins.includes(pin);
                     const cityMatches = _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
@@ -2864,7 +2882,7 @@
                         // GPS fallback bhi city-aware hona chahiye
                         const cityOk = !pharmCity || _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
                         if (!cityOk) return false;
-                        const radius = parseFloat(a.deliveryRadius || 15);
+                        const radius = parseFloat(a.deliveryRadius || 5);
                         return _haversineKm(a.lat, a.lng, deliveryLat, deliveryLng) <= radius;
                     });
                     if (gpsFallback) {
@@ -3021,12 +3039,15 @@
                         window.location.href = 'login.html';
                         return false;
                     }
-                    // Session expiry check
+                    // Session expiry check — 7 din ka session
                     if (session.expiresAt && Date.now() > session.expiresAt) {
                         localStorage.removeItem('mq_user');
                         window.location.href = 'login.html';
                         return false;
                     }
+                    // ✅ Har page load pe expiresAt refresh karo — bar bar logout nahi hoga
+                    session.expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
+                    localStorage.setItem('mq_user', JSON.stringify(session));
                     return true;
                 } catch (e) {
                     window.location.href = 'login.html';
@@ -3065,7 +3086,7 @@
                         if (session && session.uid) {
                             getDoc(doc(_db, 'users', session.uid)).then(snap => {
                                 if (snap.exists()) {
-                                    const merged = { ...session, ...snap.data(), uid: session.uid, email: session.email, expiresAt: Date.now() + 86400000 };
+                                    const merged = { ...session, ...snap.data(), uid: session.uid, email: session.email, expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000) };
                                     localStorage.setItem('mq_user', JSON.stringify(merged));
                                     if (window._mpLoadUser) window._mpLoadUser();
                                 }
@@ -4006,18 +4027,6 @@
                         const pinEl = document.getElementById('addr-pin');
                         if (pinEl) {
                             pinEl.value = pin;
-                            pinEl.style.background = '#fefce8';
-                            pinEl.style.borderColor = '#fbbf24';
-                            // Warning: PIN approximate
-                            let pinWarn = document.getElementById('gps-pin-warn');
-                            if (!pinWarn) {
-                                pinWarn = document.createElement('div');
-                                pinWarn.id = 'gps-pin-warn';
-                                pinWarn.style.cssText = 'font-size:11px;color:#b45309;margin-top:4px;font-weight:500;';
-                                pinEl.parentNode.appendChild(pinWarn);
-                            }
-                            pinWarn.textContent = '⚠️ PIN approximate hai — verify/edit zaroor karo';
-                            pinEl.addEventListener('input', () => { pinEl.style.background = ''; pinEl.style.borderColor = ''; pinWarn.textContent = ''; }, { once: true });
                             onPinInput(pin);
                         }
                         btnText.textContent = '✅ Address filled — please verify!';

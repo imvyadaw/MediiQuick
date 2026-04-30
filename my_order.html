@@ -1728,6 +1728,7 @@
 
     <script type="module">
         import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1739,6 +1740,7 @@
             appId: "1:480632265996:web:d58747c0a12e780eddfd29"
         };
         const _app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
+        const _auth = getAuth(_app);
         const _db = getFirestore(_app);
         window._mqFirestore = _db; // Expose for cancelOrder
 
@@ -1796,62 +1798,83 @@
             } catch (e) { console.warn('[MQ] Ghost purge failed:', e); }
         }
 
-        async function subscribeOrderUpdates() {
-            try {
-                const { email, uid } = getUserIdentifiers();
-                if (!email && !uid) return;
+        // ✅ FIX: user param liya — Firebase Auth user object directly use karo
+        // Dono queries chalao: userId se (primary) + customerEmail se (fallback)
+        function subscribeOrderUpdates(firebaseUser) {
+            // Cleanup old listeners
+            if (window._mqOrderUnsubscribe) { window._mqOrderUnsubscribe(); }
+            if (window._mqOrderUnsubscribeEmail) { window._mqOrderUnsubscribeEmail(); }
 
+            const uid = firebaseUser ? firebaseUser.uid : '';
+            const { email } = getUserIdentifiers();
 
-                const q = query(collection(_db, 'orders'), where('customerEmail', '==', email));
+            if (!uid && !email) {
+                console.warn('[MQ] No uid or email — cannot fetch orders');
+                return;
+            }
 
-                // FIX: Store unsubscribe function to prevent memory leak
-                window._mqOrderUnsubscribe = onSnapshot(q, (snap) => {
-                    const emailOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            // Merged cache for both queries
+            let uidOrders = [];
+            let emailOrders = [];
 
-                    // ✅ Ghost orders purge — Firestore se confirm hone ke baad
-                    const fsOrderIds = emailOrders.map(o => o.orderId).filter(Boolean);
-
-                    if (uid) {
-                        const uidQ = query(collection(_db, 'orders'), where('userId', '==', uid));
-                        getDocs(uidQ).then(uidSnap => {
-                            const uidOrders = uidSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                            const merged = [...emailOrders];
-                            uidOrders.forEach(uo => {
-                                if (!merged.find(eo => eo.orderId === uo.orderId)) merged.push(uo);
-                            });
-                            const allFsIds = merged.map(o => o.orderId).filter(Boolean);
-                            _purgeGhostOrders(allFsIds); // ✅ Ghost purge
-                            window._mqOrderCache = merged;
-                            if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
-                        }).catch(() => {
-                            _purgeGhostOrders(fsOrderIds); // ✅ Ghost purge fallback
-                            window._mqOrderCache = emailOrders;
-                            if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
-                        });
-                    } else {
-                        _purgeGhostOrders(fsOrderIds); // ✅ Ghost purge
-                        window._mqOrderCache = emailOrders;
-                        if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
-                    }
-                }, (err) => {
-                    console.warn('Firestore order subscription error:', err);
-
-                    if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
+            function mergeAndRender() {
+                const merged = [...uidOrders];
+                emailOrders.forEach(eo => {
+                    if (!merged.find(o => o.orderId === eo.orderId)) merged.push(eo);
                 });
-
-                // FIX: Cleanup listener when user leaves page
-                window.addEventListener('beforeunload', () => {
-                    if (window._mqOrderUnsubscribe) { window._mqOrderUnsubscribe(); }
-                }, { once: true });
-
-            } catch (e) {
-                console.warn('Firestore subscription failed:', e);
-
+                const allFsIds = merged.map(o => o.orderId).filter(Boolean);
+                _purgeGhostOrders(allFsIds);
+                window._mqOrderCache = merged;
                 if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
             }
+
+            // ── Query 1: userId se (main query — Firebase Auth uid) ──
+            if (uid) {
+                const uidQ = query(collection(_db, 'orders'), where('userId', '==', uid));
+                window._mqOrderUnsubscribe = onSnapshot(uidQ, (snap) => {
+                    uidOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    mergeAndRender();
+                }, (err) => {
+                    console.warn('[MQ] userId onSnapshot error:', err);
+                    mergeAndRender();
+                });
+            }
+
+            // ── Query 2: customerEmail se (fallback/extra coverage) ──
+            if (email) {
+                const emailQ = query(collection(_db, 'orders'), where('customerEmail', '==', email));
+                window._mqOrderUnsubscribeEmail = onSnapshot(emailQ, (snap) => {
+                    emailOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    mergeAndRender();
+                }, (err) => {
+                    console.warn('[MQ] customerEmail onSnapshot error:', err);
+                    mergeAndRender();
+                });
+            }
+
+            // Cleanup on page leave
+            window.addEventListener('beforeunload', () => {
+                if (window._mqOrderUnsubscribe) window._mqOrderUnsubscribe();
+                if (window._mqOrderUnsubscribeEmail) window._mqOrderUnsubscribeEmail();
+            }, { once: true });
         }
 
-        subscribeOrderUpdates();
+        // ✅ FIX: Auth ke baad hi Firestore query lagao
+        // Pehle localStorage se try karo (fast render), phir Firestore se sync
+        onAuthStateChanged(_auth, (user) => {
+            if (user) {
+                // Update localStorage mein uid to ensure getUserIdentifiers() returns correct uid
+                try {
+                    const stored = JSON.parse(localStorage.getItem('mq_user') || '{}');
+                    if (!stored.uid) {
+                        stored.uid = user.uid;
+                        localStorage.setItem('mq_user', JSON.stringify(stored));
+                    }
+                } catch (e) { }
+                subscribeOrderUpdates(user);
+            }
+            // Agar user null hai toh auth guard (upar wala IIFE) login.html redirect karega
+        });
     </script>
 </body>
 

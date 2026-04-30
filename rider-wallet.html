@@ -471,18 +471,8 @@
     try { riderSession = JSON.parse(localStorage.getItem('mq_db_session') || '{}'); } catch (e) { }
     if (!riderSession?.docId) { window.location.href = 'login.html?tab=rider'; }
 
-    // ── Single-device session watch for rider ──
-    if (riderSession?.docId && riderSession?.sessionToken) {
-      onSnapshot(doc(db, 'riders', riderSession.docId), (snap) => {
-        if (!snap.exists()) return;
-        const liveToken = snap.data().sessionToken;
-        const localToken = (() => { try { return JSON.parse(localStorage.getItem('mq_db_session') || '{}').sessionToken; } catch (e) { return null; } })();
-        if (localToken && liveToken && localToken !== liveToken) {
-          localStorage.removeItem('mq_db_session');
-          window.location.href = 'login.html?tab=rider&session=displaced';
-        }
-      });
-    }
+    // Single-device session watch hata diya — multi-tab use allowed hai
+    // (sessionToken mismatch se galat redirect hota tha)
 
     // Earning formula: ₹30 base + ₹4/km + ₹2/item + ₹15 emergency bonus + COD charge (rider ko milega)
     function calcEarning(order) {
