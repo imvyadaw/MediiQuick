@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>MediiQuick - Login Portal</title>
+  <title>MediiQuick - Admin Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
@@ -19,14 +19,6 @@
       --label-color: #4a5a72;
       --text-main: #0a1a2a;
       --text-sub: #6c7a8e;
-      --tab-bg: #f0f2f5;
-      --tab-inactive: #5a6e8a;
-      --bottom-link-color: #5a6e8a;
-      --divider-line: #e2e8f0;
-      --divider-text: #8a9aba;
-      --social-border: #e2e8f0;
-      --social-bg: white;
-      --social-hover-bg: #f0fdf4;
       --lp-bg-1: #0e3a2a;
       --lp-bg-2: #0a2a1a;
     }
@@ -39,14 +31,6 @@
       --label-color: #7ab88a;
       --text-main: #e0f0e5;
       --text-sub: #6b8f78;
-      --tab-bg: #0d1810;
-      --tab-inactive: #5a8068;
-      --bottom-link-color: #6b8f78;
-      --divider-line: #1e3525;
-      --divider-text: #4a6b55;
-      --social-border: #1e3525;
-      --social-bg: #1a2e1e;
-      --social-hover-bg: #0d2010;
       --lp-bg-1: #071408;
       --lp-bg-2: #050f06;
     }
@@ -68,7 +52,6 @@
       transition: background 0.3s;
     }
 
-    /* Dark mode toggle button */
     .dark-toggle {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -89,35 +72,6 @@
       background: rgba(255, 255, 255, 0.2);
     }
 
-    /* Session conflict alert banner */
-    .session-alert {
-      display: none;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-      padding: 9px 20px;
-      text-align: center;
-      font-size: 0.8rem;
-      font-weight: 600;
-      animation: slideDown 0.3s ease;
-    }
-
-    .session-alert.show {
-      display: block;
-    }
-
-    @keyframes slideDown {
-      from {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    /* floating background pills */
     .bg-pill {
       position: fixed;
       background: rgba(74, 222, 128, 0.06);
@@ -126,7 +80,6 @@
       z-index: 0;
     }
 
-    /* header */
     .header {
       padding: 16px 24px;
       display: flex;
@@ -182,7 +135,6 @@
       color: white;
     }
 
-    /* main container */
     .main {
       flex: 1;
       display: flex;
@@ -193,19 +145,17 @@
       z-index: 10;
     }
 
-    /* card */
     .card {
       background: var(--card-bg);
       border-radius: 32px;
       width: 100%;
-      max-width: 1000px;
+      max-width: 860px;
       display: flex;
       overflow: hidden;
       box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
       transition: all 0.3s ease;
     }
 
-    /* left panel */
     .left-panel {
       width: 40%;
       background: linear-gradient(145deg, var(--lp-bg-1), var(--lp-bg-2));
@@ -263,73 +213,34 @@
       width: 20px;
     }
 
-    /* right panel */
     .right-panel {
       flex: 1;
-      padding: 36px 32px;
+      padding: 44px 36px;
       background: var(--right-panel-bg);
       transition: background 0.3s;
-    }
-
-    /* tabs */
-    .tab-row {
       display: flex;
-      background: var(--tab-bg);
-      border-radius: 60px;
-      padding: 5px;
-      gap: 6px;
-      margin-bottom: 28px;
-      transition: background 0.3s;
-    }
-
-    .tab-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 12px 8px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 0.85rem;
-      border-radius: 60px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--tab-inactive);
-      display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-    }
-
-    .tab-btn.active {
-      background: var(--card-bg);
+      background: rgba(22, 163, 74, 0.1);
+      border: 1.5px solid rgba(22, 163, 74, 0.3);
       color: #16a34a;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    /* forms */
-    .form-section {
-      display: none;
-      animation: fadeIn 0.25s ease;
-    }
-
-    .form-section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 40px;
+      margin-bottom: 20px;
     }
 
     .section-title {
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--text-main);
       margin-bottom: 6px;
@@ -337,14 +248,14 @@
     }
 
     .section-sub {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-sub);
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       transition: color 0.3s;
     }
 
     .form-group {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .form-group label {
@@ -473,56 +384,23 @@
       }
     }
 
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 20px 0;
-    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
 
-    .divider-line {
-      flex: 1;
-      height: 1px;
-      background: #e2e8f0;
-    }
-
-    .divider span {
-      font-size: 0.7rem;
-      color: var(--divider-text);
-    }
-
-    .social-row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .social-btn {
-      flex: 1;
-      border: 1.5px solid var(--social-border);
-      border-radius: 40px;
-      padding: 10px;
-      background: var(--social-bg);
-      color: var(--text-main);
-      font-weight: 600;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .social-btn:hover {
-      border-color: #16a34a;
-      background: var(--social-hover-bg);
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .bottom-link {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 22px;
       font-size: 0.8rem;
-      color: var(--bottom-link-color);
+      color: var(--text-sub);
       transition: color 0.3s;
     }
 
@@ -572,11 +450,6 @@
       .right-panel {
         padding: 28px 24px;
       }
-
-      .tab-btn {
-        padding: 10px 6px;
-        font-size: 0.75rem;
-      }
     }
 
     @media (max-width: 550px) {
@@ -601,17 +474,6 @@
         font-size: 1.2rem;
       }
 
-      .tab-btn {
-        flex-direction: column;
-        gap: 4px;
-        font-size: 0.7rem;
-        padding: 8px 4px;
-      }
-
-      .social-row {
-        flex-direction: column;
-      }
-
       .input-wrap input {
         font-size: 1rem;
         padding: 13px 14px;
@@ -626,10 +488,9 @@
 
 <body>
 
-  <!-- Session conflict alert -->
-  <div class="session-alert" id="sessionAlert">
-    Your previous session was ended and you are logged in here.
-  </div>
+  <!-- Decorative background pills -->
+  <div class="bg-pill" style="width:300px;height:140px;top:10%;left:-60px;transform:rotate(-20deg);"></div>
+  <div class="bg-pill" style="width:200px;height:100px;bottom:15%;right:-40px;transform:rotate(15deg);"></div>
 
   <header class="header">
     <a href="index.html" class="logo">
@@ -646,100 +507,62 @@
 
   <main class="main">
     <div class="card">
+      <!-- Left panel -->
       <div class="left-panel">
-        <div class="lp-icon" id="panelIcon"><i class="fas fa-pills"></i></div>
+        <div class="lp-icon"><i class="fas fa-store"></i></div>
         <div>
-          <h2 id="panelTitle">Welcome Back!</h2>
-          <p id="panelDesc">Medicines delivered in <strong>30 minutes</strong>!</p>
+          <h2>Admin Portal</h2>
+          <p>Manage pharmacy, orders &amp; inventory from one place.</p>
         </div>
-        <div class="lp-features" id="panelFeatures">
-          <div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div>
-          <div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div>
-          <div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div>
-          <div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>
+        <div class="lp-features">
+          <div class="lp-feat"><i class="fas fa-box"></i> Order management</div>
+          <div class="lp-feat"><i class="fas fa-pills"></i> Inventory control</div>
+          <div class="lp-feat"><i class="fas fa-motorcycle"></i> Rider assignment</div>
+          <div class="lp-feat"><i class="fas fa-chart-line"></i> Analytics</div>
         </div>
       </div>
-    <!-- IM_VYADAW -->
+
+      <!-- Right panel — Admin Login form -->
       <div class="right-panel">
-        <div class="tab-row">
-          <button class="tab-btn active" data-login-role="user" onclick="switchTab('user', event)"><i class="fas fa-user"></i> User</button>
-          <button class="tab-btn" data-login-role="admin" onclick="switchTab('admin', event)"><i class="fas fa-store"></i> Admin</button>
-          <button class="tab-btn" data-login-role="rider" onclick="switchTab('rider', event)"><i class="fas fa-motorcycle"></i> Rider</button>
+        <div class="role-badge"><i class="fas fa-shield-halved"></i> Admin Access</div>
+        <div class="section-title">Admin Login</div>
+        <div class="section-sub">Sign in to manage your pharmacy dashboard</div>
+
+        <div class="form-group">
+          <label><i class="fas fa-id-badge"></i> Admin Email</label>
+          <div class="input-wrap">
+            <input type="text" id="a-id" placeholder="admin@email.com" autocomplete="email">
+          </div>
+          <span class="err-msg" id="a-err-id"><i class="fas fa-circle-exclamation"></i> Valid admin email
+            required</span>
         </div>
 
-        <!-- User Login -->
-        <div id="sec-user" class="form-section active">
-          <div class="section-title">User Login</div>
-          <div class="section-sub">Access your account</div>
-          <div class="form-group">
-            <label><i class="fas fa-user"></i> Email Address</label>
-            <div class="input-wrap"><input type="text" id="u-email" placeholder="you@email.com"></div>
-            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
+        <div class="form-group">
+          <div class="forgot-row">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <a href="#" class="forgot-link" onclick="openAdminForgot();return false;">Forgot?</a>
           </div>
-          <div class="form-group">
-            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
-                onclick="openForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="u-pass" placeholder="Password"><button class="pw-toggle"
-                onclick="togglePw('u-pass',this)"><i class="fas fa-eye"></i></button></div>
-            <span class="err-msg" id="u-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
+          <div class="input-wrap">
+            <input type="password" id="a-pass" placeholder="Password" autocomplete="current-password">
+            <button class="pw-toggle" onclick="togglePw('a-pass', this)"><i class="fas fa-eye"></i></button>
           </div>
-          <button class="submit-btn" id="userLoginBtn" onclick="doUserLogin()"><span class="btn-spinner"></span><span
-              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login</span></button>
-          <div class="divider">
-            <div class="divider-line"></div><span>or</span>
-            <div class="divider-line"></div>
-            <br>
-          </div>
-          <div class="bottom-link">Don't have an account? <a href="signupuser.html">Create Account</a></div>
+          <span class="err-msg" id="a-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
         </div>
 
-        <!-- Admin Login -->
-        <div id="sec-admin" class="form-section">
-          <div class="section-title">Admin Login</div>
-          <div class="section-sub">Manage your pharmacy dashboard</div>
-          <div class="form-group"><label><i class="fas fa-id-badge"></i> Admin Email</label>
-            <div class="input-wrap"><input type="text" id="a-id" placeholder="admin@email.com"></div><span
-              class="err-msg" id="a-err-id">Admin email required</span>
-          </div>
-          <div class="form-group">
-            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
-                onclick="openAdminForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="a-pass" placeholder="Password"><button class="pw-toggle"
-                onclick="togglePw('a-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
-              id="a-err-pass">Password required</span>
-          </div>
-          <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()"><span class="btn-spinner"></span><span
-              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span></button>
-          <div class="bottom-link">New pharmacy? <a href="signup.html">Register Your Pharmacy</a></div>
-        </div>
+        <button class="submit-btn" id="adminLoginBtn" onclick="doAdminLogin()">
+          <span class="btn-spinner"></span>
+          <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span>
+        </button>
 
-        <!-- Rider Login -->
-        <div id="sec-rider" class="form-section">
-          <div class="section-title">Rider Login</div>
-          <div class="section-sub">Manage deliveries</div>
-          <div class="form-group"><label><i class="fas fa-user"></i> Rider Email</label>
-            <div class="input-wrap"><input type="text" id="r-phone" placeholder="rider@email.com"></div>
-            <span class="err-msg" id="r-err-phone">Valid Rider Email required</span>
-          </div>
-          <div class="form-group">
-            <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
-                onclick="openRiderForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="r-pass" placeholder="Password"><button class="pw-toggle"
-                onclick="togglePw('r-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
-              id="r-err-pass">Password required</span>
-          </div>
-          <button class="submit-btn" id="riderLoginBtn" onclick="doRiderLogin()"><span class="btn-spinner"></span><span
-              class="btn-text"><i class="fas fa-right-to-bracket"></i> Login to Dashboard</span></button>
-          <div class="bottom-link">New rider? <a href="delivery-signup.html">Create Rider Account</a></div>
-        </div>
+        <div class="bottom-link">New pharmacy? <a href="signup.html">Register Your Pharmacy</a></div>
       </div>
     </div>
   </main>
 
   <script type="module">
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { saveSession } from './auth-session.js';
 
     const firebaseConfig = {
@@ -755,8 +578,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-
-
+    // GPS helper
     function getGPS() {
       return new Promise(resolve => {
         if (!navigator.geolocation) return resolve({ lat: null, lng: null });
@@ -768,53 +590,38 @@
       });
     }
 
+    // Toast
     let toastTimer;
     function showToast(msg, type = '') {
-      const existing = document.getElementById('mq-toast-login');
+      const existing = document.getElementById('mq-toast');
       if (existing) existing.remove();
       if (toastTimer) clearTimeout(toastTimer);
-
       const toast = document.createElement('div');
-      toast.id = 'mq-toast-login';
+      toast.id = 'mq-toast';
       toast.style.cssText = `
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: ${type === 'error' ? '#ef4444' : '#16a34a'};
-      color: white;
-      padding: 12px 28px;
-      border-radius: 60px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      z-index: 1000;
-      transition: transform 0.25s;
-      white-space: nowrap;
-      max-width: 90vw;
-      white-space: normal;
-      text-align: center;
-      font-family: 'Inter', sans-serif;
-    `;
+        position:fixed;bottom:30px;left:50%;
+        transform:translateX(-50%) translateY(80px);
+        background:${type === 'error' ? '#ef4444' : '#16a34a'};
+        color:white;padding:12px 28px;border-radius:60px;
+        font-size:0.85rem;font-weight:600;z-index:1000;
+        transition:transform 0.25s;white-space:normal;
+        max-width:90vw;text-align:center;
+        font-family:'Inter',sans-serif;
+      `;
       toast.textContent = msg;
       document.body.appendChild(toast);
-
       setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(0)'; }, 10);
-
       toastTimer = setTimeout(() => {
         toast.style.transform = 'translateX(-50%) translateY(80px)';
         setTimeout(() => toast.remove(), 300);
       }, 3000);
     }
 
-    <!-- IM_VYADAW -->
-    
     function setLoading(btnId, state) {
       const btn = document.getElementById(btnId);
-      if (!btn) return;
-      btn.classList.toggle('loading', state);
+      if (btn) btn.classList.toggle('loading', state);
     }
 
-    
     window.togglePw = function (id, btn) {
       const inp = document.getElementById(id);
       if (!inp) return;
@@ -822,110 +629,7 @@
       btn.innerHTML = inp.type === 'text' ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
     };
 
-
-    window.switchTab = function (type, event) {
-      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-      document.getElementById(`sec-${type}`).classList.add('active');
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      
-      const clickedBtn = event && event.target ? event.target.closest('.tab-btn') : null;
-      const targetBtn = clickedBtn || document.querySelector(`.tab-btn[data-login-role="${type}"]`);
-      if (targetBtn) targetBtn.classList.add('active');
-
-      const icon = document.getElementById('panelIcon');
-      const title = document.getElementById('panelTitle');
-      const desc = document.getElementById('panelDesc');
-      const features = document.getElementById('panelFeatures');
-
-      
-      if (type === 'admin') {
-        icon.innerHTML = '<i class="fas fa-store"></i>';
-        title.innerText = 'Admin Portal';
-        desc.innerText = 'Manage pharmacy, orders & inventory.';
-        features.innerHTML = `<div class="lp-feat"><i class="fas fa-box"></i> Order management</div><div class="lp-feat"><i class="fas fa-pills"></i> Inventory control</div><div class="lp-feat"><i class="fas fa-motorcycle"></i> Rider assignment</div><div class="lp-feat"><i class="fas fa-chart-line"></i> Analytics</div>`;
-      } else if (type === 'rider') {
-        icon.innerHTML = '<i class="fas fa-motorcycle"></i>';
-        title.innerText = 'Rider Portal';
-        desc.innerText = 'Manage your deliveries & earnings.';
-        features.innerHTML = `<div class="lp-feat"><i class="fas fa-box-open"></i> Assigned orders</div><div class="lp-feat"><i class="fas fa-toggle-on"></i> Availability status</div><div class="lp-feat"><i class="fas fa-check-circle"></i> Mark delivered</div><div class="lp-feat"><i class="fas fa-history"></i> Delivery history</div>`;
-      } else {
-        icon.innerHTML = '<i class="fas fa-pills"></i>';
-        title.innerText = 'Welcome Back!';
-        desc.innerHTML = 'Medicines delivered in <strong>30 minutes</strong>!';
-        features.innerHTML = `<div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div><div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div><div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div><div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>`;
-      }
-    };
-
-    
-    async function doesUserEmailExist(email) {
-      try {
-        const snap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-        return !snap.empty;
-      } catch (e) { return null; } 
-    }
-
-     
-
-     
-    window.doUserLogin = async function () {
-      const input = document.getElementById('u-email').value.trim().toLowerCase();
-      const pass = document.getElementById('u-pass').value;
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
-
-      let valid = true;
-      if (!isEmail) {
-        document.getElementById('u-err-email').classList.add('show');
-        document.getElementById('u-email').classList.add('error');
-        showToast('Use your registered email to login securely.', 'error');
-        valid = false;
-      } else {
-        document.getElementById('u-err-email').classList.remove('show');
-        document.getElementById('u-email').classList.remove('error');
-      }
-      if (!pass) {
-        document.getElementById('u-err-pass').classList.add('show');
-        document.getElementById('u-pass').classList.add('error');
-        valid = false;
-      } else {
-        document.getElementById('u-err-pass').classList.remove('show');
-        document.getElementById('u-pass').classList.remove('error');
-      }
-      if (!valid) return;
-
-      setLoading('userLoginBtn', true);
-      try {
-        const userCred = await signInWithEmailAndPassword(auth, input, pass);
-        const userSnap = await getDoc(doc(db, 'users', userCred.user.uid));
-        const gps = await getGPS();
-
-        if (gps.lat && userSnap.exists()) {
-          await updateDoc(doc(db, 'users', userCred.user.uid), { lat: gps.lat, lng: gps.lng });
-        }
-
-        saveSession('customer', {
-          uid: userCred.user.uid,
-          name: userSnap.exists() ? userSnap.data().name : input.split('@')[0],
-          email: input,
-          mobile: userSnap.exists() ? userSnap.data().mobile : '',
-          lat: gps.lat,
-          lng: gps.lng
-        });
-
-        showToast('Login successful! Welcome back', 'success');
-        setTimeout(() => window.location.href = 'profile.html', 1000);
-      } catch (err) {
-        setLoading('userLoginBtn', false);
-        if (err.code === 'auth/too-many-requests') {
-          showToast('Too many failed attempts. Please try later or reset your password.', 'error');
-        } else if (err.code === 'auth/network-request-failed') {
-          showToast('Network error. Please check your internet connection.', 'error');
-        } else {
-          showToast('Invalid email or password.', 'error');
-        }
-        console.error('Login error:', err.code, err.message);
-      }
-    };
-
+    // ── ADMIN LOGIN ──
     window.doAdminLogin = async function () {
       const id = document.getElementById('a-id').value.trim().toLowerCase();
       const pass = document.getElementById('a-pass').value;
@@ -933,16 +637,20 @@
 
       if (!id || !isEmail) {
         document.getElementById('a-err-id').classList.add('show');
+        document.getElementById('a-id').classList.add('error');
         showToast('Use your registered admin email to login securely.', 'error');
         return;
       } else {
         document.getElementById('a-err-id').classList.remove('show');
+        document.getElementById('a-id').classList.remove('error');
       }
       if (!pass) {
         document.getElementById('a-err-pass').classList.add('show');
+        document.getElementById('a-pass').classList.add('error');
         return;
       } else {
         document.getElementById('a-err-pass').classList.remove('show');
+        document.getElementById('a-pass').classList.remove('error');
       }
 
       setLoading('adminLoginBtn', true);
@@ -950,6 +658,7 @@
         const cred = await signInWithEmailAndPassword(auth, id, pass);
         const snap = await getDocs(query(collection(db, 'admins'), where('uid', '==', cred.user.uid)));
         if (snap.empty) {
+          await signOut(auth);
           setLoading('adminLoginBtn', false);
           showToast('No admin profile linked to this login.', 'error');
           return;
@@ -958,6 +667,7 @@
         const adminDoc = snap.docs[0];
         const adminData = adminDoc.data();
         if ((adminData.email || '').toLowerCase() !== id) {
+          await signOut(auth);
           setLoading('adminLoginBtn', false);
           showToast('Admin profile email mismatch. Contact support.', 'error');
           return;
@@ -999,78 +709,18 @@
         setTimeout(() => window.location.href = 'adminpage.html', 1000);
       } catch (err) {
         setLoading('adminLoginBtn', false);
-        showToast('Invalid admin email or password.', 'error');
+        if (err.code === 'auth/too-many-requests') {
+          showToast('Too many failed attempts. Please try later or reset your password.', 'error');
+        } else if (err.code === 'auth/network-request-failed') {
+          showToast('Network error. Please check your internet connection.', 'error');
+        } else {
+          showToast('Invalid admin email or password.', 'error');
+        }
         console.error('Admin login error:', err.code || err);
       }
     };
-     
-    window.doRiderLogin = async function () {
-      const input = document.getElementById('r-phone').value.trim().toLowerCase();
-      const pass = document.getElementById('r-pass').value;
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
 
-      if (!isEmail) {
-        document.getElementById('r-err-phone').classList.add('show');
-        showToast('Use your registered rider email to login securely.', 'error');
-        return;
-      } else {
-        document.getElementById('r-err-phone').classList.remove('show');
-      }
-      if (!pass) {
-        document.getElementById('r-err-pass').classList.add('show');
-        return;
-      } else {
-        document.getElementById('r-err-pass').classList.remove('show');
-      }
-
-      setLoading('riderLoginBtn', true);
-      try {
-        const cred = await signInWithEmailAndPassword(auth, input, pass);
-        const snap = await getDocs(query(collection(db, 'riders'), where('uid', '==', cred.user.uid)));
-        if (snap.empty) {
-          setLoading('riderLoginBtn', false);
-          showToast('No rider profile linked to this login.', 'error');
-          return;
-        }
-
-        const riderDoc = snap.docs[0];
-        const riderData = riderDoc.data();
-        const gps = await getGPS();
-        const newToken = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
-
-        try {
-          await updateDoc(doc(db, 'riders', riderDoc.id), {
-            uid: cred.user.uid,
-            lastLoginAt: Date.now(),
-            sessionToken: newToken,
-            ...(gps.lat ? { lat: gps.lat, lng: gps.lng } : {})
-          });
-        } catch (e) { console.warn('Rider lastLogin write failed:', e); }
-
-        saveSession('rider', {
-          uid: cred.user.uid,
-          docId: riderDoc.id,
-          name: riderData.name,
-          phone: riderData.phone || '',
-          email: riderData.email || input,
-          city: riderData.city || '',
-          vehicle: riderData.vehicle || 'bike',
-          deliveryRange: riderData.deliveryRange || 10,
-          lat: gps.lat || riderData.lat || null,
-          lng: gps.lng || riderData.lng || null,
-          sessionToken: newToken
-        });
-
-        showToast('Rider login successful!', 'success');
-        setTimeout(() => window.location.href = 'delivery-dashboard.html', 1000);
-      } catch (err) {
-        setLoading('riderLoginBtn', false);
-        showToast('Invalid rider email or password.', 'error');
-        console.error('Rider login error:', err.code || err);
-      }
-    };
-
-    
+    // ── FORGOT PASSWORD MODAL ──
     function injectModal(id, html) {
       const el = document.createElement('div');
       el.id = id;
@@ -1083,71 +733,28 @@
     const inputStyle = `width:100%;padding:13px 16px;border-radius:40px;border:1.5px solid #e2e8f0;margin:0 0 12px 0;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;`;
     const btnStyle = `background:#16a34a;color:white;border:none;padding:13px;border-radius:40px;width:100%;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;`;
 
-    
-    injectModal('userForgotModal', `
-      <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('userForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
-        <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-lock"></i></div>
-        <h3 style="font-weight:800;margin-bottom:6px;">Reset Password</h3>
-        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email. We'll send a reset link.</p>
-        <input type="email" id="uf-email" placeholder="you@example.com" style="${inputStyle}">
-        <div id="uf-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
-        <button onclick="sendUserReset()" id="uf-btn" style="${btnStyle}">Send Reset Link</button>
-      </div>
-    `);
-
-    
     injectModal('adminForgotModal', `
       <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('adminForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
+        <button onclick="document.getElementById('adminForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
         <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-store"></i></div>
         <h3 style="font-weight:800;margin-bottom:6px;">Admin Password Reset</h3>
-        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
-        <input type="email" id="af-input" placeholder="you@email.com" style="${inputStyle}">
+        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered admin email address.</p>
+        <input type="email" id="af-input" placeholder="admin@email.com" style="${inputStyle}">
         <div id="af-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
         <button onclick="sendAdminReset()" id="af-btn" style="${btnStyle}">Send Reset Link</button>
       </div>
     `);
 
-    
-    injectModal('riderForgotModal', `
-      <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('riderForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
-        <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-motorcycle"></i></div>
-        <h3 style="font-weight:800;margin-bottom:6px;">Rider Password Reset</h3>
-        <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
-        <input type="email" id="rf-input" placeholder="you@email.com" style="${inputStyle}">
-        <div id="rf-step2" style="display:none;">
-          <p style="font-size:0.8rem;color:#6b7280;margin-bottom:10px;">Enter new password</p>
-          <input type="password" id="rf-newpass" placeholder="New password (min 6 chars)" style="${inputStyle}">
-          <input type="password" id="rf-confirmpass" placeholder="Confirm new password" style="${inputStyle}">
-        </div>
-        <div id="rf-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
-        <button onclick="handleRiderReset()" id="rf-btn" style="${btnStyle}">Send Reset Link</button>
-      </div>
-    `);
-
-    // ── Open functions ──
-    window.openForgot = function () {
-      document.getElementById('userForgotModal').style.display = 'flex';
-      document.getElementById('uf-email').value = '';
-      document.getElementById('uf-msg').style.display = 'none';
-    };
     window.openAdminForgot = function () {
-      document.getElementById('adminForgotModal').style.display = 'flex';
+      const modal = document.getElementById('adminForgotModal');
+      modal.style.display = 'flex';
       document.getElementById('af-input').value = '';
       document.getElementById('af-msg').style.display = 'none';
-    };
-    window.openRiderForgot = function () {
-      document.getElementById('riderForgotModal').style.display = 'flex';
-      document.getElementById('rf-input').value = '';
-      document.getElementById('rf-step2').style.display = 'none';
-      document.getElementById('rf-msg').style.display = 'none';
-      document.getElementById('rf-btn').textContent = 'Send Reset Link';
-      window._riderResetDocId = null;
+      const btn = document.getElementById('af-btn');
+      btn.textContent = 'Send Reset Link';
+      btn.disabled = false;
     };
 
-    
     function modalMsg(id, msg, isError) {
       const el = document.getElementById(id);
       el.style.display = 'block';
@@ -1155,34 +762,13 @@
       el.textContent = msg;
     }
 
-    
-    window.sendUserReset = async function () {
-      const email = document.getElementById('uf-email').value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        modalMsg('uf-msg', 'Enter a valid email address', true); return;
-      }
-      const btn = document.getElementById('uf-btn');
-      btn.textContent = 'Sending...'; btn.disabled = true;
-      try {
-        await sendPasswordResetEmail(auth, email);
-        modalMsg('uf-msg', 'Reset link sent. Check your inbox and spam folder.', false);
-        btn.textContent = 'Sent';
-      } catch (err) {
-        btn.textContent = 'Send Reset Link'; btn.disabled = false;
-        if (err.code === 'auth/user-not-found') {
-          modalMsg('uf-msg', 'No account found with this email. Please sign up.', true);
-        } else {
-          modalMsg('uf-msg', 'Failed to send. Please try again.', true);
-        }
-      }
-    };
-
     window.sendAdminReset = async function () {
       const input = document.getElementById('af-input').value.trim().toLowerCase();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('af-msg', 'Enter a valid email address', true); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) {
+        modalMsg('af-msg', 'Enter a valid email address', true); return;
+      }
       const btn = document.getElementById('af-btn');
       btn.textContent = 'Sending...'; btn.disabled = true;
-
       try {
         await sendPasswordResetEmail(auth, input);
         modalMsg('af-msg', 'If this admin email exists, a reset link has been sent.', false);
@@ -1194,69 +780,11 @@
       }
     };
 
-
-    window._riderResetDocId = null;
-
-    window.handleRiderReset = async function () {
-      const input = document.getElementById('rf-input').value.trim().toLowerCase();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('rf-msg', 'Enter a valid email address', true); return; }
-      const btn = document.getElementById('rf-btn');
-      btn.textContent = 'Sending...'; btn.disabled = true;
-      try {
-        await sendPasswordResetEmail(auth, input);
-        modalMsg('rf-msg', 'If this rider email exists, a reset link has been sent.', false);
-        btn.textContent = 'Sent';
-      } catch (err) {
-        btn.textContent = 'Send Reset Link'; btn.disabled = false;
-        modalMsg('rf-msg', 'Failed to send reset link. Please try again.', true);
-        console.error('Rider reset error:', err);
-      }
-    };
-
-
-    window.closeForgot = function () { document.getElementById('userForgotModal').style.display = 'none'; };
-    window.sendResetLink = window.sendUserReset;
-
-    window.socialLogin = function (provider) {
-      showToast(`${provider} login coming soon!`);
-    };
-
-    function applySingleRoleMode(type) {
-      const labels = {
-        user: 'User Login',
-        admin: 'Admin Login',
-        rider: 'Rider Login'
-      };
-      document.body.classList.add('single-role-login');
-      document.title = `MediiQuick - ${labels[type] || 'Login'}`;
-      const tabRow = document.querySelector('.tab-row');
-      if (tabRow) tabRow.style.display = 'none';
-    }
-
-    function roleFromDedicatedPage() {
-      const page = window.location.pathname.split('/').pop().toLowerCase();
-      if (page === 'admin-login.html') return 'admin';
-      if (page === 'rider-login.html') return 'rider';
-      if (page === 'user-login.html') return 'user';
-      return null;
-    }
-
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const requestedRole = roleFromDedicatedPage() || urlParams.get('tab') || 'user';
-    if (['user', 'admin', 'rider'].includes(requestedRole)) {
-      setTimeout(() => switchTab(requestedRole), 100);
-    }
-    if (roleFromDedicatedPage() || urlParams.get('single') === '1') {
-      applySingleRoleMode(requestedRole);
-    }
-
-    
+    // ── Dark Mode ──
     window.toggleDarkMode = function () {
       const isDark = document.body.classList.toggle('dark-mode');
       localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
-      const btn = document.getElementById('darkToggle');
-      btn.textContent = isDark ? 'Light' : 'Dark';
+      document.getElementById('darkToggle').textContent = isDark ? 'Light' : 'Dark';
     };
     if (localStorage.getItem('mq_dark_mode') === '1') {
       document.body.classList.add('dark-mode');
@@ -1264,30 +792,11 @@
       if (btn) btn.textContent = 'Light';
     }
 
-
-
-    document.getElementById('u-email').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doUserLogin();
-    });
-    document.getElementById('u-pass').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doUserLogin();
-    });
-    
-    document.getElementById('a-id').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doAdminLogin();
-    });
-    document.getElementById('a-pass').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doAdminLogin();
-    });
-    document.getElementById('r-phone').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doRiderLogin();
-    });
-    document.getElementById('r-pass').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doRiderLogin();
-    });
+    // Enter key support
+    document.getElementById('a-id').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+    document.getElementById('a-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
   </script>
+
 </body>
 
 </html>
-
-
