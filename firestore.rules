@@ -1,199 +1,236 @@
-rules_version = '2';
+﻿rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAuthed() {
+    // ===== HELPER FUNCTIONS =====
+
+    function signedIn() {
       return request.auth != null;
     }
 
-    function isOwner(uid) {
-      return isAuthed() && request.auth.uid == uid;
+    function uid() {
+      return request.auth.uid;
     }
 
-    function hasFields(fields) {
-      return request.resource.data.keys().hasAll(fields);
+    function authEmail() {
+      return request.auth.token.email;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // USERS
-    // ══════════════════════════════════════════════════════════════
+    function ownsUidDoc(userId) {
+      return signedIn() && userId == uid();
+    }
+
+    function resourceHasOwnerUid() {
+      return signedIn() && resource.data.uid == uid();
+    }
+
+    function incomingHasOwnerUid() {
+      return signedIn() && request.resource.data.uid == uid();
+    }
+
+    function resourceHasOwnerEmail() {
+      return signedIn() && authEmail() != null && resource.data.email == authEmail();
+    }
+
+    function incomingHasOwnerEmail() {
+      return signedIn() && authEmail() != null && request.resource.data.email == authEmail();
+    }
+
+    // Sirf wahi admin likh sakta hai jiska ye pharmacy/admin doc hai
+    function adminOwns(adminId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/admins/$(adminId)) &&
+        get(/databases/$(database)/documents/admins/$(adminId)).data.uid == uid();
+    }
+
+    function orderOwner() {
+      return signedIn() && (
+        resource.data.uid == uid() ||
+        resource.data.userId == uid() ||
+        resource.data.customerUid == uid() ||
+        resource.data.riderUid == uid() ||
+        resource.data.adminUid == uid() ||
+        resource.data.assignedRiderUid == uid()
+      );
+    }
+
+    function incomingOrderOwner() {
+      return signedIn() && (
+        request.resource.data.uid == uid() ||
+        request.resource.data.userId == uid() ||
+        request.resource.data.customerUid == uid() ||
+        request.resource.data.riderUid == uid() ||
+        request.resource.data.adminUid == uid() ||
+        request.resource.data.assignedRiderUid == uid()
+      );
+    }
+
+    function adminRelatedIncoming() {
+      return signedIn() && (
+        request.resource.data.adminUid == uid() ||
+        request.resource.data.pharmacyUid == uid() ||
+        request.resource.data.assignedAdminUid == uid()
+      );
+    }
+
+    // ===== USERS =====
     match /users/{userId} {
-      allow read: if true;
-      allow create: if hasFields(['name', 'email', 'mobile', 'passwordHash'])
-                    && request.resource.data.createdAt is number;
-      allow update: if isOwner(userId) || isAuthed();
-      allow delete: if isOwner(userId);
+      allow read, update: if ownsUidDoc(userId);
+      allow create: if ownsUidDoc(userId) && incomingHasOwnerUid();
+      allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // ADMINS
-    // ══════════════════════════════════════════════════════════════
+    // ===== ADMINS =====
     match /admins/{adminId} {
-      allow read: if true;
-      allow create: if isAuthed() && hasFields(['email', 'shopName', 'adminName']);
-      allow update: if isAuthed();
-      allow delete: if isAuthed();
-    }
+      allow read: if signedIn();
+      allow create: if incomingHasOwnerUid() && incomingHasOwnerEmail();
+      // FIX: Sirf apna doc update kar sakta hai (pehle koi bhi signedIn update kar sakta tha)
+      allow update: if adminOwns(adminId);
+      allow delete: if false;
 
-    // ══════════════════════════════════════════════════════════════
-    // RIDERS
-    // ══════════════════════════════════════════════════════════════
-    match /riders/{riderId} {
-      allow read: if true;
-      allow create: if isAuthed() && hasFields(['name', 'phone', 'passwordHash']);
-      allow update: if isAuthed();
-      allow delete: if isAuthed();
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // ORDERS — FIX: Authenticated user apne orders padh sake
-    // userId ya customerEmail se where() query allow honi chahiye
-    // ══════════════════════════════════════════════════════════════
-    match /orders/{orderId} {
-      // ✅ FIX: Authenticated user sirf apne orders read kar sake
-      // resource.data.userId == request.auth.uid → apna order
-      // list queries ke liye: isAuthed() enough hai (where filter JS side pe bhi hai)
-      allow read: if isAuthed();
-
-      allow create: if isAuthed()
-                    && hasFields(['customerId', 'items', 'totalAmount', 'placedAt', 'status'])
-                    // ✅ FIX: profile.html 'total' field use karta hai, 'totalAmount' nahi
-                    // Dono field names allow karo
-                    || (isAuthed() && hasFields(['orderId', 'items', 'total', 'placedAt', 'status']));
-
-      allow update: if isAuthed();
-      allow delete: if isAuthed();
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // MEDICINES
-    // ══════════════════════════════════════════════════════════════
-    match /medicines/{medicineId} {
-      allow read: if true;
-      allow write: if isAuthed();
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // PHARMACIES
-    // ══════════════════════════════════════════════════════════════
-    match /pharmacies/{pharmacyId} {
-      allow read: if true;
-      allow write: if isAuthed();
-
+      // Admin ke medicines subcollection
       match /medicines/{medicineId} {
         allow read: if true;
-        allow write: if isAuthed();
+        allow write: if adminOwns(adminId);
+      }
+    }
+
+    // ===== RIDERS =====
+    match /riders/{riderId} {
+      allow read: if signedIn();
+      allow create: if incomingHasOwnerUid() && incomingHasOwnerEmail();
+      allow update: if signedIn();
+      allow delete: if false;
+    }
+
+    // ===== ORDERS =====
+    match /orders/{orderId} {
+      allow create: if signedIn();
+      allow read: if signedIn();
+      allow update: if signedIn();
+      allow delete: if false;
+    }
+
+    // ===== ROOT MEDICINES (legacy - sirf read) =====
+    match /medicines/{medicineId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ===== PHARMACIES =====
+    match /pharmacies/{pharmacyId} {
+      allow read: if true;
+      // FIX: Sirf us pharmacy ka admin hi pharmacy doc update kar sakta hai
+      allow create: if signedIn();
+      allow update: if adminOwns(pharmacyId);
+      allow delete: if false;
+
+      // FIX: Medicines sirf pharmacy ka admin add/edit/delete kar sakta hai
+      // (pehle koi bhi signedIn user kar sakta tha)
+      match /medicines/{medicineId} {
+        allow read: if true;
+        allow write: if adminOwns(pharmacyId);
       }
 
+      // FIX: Categories bhi sirf admin control karega
       match /customCategories/{categoryId} {
         allow read: if true;
-        allow write: if isAuthed();
+        allow write: if adminOwns(pharmacyId);
       }
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // CUSTOM CATEGORIES
-    // ══════════════════════════════════════════════════════════════
+    // ===== ROOT CUSTOM CATEGORIES (legacy - sirf read) =====
     match /customCategories/{categoryId} {
       allow read: if true;
-      allow write: if isAuthed();
+      allow write: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // PHARMACY PROFILES
-    // ══════════════════════════════════════════════════════════════
+    // ===== PHARMACY PROFILES =====
     match /pharmacyProfiles/{profileId} {
       allow read: if true;
-      allow write: if isAuthed();
+      allow create, update: if signedIn();
+      allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // WISHLISTS
-    // ══════════════════════════════════════════════════════════════
+    // ===== WISHLISTS =====
     match /wishlists/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if ownsUidDoc(userId);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // CARTS
-    // ══════════════════════════════════════════════════════════════
+    // ===== CARTS =====
     match /carts/{cartId} {
-      allow read, write: if isAuthed();
+      allow read, write: if ownsUidDoc(cartId);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // USER ADDRESSES
-    // ══════════════════════════════════════════════════════════════
+    // ===== USER ADDRESSES =====
     match /userAddresses/{userId} {
-      allow read, write: if isAuthed();
+      allow read, write: if ownsUidDoc(userId);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // RIDER REQUESTS
-    // ══════════════════════════════════════════════════════════════
+    // ===== RIDER REQUESTS =====
     match /riderRequests/{requestId} {
-      allow read, write: if isAuthed();
+      allow create: if signedIn();
+      allow read: if signedIn();
+      allow update: if signedIn() && (
+        resource.data.riderUid == uid() ||
+        resource.data.adminUid == uid() ||
+        resource.data.pharmacyUid == uid() ||
+        resource.data.assignedAdminUid == uid()
+      );
+      allow delete: if signedIn() && (
+        resource.data.adminUid == uid() ||
+        resource.data.pharmacyUid == uid() ||
+        resource.data.assignedAdminUid == uid()
+      );
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // PRESCRIPTIONS
-    // ══════════════════════════════════════════════════════════════
+    // ===== PRESCRIPTIONS =====
     match /prescriptions/{prescriptionId} {
-      allow read: if isAuthed();
-      allow create: if isAuthed() && hasFields(['uid', 'customerName', 'createdAt']);
-      allow update, delete: if isAuthed();
+      allow create: if incomingHasOwnerUid();
+      allow read, update: if resourceHasOwnerUid();
+      allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // RIDER WITHDRAWALS
-    // ══════════════════════════════════════════════════════════════
+    // ===== RIDER WITHDRAWALS =====
     match /riderWithdrawals/{withdrawalId} {
-      allow read: if isAuthed();
-      allow create: if isAuthed() && hasFields(['riderId', 'amount', 'requestedAt', 'status']);
-      allow update: if isAuthed();
+      allow create: if incomingHasOwnerUid();
+      allow read, update: if resourceHasOwnerUid();
       allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // WITHDRAWAL REQUESTS
-    // ══════════════════════════════════════════════════════════════
+    // ===== WITHDRAWAL REQUESTS =====
     match /withdrawalRequests/{requestId} {
-      allow read: if isAuthed();
-      allow create: if isAuthed() && hasFields(['adminId', 'amount', 'requestedAt', 'status']);
-      allow update: if isAuthed();
+      allow create: if incomingHasOwnerUid() || adminRelatedIncoming();
+      allow read, update: if resourceHasOwnerUid() || adminRelatedIncoming();
       allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // ADMIN PAYOUTS
-    // ══════════════════════════════════════════════════════════════
+    // ===== ADMIN PAYOUTS =====
     match /adminPayouts/{payoutId} {
-      allow read: if isAuthed();
-      allow create: if isAuthed() && hasFields(['adminId', 'amount', 'paidAt']);
-      allow update: if isAuthed();
+      allow create: if adminRelatedIncoming();
+      allow read, update: if signedIn() && (
+        resource.data.adminUid == uid() ||
+        resource.data.pharmacyUid == uid()
+      );
       allow delete: if false;
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // SUPPORT TICKETS
-    // ══════════════════════════════════════════════════════════════
+    // ===== SUPPORT TICKETS =====
     match /supportTickets/{ticketId} {
-      allow read: if true;
-      allow create: if hasFields(['ticketId', 'status', 'createdAt'])
-                    && request.resource.data.status == 'open'
-                    && request.resource.data.resolved == false
-                    && request.resource.data.keys().hasAny(['message'])
-                       ? request.resource.data.message.size() < 2000
-                       : true;
-      allow update, delete: if isAuthed();
+      allow create: if incomingHasOwnerUid();
+      allow read, update: if resourceHasOwnerUid() || adminRelatedIncoming();
+      allow delete: if false;
 
       match /messages/{messageId} {
-        allow read: if true;
-        allow create: if hasFields(['text', 'senderType', 'timestamp'])
-                      && request.resource.data.text.size() < 2000;
-        allow update, delete: if isAuthed();
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.uid == uid();
+        allow update, delete: if false;
       }
     }
 
+    // ===== DEFAULT: Baaki sab block =====
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

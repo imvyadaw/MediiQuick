@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>MediiQuick — Login Portal</title>
+  <title>MediiQuick - Login Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
@@ -125,7 +125,7 @@
       pointer-events: none;
       z-index: 0;
     }
-
+/* // IM_VYADAW */
     /* header */
     .header {
       padding: 16px 24px;
@@ -628,7 +628,7 @@
 
   <!-- Session conflict alert -->
   <div class="session-alert" id="sessionAlert">
-    ⚠️ You were logged in on another device. That session has been ended and you've been logged in here.
+    Your previous session was ended and you are logged in here.
   </div>
 
   <header class="header">
@@ -639,7 +639,7 @@
       <h1>Medii<span>Quick</span></h1>
     </a>
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">🌙 Dark</button>
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">Dark</button>
       <a href="index.html" class="home-link"><i class="fas fa-arrow-left"></i> Home</a>
     </div>
   </header>
@@ -647,7 +647,7 @@
   <main class="main">
     <div class="card">
       <div class="left-panel">
-        <div class="lp-icon" id="panelIcon">💊</div>
+        <div class="lp-icon" id="panelIcon"><i class="fas fa-pills"></i></div>
         <div>
           <h2 id="panelTitle">Welcome Back!</h2>
           <p id="panelDesc">Medicines delivered in <strong>30 minutes</strong>!</p>
@@ -662,25 +662,24 @@
 
       <div class="right-panel">
         <div class="tab-row">
-          <button class="tab-btn active" onclick="switchTab('user', event)"><i class="fas fa-user"></i> User</button>
-          <button class="tab-btn" onclick="switchTab('admin', event)"><i class="fas fa-store"></i> Admin</button>
-          <button class="tab-btn" onclick="switchTab('rider', event)"><i class="fas fa-motorcycle"></i> Rider</button>
+          <button class="tab-btn active" data-login-role="user" onclick="switchTab('user', event)"><i class="fas fa-user"></i> User</button>
+          <button class="tab-btn" data-login-role="admin" onclick="switchTab('admin', event)"><i class="fas fa-store"></i> Admin</button>
+          <button class="tab-btn" data-login-role="rider" onclick="switchTab('rider', event)"><i class="fas fa-motorcycle"></i> Rider</button>
         </div>
 
         <!-- User Login -->
         <div id="sec-user" class="form-section active">
-          <div class="section-title">👋 User Login</div>
+          <div class="section-title">User Login</div>
           <div class="section-sub">Access your account</div>
           <div class="form-group">
-            <label><i class="fas fa-user"></i> Email or Phone Number</label>
-            <div class="input-wrap"><input type="text" id="u-email" placeholder="you@email.com or 9876543210"></div>
-            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email or 10-digit
-              phone required</span>
+            <label><i class="fas fa-user"></i> Email Address</label>
+            <div class="input-wrap"><input type="text" id="u-email" placeholder="you@email.com"></div>
+            <span class="err-msg" id="u-err-email"><i class="fas fa-circle-exclamation"></i> Valid email required</span>
           </div>
           <div class="form-group">
             <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
                 onclick="openForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="u-pass" placeholder="••••••••"><button class="pw-toggle"
+            <div class="input-wrap"><input type="password" id="u-pass" placeholder="Password"><button class="pw-toggle"
                 onclick="togglePw('u-pass',this)"><i class="fas fa-eye"></i></button></div>
             <span class="err-msg" id="u-err-pass"><i class="fas fa-circle-exclamation"></i> Password required</span>
           </div>
@@ -696,16 +695,16 @@
 
         <!-- Admin Login -->
         <div id="sec-admin" class="form-section">
-          <div class="section-title">🏥 Admin Login</div>
+          <div class="section-title">Admin Login</div>
           <div class="section-sub">Manage your pharmacy dashboard</div>
-          <div class="form-group"><label><i class="fas fa-id-badge"></i> Admin ID or Email</label>
-            <div class="input-wrap"><input type="text" id="a-id" placeholder="ADMIN-123 or email"></div><span
-              class="err-msg" id="a-err-id">ID/Email required</span>
+          <div class="form-group"><label><i class="fas fa-id-badge"></i> Admin Email</label>
+            <div class="input-wrap"><input type="text" id="a-id" placeholder="admin@email.com"></div><span
+              class="err-msg" id="a-err-id">Admin email required</span>
           </div>
           <div class="form-group">
             <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
                 onclick="openAdminForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="a-pass" placeholder="••••••••"><button class="pw-toggle"
+            <div class="input-wrap"><input type="password" id="a-pass" placeholder="Password"><button class="pw-toggle"
                 onclick="togglePw('a-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
               id="a-err-pass">Password required</span>
           </div>
@@ -716,16 +715,16 @@
 
         <!-- Rider Login -->
         <div id="sec-rider" class="form-section">
-          <div class="section-title">🏍️ Rider Login</div>
+          <div class="section-title">Rider Login</div>
           <div class="section-sub">Manage deliveries</div>
-          <div class="form-group"><label><i class="fas fa-user"></i> Phone Number or Email</label>
-            <div class="input-wrap"><input type="text" id="r-phone" placeholder="9876543210 or you@email.com"></div>
-            <span class="err-msg" id="r-err-phone">Valid phone number or email required</span>
+          <div class="form-group"><label><i class="fas fa-user"></i> Rider Email</label>
+            <div class="input-wrap"><input type="text" id="r-phone" placeholder="rider@email.com"></div>
+            <span class="err-msg" id="r-err-phone">Valid Rider Email required</span>
           </div>
           <div class="form-group">
             <div class="forgot-row"><label><i class="fas fa-lock"></i> Password</label><a href="#" class="forgot-link"
                 onclick="openRiderForgot();return false;">Forgot?</a></div>
-            <div class="input-wrap"><input type="password" id="r-pass" placeholder="••••••••"><button class="pw-toggle"
+            <div class="input-wrap"><input type="password" id="r-pass" placeholder="Password"><button class="pw-toggle"
                 onclick="togglePw('r-pass',this)"><i class="fas fa-eye"></i></button></div><span class="err-msg"
               id="r-err-pass">Password required</span>
           </div>
@@ -739,8 +738,9 @@
 
   <script type="module">
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { saveSession } from './auth-session.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -753,19 +753,8 @@
 
     const app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
     const auth = getAuth(app);
-    // browserSessionPersistence REMOVED — localStorage persistence (default) use hogi
     const db = getFirestore(app);
 
-    // ── Helper: Hash password (same as in admin-signup)
-    async function hashPassword(plain) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(plain + 'mq_salt_2024');
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    // ── Cross-role cleanup: logout ALL other role sessions before logging in ──
-    // clearAllOtherSessions() REMOVED — ye dusre tabs ka session tod deta tha, loop ka karan tha
 
     // Helper: Get GPS
     function getGPS() {
@@ -838,9 +827,9 @@
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById(`sec-${type}`).classList.add('active');
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      // FIX: event.target could be the <i> icon inside button; use closest() to get the button
       const clickedBtn = event && event.target ? event.target.closest('.tab-btn') : null;
-      if (clickedBtn) clickedBtn.classList.add('active');
+      const targetBtn = clickedBtn || document.querySelector(`.tab-btn[data-login-role="${type}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
 
       const icon = document.getElementById('panelIcon');
       const title = document.getElementById('panelTitle');
@@ -848,17 +837,17 @@
       const features = document.getElementById('panelFeatures');
 
       if (type === 'admin') {
-        icon.innerHTML = '🏥';
+        icon.innerHTML = '<i class="fas fa-store"></i>';
         title.innerText = 'Admin Portal';
         desc.innerText = 'Manage pharmacy, orders & inventory.';
         features.innerHTML = `<div class="lp-feat"><i class="fas fa-box"></i> Order management</div><div class="lp-feat"><i class="fas fa-pills"></i> Inventory control</div><div class="lp-feat"><i class="fas fa-motorcycle"></i> Rider assignment</div><div class="lp-feat"><i class="fas fa-chart-line"></i> Analytics</div>`;
       } else if (type === 'rider') {
-        icon.innerHTML = '🏍️';
+        icon.innerHTML = '<i class="fas fa-motorcycle"></i>';
         title.innerText = 'Rider Portal';
         desc.innerText = 'Manage your deliveries & earnings.';
         features.innerHTML = `<div class="lp-feat"><i class="fas fa-box-open"></i> Assigned orders</div><div class="lp-feat"><i class="fas fa-toggle-on"></i> Availability status</div><div class="lp-feat"><i class="fas fa-check-circle"></i> Mark delivered</div><div class="lp-feat"><i class="fas fa-history"></i> Delivery history</div>`;
       } else {
-        icon.innerHTML = '💊';
+        icon.innerHTML = '<i class="fas fa-pills"></i>';
         title.innerText = 'Welcome Back!';
         desc.innerHTML = 'Medicines delivered in <strong>30 minutes</strong>!';
         features.innerHTML = `<div class="lp-feat"><i class="fas fa-bolt"></i> 30 min guaranteed</div><div class="lp-feat"><i class="fas fa-tag"></i> Up to 20% discount</div><div class="lp-feat"><i class="fas fa-shield-halved"></i> 100% genuine</div><div class="lp-feat"><i class="fas fa-headset"></i> 24/7 support</div>`;
@@ -875,17 +864,17 @@
 
     // enforceUserSingleSession REMOVED — ab multi-device/multi-tab login allowed hai
 
-    // USER LOGIN — email ya phone dono se
+    // USER LOGIN - Firebase Auth email login. Phone lookup before auth is disabled for security.
     window.doUserLogin = async function () {
-      const input = document.getElementById('u-email').value.trim();
+      const input = document.getElementById('u-email').value.trim().toLowerCase();
       const pass = document.getElementById('u-pass').value;
-      const isPhone = /^[6-9]\d{9}$/.test(input);
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
 
       let valid = true;
-      if (!isPhone && !isEmail) {
+      if (!isEmail) {
         document.getElementById('u-err-email').classList.add('show');
         document.getElementById('u-email').classList.add('error');
+        showToast('Use your registered email to login securely.', 'error');
         valid = false;
       } else {
         document.getElementById('u-err-email').classList.remove('show');
@@ -903,28 +892,7 @@
 
       setLoading('userLoginBtn', true);
       try {
-        let loginEmail;
-
-        if (isPhone) {
-          // Phone se login — Firestore mein mobile field se email dhundo
-          const snap = await getDocs(query(collection(db, 'users'), where('mobile', '==', input)));
-          if (snap.empty) {
-            setLoading('userLoginBtn', false);
-            showToast('❌ No account found with this phone number. Please sign up first.', 'error');
-            document.getElementById('u-email').classList.add('error');
-            return;
-          }
-          loginEmail = snap.docs[0].data().email;
-          if (!loginEmail) {
-            setLoading('userLoginBtn', false);
-            showToast('❌ Account email not found. Please login with email.', 'error');
-            return;
-          }
-        } else {
-          loginEmail = input.toLowerCase();
-        }
-
-        const userCred = await signInWithEmailAndPassword(auth, loginEmail, pass);
+        const userCred = await signInWithEmailAndPassword(auth, input, pass);
         const userSnap = await getDoc(doc(db, 'users', userCred.user.uid));
         const gps = await getGPS();
 
@@ -932,65 +900,38 @@
           await updateDoc(doc(db, 'users', userCred.user.uid), { lat: gps.lat, lng: gps.lng });
         }
 
-        const session = {
+        saveSession('customer', {
           uid: userCred.user.uid,
-          name: userSnap.exists() ? userSnap.data().name : loginEmail.split('@')[0],
-          email: loginEmail,
+          name: userSnap.exists() ? userSnap.data().name : input.split('@')[0],
+          email: input,
           mobile: userSnap.exists() ? userSnap.data().mobile : '',
           lat: gps.lat,
-          lng: gps.lng,
-          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
-        };
-        localStorage.setItem('mq_user', JSON.stringify(session));
+          lng: gps.lng
+        });
 
-        showToast('✓ Login successful! Welcome back 👋', 'success');
+        showToast('Login successful! Welcome back', 'success');
         setTimeout(() => window.location.href = 'profile.html', 1000);
-
       } catch (err) {
         setLoading('userLoginBtn', false);
-
-        if (err.code === 'auth/user-not-found') {
-          showToast('❌ No account found. Please sign up first.', 'error');
-          document.getElementById('u-email').classList.add('error');
-
-        } else if (err.code === 'auth/wrong-password') {
-          showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
-          document.getElementById('u-pass').classList.add('error');
-
-        } else if (
-          err.code === 'auth/invalid-credential' ||
-          err.code === 'auth/invalid-login-credentials'
-        ) {
-          showToast('⏳ Checking details...', '');
-          const exists = await doesUserEmailExist(isPhone ? null : input.toLowerCase());
-          if (exists === false) {
-            showToast('❌ No account found. Please sign up first.', 'error');
-            document.getElementById('u-email').classList.add('error');
-          } else {
-            showToast('🔑 Wrong password! Please try again or use Forgot Password.', 'error');
-            document.getElementById('u-pass').classList.add('error');
-          }
-
-        } else if (err.code === 'auth/too-many-requests') {
-          showToast('⚠️ Too many failed attempts. Account temporarily locked. Please try later or reset your password.', 'error');
-
+        if (err.code === 'auth/too-many-requests') {
+          showToast('Too many failed attempts. Please try later or reset your password.', 'error');
         } else if (err.code === 'auth/network-request-failed') {
-          showToast('📶 Network error. Please check your internet connection.', 'error');
-
+          showToast('Network error. Please check your internet connection.', 'error');
         } else {
-          showToast('Login failed. Please try again.', 'error');
+          showToast('Invalid email or password.', 'error');
         }
         console.error('Login error:', err.code, err.message);
       }
     };
-
-    // ADMIN LOGIN
+    // ADMIN LOGIN - Firebase Auth first; Firestore password hashes are no longer trusted.
     window.doAdminLogin = async function () {
-      const id = document.getElementById('a-id').value.trim();
+      const id = document.getElementById('a-id').value.trim().toLowerCase();
       const pass = document.getElementById('a-pass').value;
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id);
 
-      if (!id) {
+      if (!id || !isEmail) {
         document.getElementById('a-err-id').classList.add('show');
+        showToast('Use your registered admin email to login securely.', 'error');
         return;
       } else {
         document.getElementById('a-err-id').classList.remove('show');
@@ -1004,77 +945,43 @@
 
       setLoading('adminLoginBtn', true);
       try {
-        const adminsRef = collection(db, 'admins');
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id);
-        const q = isEmail
-          ? query(adminsRef, where('email', '==', id.toLowerCase()))
-          : query(adminsRef, where('adminId', '==', id.toUpperCase()));
-        let snap;
-        try {
-          snap = await getDocs(q);
-        } catch (rulesErr) {
-          setLoading('adminLoginBtn', false);
-          showToast('Database access error. Please update Firestore rules.', 'error');
-          console.error('Firestore rules block admin login:', rulesErr);
-          return;
-        }
-
+        const cred = await signInWithEmailAndPassword(auth, id, pass);
+        const snap = await getDocs(query(collection(db, 'admins'), where('uid', '==', cred.user.uid)));
         if (snap.empty) {
           setLoading('adminLoginBtn', false);
-          showToast('Invalid admin credentials', 'error');
+          showToast('No admin profile linked to this login.', 'error');
           return;
         }
 
-        const adminData = snap.docs[0].data();
-        const hash = await hashPassword(pass);
-
-        if (adminData.password !== hash) {
+        const adminDoc = snap.docs[0];
+        const adminData = adminDoc.data();
+        if ((adminData.email || '').toLowerCase() !== id) {
           setLoading('adminLoginBtn', false);
-          showToast('Invalid password', 'error');
+          showToast('Admin profile email mismatch. Contact support.', 'error');
           return;
         }
 
-        // ── Step 1: Firebase Auth FIRST (required before any write) ──
-        const adminEmail = adminData.email;
-        try {
-          await signInWithEmailAndPassword(auth, adminEmail, pass);
-        } catch (authErr) {
-          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email' || authErr.code === 'auth/invalid-login-credentials') {
-            try {
-              const newCred = await createUserWithEmailAndPassword(auth, adminEmail, pass);
-              await setDoc(doc(db, 'admins', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
-            } catch (createErr) {
-              if (createErr.code !== 'auth/email-already-in-use') {
-                console.warn('Firebase Auth create failed:', createErr.code);
-              }
-              try { await signInWithEmailAndPassword(auth, adminEmail, pass); } catch (e2) { }
-            }
-          }
-          // wrong-password on Firebase Auth is OK — Firestore already verified above
-        }
-
-        // ── Step 2: Now authenticated — safe to write ──
         const gps = await getGPS();
         try {
-          await updateDoc(doc(db, 'admins', snap.docs[0].id), {
+          await updateDoc(doc(db, 'admins', adminDoc.id), {
+            uid: cred.user.uid,
             lastLoginAt: Date.now(),
             ...(gps.lat ? { lat: gps.lat, lng: gps.lng } : {})
           });
         } catch (e) { console.warn('Admin lastLogin write failed:', e); }
 
-        const session = {
-          docId: snap.docs[0].id,
+        saveSession('admin', {
+          uid: cred.user.uid,
+          docId: adminDoc.id,
           email: adminData.email,
           shopName: adminData.shopName || '',
           adminName: adminData.adminName || '',
-          adminId: adminData.adminId || '',
+          adminId: adminData.adminId || adminDoc.id,
           city: adminData.city || '',
           deliveryRadius: adminData.deliveryRadius || '5',
           servedPins: adminData.servedPins || [],
           lat: gps.lat || adminData.lat || null,
           lng: gps.lng || adminData.lng || null,
-          // FIX: Saare registration fields bhi session mein save karo
-          // Taaki adminpage profile form correctly pre-fill ho
           location: adminData.location || '',
           mobile: adminData.mobile || '',
           mobile2: adminData.mobile2 || '',
@@ -1083,29 +990,26 @@
           gst: adminData.gst || '',
           openTime: adminData.openTime || '',
           closeTime: adminData.closeTime || '',
-          shopType: adminData.shopType || '',
-          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
-        };
-        localStorage.setItem('mq_admin_session', JSON.stringify(session));
+          shopType: adminData.shopType || ''
+        });
 
-        showToast('✓ Admin login successful!', 'success');
+        showToast('Admin login successful!', 'success');
         setTimeout(() => window.location.href = 'adminpage.html', 1000);
       } catch (err) {
         setLoading('adminLoginBtn', false);
-        showToast('Login failed. Please try again.', 'error');
-        console.error(err);
+        showToast('Invalid admin email or password.', 'error');
+        console.error('Admin login error:', err.code || err);
       }
     };
-
-    // RIDER LOGIN — phone ya email dono se
+    // RIDER LOGIN - Firebase Auth first; phone/password lookup is disabled for security.
     window.doRiderLogin = async function () {
-      const input = document.getElementById('r-phone').value.trim();
+      const input = document.getElementById('r-phone').value.trim().toLowerCase();
       const pass = document.getElementById('r-pass').value;
-      const isPhone = /^[6-9]\d{9}$/.test(input);
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
 
-      if (!isPhone && !isEmail) {
+      if (!isEmail) {
         document.getElementById('r-err-phone').classList.add('show');
+        showToast('Use your registered rider email to login securely.', 'error');
         return;
       } else {
         document.getElementById('r-err-phone').classList.remove('show');
@@ -1119,100 +1023,50 @@
 
       setLoading('riderLoginBtn', true);
       try {
-        let snap;
-        try {
-          const ridersRef = collection(db, 'riders');
-          const q = isPhone
-            ? query(ridersRef, where('phone', '==', input))
-            : query(ridersRef, where('email', '==', input.toLowerCase()));
-          snap = await getDocs(q);
-        } catch (rulesErr) {
-          setLoading('riderLoginBtn', false);
-          showToast('Database access error. Please update Firestore rules.', 'error');
-          console.error('Firestore rules block rider login:', rulesErr);
-          return;
-        }
+        const cred = await signInWithEmailAndPassword(auth, input, pass);
+        const snap = await getDocs(query(collection(db, 'riders'), where('uid', '==', cred.user.uid)));
         if (snap.empty) {
           setLoading('riderLoginBtn', false);
-          showToast(isPhone ? 'No rider account found with this phone number' : 'No rider account found with this email', 'error');
+          showToast('No rider profile linked to this login.', 'error');
           return;
         }
 
-        const riderData = snap.docs[0].data();
-        const hash = await hashPassword(pass);
-
-        if (riderData.password !== hash) {
-          setLoading('riderLoginBtn', false);
-          showToast('Invalid password', 'error');
-          return;
-        }
-
-        // ── Step 1: Firebase Auth sign-in FIRST (required before any write) ──
-        // Rider ka synthetic email: phone walo ke liye phone@mq.app, email walo ke liye actual email
-        const syntheticEmail = isPhone
-          ? (riderData.email || (input + '@mq.app'))
-          : input.toLowerCase();
-        try {
-          await signInWithEmailAndPassword(auth, syntheticEmail, pass);
-        } catch (authErr) {
-          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/invalid-email' || authErr.code === 'auth/invalid-login-credentials') {
-            try {
-              const newCred = await createUserWithEmailAndPassword(auth, syntheticEmail, pass);
-              await setDoc(doc(db, 'riders', snap.docs[0].id), { uid: newCred.user.uid }, { merge: true });
-            } catch (createErr) {
-              if (createErr.code !== 'auth/email-already-in-use') {
-                console.warn('Firebase Auth rider create failed:', createErr.code);
-              }
-              try { await signInWithEmailAndPassword(auth, syntheticEmail, pass); } catch (e2) { }
-            }
-          }
-        }
-
-        // ── Step 2: Now authenticated — safe to write to Firestore ──
+        const riderDoc = snap.docs[0];
+        const riderData = riderDoc.data();
         const gps = await getGPS();
+        const newToken = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+
         try {
-          await updateDoc(doc(db, 'riders', snap.docs[0].id), {
+          await updateDoc(doc(db, 'riders', riderDoc.id), {
+            uid: cred.user.uid,
             lastLoginAt: Date.now(),
+            sessionToken: newToken,
             ...(gps.lat ? { lat: gps.lat, lng: gps.lng } : {})
           });
         } catch (e) { console.warn('Rider lastLogin write failed:', e); }
 
-        // Generate a unique sessionToken for this login
-        const newToken = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-        // Save token to Firestore so session-watch can verify
-        try {
-          await updateDoc(doc(db, 'riders', snap.docs[0].id), { sessionToken: newToken });
-        } catch (e) { console.warn('sessionToken write failed:', e); }
-
-        const session = {
-          docId: snap.docs[0].id,
+        saveSession('rider', {
+          uid: cred.user.uid,
+          docId: riderDoc.id,
           name: riderData.name,
-          phone: riderData.phone || input,
-          email: riderData.email || '',
+          phone: riderData.phone || '',
+          email: riderData.email || input,
           city: riderData.city || '',
           vehicle: riderData.vehicle || 'bike',
           deliveryRange: riderData.deliveryRange || 10,
           lat: gps.lat || riderData.lat || null,
           lng: gps.lng || riderData.lng || null,
-          sessionToken: newToken,
-          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
-        };
-        localStorage.setItem('mq_db_session', JSON.stringify(session));
+          sessionToken: newToken
+        });
 
-        showToast('✓ Rider login successful!', 'success');
+        showToast('Rider login successful!', 'success');
         setTimeout(() => window.location.href = 'delivery-dashboard.html', 1000);
       } catch (err) {
         setLoading('riderLoginBtn', false);
-        showToast('Login failed. Please try again.', 'error');
-        console.error(err);
+        showToast('Invalid rider email or password.', 'error');
+        console.error('Rider login error:', err.code || err);
       }
     };
-
-    // ══════════════════════════════════════════
-    // FORGOT PASSWORD — Teen alag modals (User, Admin, Rider)
-    // ══════════════════════════════════════════
-
-    // ── Shared: Modal inject helper ──
     function injectModal(id, html) {
       const el = document.createElement('div');
       el.id = id;
@@ -1228,8 +1082,8 @@
     // ── 1. USER FORGOT MODAL ──
     injectModal('userForgotModal', `
       <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('userForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
-        <div style="font-size:2rem;margin-bottom:10px;">🔐</div>
+        <button onclick="document.getElementById('userForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
+        <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-lock"></i></div>
         <h3 style="font-weight:800;margin-bottom:6px;">Reset Password</h3>
         <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email. We'll send a reset link.</p>
         <input type="email" id="uf-email" placeholder="you@example.com" style="${inputStyle}">
@@ -1241,8 +1095,8 @@
     // ── 2. ADMIN FORGOT MODAL ──
     injectModal('adminForgotModal', `
       <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('adminForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
-        <div style="font-size:2rem;margin-bottom:10px;">🏥</div>
+        <button onclick="document.getElementById('adminForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
+        <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-store"></i></div>
         <h3 style="font-weight:800;margin-bottom:6px;">Admin Password Reset</h3>
         <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
         <input type="email" id="af-input" placeholder="you@email.com" style="${inputStyle}">
@@ -1254,8 +1108,8 @@
     // ── 3. RIDER FORGOT MODAL ──
     injectModal('riderForgotModal', `
       <div style="${modalBoxStyle}">
-        <button onclick="document.getElementById('riderForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">✕</button>
-        <div style="font-size:2rem;margin-bottom:10px;">🏍️</div>
+        <button onclick="document.getElementById('riderForgotModal').style.display='none'" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">x</button>
+        <div style="font-size:2rem;margin-bottom:10px;"><i class="fas fa-motorcycle"></i></div>
         <h3 style="font-weight:800;margin-bottom:6px;">Rider Password Reset</h3>
         <p style="margin-bottom:18px;color:#6b7280;font-size:0.85rem;">Enter your registered email address.</p>
         <input type="email" id="rf-input" placeholder="you@email.com" style="${inputStyle}">
@@ -1265,7 +1119,7 @@
           <input type="password" id="rf-confirmpass" placeholder="Confirm new password" style="${inputStyle}">
         </div>
         <div id="rf-msg" style="font-size:0.78rem;margin-bottom:10px;display:none;"></div>
-        <button onclick="handleRiderReset()" id="rf-btn" style="${btnStyle}">Find My Account</button>
+        <button onclick="handleRiderReset()" id="rf-btn" style="${btnStyle}">Send Reset Link</button>
       </div>
     `);
 
@@ -1285,11 +1139,10 @@
       document.getElementById('rf-input').value = '';
       document.getElementById('rf-step2').style.display = 'none';
       document.getElementById('rf-msg').style.display = 'none';
-      document.getElementById('rf-btn').textContent = 'Find My Account';
+      document.getElementById('rf-btn').textContent = 'Send Reset Link';
       window._riderResetDocId = null;
     };
 
-    // Helper: show msg inside modal
     function modalMsg(id, msg, isError) {
       const el = document.getElementById(id);
       el.style.display = 'block';
@@ -1297,136 +1150,65 @@
       el.textContent = msg;
     }
 
-    // ── USER RESET — Firebase Auth email link ──
     window.sendUserReset = async function () {
       const email = document.getElementById('uf-email').value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        modalMsg('uf-msg', '⚠️ Enter a valid email address', true); return;
+        modalMsg('uf-msg', 'Enter a valid email address', true); return;
       }
       const btn = document.getElementById('uf-btn');
       btn.textContent = 'Sending...'; btn.disabled = true;
       try {
         await sendPasswordResetEmail(auth, email);
-        modalMsg('uf-msg', '✓ Reset link sent! Check your inbox (and spam folder).', false);
-        btn.textContent = 'Sent ✓';
+        modalMsg('uf-msg', 'Reset link sent. Check your inbox and spam folder.', false);
+        btn.textContent = 'Sent';
       } catch (err) {
         btn.textContent = 'Send Reset Link'; btn.disabled = false;
         if (err.code === 'auth/user-not-found') {
-          modalMsg('uf-msg', '❌ No account found with this email. Please sign up.', true);
+          modalMsg('uf-msg', 'No account found with this email. Please sign up.', true);
         } else {
-          modalMsg('uf-msg', '❌ Failed to send. Please try again.', true);
+          modalMsg('uf-msg', 'Failed to send. Please try again.', true);
         }
       }
     };
 
-    // ── ADMIN RESET — Admin ID ya email se, Firebase Auth email link ──
+
     window.sendAdminReset = async function () {
-      const input = document.getElementById('af-input').value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('af-msg', '⚠️ Enter a valid email address', true); return; }
+      const input = document.getElementById('af-input').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('af-msg', 'Enter a valid email address', true); return; }
       const btn = document.getElementById('af-btn');
-      btn.textContent = 'Looking up...'; btn.disabled = true;
+      btn.textContent = 'Sending...'; btn.disabled = true;
 
       try {
-        const adminsRef = collection(db, 'admins');
-        const q = query(adminsRef, where('email', '==', input.toLowerCase()));
-        const snap = await getDocs(q);
-
-        if (snap.empty) {
-          modalMsg('af-msg', '❌ No admin account found with this email.', true);
-          btn.textContent = 'Send Reset Link'; btn.disabled = false;
-          return;
-        }
-
-        const adminEmail = snap.docs[0].data().email;
-        if (!adminEmail) {
-          modalMsg('af-msg', '❌ No email linked to this admin account.', true);
-          btn.textContent = 'Send Reset Link'; btn.disabled = false;
-          return;
-        }
-
-        await sendPasswordResetEmail(auth, adminEmail);
-        modalMsg('af-msg', `✓ Reset link sent to ${adminEmail}. Check your inbox.`, false);
-        btn.textContent = 'Sent ✓';
+        await sendPasswordResetEmail(auth, input);
+        modalMsg('af-msg', 'If this admin email exists, a reset link has been sent.', false);
+        btn.textContent = 'Sent';
       } catch (err) {
         btn.textContent = 'Send Reset Link'; btn.disabled = false;
-        modalMsg('af-msg', '❌ Failed to send reset link. Please try again.', true);
+        modalMsg('af-msg', 'Failed to send reset link. Please try again.', true);
         console.error('Admin reset error:', err);
       }
     };
 
-    // ── RIDER RESET — 2 step: pehle account dhundo, phir naya password set karo ──
-    // (Rider ka Firebase Auth synthetic email hota hai, email reset link kaam nahi karta)
-    // Step 1: phone/email se rider dhundo
-    // Step 2: naya password enter karo → Firestore mein hash update karo
+
     window._riderResetDocId = null;
 
     window.handleRiderReset = async function () {
+      const input = document.getElementById('rf-input').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { modalMsg('rf-msg', 'Enter a valid email address', true); return; }
       const btn = document.getElementById('rf-btn');
-
-      // Step 2: password set karna
-      if (window._riderResetDocId) {
-        const newPass = document.getElementById('rf-newpass').value;
-        const confirmPass = document.getElementById('rf-confirmpass').value;
-        if (newPass.length < 6) { modalMsg('rf-msg', '⚠️ Password must be at least 6 characters', true); return; }
-        if (newPass !== confirmPass) { modalMsg('rf-msg', '⚠️ Passwords do not match', true); return; }
-
-        btn.textContent = 'Updating...'; btn.disabled = true;
-        try {
-          const newHash = await hashPassword(newPass);
-          await updateDoc(doc(db, 'riders', window._riderResetDocId), { password: newHash });
-
-          // Firebase Auth password bhi update karo agar possible ho
-          try {
-            const riderSnap = await getDoc(doc(db, 'riders', window._riderResetDocId));
-            const riderData = riderSnap.data();
-            const synEmail = riderData.email || ((riderData.phone || '') + '@mq.app');
-            // Sign in with old cred not possible here — just note it's updated in Firestore
-          } catch (e) { }
-
-          modalMsg('rf-msg', '✓ Password updated successfully! You can now login.', false);
-          btn.textContent = 'Done ✓';
-          setTimeout(() => {
-            document.getElementById('riderForgotModal').style.display = 'none';
-          }, 2000);
-        } catch (err) {
-          btn.textContent = 'Update Password'; btn.disabled = false;
-          modalMsg('rf-msg', '❌ Failed to update password. Please try again.', true);
-          console.error('Rider reset step2 error:', err);
-        }
-        return;
-      }
-
-      // Step 1: account dhundo (sirf email se)
-      const input = document.getElementById('rf-input').value.trim();
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
-      if (!isEmail) { modalMsg('rf-msg', '⚠️ Enter a valid email address', true); return; }
-
-      btn.textContent = 'Finding account...'; btn.disabled = true;
+      btn.textContent = 'Sending...'; btn.disabled = true;
       try {
-        const ridersRef = collection(db, 'riders');
-        const q = query(ridersRef, where('email', '==', input.toLowerCase()));
-        const snap = await getDocs(q);
-
-        if (snap.empty) {
-          modalMsg('rf-msg', '❌ No rider account found. Check your details.', true);
-          btn.textContent = 'Find My Account'; btn.disabled = false;
-          return;
-        }
-
-        window._riderResetDocId = snap.docs[0].id;
-        const riderData = snap.docs[0].data();
-        document.getElementById('rf-step2').style.display = 'block';
-        document.getElementById('rf-input').disabled = true;
-        modalMsg('rf-msg', `✓ Account found: ${riderData.name}. Now set a new password.`, false);
-        btn.textContent = 'Update Password'; btn.disabled = false;
+        await sendPasswordResetEmail(auth, input);
+        modalMsg('rf-msg', 'If this rider email exists, a reset link has been sent.', false);
+        btn.textContent = 'Sent';
       } catch (err) {
-        btn.textContent = 'Find My Account'; btn.disabled = false;
-        modalMsg('rf-msg', '❌ Database error. Please try again.', true);
-        console.error('Rider reset step1 error:', err);
+        btn.textContent = 'Send Reset Link'; btn.disabled = false;
+        modalMsg('rf-msg', 'Failed to send reset link. Please try again.', true);
+        console.error('Rider reset error:', err);
       }
     };
 
-    // Legacy aliases (agar koi purana call ho)
+
     window.closeForgot = function () { document.getElementById('userForgotModal').style.display = 'none'; };
     window.sendResetLink = window.sendUserReset;
 
@@ -1434,13 +1216,34 @@
       showToast(`${provider} login coming soon!`);
     };
 
-    // Check URL params for default tab
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('tab') === 'admin') {
-      setTimeout(() => { document.querySelectorAll('.tab-btn')[1].click(); }, 100);
+    function applySingleRoleMode(type) {
+      const labels = {
+        user: 'User Login',
+        admin: 'Admin Login',
+        rider: 'Rider Login'
+      };
+      document.body.classList.add('single-role-login');
+      document.title = `MediiQuick - ${labels[type] || 'Login'}`;
+      const tabRow = document.querySelector('.tab-row');
+      if (tabRow) tabRow.style.display = 'none';
     }
-    if (urlParams.get('tab') === 'rider') {
-      setTimeout(() => { document.querySelectorAll('.tab-btn')[2].click(); }, 100);
+
+    function roleFromDedicatedPage() {
+      const page = window.location.pathname.split('/').pop().toLowerCase();
+      if (page === 'admin-login.html') return 'admin';
+      if (page === 'rider-login.html') return 'rider';
+      if (page === 'user-login.html') return 'user';
+      return null;
+    }
+
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedRole = roleFromDedicatedPage() || urlParams.get('tab') || 'user';
+    if (['user', 'admin', 'rider'].includes(requestedRole)) {
+      setTimeout(() => switchTab(requestedRole), 100);
+    }
+    if (roleFromDedicatedPage() || urlParams.get('single') === '1') {
+      applySingleRoleMode(requestedRole);
     }
 
     // ── Dark Mode ──
@@ -1448,29 +1251,20 @@
       const isDark = document.body.classList.toggle('dark-mode');
       localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
       const btn = document.getElementById('darkToggle');
-      btn.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+      btn.textContent = isDark ? 'Light' : 'Dark';
     };
     if (localStorage.getItem('mq_dark_mode') === '1') {
       document.body.classList.add('dark-mode');
       const btn = document.getElementById('darkToggle');
-      if (btn) btn.innerHTML = '☀️ Light';
+      if (btn) btn.textContent = 'Light';
     }
 
-    // Session conflict banner REMOVED — ab multi-tab/multi-device login allowed hai
-
-    // ── Active session redirect REMOVED ──
-    // Pehle yahan already-logged-in users ko auto-redirect kiya jaata tha.
-    // Isse doosre tab mein login.html kholne par bhi redirect ho jaata tha — loop ban jaata tha.
-    // Ab user manually login kar sakta hai chahe kitne bhi tabs mein ho.
-
-    // ── Enter key support — Customer, Admin, Rider ──
     document.getElementById('u-email').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doUserLogin();
     });
     document.getElementById('u-pass').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doUserLogin();
     });
-    // Note: u-email field ab text type hai, phone bhi accept karta hai
     document.getElementById('a-id').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doAdminLogin();
     });
@@ -1487,3 +1281,5 @@
 </body>
 
 </html>
+
+

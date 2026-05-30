@@ -255,6 +255,74 @@
         .mq-signup-link:hover { color: #16a34a; }
         .mq-signup-link strong { color: #16a34a; }
 
+        .role-login-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: -12px;
+        }
+
+        .role-login-tile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            color: #111827;
+            text-decoration: none;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+        }
+
+        .role-login-tile:hover {
+            transform: translateY(-2px);
+            border-color: #86efac;
+            box-shadow: 0 12px 28px rgba(22, 163, 74, 0.14);
+        }
+
+        .role-login-tile i:first-child {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0fdf4;
+            color: #16a34a;
+            flex-shrink: 0;
+        }
+
+        .role-login-copy {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .role-login-title {
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .role-login-sub {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .role-login-tile .fa-arrow-right {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        @media(max-width:700px) {
+            .role-login-strip {
+                grid-template-columns: 1fr;
+                margin-top: -18px;
+            }
+        }
+
         .cart-btn {
             position: relative;
             background: none;
@@ -1553,7 +1621,7 @@
                 border-radius: 0;
                 min-height: unset;
             }
-
+            /* // IM_VYADAW */
             .lp-features {
                 display: none;
             }
@@ -1753,7 +1821,7 @@
                         <div class="mq-role-dropdown" id="mqRoleDropdown">
                             <div class="mq-dropdown-arrow"></div>
                             <p class="mq-dropdown-label">Login as</p>
-                            <a class="mq-role-card" href="login.html?tab=user">
+                            <a class="mq-role-card" href="user-login.html">
                                 <span class="mq-role-icon">👤</span>
                                 <div>
                                     <div class="mq-role-name">User</div>
@@ -1761,7 +1829,7 @@
                                 </div>
                                 <i class="fas fa-chevron-right mq-role-arrow"></i>
                             </a>
-                            <a class="mq-role-card" href="login.html?tab=admin">
+                            <a class="mq-role-card" href="admin-login.html">
                                 <span class="mq-role-icon">🏥</span>
                                 <div>
                                     <div class="mq-role-name">Admin</div>
@@ -1769,7 +1837,7 @@
                                 </div>
                                 <i class="fas fa-chevron-right mq-role-arrow"></i>
                             </a>
-                            <a class="mq-role-card" href="login.html?tab=rider">
+                            <a class="mq-role-card" href="rider-login.html">
                                 <span class="mq-role-icon">🏍️</span>
                                 <div>
                                     <div class="mq-role-name">Rider</div>
@@ -1803,6 +1871,33 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <section class="role-login-strip section-mb" aria-label="Login portals">
+            <a class="role-login-tile" href="user-login.html">
+                <i class="fas fa-user"></i>
+                <span class="role-login-copy">
+                    <span class="role-login-title">User Login</span>
+                    <span class="role-login-sub">Order medicines</span>
+                </span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a class="role-login-tile" href="admin-login.html">
+                <i class="fas fa-store"></i>
+                <span class="role-login-copy">
+                    <span class="role-login-title">Admin Login</span>
+                    <span class="role-login-sub">Pharmacy dashboard</span>
+                </span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a class="role-login-tile" href="rider-login.html">
+                <i class="fas fa-motorcycle"></i>
+                <span class="role-login-copy">
+                    <span class="role-login-title">Rider Login</span>
+                    <span class="role-login-sub">Delivery dashboard</span>
+                </span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </section>
 
         <section id="search-results-section">
@@ -1998,25 +2093,58 @@
 
 
         async function syncFromFirestore() {
+            
             try {
-                const medSnap = await getDocs(collection(_db, 'medicines'));
-                if (!medSnap.empty) {
-                    const meds = medSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const pharmaciesSnap = await getDocs(collection(_db, 'pharmacies')).catch(() => null);
+                const adminsSnap = await getDocs(collection(_db, 'admins')).catch(() => null);
 
-                    window._mqMedCache = meds;
-                    window._mqMedUpdated = Date.now();
+                const adminIds = new Set();
+                if (pharmaciesSnap && !pharmaciesSnap.empty) {
+                    pharmaciesSnap.docs.forEach(d => adminIds.add(d.id));
+                }
+                if (adminsSnap && !adminsSnap.empty) {
+                    adminsSnap.docs.forEach(d => { if (d.data().adminId) adminIds.add(d.data().adminId); });
+                }
+
+                if (adminIds.size > 0) {
+                    const allMeds = [];
+                    for (const adminId of adminIds) {
+                        const medSnaps = await Promise.all([
+                            getDocs(collection(_db, 'pharmacies', adminId, 'medicines')).catch(() => null),
+                            getDocs(collection(_db, 'admins', adminId, 'medicines')).catch(() => null)
+                        ]);
+                        medSnaps.filter(Boolean).forEach(snap => {
+                            if (!snap.empty) {
+                                snap.docs.forEach(d => allMeds.push({ id: d.id, ...d.data() }));
+                            }
+                        });
+                    }
+                    if (allMeds.length > 0) {
+                        window._mqMedCache = allMeds;
+                        window._mqMedUpdated = Date.now();
+                    }
                 }
             } catch (e) { }
-            try {
-                const catSnap = await getDocs(collection(_db, 'customCategories'));
-                if (!catSnap.empty) {
-                    const cats = catSnap.docs.map(d => ({ key: d.id, ...d.data() }));
 
-                    window._mqCatCache = cats;
+            try {
+                const pharmaciesSnap = await getDocs(collection(_db, 'pharmacies')).catch(() => null);
+                const adminIds = new Set();
+                if (pharmaciesSnap && !pharmaciesSnap.empty) {
+                    pharmaciesSnap.docs.forEach(d => adminIds.add(d.id));
+                }
+                const allCats = [];
+                for (const adminId of adminIds) {
+                    const catSnap = await getDocs(collection(_db, 'pharmacies', adminId, 'customCategories')).catch(() => null);
+                    if (catSnap && !catSnap.empty) {
+                        catSnap.docs.forEach(d => allCats.push({ key: d.id, ...d.data() }));
+                    }
+                }
+                if (allCats.length > 0) {
+                    window._mqCatCache = allCats;
                 }
             } catch (e) { }
 
-            // Cart sync — Firebase Auth uid se
+            
             try {
                 const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
                 const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
@@ -2031,7 +2159,10 @@
                 }
             } catch (e) { }
         }
-        syncFromFirestore();
+
+        syncFromFirestore().then(() => {
+            if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
+        });
     </script>
 
     <script>
@@ -2335,31 +2466,37 @@
                 const adminMeds = window._mqMedCache || [];
 
 
-                adminMeds.forEach(adminMed => {
-                    const adminName = (adminMed.name || '').toLowerCase().trim();
-                    Object.values(MEDICINES_FLAT).forEach(med => {
-                        const medName = (med.name || '').toLowerCase().trim();
-                        if (medName === adminName || medName.includes(adminName) || adminName.includes(medName)) {
-                            if (adminMed.price && adminMed.price > 0) { med.price = adminMed.price; med.mrp = Math.round(adminMed.price * 1.1); }
-                            med.outOfStock = adminMed.quantity === 0;
-                        }
+                if (adminMeds.length > 0) {
+                    const BUILTIN_KEYS = ['fever', 'allergy', 'heart', 'brain', 'respiratory', 'bone', 'cold', 'bp', 'diabetes', 'other'];
+
+                    
+                    adminMeds.forEach(adminMed => {
+                        const adminName = (adminMed.name || '').toLowerCase().trim();
+                        Object.values(MEDICINES_FLAT).forEach(med => {
+                            const medName = (med.name || '').toLowerCase().trim();
+                            if (medName === adminName || medName.includes(adminName) || adminName.includes(medName)) {
+                                if (adminMed.price && adminMed.price > 0) {
+                                    med.price = adminMed.price;
+                                    med.mrp = adminMed.mrp || Math.round(adminMed.price * 1.1);
+                                }
+                                med.outOfStock = adminMed.quantity === 0;
+                            }
+                        });
                     });
-                });
 
 
-                const BUILTIN_KEYS = ['fever', 'allergy', 'heart', 'brain', 'respiratory', 'bone', 'cold', 'bp', 'diabetes', 'other'];
-                BUILTIN_KEYS.forEach(key => {
-                    const catMeds = adminMeds.filter(m => m.catKey === key && m.price > 0);
-                    catMeds.forEach(m => {
-                        const alreadyIn = MEDICINES[key]?.find(x => x.name.toLowerCase() === m.name.toLowerCase());
-                        if (!alreadyIn && MEDICINES[key]) {
-                            const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
-                            MEDICINES[key].push(med);
-                            MEDICINES_FLAT[med.id] = med;
-                        }
+                    BUILTIN_KEYS.forEach(key => {
+                        const catMeds = adminMeds.filter(m => m.catKey === key && m.price > 0);
+                        catMeds.forEach(m => {
+                            const alreadyIn = MEDICINES[key]?.find(x => x.name.toLowerCase() === m.name.toLowerCase());
+                            if (!alreadyIn && MEDICINES[key]) {
+                                const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: m.mrp || Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: m.trending || false };
+                                MEDICINES[key].push(med);
+                                MEDICINES_FLAT[med.id] = med;
+                            }
+                        });
                     });
-                });
-
+                }
 
                 loadCustomCatCards();
 
@@ -2375,7 +2512,7 @@
                 section.style.display = 'block';
                 if (countEl) countEl.textContent = validMeds.length + ' medicines available';
                 grid.innerHTML = validMeds.map(m => {
-                    const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
+                    const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || 'Available at our pharmacy', price: m.price, mrp: m.mrp || Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: m.trending || false };
                     MEDICINES_FLAT[med.id] = med;
                     return renderCard(med);
                 }).join('');
@@ -2546,15 +2683,13 @@
         }
 
         function handleCheckout() {
-            // ✅ FIX #1: Block checkout if cart is empty
+            
             if (Object.keys(cart).length === 0) { showToast('⚠ Your cart is empty! Add medicines first.'); return; }
-            // Check Firebase Auth state for checkout guard
             const _fbAuthCheck = (() => {
                 try {
                     return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
                 } catch (e) { return Promise.resolve(null); }
             })();
-            // FIX: Validate session expiry, not just existence
             let isLoggedIn = false;
             try {
                 const raw = localStorage.getItem('mq_user');
@@ -2577,7 +2712,7 @@
         }
         function goToLogin() {
             closeLoginModal();
-            window.location.href = 'login.html';
+            window.location.href = 'user-login.html';
         }
 
         function renderCard(med) {
@@ -2767,7 +2902,7 @@
             document.getElementById('medicine-search').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') searchMedicines();
             });
-            // Debounce: auto-search 300ms after user stops typing
+    
             (function () {
                 let _searchTimer = null;
                 document.getElementById('medicine-search').addEventListener('input', function () {
@@ -2784,7 +2919,7 @@
             document.getElementById('popular-grid').innerHTML = POPULAR.map(renderCard).join('');
             updateCartDrawer();
 
-            // Auth header — Firebase Auth based
+
             (function () {
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
                     import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, signOut }) => {
@@ -2803,7 +2938,6 @@
                             const _auth = getAuth(_app);
                             const _fdb = getFirestore(_app);
 
-                            // Expose signOut globally for logout button
                             window._indexSignOut = () => signOut(_auth).then(() => {
                                 localStorage.removeItem('mq_user');
                                 window.location.reload();
@@ -2812,9 +2946,15 @@
                             onAuthStateChanged(_auth, async (user) => {
                                 const authArea = document.getElementById('headerAuthArea');
                                 if (!authArea) return;
+                                const localCustomer = (() => {
+                                    try {
+                                        const s = JSON.parse(localStorage.getItem('mq_user') || 'null');
+                                        return s && s.uid && (!s.expiresAt || Date.now() < s.expiresAt) ? s : null;
+                                    } catch (e) { return null; }
+                                })();
 
                                 if (user) {
-                                    // Fetch name from Firestore
+
                                     let displayName = user.email.split('@')[0];
                                     let displayEmail = user.email;
                                     try {
@@ -2823,11 +2963,14 @@
                                             const d = snap.data();
                                             displayName = d.name || d.fullName || displayName;
                                             displayEmail = d.email || displayEmail;
-                                            // Sync localStorage for cart key + order reads
-                                            const merged = { uid: user.uid, email: displayEmail, name: displayName, ...d, expiresAt: Date.now() + 86400000 };
+                                            
+                                            const merged = { uid: user.uid, email: displayEmail, name: displayName, ...d, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
                                             localStorage.setItem('mq_user', JSON.stringify(merged));
                                             loadCart();
                                             updateCartDrawer();
+                                        } else if (localCustomer) {
+                                            displayName = localCustomer.name || localCustomer.fullName || displayName;
+                                            displayEmail = localCustomer.email || displayEmail;
                                         }
                                     } catch (e) { }
 
@@ -2862,8 +3005,12 @@
                                         if (dd) dd.style.display = 'none';
                                     });
                                 } else {
-                                    localStorage.removeItem('mq_user');
-                                    authArea.innerHTML = `<button class="login-btn" onclick="window.location.href='login.html'">Login / Signup</button>`;
+                                    if (localCustomer) {
+                                        loadCart();
+                                        updateCartDrawer();
+                                        return;
+                                    }
+                                    authArea.innerHTML = getRoleLoginDropdownMarkup();
                                     loadCart();
                                     updateCartDrawer();
                                 }
@@ -2875,7 +3022,7 @@
         });
 
         function goToProtected(page) {
-            // Firebase Auth — currentUser is fastest check once onAuthStateChanged has fired
+            
             const user = localStorage.getItem('mq_user'); // sync fallback (populated by onAuthStateChanged above)
             if (user) {
                 window.location.href = page;
@@ -2897,15 +3044,51 @@
 
     </script>
 
-    <!-- ── Role Login Dropdown JS ── -->
     <script>
+        function getRoleLoginDropdownMarkup() {
+            return `
+                <div class="mq-login-wrapper" id="mqLoginWrapper">
+                    <button class="login-btn" onclick="toggleLoginDropdown(event)">Login / Signup ▾</button>
+                    <div class="mq-role-dropdown" id="mqRoleDropdown">
+                        <div class="mq-dropdown-arrow"></div>
+                        <p class="mq-dropdown-label">Login as</p>
+                        <a class="mq-role-card" href="user-login.html">
+                            <span class="mq-role-icon">👤</span>
+                            <div>
+                                <div class="mq-role-name">User</div>
+                                <div class="mq-role-sub">Order medicines</div>
+                            </div>
+                            <i class="fas fa-chevron-right mq-role-arrow"></i>
+                        </a>
+                        <a class="mq-role-card" href="admin-login.html">
+                            <span class="mq-role-icon">🏥</span>
+                            <div>
+                                <div class="mq-role-name">Admin</div>
+                                <div class="mq-role-sub">Pharmacy dashboard</div>
+                            </div>
+                            <i class="fas fa-chevron-right mq-role-arrow"></i>
+                        </a>
+                        <a class="mq-role-card" href="rider-login.html">
+                            <span class="mq-role-icon">🏍️</span>
+                            <div>
+                                <div class="mq-role-name">Rider</div>
+                                <div class="mq-role-sub">Manage deliveries</div>
+                            </div>
+                            <i class="fas fa-chevron-right mq-role-arrow"></i>
+                        </a>
+                        <div class="mq-dropdown-divider"></div>
+                        <a class="mq-signup-link" href="signupuser.html">New here? <strong>Create Account →</strong></a>
+                    </div>
+                </div>`;
+        }
+
         function toggleLoginDropdown(e) {
             e.stopPropagation();
             const dd = document.getElementById('mqRoleDropdown');
-            dd.classList.toggle('open');
+            if (dd) dd.classList.toggle('open');
         }
 
-        // Close on outside click
+
         document.addEventListener('click', function(e) {
             const wrapper = document.getElementById('mqLoginWrapper');
             if (wrapper && !wrapper.contains(e.target)) {
@@ -2914,7 +3097,6 @@
             }
         });
 
-        // Close on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const dd = document.getElementById('mqRoleDropdown');

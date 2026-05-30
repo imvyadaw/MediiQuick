@@ -760,7 +760,7 @@
             pointer-events: none;
             white-space: nowrap;
         }
-
+/* // IM_VYADAW */
         #toast.show {
             transform: translateX(-50%) translateY(0);
         }
@@ -1086,7 +1086,7 @@
             }
         }
 
-        /* ===== END RESPONSIVE FIXES ===== */
+        
     </style>
 </head>
 
@@ -1171,7 +1171,7 @@
 
 
     <script>
-        // Auth guard — Firebase Auth based
+        
         (function () {
             import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
@@ -1190,13 +1190,15 @@
                         const _auth = getAuth(_app);
                         const _fdb = getFirestore(_app);
                         onAuthStateChanged(_auth, async (user) => {
-                            if (!user) { window.location.href = 'login.html'; return; }
-                            // Sync Firestore → localStorage for loadOrders() which reads mq_user
+                            const localSession = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch (e) { return {}; } })();
+                            if (!user || (localSession.uid && user.uid !== localSession.uid)) {
+                                if (!localSession.uid) window.location.href = 'user-login.html';
+                                return;
+                            }
+                            
                             try {
                                 const snap = await getDoc(doc(_fdb, 'users', user.uid));
                                 if (snap.exists()) {
-                                    // FIX: sessionToken multi-tab logout loop hata diya
-                                    // Multi-tab use allowed hai — college demo ke liye zaroori
                                     const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 86400000 };
                                     localStorage.setItem('mq_user', JSON.stringify(merged));
                                     if (typeof loadOrders === 'function') loadOrders();
@@ -1331,8 +1333,24 @@
                 const userEmail = (currentUser.email || '').toLowerCase().trim();
                 if (!userEmail && !currentUser.uid) { orders = []; return; }
 
-                // FIX: Sirf Firestore cache use karo — localStorage ghost orders remove
-                const allOrders = window._mqOrderCache || [];
+                
+                const byId = new Map();
+                const addOrder = (o) => {
+                    if (!o) return;
+                    const id = o.orderId || o.id || '';
+                    if (!id) return;
+                    byId.set(id, { ...(byId.get(id) || {}), ...o, orderId: id });
+                };
+                (window._mqOrderCache || []).forEach(addOrder);
+                try {
+                    const globalOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
+                    if (Array.isArray(globalOrders)) globalOrders.forEach(addOrder);
+                    if (userEmail) {
+                        const userOrders = JSON.parse(localStorage.getItem('mq_orders_' + userEmail) || '[]');
+                        if (Array.isArray(userOrders)) userOrders.forEach(addOrder);
+                    }
+                } catch (e) { console.warn('[MQ] Local order fallback failed:', e); }
+                const allOrders = [...byId.values()];
 
                 orders = allOrders.filter(o => {
                     const orderEmail = (o.customerEmail || o.email || '').toLowerCase().trim();
@@ -1349,8 +1367,8 @@
         try {
             const u = JSON.parse(localStorage.getItem('mq_user') || '{}');
             _currentUserEmail = (u.email || '').toLowerCase().trim();
-            if (!u.email && !u.uid) window.location.href = 'login.html';
-        } catch (e) { window.location.href = 'login.html'; }
+            if (!u.email && !u.uid) window.location.href = 'user-login.html';
+        } catch (e) { window.location.href = 'user-login.html'; }
 
 
         window.addEventListener('storage', function (e) {
@@ -1358,8 +1376,8 @@
 
                 try {
                     const u = JSON.parse(e.newValue || '{}');
-                    if (!u.email && !u.uid) window.location.href = 'login.html';
-                } catch (e) { window.location.href = 'login.html'; }
+                    if (!u.email && !u.uid) window.location.href = 'user-login.html';
+                } catch (e) { window.location.href = 'user-login.html'; }
             }
         });
 
@@ -1591,17 +1609,16 @@
             renderAll();
         }
 
-        // ✅ localStorage se order completely remove karo (ghost orders ke liye)
         function _removeOrderFromLocalStorage(orderId) {
             try {
-                // Cache se remove
+                
                 window._mqOrderCache = (window._mqOrderCache || []).filter(x => x.orderId !== orderId);
 
-                // mq_orders se remove
+                
                 let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
                 localStorage.setItem('mq_orders', JSON.stringify(localOrders.filter(x => x.orderId !== orderId)));
 
-                // mq_orders_<email> se remove
+                
                 const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
                 if (userEmail) {
                     const userKey = 'mq_orders_' + userEmail;
@@ -1617,14 +1634,14 @@
             let stored = window._mqOrderCache || [];
             const o = stored.find(x => x.orderId === orderId);
 
-            // Delivered ya on_the_way order cancel nahi ho sakta
+            
             if (o && (o.status === 'on_the_way' || o.status === 'delivered')) {
                 showToast('❌ This order cannot be cancelled at this stage.', 'error');
                 return;
             }
 
             try {
-                // ✅ Pehle check karo — kya yeh order Firestore mein hai?
+                
                 let existsInFirestore = false;
                 if (window._mqFirestore) {
                     try {
@@ -1633,13 +1650,11 @@
                         const orderSnap = await getDoc(orderRef);
 
                         if (orderSnap.exists()) {
-                            // ✅ Firestore mein hai — properly cancel karo
+
                             existsInFirestore = true;
                             await updateDoc(orderRef, { status: 'cancelled', cancelledAt: Date.now() });
                             console.log('[MQ] Order cancelled in Firestore:', orderId);
                         } else {
-                            // ❌ Ghost order — Firestore mein exist nahi karta
-                            // Sirf localStorage se remove karo
                             console.warn('[MQ] Ghost order detected:', orderId, '— removing from localStorage only');
                             _removeOrderFromLocalStorage(orderId);
                             showToast('🗑️ Ghost order removed. It was not saved in database.');
@@ -1652,7 +1667,6 @@
                     }
                 }
 
-                // localStorage mein bhi cancel karo (Firestore success ke baad)
                 if (o) { o.status = 'cancelled'; o.cancelledAt = Date.now(); }
                 window._mqOrderCache = stored;
 
@@ -1742,7 +1756,7 @@
         const _app = (() => { try { return getApp(); } catch (e) { return initializeApp(firebaseConfig); } })();
         const _auth = getAuth(_app);
         const _db = getFirestore(_app);
-        window._mqFirestore = _db; // Expose for cancelOrder
+        window._mqFirestore = _db; 
 
         function getUserIdentifiers() {
             try {
@@ -1755,16 +1769,16 @@
         }
 
 
-        // ✅ Ghost orders purge — localStorage mein jo orders hain but Firestore mein nahi, unhe hata do
+        
         function _purgeGhostOrders(firestoreOrderIds) {
             if (!firestoreOrderIds || firestoreOrderIds.length === 0) return;
             const fsIds = new Set(firestoreOrderIds);
 
             try {
-                // mq_orders purge
+
                 let localOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]');
                 const cleanLocal = localOrders.filter(o => {
-                    // Agar order 5 minute se purana hai aur Firestore mein nahi → ghost hai
+                    
                     const isOld = (Date.now() - (o.placedAt || 0)) > 5 * 60 * 1000;
                     return !isOld || fsIds.has(o.orderId);
                 });
@@ -1773,7 +1787,7 @@
                     console.log('[MQ] Purged', localOrders.length - cleanLocal.length, 'ghost order(s) from mq_orders');
                 }
 
-                // mq_orders_<email> purge
+                
                 const userEmail = (JSON.parse(localStorage.getItem('mq_user') || '{}').email || '').toLowerCase().trim();
                 if (userEmail) {
                     const userKey = 'mq_orders_' + userEmail;
@@ -1788,7 +1802,7 @@
                     }
                 }
 
-                // _mqOrderCache purge
+
                 if (window._mqOrderCache) {
                     window._mqOrderCache = window._mqOrderCache.filter(o => {
                         const isOld = (Date.now() - (o.placedAt || 0)) > 5 * 60 * 1000;
@@ -1798,10 +1812,7 @@
             } catch (e) { console.warn('[MQ] Ghost purge failed:', e); }
         }
 
-        // ✅ FIX: user param liya — Firebase Auth user object directly use karo
-        // Dono queries chalao: userId se (primary) + customerEmail se (fallback)
         function subscribeOrderUpdates(firebaseUser) {
-            // Cleanup old listeners
             if (window._mqOrderUnsubscribe) { window._mqOrderUnsubscribe(); }
             if (window._mqOrderUnsubscribeEmail) { window._mqOrderUnsubscribeEmail(); }
 
@@ -1813,7 +1824,7 @@
                 return;
             }
 
-            // Merged cache for both queries
+            
             let uidOrders = [];
             let emailOrders = [];
 
@@ -1825,10 +1836,13 @@
                 const allFsIds = merged.map(o => o.orderId).filter(Boolean);
                 _purgeGhostOrders(allFsIds);
                 window._mqOrderCache = merged;
+                try {
+                    localStorage.setItem('mq_orders', JSON.stringify(merged));
+                    const { email } = getUserIdentifiers();
+                    if (email) localStorage.setItem('mq_orders_' + email, JSON.stringify(merged));
+                } catch (e) { console.warn('[MQ] Could not persist order cache:', e); }
                 if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
             }
-
-            // ── Query 1: userId se (main query — Firebase Auth uid) ──
             if (uid) {
                 const uidQ = query(collection(_db, 'orders'), where('userId', '==', uid));
                 window._mqOrderUnsubscribe = onSnapshot(uidQ, (snap) => {
@@ -1840,7 +1854,6 @@
                 });
             }
 
-            // ── Query 2: customerEmail se (fallback/extra coverage) ──
             if (email) {
                 const emailQ = query(collection(_db, 'orders'), where('customerEmail', '==', email));
                 window._mqOrderUnsubscribeEmail = onSnapshot(emailQ, (snap) => {
@@ -1852,18 +1865,15 @@
                 });
             }
 
-            // Cleanup on page leave
             window.addEventListener('beforeunload', () => {
                 if (window._mqOrderUnsubscribe) window._mqOrderUnsubscribe();
                 if (window._mqOrderUnsubscribeEmail) window._mqOrderUnsubscribeEmail();
             }, { once: true });
         }
 
-        // ✅ FIX: Auth ke baad hi Firestore query lagao
-        // Pehle localStorage se try karo (fast render), phir Firestore se sync
         onAuthStateChanged(_auth, (user) => {
             if (user) {
-                // Update localStorage mein uid to ensure getUserIdentifiers() returns correct uid
+                
                 try {
                     const stored = JSON.parse(localStorage.getItem('mq_user') || '{}');
                     if (!stored.uid) {
@@ -1872,8 +1882,9 @@
                     }
                 } catch (e) { }
                 subscribeOrderUpdates(user);
+            } else {
+                if (window._mqLoadOrders) { window._mqLoadOrders(); window._mqRenderAll(); }
             }
-            // Agar user null hai toh auth guard (upar wala IIFE) login.html redirect karega
         });
     </script>
 </body>

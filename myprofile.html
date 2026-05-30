@@ -1378,7 +1378,7 @@
           <button class="settings-btn btn-danger" onclick="logout()">Logout Account</button>
         </div>
       </div>
-
+<!-- // IM_VYADAW -->
     </main>
   </div>
 
@@ -1460,7 +1460,7 @@
     loadAddressesFromFirestore();
     subscribeOrders();
 
-    // FIX: Cleanup listener on page unload
+    
     window.addEventListener('beforeunload', () => {
       if (window._mqUnsub_mpOrders) window._mqUnsub_mpOrders();
     }, { once: true });
@@ -1485,41 +1485,27 @@
             const _auth = getAuth(_app);
             const _fdb = getFirestore(_app);
 
-            // Expose signOut for logout button
+            
             window._myProfileSignOut = () => signOut(_auth).then(() => {
               localStorage.removeItem('mq_user');
-              window.location.href = 'login.html';
+              window.location.href = 'user-login.html';
             });
 
             onAuthStateChanged(_auth, async (user) => {
-              if (!user) { window.location.href = 'login.html'; return; }
-              // Sync Firestore data → localStorage so loadUser() works
+              const localSession = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
+              if (!user || (localSession.uid && user.uid !== localSession.uid)) {
+                if (!localSession.uid) window.location.href = 'user-login.html';
+                return;
+              }
+              
               try {
                 const snap = await getDoc(doc(_fdb, 'users', user.uid));
                 if (snap.exists()) {
-                  // ── Single-device session check ──
-                  const localSession = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
-                  const firestoreToken = snap.data().sessionToken;
-                  if (localSession.sessionToken && firestoreToken && localSession.sessionToken !== firestoreToken) {
-                    await signOut(_auth);
-                    localStorage.removeItem('mq_user');
-                    window.location.href = 'login.html?session=displaced';
-                    return;
-                  }
-                  const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now()+86400000 };
+
+                  const merged = { uid: user.uid, email: user.email, ...snap.data(), expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
                   localStorage.setItem('mq_user', JSON.stringify(merged));
                   if (typeof loadUser === 'function') loadUser();
 
-                  // Real-time session watch
-                  const { onSnapshot: _onSnap } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-                  _onSnap(doc(_fdb, 'users', user.uid), (liveSnap) => {
-                    if (!liveSnap.exists()) return;
-                    const ls = (() => { try { return JSON.parse(localStorage.getItem('mq_user') || '{}'); } catch(e) { return {}; } })();
-                    const liveToken = liveSnap.data().sessionToken;
-                    if (ls.sessionToken && liveToken && ls.sessionToken !== liveToken) {
-                      signOut(_auth).then(() => { localStorage.removeItem('mq_user'); window.location.href = 'login.html?session=displaced'; });
-                    }
-                  });
                 }
               } catch(e) { console.warn('myprofile auth sync failed:', e); }
             });
@@ -1711,7 +1697,6 @@
       if (np.length < 8) return showToast('⚠️ New password must be at least 8 characters');
       if (current === np) return showToast('⚠️ New password must be different from current password');
 
-      // FIX: Re-authenticate first before calling updatePassword (Firebase requires this)
       Promise.all([
         import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"),
         import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js")
@@ -1749,7 +1734,7 @@
         if (window._myProfileSignOut) {
           window._myProfileSignOut();
         } else {
-          window.location.href = 'login.html';
+          window.location.href = 'user-login.html';
         }
       }
     }
@@ -1928,8 +1913,6 @@
       showToast('🗑️ Address deleted!');
     }
 
-    // loadUser() is called by onAuthStateChanged after Firestore sync completes.
-    // Call it here only as a fallback so UI isn't blank if auth already resolved.
     if (localStorage.getItem('mq_user')) loadUser();
     loadOrders();
     loadAddresses();

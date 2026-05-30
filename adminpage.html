@@ -2176,6 +2176,9 @@
             <button class="btn-outline" onclick="openBulkImportModal()"><i class="fas fa-file-csv"></i> Bulk
               Import</button>
             <button class="btn-green" onclick="openAddMedModal()"><i class="fas fa-plus"></i> Add Medicine</button>
+            <button class="btn-outline" id="migrateBtn" onclick="migrateStaticToFirebase()" style="background:#fff3cd;border-color:#ffc107;color:#856404;">
+              <i class="fas fa-cloud-upload-alt"></i> Migrate Static → Firebase
+            </button>
           </div>
         </div>
         <div class="card">
@@ -2228,8 +2231,8 @@
         </div>
         <div class="card">
           <div class="search-bar">
-            <input class="search-input" id="orderSearch" placeholder="🔍 Order ID or customer name..."
-              oninput="renderOrders()" />
+            <input class="search-input" id="orderSearch" placeholder="🔍 Order ID, customer, email, phone, PIN..."
+              autocomplete="off" oninput="renderOrders()" />
           </div>
           <div class="table-wrap">
             <table>
@@ -2894,7 +2897,9 @@
   <script type="module">
     import { db as _db, app as _app } from './firebase-config.js';
     import { collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    import { getSession, refreshSession, updateCurrentAuthPassword, waitForAuthUser, requireRole } from './auth-session.js';
 
     // FIX: XSS prevention — escape all user-supplied strings before inserting into innerHTML
     function escapeHTML(str) {
@@ -2914,15 +2919,46 @@
       try {
         // FIX: Store unsubscribe to prevent memory leak
         if (window._mqUnsub_orders) window._mqUnsub_orders();
-        window._mqUnsub_orders = onSnapshot(collection(_db, 'orders'), (snap) => {
-          window._mqOrderCache = snap.docs.map(d => ({ orderId: d.id, ...d.data() }));
+        if (Array.isArray(window._mqUnsub_orderQueries)) window._mqUnsub_orderQueries.forEach(fn => { try { fn(); } catch (_) { } });
+        window._mqUnsub_orderQueries = [];
+
+        const rerender = () => {
           if (window._adminReRender) {
             window._adminReRender();
           } else {
             if (typeof renderDashboard === 'function') renderDashboard();
             if (typeof renderOrders === 'function') renderOrders();
           }
-        });
+        };
+
+        const session = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
+        const adminUid = session.uid || '';
+        const mergeOrders = (docs) => {
+          const byId = new Map((window._mqOrderCache || []).map(o => [o.orderId || o.id, o]));
+          docs.forEach(d => {
+            const data = { orderId: d.id, ...d.data() };
+            byId.set(data.orderId, { ...(byId.get(data.orderId) || {}), ...data });
+          });
+          window._mqOrderCache = [...byId.values()];
+          rerender();
+        };
+
+        if (adminUid) {
+          ['adminUid', 'assignedAdminUid'].forEach(field => {
+            const unsub = onSnapshot(
+              query(collection(_db, 'orders'), where(field, '==', adminUid)),
+              snap => mergeOrders(snap.docs),
+              err => console.warn(`[MQ Orders] ${field} scoped listener failed:`, err.code || err.message || err)
+            );
+            window._mqUnsub_orderQueries.push(unsub);
+          });
+          window._mqUnsub_orders = () => window._mqUnsub_orderQueries.forEach(fn => { try { fn(); } catch (_) { } });
+        } else {
+          window._mqUnsub_orders = onSnapshot(collection(_db, 'orders'), snap => mergeOrders(snap.docs), err => {
+            console.warn('[MQ Orders] Orders listener failed:', err.code || err.message || err);
+            rerender();
+          });
+        }
       } catch (e) { console.warn('Orders subscription failed:', e); }
     }
 
@@ -2931,8 +2967,14 @@
     function _mqAdminId() {
       try {
         const s = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        return s.adminId || s.docId || null;
+        return s.docId || s.adminId || null;
       } catch (e) { return null; }
+    }
+    function _mqAdminIds() {
+      try {
+        const s = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        return [...new Set([s.docId, s.adminId].filter(Boolean).map(String))];
+      } catch (e) { return _mqAdminId() ? [_mqAdminId()] : []; }
     }
     function _mqMedCol() {
       const aid = _mqAdminId();
@@ -2954,12 +2996,38 @@
       if (!aid) throw new Error('Admin not logged in');
       return doc(_db, 'pharmacies', aid, 'customCategories', key);
     }
+    async function _mqEnsurePharmacyDoc() {
+      const aid = _mqAdminId();
+      if (!aid) throw new Error('Admin not logged in');
+      const session = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
+      await setDoc(doc(_db, 'pharmacies', aid), {
+        adminId: aid,
+        legacyAdminId: session.adminId || '',
+        docId: session.docId || aid,
+        uid: session.uid || getAuth(_app).currentUser?.uid || '',
+        updatedAt: Date.now()
+      }, { merge: true });
+      return aid;
+    }
 
     async function loadMedicinesFromFirestore() {
       try {
-        const snap = await getDocs(_mqMedCol());
-        if (snap.empty) return;
-        const meds = snap.docs.map(d => ({ ...d.data(), id: parseInt(d.data().id || d.id) || d.data().id }));
+        const ids = _mqAdminIds();
+        if (!ids.length) return;
+        const byId = new Map();
+        for (const aid of ids) {
+          const snaps = await Promise.all([
+            getDocs(collection(_db, 'pharmacies', aid, 'medicines')).catch(() => null),
+            getDocs(collection(_db, 'admins', aid, 'medicines')).catch(() => null)
+          ]);
+          snaps.filter(Boolean).forEach(snap => snap.docs.forEach(d => {
+            const data = d.data() || {};
+            const id = data.id || d.id;
+            byId.set(String(id), { ...data, id });
+          }));
+        }
+        if (!byId.size) return;
+        const meds = [...byId.values()];
 
         window._mqMedCache = meds;
         window._mqMedUpdated = Date.now();
@@ -2970,8 +3038,13 @@
 
     async function loadCustomCatsFromFirestore() {
       try {
-        const snap = await getDocs(_mqCatCol());
-        const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
+        const ids = _mqAdminIds();
+        const byKey = new Map();
+        for (const aid of ids) {
+          const snap = await getDocs(collection(_db, 'pharmacies', aid, 'customCategories'));
+          snap.docs.forEach(d => byKey.set(d.id, { key: d.id, ...d.data() }));
+        }
+        const cats = [...byKey.values()];
         window._mqCatCache = cats;
         // FIX: localStorage sync hata diya — window._mqCatCache hi use karo
         // Re-render cat grids if medicine modal is open
@@ -2989,12 +3062,13 @@
       db: _db,
       saveMedicineToFirestore: async (med) => {
         try {
+          await _mqEnsurePharmacyDoc();
           await setDoc(_mqMedDoc(med.id), med);
         } catch (e) { console.warn('Medicine save failed:', e); }
       },
       deleteMedicineFromFirestore: async (id) => {
         try {
-          await deleteDoc(_mqMedDoc(id));
+          await Promise.all(_mqAdminIds().map(aid => deleteDoc(doc(_db, 'pharmacies', aid, 'medicines', String(id)))));
         } catch (e) { console.warn('Medicine delete failed:', e); }
       },
       saveOrderStatusToFirestore: async (orderId, updates) => {
@@ -3004,6 +3078,7 @@
       },
       saveCustomCatToFirestore: async (cat) => {
         try {
+          await _mqEnsurePharmacyDoc();
           await setDoc(_mqCatDoc(cat.key), cat);
         } catch (e) { console.warn('Custom cat save failed:', e); }
       },
@@ -3015,7 +3090,15 @@
 
       savePharmacyProfileToFirestore: async (adminId, profile) => {
         try {
-          await setDoc(doc(_db, 'pharmacyProfiles', adminId), { ...profile, updatedAt: Date.now() }, { merge: true });
+          const session = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
+          await setDoc(doc(_db, 'pharmacyProfiles', adminId), {
+            ...profile,
+            adminId,
+            docId: adminId,
+            legacyAdminId: profile.legacyAdminId || session.adminId || '',
+            uid: session.uid || profile.uid || getAuth(_app).currentUser?.uid || '',
+            updatedAt: Date.now()
+          }, { merge: true });
         } catch (e) { console.warn('Pharmacy profile save failed:', e); }
       },
 
@@ -3041,17 +3124,20 @@
       },
       deleteCustomCatFromFirestore: async (key) => {
         try {
-          await deleteDoc(_mqCatDoc(key));
+          await Promise.all(_mqAdminIds().map(aid => deleteDoc(doc(_db, 'pharmacies', aid, 'customCategories', key))));
         } catch (e) { console.warn('Custom cat delete failed:', e); }
       },
       deleteMedicinesByCategory: async (catKey, catLabel) => {
         try {
-          const snap = await getDocs(_mqMedCol());
-          const toDelete = snap.docs.filter(d => {
-            const data = d.data();
-            return data.catKey === catKey || data.category === catLabel;
-          });
-          await Promise.all(toDelete.map(d => deleteDoc(d.ref)));
+          const deletes = [];
+          for (const aid of _mqAdminIds()) {
+            const snap = await getDocs(collection(_db, 'pharmacies', aid, 'medicines'));
+            snap.docs.forEach(d => {
+              const data = d.data();
+              if (data.catKey === catKey || data.category === catLabel) deletes.push(deleteDoc(d.ref));
+            });
+          }
+          await Promise.all(deletes);
         } catch (e) { console.warn('Category medicines delete failed:', e); }
       }
     };
@@ -3061,12 +3147,19 @@
       // FIX: Store unsubscribe to prevent memory leak
       if (window._mqUnsub_riders) window._mqUnsub_riders();
       window._mqUnsub_riders = onSnapshot(collection(_db, 'riders'), (snap) => {
-        window._mqDeliveryBoysCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const byKey = new Map();
+        snap.docs.forEach(d => {
+          const rider = { id: d.id, ...d.data() };
+          const key = (rider.uid || rider.email || rider.phone || rider.id || '').toString().trim().toLowerCase();
+          if (key) byKey.set(key, { ...(byKey.get(key) || {}), ...rider });
+        });
+        window._mqDeliveryBoysCache = [...byKey.values()];
         if (window._adminRenderDeliveryBoys) window._adminRenderDeliveryBoys();
       });
     }
 
     function _mqWaitAndInit(tries) {
+      if (!_mqAdminId()) return;
       if (typeof renderOrders === 'function' && typeof renderMedicines === 'function') {
         loadMedicinesFromFirestore();
         loadCustomCatsFromFirestore();
@@ -3078,64 +3171,57 @@
     }
     _mqWaitAndInit(0);
 
-    // FIX: Cleanup all Firestore listeners when admin leaves page
+
     window.addEventListener('beforeunload', () => {
       if (window._mqUnsub_orders) window._mqUnsub_orders();
       if (window._mqUnsub_riders) window._mqUnsub_riders();
     }, { once: true });
 
-    // ─── AUTH GUARD (merged into single module block) ───────────────────────
+    
 
     const _auth = getAuth(_app);
     setPersistence(_auth, browserSessionPersistence).catch(() => { });
     const _fdb = _db;
+    window.__adminAuth = _auth;
 
     window._mqAdminSignOut = async () => {
-      // ✅ Logout hone par Firestore mein isOnline: false karo
-      // Taaki is admin ke area mein naye orders na jaayein
+      
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
         const adminDocId = session.docId || session.adminId;
         if (adminDocId) {
-          const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-          await _updateDoc(_doc(_fdb, 'pharmacyProfiles', adminDocId), { isOnline: false, lastLogoutAt: Date.now() });
-          console.log('[MQ Admin] isOnline set to FALSE in pharmacyProfiles');
+          const { doc: _doc, setDoc: _setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          await _setDoc(_doc(_fdb, 'pharmacyProfiles', adminDocId), { isOnline: false, lastLogoutAt: Date.now() }, { merge: true });
         }
       } catch (e) {
         console.warn('[MQ Admin] Could not set isOnline=false:', e);
       }
       signOut(_auth).then(() => {
         localStorage.removeItem('mq_admin_session');
-        window.location.href = 'login.html?tab=admin';
+        window.location.href = 'admin-login.html';
       });
     };
 
-    // Check localStorage immediately (fast, synchronous) — set by login.html
-    const _lsSession = (() => {
-      try {
-        const s = JSON.parse(localStorage.getItem('mq_admin_session') || 'null');
-        if (s && s.expiresAt && Date.now() < s.expiresAt && s.docId) return s;
-        return null;
-      } catch (e) { return null; }
-    })();
+    
+    const _roleState = await requireRole('admin', { auth: _auth, redirectTo: 'admin-login.html' });
+    const _lsSession = _roleState?.session || null;
 
     if (_lsSession) {
-      // Already verified by login.html — populate UI immediately
+      
       window._mqAdminData = _lsSession;
       const nameEl = document.getElementById('headerPharmacyName');
       if (nameEl && _lsSession.shopName) nameEl.textContent = _lsSession.shopName;
     }
 
-    // ✅ localStorage session se hi admin verify — Firebase Auth state ignore karo
-    // (kyunki ek browser mein sirf ek Firebase Auth user hota hai — cross-role tabs se conflict hota tha)
+
     if (!_lsSession) {
-      window.location.href = 'login.html?tab=admin';
+      window.location.href = 'admin-login.html';
     } else {
-      // Background mein Firestore se fresh data sync karo — logout nahi karega
+      
       (async () => {
         try {
           const snap = await getDocs(query(collection(_fdb, 'admins'), where('email', '==', _lsSession.email)));
-          if (snap.empty) return; // Silently skip — don't logout on network issues
+          if (snap.empty) return; 
           const adminData = snap.docs[0].data();
           window._mqAdminData = { docId: snap.docs[0].id, ...adminData };
           const nameEl = document.getElementById('headerPharmacyName');
@@ -3164,12 +3250,19 @@
             shopType: adminData.shopType || '',
             expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
           };
-          localStorage.setItem('mq_admin_session', JSON.stringify(refreshed));
+          refreshSession('admin', refreshed);
 
-          // Set isOnline = true
+          
           try {
-            const { doc: _doc, updateDoc: _updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-            await _updateDoc(_doc(_fdb, 'pharmacyProfiles', snap.docs[0].id), { isOnline: true, lastLoginAt: Date.now() });
+            const { doc: _doc, setDoc: _setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            await _setDoc(_doc(_fdb, 'pharmacyProfiles', snap.docs[0].id), {
+              isOnline: true,
+              lastLoginAt: Date.now(),
+              adminId: snap.docs[0].id,
+              docId: snap.docs[0].id,
+              legacyAdminId: adminData.adminId || '',
+              uid: adminData.uid || _auth.currentUser?.uid || ''
+            }, { merge: true });
           } catch (e) { console.warn('[MQ Admin] Could not set isOnline=true:', e); }
         } catch (e) {
           console.warn('[MQ Admin] Background sync failed — staying on page:', e);
@@ -3184,7 +3277,20 @@
     let pendingDeleteId = null;
     let pendingDeleteCatKey = null;
 
-    // FIX: Define _adminReRender so Firestore real-time listener can trigger re-render
+    if (typeof window.escapeHTML !== 'function') {
+      window.escapeHTML = function (str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      };
+    }
+    var escapeHTML = window.escapeHTML;
+
+    
     window._adminReRender = function () {
       if (typeof renderDashboard === 'function') renderDashboard();
       const av = document.querySelector('.view.active')?.id;
@@ -3193,7 +3299,7 @@
       if (av === 'view-customers' && typeof renderCustomers === 'function') renderCustomers();
     };
 
-    // FIX: getDistanceKm fallback in case utils.js doesn't export it
+    
     if (typeof getDistanceKm !== 'function') {
       window.getDistanceKm = function (lat1, lon1, lat2, lon2) {
         const R = 6371;
@@ -3227,11 +3333,11 @@
     }
 
     function loadMedicines() {
-      // FIX: Sirf Firestore cache use karo — stale localStorage data ignore
+      
       medicines = window._mqMedCache || [];
     }
     function saveMedicinesLS() {
-      // FIX: localStorage write hata diya — Firestore primary source hai
+      
       window._mqMedCache = medicines;
       window._mqMedUpdated = Date.now();
 
@@ -3240,27 +3346,82 @@
       }
     }
 
+    function createMedicineId() {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return 'med_' + window.crypto.randomUUID();
+      }
+      return 'med_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    }
+
+    function findMedicineById(id) {
+      const needle = String(id);
+      return medicines.find(x => String(x.id) === needle);
+    }
+
+    function getCurrentAdminDocId() {
+      try {
+        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        return session.docId || session.adminId || '';
+      } catch (e) { return ''; }
+    }
+
     function loadOrders() {
-      // Firestore cache use karo, orderId ensure karo
-      const cache = window._mqOrderCache || [];
-      return cache.map(o => ({
-        ...o,
-        orderId: o.orderId || o.id || ''
-      }));
+      
+      const byId = new Map();
+      const add = (o) => {
+        if (!o) return;
+        const orderId = o.orderId || o.id || '';
+        if (!orderId) return;
+        byId.set(orderId, { ...(byId.get(orderId) || {}), ...o, orderId });
+      };
+      (window._mqOrderCache || []).forEach(add);
+
+      
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i) || '';
+          if (key === 'mq_orders' || key.startsWith('mq_orders_')) {
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            if (Array.isArray(arr)) arr.forEach(add);
+          }
+        }
+      } catch (e) { console.warn('[MQ Orders] local fallback failed:', e); }
+
+      return [...byId.values()];
     }
     function saveOrdersLS(orders) {
 
       window._mqOrderCache = orders;
+      try {
+        localStorage.setItem('mq_orders', JSON.stringify(orders));
+        const byEmail = {};
+        orders.forEach(o => {
+          const email = (o.customerEmail || o.email || '').toLowerCase().trim();
+          if (!email) return;
+          if (!byEmail[email]) byEmail[email] = [];
+          byEmail[email].push(o);
+        });
+        Object.entries(byEmail).forEach(([email, list]) => {
+          localStorage.setItem('mq_orders_' + email, JSON.stringify(list));
+        });
+      } catch (e) { console.warn('[MQ Orders] local save failed:', e); }
       if (window.__adminFirestore) {
         orders.forEach(o => window.__adminFirestore.saveOrderStatusToFirestore(o.orderId, o));
       }
     }
 
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'mq_orders' || (e.key || '').startsWith('mq_orders_')) {
+        if (typeof renderDashboard === 'function') renderDashboard();
+        if (typeof renderOrders === 'function') renderOrders();
+      }
+    });
+
     function loadProfile() {
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
 
-        // Priority 1: Firestore cache (most fresh)
+        
         if (window._mqAdminProfileCache && window._mqAdminProfileCache.name) {
           const profile = { ...window._mqAdminProfileCache };
           if (session.lat && !profile.lat) profile.lat = session.lat;
@@ -3269,7 +3430,7 @@
           return profile;
         }
 
-        // Priority 2: mq_admin_session — all fields from login
+        
         const profile = {};
         if (session.shopName) profile.name = session.shopName;
         if (session.shopName) profile.shopName = session.shopName;
@@ -3289,7 +3450,9 @@
         if (session.servedPins !== undefined) profile.servedPins = session.servedPins;
         if (session.lat) profile.lat = session.lat;
         if (session.lng) profile.lng = session.lng;
-        if (session.adminId) profile.adminId = session.adminId;
+        if (session.docId || session.adminId) profile.adminId = session.docId || session.adminId;
+        if (session.docId) profile.docId = session.docId;
+        if (session.adminId) profile.legacyAdminId = session.adminId;
         return profile;
       } catch (e) { return {}; }
     }
@@ -3306,7 +3469,8 @@
       waitForFirestore(async function () {
         try {
           const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-          if (!session.adminId) return;
+          const profileId = session.docId || session.adminId || '';
+          if (!profileId) return;
 
 
           const sessionProfile = {
@@ -3326,7 +3490,9 @@
             shopType: session.shopType || '',
             deliveryRadius: session.deliveryRadius || '15',
             servedPins: session.servedPins || [],
-            adminId: session.adminId,
+            adminId: profileId,
+            legacyAdminId: session.adminId || '',
+            docId: profileId,
             lat: session.lat || null,
             lng: session.lng || null,
           };
@@ -3338,12 +3504,14 @@
 
 
           if (window.__adminFirestore) {
-            const fsProfile = await window.__adminFirestore.loadPharmacyProfileFromFirestore(session.adminId);
+            const fsProfile = await window.__adminFirestore.loadPharmacyProfileFromFirestore(profileId);
             if (fsProfile && Object.keys(fsProfile).length > 0) {
 
               if (session.lat && !fsProfile.lat) fsProfile.lat = session.lat;
               if (session.lng && !fsProfile.lng) fsProfile.lng = session.lng;
-              if (!fsProfile.adminId) fsProfile.adminId = session.adminId;
+              fsProfile.adminId = profileId;
+              fsProfile.docId = profileId;
+              if (!fsProfile.legacyAdminId) fsProfile.legacyAdminId = session.adminId || '';
 
               if (!fsProfile.mobile2) fsProfile.mobile2 = session.mobile2 || '';
               if (!fsProfile.pin) fsProfile.pin = session.pin || '';
@@ -3351,11 +3519,11 @@
               if (!fsProfile.openTime) fsProfile.openTime = session.openTime || '';
               if (!fsProfile.closeTime) fsProfile.closeTime = session.closeTime || '';
               if (!fsProfile.shopType) fsProfile.shopType = session.shopType || '';
-              // FIX: servedPins pharmacyProfiles mein nahi hota — session se lo
+              
               if (!fsProfile.servedPins || fsProfile.servedPins.length === 0) {
                 fsProfile.servedPins = session.servedPins || [];
               }
-              // FIX: license, phone, address bhi session se fallback karo
+              
               if (!fsProfile.license) fsProfile.license = session.drugLicense || '';
               if (!fsProfile.phone) fsProfile.phone = session.mobile || '';
               if (!fsProfile.address) fsProfile.address = session.location || '';
@@ -3385,7 +3553,9 @@
                   closeTime: regData.closeTime,
                   shopType: regData.shopType,
                   deliveryRadius: regData.deliveryRadius,
-                  adminId: regData.adminId,
+                  adminId: profileId,
+                  legacyAdminId: regData.adminId || session.adminId || '',
+                  docId: profileId,
                   mobile2: regData.mobile2 || '',
                   // FIX: servedPins regData se lo (signup mein save hua tha)
                   servedPins: regData.servedPins || session.servedPins || [],
@@ -3393,11 +3563,11 @@
                   lng: session.lng || regData.lng || null,
                 };
                 window._mqAdminProfileCache = mergedProfile;
-                window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, mergedProfile);
+                window.__adminFirestore.savePharmacyProfileToFirestore(profileId, mergedProfile);
               } else {
 
                 window._mqAdminProfileCache = sessionProfile;
-                window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, sessionProfile);
+                window.__adminFirestore.savePharmacyProfileToFirestore(profileId, sessionProfile);
               }
             }
           }
@@ -3420,7 +3590,6 @@
       // Prefix/suffix clean
       const clean = s => s.replace(/^(new |greater |old |east |west |north |south |navi )/i, '').trim();
       if (clean(a) === clean(b)) return true;
-      // Ek dusre ke andar — e.g. "noida" in "gautam buddha nagar noida"
       if (a.includes(b) || b.includes(a)) return true;
       return false;
     }
@@ -3442,18 +3611,47 @@
         : haversineKm(lat1, lon1, lat2, lon2);
     }
 
+    function getAdminIdentitySet() {
+      const ids = new Set();
+      const add = (v) => {
+        if (v !== undefined && v !== null && String(v).trim()) ids.add(String(v).trim().toLowerCase());
+      };
+      try {
+        const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
+        [session.adminId, session.docId, session.id, session.uid, session.email, session.shopName, session.mobile].forEach(add);
+      } catch (e) { }
+      try {
+        const adminData = window._mqAdminData || {};
+        [adminData.adminId, adminData.docId, adminData.id, adminData.uid, adminData.email, adminData.shopName, adminData.mobile].forEach(add);
+      } catch (e) { }
+      try {
+        const profile = window._mqAdminProfileCache || {};
+        [profile.adminId, profile.docId, profile.id, profile.uid, profile.email, profile.shopName, profile.name, profile.phone].forEach(add);
+      } catch (e) { }
+      return ids;
+    }
+
+    function isOrderAssignedToThisAdmin(order) {
+      const assignedValues = [
+        order?.assignedAdminId,
+        order?.adminId,
+        order?.assignedAdminUid,
+        order?.adminUid,
+        order?.pharmacyUid,
+        order?.pharmacyId,
+        order?.shopName,
+        order?.pharmacyName
+      ].filter(v => v !== undefined && v !== null && String(v).trim());
+      if (!assignedValues.length) return true;
+      const ids = getAdminIdentitySet();
+      if (ids.size === 0) return true;
+      return assignedValues.some(v => ids.has(String(v).trim().toLowerCase()));
+    }
+
     function isOrderInRange(order, profile) {
+      const assignedMatches = isOrderAssignedToThisAdmin(order);
 
-      // ── Step 1: Assigned check ──
-      // Agar order kisi DOOSRE admin ne confirm kar liya → hide karo
-      const mySession = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
-      const myAdminId = mySession.adminId || mySession.docId || '';
-      const assignedTo = order.assignedAdminId || '';
-      if (assignedTo && myAdminId && assignedTo !== myAdminId) {
-        return false;
-      }
-
-      // ── Step 2: Data nikalo ──
+      
       const deliveryCity = (order.deliveryAddr?.city || order.realPinCity || order.city || '').toLowerCase().trim();
       const deliveryPin = (order.deliveryAddr?.pin || order.customerPin || '').toString().trim();
       const deliveryLat = parseFloat(order.deliveryAddr?.lat) || null;
@@ -3464,49 +3662,39 @@
       const pharmLat = parseFloat(profile.lat) || null;
       const pharmLng = parseFloat(profile.lng) || null;
       const radius = parseFloat(profile.deliveryRadius || 5);
+      const servedPins = (profile.servedPins || []).map(p => String(p).trim()).filter(Boolean);
 
-      // ── Step 3: Admin ka koi filter set nahi → sab dikhao ──
+      if (assignedMatches && (order.assignedAdminId || order.adminId || order.assignedAdminUid || order.adminUid || order.pharmacyUid)) {
+        return true;
+      }
+
+      
       if (!pharmCity && !pharmPin && !pharmLat) {
-        console.log('[MQ Range] No admin filter set — showing all orders');
-        return true;
+        return assignedMatches;
       }
 
-      // ── Step 4: Order mein koi location nahi → dikhao ──
+      
       if (!deliveryCity && !deliveryPin && !deliveryLat) {
-        console.log('[MQ Range] Order has no location info — showing');
+        return assignedMatches;
+      }
+
+      
+      if (deliveryPin && ((pharmPin && pharmPin === deliveryPin) || servedPins.includes(deliveryPin))) {
         return true;
       }
 
-      // ── Step 5: PIN exact match → seedha show karo ──
-      if (pharmPin && deliveryPin && pharmPin === deliveryPin) {
-        console.log('[MQ Range] PIN exact match:', pharmPin, '→ SHOW');
-        return true;
-      }
-
-      // ── Step 6: City match ──
+      
       const cityMatched = cityMatch(pharmCity, deliveryCity);
-      console.log('[MQ Range] City check:', pharmCity, 'vs', deliveryCity, '→', cityMatched);
 
       if (cityMatched) {
-        // Dono ke GPS hain → distance check karo
-        if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
-          const dist = haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
-          console.log('[MQ Range] GPS dist:', dist.toFixed(2), 'km, radius:', radius, '→', dist <= radius ? 'SHOW' : 'HIDE');
-          return dist <= radius;
-        }
-        // GPS nahi → city match kaafi hai
-        console.log('[MQ Range] City matched, no GPS → SHOW');
         return true;
       }
 
-      // ── Step 7: GPS fallback (city alag hai) ──
+      
       if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
         const dist = haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
-        console.log('[MQ Range] GPS fallback dist:', dist.toFixed(2), 'km → ', dist <= radius ? 'SHOW' : 'HIDE');
         return dist <= radius;
       }
-
-      console.log('[MQ Range] No match found → HIDE. Order city:', deliveryCity, 'Admin city:', pharmCity);
       return false;
     }
 
@@ -3532,8 +3720,9 @@
 
           try {
             const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-            if (session.adminId && window.__adminFirestore) {
-              window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, { lat, lng });
+            const profileId = session.docId || session.adminId || '';
+            if (profileId && window.__adminFirestore) {
+              window.__adminFirestore.savePharmacyProfileToFirestore(profileId, { lat, lng });
             }
           } catch (e) { }
 
@@ -3604,7 +3793,7 @@
 
       const lowCount = medicines.filter(m => m.quantity < 10).length;
       const pendingCount = orders.filter(o => ['pending', 'confirmed', 'packing', 'on_the_way', 'pending_acceptance'].includes(o.status)).length;
-      // FIX: Revenue sirf is admin ke delivered orders se calculate karo
+
       const _sess = (() => { try { return JSON.parse(localStorage.getItem('mq_admin_session') || '{}'); } catch (e) { return {}; } })();
       const _myDocId = _sess.docId || '';
       const _myAdminId = _sess.adminId || '';
@@ -3664,7 +3853,7 @@
           <div class="stock-bar"><div class="stock-fill low" style="width:${pct}%;"></div></div>
           <span class="low-stock-label">${m.quantity}/10 min</span>
         </td>
-        <td><button class="act-btn act-view" onclick="openRestockModal(${m.id})">📦 Restock</button></td>
+        <td><button class="act-btn act-view" onclick='openRestockModal(${JSON.stringify(String(m.id))})'>📦 Restock</button></td>
       </tr>`;
         }).join('');
       }
@@ -3700,9 +3889,9 @@
         </div>
       </td>
       <td class="td-actions">
-        <button class="act-btn act-edit" onclick="openEditMedModal(${m.id})">✏️ Edit</button>
-        <button class="act-btn act-del" onclick="openDeleteModal(${m.id})">🗑️ Del</button>
-        ${low ? `<button class="act-btn act-view" onclick="openRestockModal(${m.id})">📦</button>` : ''}
+        <button class="act-btn act-edit" onclick='openEditMedModal(${JSON.stringify(String(m.id))})'>✏️ Edit</button>
+        <button class="act-btn act-del" onclick='openDeleteModal(${JSON.stringify(String(m.id))})'>🗑️ Del</button>
+        ${low ? `<button class="act-btn act-view" onclick='openRestockModal(${JSON.stringify(String(m.id))})'>📦</button>` : ''}
       </td>
     </tr>`;
       }).join('');
@@ -3727,12 +3916,11 @@
     let selectedNewCatIcon = '💊';
 
     function getCustomCats() {
-      // FIX: Sirf Firestore cache use karo — localStorage fallback hata diya
+
       return window._mqCatCache || [];
     }
     function saveCustomCats(cats) {
       window._mqCatCache = cats;
-      // FIX: localStorage write hata diya — Firestore primary hai
       if (window.__adminFirestore) {
         cats.forEach(c => window.__adminFirestore.saveCustomCatToFirestore(c));
       }
@@ -3851,7 +4039,7 @@
     }
 
     function openEditMedModal(id) {
-      const m = medicines.find(x => x.id === id);
+      const m = findMedicineById(id);
       if (!m) return;
       document.getElementById('medModalTitle').textContent = 'Edit Medicine';
       document.getElementById('medEditId').value = id;
@@ -3908,11 +4096,11 @@
 
       const editId = document.getElementById('medEditId').value;
       if (editId) {
-        const m = medicines.find(x => x.id === parseInt(editId));
+        const m = findMedicineById(editId);
         if (m) { m.name = name; m.category = finalCategory; m.catKey = finalCatKey; m.quantity = qty; m.price = price; }
         showToast('✅ Medicine updated!');
       } else {
-        const newId = medicines.length ? Math.max(...medicines.map(x => x.id)) + 1 : 1;
+        const newId = createMedicineId();
         medicines.push({ id: newId, name, category: finalCategory, catKey: finalCatKey, quantity: qty, price });
         showToast('✅ Medicine added! Visible to customers now.');
       }
@@ -3923,7 +4111,7 @@
     }
 
     function openDeleteModal(id) {
-      const m = medicines.find(x => x.id === id);
+      const m = findMedicineById(id);
       if (!m) return;
       pendingDeleteId = id;
       document.getElementById('delMedName').textContent = m.name;
@@ -3931,12 +4119,19 @@
     }
 
     function confirmDelete() {
-      medicines = medicines.filter(m => m.id !== pendingDeleteId);
+      medicines = medicines.filter(m => String(m.id) !== String(pendingDeleteId));
       saveMedicinesLS();
+
+      
+      if (window.__adminFirestore && pendingDeleteId) {
+        window.__adminFirestore.deleteMedicineFromFirestore(pendingDeleteId)
+          .catch(e => console.error('Firebase delete failed:', e));
+      }
+
       closeModal('delModal');
       renderMedicines();
       renderDashboard();
-      showToast('🗑️ Medicine deleted!');
+      showToast('🗑️ Medicine deleted from both local and Firebase!');
       pendingDeleteId = null;
     }
 
@@ -3958,17 +4153,17 @@
       const cat = customCats.find(c => c.key === pendingDeleteCatKey);
       if (!cat) { closeModal('delCatModal'); return; }
 
-      // Remove all medicines of this category
+      
       medicines = medicines.filter(m => m.catKey !== pendingDeleteCatKey && m.category !== cat.label);
       saveMedicinesLS();
 
-      // Remove from Firestore medicines
+      
       if (window.__adminFirestore) {
         window.__adminFirestore.deleteMedicinesByCategory(cat.key, cat.label);
         window.__adminFirestore.deleteCustomCatFromFirestore(cat.key);
       }
 
-      // Remove category from cache
+      
       const updatedCats = customCats.filter(c => c.key !== pendingDeleteCatKey);
       window._mqCatCache = updatedCats;
 
@@ -3987,7 +4182,7 @@
     }
 
     function openRestockModal(id) {
-      const m = medicines.find(x => x.id === id);
+      const m = findMedicineById(id);
       if (!m) return;
       document.getElementById('restockMedId').value = id;
       document.getElementById('restockMedName').textContent = m.name;
@@ -3996,10 +4191,10 @@
     }
 
     function confirmRestock() {
-      const id = parseInt(document.getElementById('restockMedId').value);
+      const id = document.getElementById('restockMedId').value;
       const qty = parseInt(document.getElementById('restockQty').value);
       if (isNaN(qty) || qty <= 0) { showToast('⚠️ Please enter a valid quantity!', 'error'); return; }
-      const m = medicines.find(x => x.id === id);
+      const m = findMedicineById(id);
       if (!m) return;
       m.quantity += qty;
       saveMedicinesLS();
@@ -4034,7 +4229,13 @@
 
 
       let list = allOrders.filter(o => {
-        const matchQ = !q || (o.orderId || '').toLowerCase().includes(q) || (o.customerName || o.name || '').toLowerCase().includes(q);
+        const itemsText = (o.items || []).map(i => i.med?.name || i.name || '').join(' ');
+        const searchText = [
+          o.orderId, o.customerName, o.name, o.customer, o.customerEmail, o.email,
+          o.customerPhone, o.deliveryAddr?.phone, o.deliveryAddr?.pin, o.customerPin,
+          o.deliveryAddr?.city, o.city, itemsText
+        ].filter(Boolean).join(' ').toLowerCase();
+        const matchQ = !q || searchText.includes(q);
         const matchS = sf === 'all' || o.status === sf;
         const matchRange = isOrderInRange(o, profile);
         return matchQ && matchS && matchRange;
@@ -4042,7 +4243,12 @@
 
       const tbl = document.getElementById('orderTbl');
       if (list.length === 0) {
-        tbl.innerHTML = '<tr><td colspan="9" class="empty"><i class="fas fa-box-open"></i> No orders in your delivery range</td></tr>';
+        const hiddenAssigned = allOrders.filter(o => !isOrderAssignedToThisAdmin(o)).length;
+        const msg = allOrders.length
+          ? `No orders match this admin/filter right now. Total loaded: ${allOrders.length}, other-admin hidden: ${hiddenAssigned}.`
+          : 'No orders loaded yet.';
+        console.warn('[MQ Orders]', msg);
+        tbl.innerHTML = `<tr><td colspan="10" class="empty"><i class="fas fa-box-open"></i> ${escapeHTML(msg)}</td></tr>`;
         return;
       }
       tbl.innerHTML = list.map(o => {
@@ -4135,19 +4341,28 @@
       o.status = newStatus;
       o.statusUpdatedAt = Date.now();
 
-      // ✅ assignedAdminId hamesha set karo — doosre admins se hide hoga
+      
       const sess = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-      if (!o.assignedAdminId && sess.adminId) {
-        o.assignedAdminId = sess.adminId;
+      const currentAdminDocId = sess.docId || sess.adminId || '';
+      if ((!o.assignedAdminId || !isOrderAssignedToThisAdmin(o)) && currentAdminDocId) {
+        o.assignedAdminId = currentAdminDocId;
+        o.adminId = currentAdminDocId;
+      }
+      if (!o.assignedAdminUid && sess.uid) {
+        o.assignedAdminUid = sess.uid;
+        o.adminUid = sess.uid;
+        o.pharmacyUid = sess.uid;
       }
 
       saveOrdersLS(orders);
 
-      // ✅ Firestore mein turant sync — doosre admins ke page pe real-time hide hoga
       if (window.__adminFirestore) {
         window.__adminFirestore.saveOrderStatusToFirestore(orderId, {
           status: newStatus,
           assignedAdminId: o.assignedAdminId,
+          assignedAdminUid: o.assignedAdminUid || sess.uid || '',
+          adminUid: o.adminUid || sess.uid || '',
+          pharmacyUid: o.pharmacyUid || sess.uid || '',
           statusUpdatedAt: o.statusUpdatedAt
         });
       }
@@ -4156,6 +4371,32 @@
       renderDashboard();
       showToast(`✅ Order ${orderId} status → ${newStatus}`);
       if (newStatus === 'cancelled') freeAssignedRider(orderId);
+      if (newStatus === 'confirmed') deductStockForConfirmedOrder(o, orders);
+    }
+
+    async function deductStockForConfirmedOrder(o, orders) {
+      if (!o?.assignedAdminId || !o.items || !o.items.length || o._stockDeducted) return;
+      try {
+        const { getFirestore, doc: _doc, runTransaction } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+        const _fdb = getFirestore(getApp());
+        for (const item of o.items) {
+          const medId = (item.med?.id || '').replace(/^adm_/, '');
+          if (!medId) continue;
+          const medRef = _doc(_fdb, 'pharmacies', o.assignedAdminId, 'medicines', medId);
+          await runTransaction(_fdb, async (tx) => {
+            const snap = await tx.get(medRef);
+            if (!snap.exists()) return;
+            const current = snap.data().quantity ?? 0;
+            const newQty = Math.max(0, current - (item.qty || 1));
+            tx.update(medRef, { quantity: newQty, outOfStock: newQty === 0 });
+          });
+        }
+        o._stockDeducted = true;
+        saveOrdersLS(orders);
+      } catch (e) {
+        console.warn('[MQ Admin] Stock deduction error:', e);
+      }
     }
 
 
@@ -4299,13 +4540,13 @@
       const o = orders.find(x => x.orderId === orderId);
       if (!o) return;
 
-      // FIX: Agar order already accepted ya on_the_way hai toh request mat bhejo
+
       if (o.status === "on_the_way" || o.status === "delivered") {
         showToast("⚠️ Order already accepted by a rider!", "warning");
         closeModal("quickStatusModal");
         return;
       }
-      // FIX: Agar Firestore cache mein already acceptedBy set hai toh mat bhejo
+      
       const existingReqCheck = (window._mqRiderRequestsCache || []).find(r => r.orderId === orderId);
       if (existingReqCheck && existingReqCheck.acceptedBy) {
         showToast("⚠️ A rider has already accepted this order!", "warning");
@@ -4326,7 +4567,7 @@
 
 
         if (riderCity && pharmCity && riderCity !== pharmCity) {
-          return false; // Different city rider — skip
+          return false; 
         }
 
 
@@ -4416,9 +4657,18 @@
 
       o.status = newStatus;
       o.statusUpdatedAt = Date.now();
-      if (!o.assignedAdminId) {
+      if (!o.assignedAdminId || !isOrderAssignedToThisAdmin(o)) {
         const sess = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        if (sess.adminId) o.assignedAdminId = sess.adminId;
+        const currentAdminDocId = sess.docId || sess.adminId || '';
+        if (currentAdminDocId) {
+          o.assignedAdminId = currentAdminDocId;
+          o.adminId = currentAdminDocId;
+        }
+        if (sess.uid) {
+          o.assignedAdminUid = sess.uid;
+          o.adminUid = sess.uid;
+          o.pharmacyUid = sess.uid;
+        }
       }
       saveOrdersLS(orders);
       closeModal('quickStatusModal');
@@ -4428,7 +4678,6 @@
       showToast(`✅ ${orderId}: ${labels[newStatus] || newStatus}`);
       if (newStatus === 'cancelled') freeAssignedRider(orderId);
 
-      // ✅ FIX #12: Sync stock deduction to Firestore on confirmed (failsafe if client-side missed it)
       if (newStatus === 'confirmed' && o.assignedAdminId && o.items && o.items.length > 0 && !o._stockDeducted) {
         (async () => {
           try {
@@ -4438,7 +4687,7 @@
             for (const item of o.items) {
               const medId = (item.med?.id || '').replace(/^adm_/, '');
               if (!medId) continue;
-              const medRef = _doc(_fdb, 'admins', o.assignedAdminId, 'medicines', medId);
+              const medRef = _doc(_fdb, 'pharmacies', o.assignedAdminId, 'medicines', medId);
               await runTransaction(_fdb, async (tx) => {
                 const snap = await tx.get(medRef);
                 if (!snap.exists()) return;
@@ -4447,7 +4696,7 @@
                 tx.update(medRef, { quantity: newQty, outOfStock: newQty === 0 });
               }).catch(e => console.warn('[MQ Admin] Stock deduct:', e));
             }
-            // Mark as deducted so we don't double-deduct
+            
             o._stockDeducted = true;
             saveOrdersLS(orders);
           } catch (e) { console.warn('[MQ Admin] Stock deduction error:', e); }
@@ -4481,8 +4730,13 @@
     }
 
     function getDeliveryBoys() {
-
-      return window._mqDeliveryBoysCache || [];
+      const byKey = new Map();
+      (window._mqDeliveryBoysCache || []).forEach(b => {
+        const key = (b.uid || b.email || b.phone || b.id || '').toString().trim().toLowerCase();
+        if (!key) return;
+        byKey.set(key, { ...(byKey.get(key) || {}), ...b });
+      });
+      return [...byKey.values()];
     }
     async function saveDeliveryBoysLS(boys) {
 
@@ -4539,7 +4793,7 @@
 
       if (profile.city) {
         document.getElementById('coverageInfo').textContent =
-          `📍 ${profile.shopName || 'Your pharmacy'}, ${profile.city} — deliveries within ${profile.deliveryRadius || 15}km radius.`;
+          `${profile.shopName || 'Your pharmacy'}, ${profile.city} - deliveries within ${profile.deliveryRadius || 15}km radius.`;
       }
 
       const busy = boys.filter(b => b.status === 'busy').length;
@@ -4559,19 +4813,19 @@
       tbl.innerHTML = boys.map(b => {
         const activeOrders = orders.filter(o => o.deliveryBoy?.id === b.id && o.status === 'on_the_way').length;
         const delivered = orders.filter(o => o.deliveryBoy?.id === b.id && o.status === 'delivered').length;
-        const statusMap = { available: '<span class="badge badge-on_the_way">✅ Available</span>', busy: '<span class="badge badge-confirmed">🔴 Busy</span>', offline: '<span class="badge badge-cancelled">⚫ Offline</span>' };
-        const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
-        // FIX: Escape all user-supplied values to prevent XSS
+        const statusMap = { available: '<span class="badge badge-on_the_way">Available</span>', busy: '<span class="badge badge-confirmed">Busy</span>', offline: '<span class="badge badge-cancelled">Offline</span>' };
+        const vMap = { bike: 'Bike', scooter: 'Scooter', cycle: 'Cycle' };
+        
         return `<tr>
           <td><strong>${escapeHTML(b.name)}</strong><br><small style="color:var(--muted);">${escapeHTML(vMap[b.vehicle] || b.vehicle)}</small></td>
-          <td><a href="tel:${escapeHTML(b.phone)}" style="color:var(--green);font-weight:600;">📞 ${escapeHTML(b.phone)}</a></td>
+          <td><a href="tel:${escapeHTML(b.phone)}" style="color:var(--green);font-weight:600;">${escapeHTML(b.phone)}</a></td>
           <td>${statusMap[b.status] || escapeHTML(b.status)}</td>
           <td class="td-center">${activeOrders}</td>
           <td class="td-center">${delivered}</td>
           <td class="td-actions">
-            <button class="act-btn act-edit" onclick="editDeliveryBoy('${escapeHTML(b.id)}')">✏️</button>
+            <button class="act-btn act-edit" onclick="editDeliveryBoy('${escapeHTML(b.id)}')">Edit</button>
             <button class="act-btn ${b.status === 'available' ? 'act-del' : 'act-view'}" onclick="toggleDBStatus('${escapeHTML(b.id)}')">
-              ${b.status === 'offline' ? '▶️' : '⏸️'}
+              ${b.status === 'offline' ? 'Start' : 'Stop'}
             </button>
           </td>
         </tr>`;
@@ -4649,7 +4903,7 @@
       tbl.innerHTML = customers.map((c, i) => {
         const lastOrder = c.orders.sort((a, b) => (b.placedAt || 0) - (a.placedAt || 0))[0];
         const isRepeat = c.orders.length > 1;
-        // FIX: Escape all customer fields to prevent XSS
+        
         return `<tr>
           <td class="td-small small-muted">${i + 1}</td>
           <td>
@@ -4828,7 +5082,7 @@
       window._mqAdminProfileCache = p;
 
 
-      // FIX: mq_pharmacy_profile localStorage write hata diya — Firestore is source of truth
+       
 
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
@@ -4851,9 +5105,15 @@
         if (window.__adminFirestore) {
           try {
             const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-            if (session.adminId) {
+            const profileId = session.docId || session.adminId || '';
+            if (profileId) {
 
-              window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, p)
+              window.__adminFirestore.savePharmacyProfileToFirestore(profileId, {
+                ...p,
+                adminId: profileId,
+                docId: profileId,
+                legacyAdminId: session.adminId || ''
+              })
                 .then(async () => {
 
                   try {
@@ -4898,11 +5158,6 @@
       showToast(pinMsg);
     }
 
-    // ===== ADMIN PROFILE: Served PINs auto-fetch =====
-    // Jab admin pServedPins mein koi naya 6-digit PIN type kare
-    // → India Post API se city fetch karo
-    // → pCity field update karo (always override)
-    // Debounce: last PIN jo type hua usse process karo
     (function setupAdminPinFetch() {
       const servedEl = document.getElementById('pServedPins');
       if (!servedEl) return;
@@ -4910,21 +5165,38 @@
       let _timer = null;
       let _lastProcessedPins = new Set();
 
+      
+      async function fetchCityFromPin(pin) {
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?postalcode=${pin}&countrycodes=in&format=json&addressdetails=1&limit=1`;
+          const res = await Promise.race([
+            fetch(url, { headers: { 'Accept-Language': 'en' } }),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))
+          ]);
+          const data = await res.json();
+          if (data && data[0] && data[0].address) {
+            const addr = data[0].address;
+            const city = addr.city || addr.town || addr.county || addr.district || addr.suburb || '';
+            const state = addr.state || '';
+            if (city) return { city, state };
+          }
+        } catch (e) { }
+        return null;
+      }
+
       servedEl.addEventListener('input', function () {
         clearTimeout(_timer);
         _timer = setTimeout(async function () {
           const statusEl = document.getElementById('admin-pin-fetch-status');
           const raw = servedEl.value;
-          // Sab valid 6-digit PINs nikalo
           const pins = raw.split(',').map(p => p.trim()).filter(p => /^\d{6}$/.test(p));
           if (pins.length === 0) {
             if (statusEl) statusEl.style.display = 'none';
             return;
           }
 
-          // Nayi PIN dhundo jo pehle process nahi hua
           const newPin = pins.find(p => !_lastProcessedPins.has(p));
-          if (!newPin) return; // Sab already processed
+          if (!newPin) return;
 
           if (statusEl) {
             statusEl.style.display = 'inline';
@@ -4932,39 +5204,26 @@
             statusEl.textContent = '📍 Fetching city for PIN ' + newPin + '...';
           }
 
-          try {
-            const res = await fetch('https://api.postalpincode.in/pincode/' + newPin);
-            const data = await res.json();
+          const result = await fetchCityFromPin(newPin);
 
-            if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
-              const po = data[0].PostOffice[0];
-              const fetchedCity = po.District || po.Division || po.Name || '';
-              const fetchedState = po.State || '';
-
-              // City field hamesha update karo (PIN se verified city)
-              const cityEl = document.getElementById('pCity');
-              if (cityEl && fetchedCity) {
-                cityEl.value = fetchedCity;
-                // Error class hata do agar tha
-                cityEl.classList.remove('error-input');
-              }
-
-              _lastProcessedPins.add(newPin);
-
-              if (statusEl) {
-                statusEl.style.color = '#16a34a';
-                statusEl.textContent = '✅ City auto-update: ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '');
-                setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
-              }
-            } else {
-              if (statusEl) {
-                statusEl.style.color = '#f59e0b';
-                statusEl.textContent = '⚠ PIN ' + newPin + ' not found — please check city manually';
-                setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
-              }
+          if (result && result.city) {
+            const cityEl = document.getElementById('pCity');
+            if (cityEl) {
+              cityEl.value = result.city;
+              cityEl.classList.remove('error-input');
             }
-          } catch (e) {
-            if (statusEl) statusEl.style.display = 'none';
+            _lastProcessedPins.add(newPin);
+            if (statusEl) {
+              statusEl.style.color = '#16a34a';
+              statusEl.textContent = '✅ City auto-update: ' + result.city + (result.state ? ', ' + result.state : '');
+              setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
+            }
+          } else {
+            if (statusEl) {
+              statusEl.style.color = '#f59e0b';
+              statusEl.textContent = '⚠ PIN ' + newPin + ' not found — please check city manually';
+              setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3500);
+            }
           }
         }, 700);
       });
@@ -4985,20 +5244,18 @@
       if (p1 !== p2) { showToast('⚠️ Passwords do not match!', 'error'); return; }
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-        if (session.adminId && window.__adminFirestore) {
-
-          const hashedPw = await hashPassword(p1);
-          window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, { password: hashedPw });
-
+        const profileId = session.docId || session.adminId || '';
+        if (profileId && window.__adminFirestore) {
           try {
-            const { updateDoc, doc: _doc, collection: _col, getDocs: _getDocs, query: _query, where: _where } =
-              await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-            const _db = window.__adminFirestore.db;
-            const snap = await _getDocs(_query(_col(_db, 'admins'), _where('adminId', '==', session.adminId)));
-            if (!snap.empty) {
-              await updateDoc(_doc(_db, 'admins', snap.docs[0].id), { password: hashedPw, updatedAt: Date.now() });
+            const auth = window.__adminAuth || null;
+            const currentUser = auth ? await waitForAuthUser(auth, 1000) : null;
+            if (currentUser && currentUser.email === session.email) {
+              await updateCurrentAuthPassword(auth, p1);
             }
-          } catch (e2) { console.warn('Password sync to admins warning:', e2); }
+          } catch (authPwErr) {
+            console.warn('Firebase Auth password update skipped:', authPwErr);
+          }
+          window.__adminFirestore.savePharmacyProfileToFirestore(profileId, { updatedAt: Date.now() });
         }
       } catch (e) { }
       document.getElementById('pw1').value = '';
@@ -5046,7 +5303,7 @@
         if (window._mqAdminSignOut) {
           await window._mqAdminSignOut();
         } else {
-          window.location.href = 'login.html?tab=admin';
+          window.location.href = 'admin-login.html';
         }
       }
     }
@@ -5080,8 +5337,7 @@
       try {
         const session = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
 
-        // FIX: mq_pharmacy_profile localStorage read hata diya
-        // Agar Firestore cache already loaded hai toh skip karo
+         
         if (window._mqAdminProfileCache && window._mqAdminProfileCache.name) return;
 
         if (session.shopName || session.adminName) {
@@ -5100,14 +5356,22 @@
             shopType: session.shopType || '',
             deliveryRadius: session.deliveryRadius || '15',
             shopName: session.shopName || '',
-            adminId: session.adminId || '',
+            adminId: session.docId || session.adminId || '',
+            docId: session.docId || session.adminId || '',
+            legacyAdminId: session.adminId || '',
             mobile2: session.mobile2 || '',
           };
           window._mqAdminProfileCache = p;
 
           (function tryFirestore(attempt) {
-            if (window.__adminFirestore && session.adminId) {
-              window.__adminFirestore.savePharmacyProfileToFirestore(session.adminId, p);
+            const profileId = session.docId || session.adminId || '';
+            if (window.__adminFirestore && profileId) {
+              window.__adminFirestore.savePharmacyProfileToFirestore(profileId, {
+                ...p,
+                adminId: profileId,
+                docId: profileId,
+                legacyAdminId: session.adminId || ''
+              });
             } else if (attempt < 20) {
               setTimeout(() => tryFirestore(attempt + 1), 500);
             }
@@ -5115,7 +5379,7 @@
         }
       } catch (e) { }
     })();
-
+  // IM_VYADAW
     loadMedicines();
     renderDashboard();
     renderOrders();
@@ -5277,7 +5541,7 @@
       document.getElementById('fileStatus').textContent = '';
       switchBulkTab(1);
     }
-
+    <!-- IM_VYADAW -->
     function goBulkStep1() {
       document.getElementById('bulkStep2').style.display = 'none';
       document.getElementById('bulkStep1').style.display = 'block';
@@ -5348,7 +5612,9 @@
       bulkParsedData = results;
       showBulkPreview(results, errors);
     }
-
+  
+    // IM_VYADAW
+    
     function showBulkPreview(results, errors) {
       const wrap = document.getElementById('bulkPreviewWrap');
       const tbl = document.getElementById('bulkPreviewTbl');
@@ -5392,7 +5658,6 @@
       const skipDupes = document.getElementById('bulkSkipDupes').checked;
       const updateDupes = document.getElementById('bulkUpdateDupes').checked;
       let added = 0, updated = 0, skipped = 0;
-      let maxId = medicines.length ? Math.max(...medicines.map(x => x.id)) : 0;
 
 
       if (bulkSelectedCat.isNew) {
@@ -5416,13 +5681,11 @@
             updated++;
           } else if (skipDupes) { skipped++; }
           else {
-            maxId++;
-            medicines.push({ id: maxId, name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
+            medicines.push({ id: createMedicineId(), name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
             added++;
           }
         } else {
-          maxId++;
-          medicines.push({ id: maxId, name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
+          medicines.push({ id: createMedicineId(), name: r.name, category: bulkSelectedCat.label, catKey: bulkSelectedCat.key, quantity: r.quantity, price: r.price });
           added++;
         }
       });
@@ -5465,7 +5728,7 @@
 
           if (req.acceptedBy && !req.processedByAdmin) {
             const o = orders.find(x => x.orderId === req.orderId);
-            // FIX: Order pehle se on_the_way hai toh sirf processedByAdmin set karo, dobara process mat karo
+
             if (o && o.status === 'on_the_way' && !req.processedByAdmin) {
               try {
                 await _setDoc(_doc(_db, 'riderRequests', req.orderId), { processedByAdmin: true }, { merge: true });
@@ -5484,7 +5747,7 @@
               try {
                 await _setDoc(_doc(_db, 'riderRequests', req.orderId), { processedByAdmin: true }, { merge: true });
               } catch (e) { }
-              // FIX: local cache bhi update karo taaki dobara process na ho
+
               req.processedByAdmin = true;
               showToast(`🏍️ ${acceptedRider.name} accepted the order! Out for delivery.`);
             }
@@ -5583,6 +5846,314 @@
       </div>
     </div>
   </div>
+
+  <!-- Migrate Modal -->
+  <div class="modal-overlay" id="migrateModal">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title">☁️ Static → Firebase Migration</div>
+        <button class="modal-close" onclick="closeModal('migrateModal')">✕</button>
+      </div>
+      <div id="migrateContent">
+        <p style="color:#374151;font-size:14px;line-height:1.6;">
+          Yeh button <strong>saari hardcoded medicines</strong> ko ek baar Firebase pe upload karega.<br><br>
+          ✅ Baad mein admin se add/edit/delete sab kaam karega.<br>
+          ✅ User page pe live dikhega.<br>
+          ✅ Static data sirf backup ke roop mein rahega.<br><br>
+          <strong style="color:#dc2626;">⚠️ Sirf ek baar click karo. Dobara click karne ki zarurat nahi.</strong>
+        </p>
+        <div id="migrateProgress" style="display:none;margin-top:12px;">
+          <div style="background:#f3f4f6;border-radius:8px;overflow:hidden;height:12px;">
+            <div id="migrateBar" style="height:100%;background:#16a34a;width:0%;transition:width 0.3s;"></div>
+          </div>
+          <p id="migrateStatus" style="font-size:13px;color:#374151;margin-top:8px;text-align:center;">Preparing...</p>
+        </div>
+        <div id="migrateDone" style="display:none;text-align:center;padding:16px 0;">
+          <div style="font-size:40px;">✅</div>
+          <p style="font-weight:700;font-size:16px;color:#16a34a;margin:8px 0;">Migration Complete!</p>
+          <p id="migrateDoneText" style="font-size:13px;color:#374151;"></p>
+        </div>
+      </div>
+      <div class="modal-footer" id="migrateFooter">
+        <button class="btn-cancel" onclick="closeModal('migrateModal')">Cancel</button>
+        <button class="btn-green" id="migrateConfirmBtn" onclick="startMigration()">
+          <i class="fas fa-cloud-upload-alt"></i> Haan, Upload Karo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+     
+    const STATIC_MEDICINES_FOR_MIGRATION = {
+      fever: [
+        { id: 'f1', name: 'Dolo 650', category: 'Fever & Pain', catKey: 'fever', price: 25, mrp: 30, quantity: 100, trending: true },
+        { id: 'f2', name: 'Calpol 500', category: 'Fever & Pain', catKey: 'fever', price: 20, mrp: 25, quantity: 100 },
+        { id: 'f3', name: 'Combiflam', category: 'Fever & Pain', catKey: 'fever', price: 65, mrp: 75, quantity: 100, trending: true },
+        { id: 'f4', name: 'Brufen 400', category: 'Fever & Pain', catKey: 'fever', price: 35, mrp: 42, quantity: 100 },
+        { id: 'f5', name: 'Meftal Spas', category: 'Fever & Pain', catKey: 'fever', price: 55, mrp: 65, quantity: 100 },
+        { id: 'f6', name: 'Voveran 50', category: 'Fever & Pain', catKey: 'fever', price: 40, mrp: 50, quantity: 100 },
+        { id: 'f7', name: 'Aspirin 75', category: 'Fever & Pain', catKey: 'fever', price: 15, mrp: 18, quantity: 100 },
+        { id: 'f8', name: 'Nimesulide 100', category: 'Fever & Pain', catKey: 'fever', price: 22, mrp: 28, quantity: 100 },
+        { id: 'f9', name: 'Paracip 500', category: 'Fever & Pain', catKey: 'fever', price: 18, mrp: 22, quantity: 100 },
+        { id: 'f10', name: 'Sumo L', category: 'Fever & Pain', catKey: 'fever', price: 48, mrp: 55, quantity: 100 },
+        { id: 'f11', name: 'Ketorol DT', category: 'Fever & Pain', catKey: 'fever', price: 72, mrp: 85, quantity: 100 },
+        { id: 'f12', name: 'Zerodol P', category: 'Fever & Pain', catKey: 'fever', price: 55, mrp: 65, quantity: 100 },
+        { id: 'f13', name: 'Nise Gel', category: 'Fever & Pain', catKey: 'fever', price: 120, mrp: 145, quantity: 100 },
+        { id: 'f14', name: 'Ibugesic Plus', category: 'Fever & Pain', catKey: 'fever', price: 42, mrp: 50, quantity: 100 },
+        { id: 'f15', name: 'Dolopar 500', category: 'Fever & Pain', catKey: 'fever', price: 16, mrp: 20, quantity: 100 },
+        { id: 'f16', name: 'Aceclo Plus', category: 'Fever & Pain', catKey: 'fever', price: 38, mrp: 45, quantity: 100 },
+        { id: 'f17', name: 'Dicloran Plus', category: 'Fever & Pain', catKey: 'fever', price: 45, mrp: 55, quantity: 100 },
+        { id: 'f18', name: 'Flexon', category: 'Fever & Pain', catKey: 'fever', price: 50, mrp: 60, quantity: 100 },
+        { id: 'f19', name: 'Pirox 20', category: 'Fever & Pain', catKey: 'fever', price: 30, mrp: 36, quantity: 100 },
+        { id: 'f20', name: 'Caldol 650', category: 'Fever & Pain', catKey: 'fever', price: 22, mrp: 28, quantity: 100 },
+      ],
+      allergy: [
+        { id: 'a1', name: 'Cetirizine 10', category: 'Allergy', catKey: 'allergy', price: 30, mrp: 36, quantity: 100 },
+        { id: 'a2', name: 'Allegra 120', category: 'Allergy', catKey: 'allergy', price: 95, mrp: 115, quantity: 100, trending: true },
+        { id: 'a3', name: 'Montair LC', category: 'Allergy', catKey: 'allergy', price: 120, mrp: 140, quantity: 100 },
+        { id: 'a4', name: 'Atarax 10', category: 'Allergy', catKey: 'allergy', price: 55, mrp: 65, quantity: 100 },
+        { id: 'a5', name: 'Avil 25', category: 'Allergy', catKey: 'allergy', price: 18, mrp: 22, quantity: 100 },
+        { id: 'a6', name: 'Benadryl Syrup', category: 'Allergy', catKey: 'allergy', price: 75, mrp: 90, quantity: 100 },
+        { id: 'a7', name: 'Loratadine 10', category: 'Allergy', catKey: 'allergy', price: 35, mrp: 42, quantity: 100 },
+        { id: 'a8', name: 'Zyrtec 5mg', category: 'Allergy', catKey: 'allergy', price: 28, mrp: 33, quantity: 100 },
+        { id: 'a9', name: 'Telfast 180', category: 'Allergy', catKey: 'allergy', price: 110, mrp: 130, quantity: 100 },
+        { id: 'a10', name: 'Nasivion Spray', category: 'Allergy', catKey: 'allergy', price: 85, mrp: 100, quantity: 100 },
+        { id: 'a11', name: 'Flonase Spray', category: 'Allergy', catKey: 'allergy', price: 245, mrp: 285, quantity: 100 },
+        { id: 'a12', name: 'Omnacortil 5', category: 'Allergy', catKey: 'allergy', price: 42, mrp: 50, quantity: 100 },
+        { id: 'a13', name: 'Reactine 10', category: 'Allergy', catKey: 'allergy', price: 32, mrp: 38, quantity: 100 },
+        { id: 'a14', name: 'Cetcip 10', category: 'Allergy', catKey: 'allergy', price: 28, mrp: 34, quantity: 100 },
+        { id: 'a15', name: 'Histac 150', category: 'Allergy', catKey: 'allergy', price: 40, mrp: 48, quantity: 100 },
+        { id: 'a16', name: 'Deslor 5', category: 'Allergy', catKey: 'allergy', price: 88, mrp: 105, quantity: 100 },
+        { id: 'a17', name: 'Novaclor 4', category: 'Allergy', catKey: 'allergy', price: 12, mrp: 15, quantity: 100 },
+        { id: 'a18', name: 'Montek LC', category: 'Allergy', catKey: 'allergy', price: 115, mrp: 135, quantity: 100 },
+        { id: 'a19', name: 'Betacap Scalp', category: 'Allergy', catKey: 'allergy', price: 155, mrp: 185, quantity: 100 },
+        { id: 'a20', name: 'Mometasone', category: 'Allergy', catKey: 'allergy', price: 195, mrp: 220, quantity: 100 },
+      ],
+      heart: [
+        { id: 'h1', name: 'Ecosprin 75', category: 'Heart', catKey: 'heart', price: 22, mrp: 28, quantity: 100 },
+        { id: 'h2', name: 'Atorva 10', category: 'Heart', catKey: 'heart', price: 75, mrp: 90, quantity: 100, trending: true },
+        { id: 'h3', name: 'Telmisartan 40', category: 'Heart', catKey: 'heart', price: 60, mrp: 72, quantity: 100 },
+        { id: 'h4', name: 'Amlodipine 5', category: 'Heart', catKey: 'heart', price: 45, mrp: 55, quantity: 100 },
+        { id: 'h5', name: 'Metoprolol 25', category: 'Heart', catKey: 'heart', price: 85, mrp: 100, quantity: 100 },
+        { id: 'h6', name: 'Ramipril 5', category: 'Heart', catKey: 'heart', price: 68, mrp: 82, quantity: 100 },
+        { id: 'h7', name: 'Losartan 50', category: 'Heart', catKey: 'heart', price: 55, mrp: 65, quantity: 100 },
+        { id: 'h8', name: 'Clopitab 75', category: 'Heart', catKey: 'heart', price: 90, mrp: 110, quantity: 100 },
+        { id: 'h9', name: 'Rosuvas 10', category: 'Heart', catKey: 'heart', price: 95, mrp: 115, quantity: 100 },
+        { id: 'h10', name: 'Nitroglycerin SL', category: 'Heart', catKey: 'heart', price: 35, mrp: 42, quantity: 100 },
+        { id: 'h11', name: 'Cardace 2.5', category: 'Heart', catKey: 'heart', price: 58, mrp: 70, quantity: 100 },
+        { id: 'h12', name: 'Telma 80', category: 'Heart', catKey: 'heart', price: 78, mrp: 95, quantity: 100 },
+        { id: 'h13', name: 'Betaloc 50', category: 'Heart', catKey: 'heart', price: 72, mrp: 88, quantity: 100 },
+        { id: 'h14', name: 'Aztor 20', category: 'Heart', catKey: 'heart', price: 88, mrp: 105, quantity: 100 },
+        { id: 'h15', name: 'Sorbitrate 5', category: 'Heart', catKey: 'heart', price: 28, mrp: 34, quantity: 100 },
+        { id: 'h16', name: 'Cordarone 200', category: 'Heart', catKey: 'heart', price: 145, mrp: 170, quantity: 100 },
+        { id: 'h17', name: 'Digoxin 0.25', category: 'Heart', catKey: 'heart', price: 32, mrp: 38, quantity: 100 },
+        { id: 'h18', name: 'Furosemide 40', category: 'Heart', catKey: 'heart', price: 25, mrp: 30, quantity: 100 },
+        { id: 'h19', name: 'Spironolactone', category: 'Heart', catKey: 'heart', price: 48, mrp: 58, quantity: 100 },
+        { id: 'h20', name: 'Valsartan 80', category: 'Heart', catKey: 'heart', price: 92, mrp: 110, quantity: 100 },
+      ],
+      brain: [
+        { id: 'b1', name: 'Encorate 200', category: 'Brain & Nerve', catKey: 'brain', price: 110, mrp: 130, quantity: 100 },
+        { id: 'b2', name: 'Nexito 10', category: 'Brain & Nerve', catKey: 'brain', price: 95, mrp: 115, quantity: 100, trending: true },
+        { id: 'b3', name: 'Piracetam 800', category: 'Brain & Nerve', catKey: 'brain', price: 55, mrp: 65, quantity: 100 },
+        { id: 'b4', name: 'Donep 5', category: 'Brain & Nerve', catKey: 'brain', price: 185, mrp: 220, quantity: 100 },
+        { id: 'b5', name: 'Sizopin 25', category: 'Brain & Nerve', catKey: 'brain', price: 72, mrp: 88, quantity: 100 },
+        { id: 'b6', name: 'Librium 10', category: 'Brain & Nerve', catKey: 'brain', price: 38, mrp: 46, quantity: 100 },
+        { id: 'b7', name: 'Clonazepam 0.5', category: 'Brain & Nerve', catKey: 'brain', price: 28, mrp: 34, quantity: 100 },
+        { id: 'b8', name: 'Pregabalin 75', category: 'Brain & Nerve', catKey: 'brain', price: 98, mrp: 118, quantity: 100 },
+        { id: 'b9', name: 'Amitriptyline 10', category: 'Brain & Nerve', catKey: 'brain', price: 22, mrp: 28, quantity: 100 },
+        { id: 'b10', name: 'Olanzapine 5', category: 'Brain & Nerve', catKey: 'brain', price: 125, mrp: 150, quantity: 100 },
+        { id: 'b11', name: 'Risperidone 2', category: 'Brain & Nerve', catKey: 'brain', price: 108, mrp: 128, quantity: 100 },
+        { id: 'b12', name: 'Sertraline 50', category: 'Brain & Nerve', catKey: 'brain', price: 88, mrp: 105, quantity: 100 },
+        { id: 'b13', name: 'Fluoxetine 20', category: 'Brain & Nerve', catKey: 'brain', price: 62, mrp: 75, quantity: 100 },
+        { id: 'b14', name: 'Veniz XR 75', category: 'Brain & Nerve', catKey: 'brain', price: 142, mrp: 170, quantity: 100 },
+        { id: 'b15', name: 'Gabapentin 300', category: 'Brain & Nerve', catKey: 'brain', price: 75, mrp: 90, quantity: 100 },
+        { id: 'b16', name: 'Topamac 25', category: 'Brain & Nerve', catKey: 'brain', price: 98, mrp: 118, quantity: 100 },
+        { id: 'b17', name: 'Memantine 10', category: 'Brain & Nerve', catKey: 'brain', price: 165, mrp: 195, quantity: 100 },
+        { id: 'b18', name: 'Zolpidem 10', category: 'Brain & Nerve', catKey: 'brain', price: 115, mrp: 138, quantity: 100 },
+        { id: 'b19', name: 'Alprazolam 0.25', category: 'Brain & Nerve', catKey: 'brain', price: 18, mrp: 22, quantity: 100 },
+        { id: 'b20', name: 'Quetiapine 25', category: 'Brain & Nerve', catKey: 'brain', price: 88, mrp: 105, quantity: 100 },
+      ],
+      respiratory: [
+        { id: 'r1', name: 'Asthalin 100mcg', category: 'Respiratory', catKey: 'respiratory', price: 135, mrp: 160, quantity: 100, trending: true },
+        { id: 'r2', name: 'Budecort 200', category: 'Respiratory', catKey: 'respiratory', price: 285, mrp: 330, quantity: 100 },
+        { id: 'r3', name: 'Levolin Inhaler', category: 'Respiratory', catKey: 'respiratory', price: 145, mrp: 170, quantity: 100 },
+        { id: 'r4', name: 'Montek 10', category: 'Respiratory', catKey: 'respiratory', price: 85, mrp: 100, quantity: 100 },
+        { id: 'r5', name: 'Allegra 180', category: 'Respiratory', catKey: 'respiratory', price: 115, mrp: 135, quantity: 100 },
+        { id: 'r6', name: 'Azee 500', category: 'Respiratory', catKey: 'respiratory', price: 90, mrp: 110, quantity: 100 },
+        { id: 'r7', name: 'Augmentin 625', category: 'Respiratory', catKey: 'respiratory', price: 185, mrp: 220, quantity: 100 },
+        { id: 'r8', name: 'Doxycycline 100', category: 'Respiratory', catKey: 'respiratory', price: 48, mrp: 58, quantity: 100 },
+        { id: 'r9', name: 'Benadryl DM', category: 'Respiratory', catKey: 'respiratory', price: 78, mrp: 92, quantity: 100 },
+        { id: 'r10', name: 'Grilinctus CD', category: 'Respiratory', catKey: 'respiratory', price: 85, mrp: 100, quantity: 100 },
+        { id: 'r11', name: 'Prospan Syrup', category: 'Respiratory', catKey: 'respiratory', price: 155, mrp: 185, quantity: 100 },
+        { id: 'r12', name: 'Otrivin Nasal', category: 'Respiratory', catKey: 'respiratory', price: 75, mrp: 90, quantity: 100 },
+        { id: 'r13', name: 'Ipravent Inhaler', category: 'Respiratory', catKey: 'respiratory', price: 245, mrp: 285, quantity: 100 },
+        { id: 'r14', name: 'Seroflo 250', category: 'Respiratory', catKey: 'respiratory', price: 425, mrp: 495, quantity: 100 },
+        { id: 'r15', name: 'Deriphyllin', category: 'Respiratory', catKey: 'respiratory', price: 28, mrp: 34, quantity: 100 },
+        { id: 'r16', name: 'Solvin LS Syrup', category: 'Respiratory', catKey: 'respiratory', price: 65, mrp: 78, quantity: 100 },
+        { id: 'r17', name: 'Chericof Syrup', category: 'Respiratory', catKey: 'respiratory', price: 88, mrp: 105, quantity: 100 },
+        { id: 'r18', name: 'Moxikind CV 625', category: 'Respiratory', catKey: 'respiratory', price: 195, mrp: 230, quantity: 100 },
+        { id: 'r19', name: 'Tiova Inhaler', category: 'Respiratory', catKey: 'respiratory', price: 395, mrp: 455, quantity: 100 },
+        { id: 'r20', name: 'Foracort 200', category: 'Respiratory', catKey: 'respiratory', price: 355, mrp: 415, quantity: 100 },
+      ],
+      bone: [
+        { id: 'bo1', name: 'Uprise D3 60K', category: 'Bone & Joint', catKey: 'bone', price: 125, mrp: 150, quantity: 100, trending: true },
+        { id: 'bo2', name: 'Shelcal 500', category: 'Bone & Joint', catKey: 'bone', price: 80, mrp: 95, quantity: 100 },
+        { id: 'bo3', name: 'Calcimax Fort', category: 'Bone & Joint', catKey: 'bone', price: 95, mrp: 115, quantity: 100 },
+        { id: 'bo4', name: 'Osteocalcium', category: 'Bone & Joint', catKey: 'bone', price: 68, mrp: 82, quantity: 100 },
+        { id: 'bo5', name: 'Zincovit', category: 'Bone & Joint', catKey: 'bone', price: 145, mrp: 170, quantity: 100 },
+        { id: 'bo6', name: 'Evion 400', category: 'Bone & Joint', catKey: 'bone', price: 48, mrp: 58, quantity: 100 },
+        { id: 'bo7', name: 'Proxyvon', category: 'Bone & Joint', catKey: 'bone', price: 55, mrp: 66, quantity: 100 },
+        { id: 'bo8', name: 'Myospaz', category: 'Bone & Joint', catKey: 'bone', price: 75, mrp: 90, quantity: 100 },
+        { id: 'bo9', name: 'Moov Cream', category: 'Bone & Joint', catKey: 'bone', price: 95, mrp: 115, quantity: 100 },
+        { id: 'bo10', name: 'Volini Spray', category: 'Bone & Joint', catKey: 'bone', price: 175, mrp: 205, quantity: 100 },
+        { id: 'bo11', name: 'Ostocalcium', category: 'Bone & Joint', catKey: 'bone', price: 88, mrp: 105, quantity: 100 },
+        { id: 'bo12', name: 'Folvite 5mg', category: 'Bone & Joint', catKey: 'bone', price: 22, mrp: 28, quantity: 100 },
+        { id: 'bo13', name: 'Becosules', category: 'Bone & Joint', catKey: 'bone', price: 75, mrp: 90, quantity: 100 },
+        { id: 'bo14', name: 'Ibuprofen Gel', category: 'Bone & Joint', catKey: 'bone', price: 95, mrp: 115, quantity: 100 },
+        { id: 'bo15', name: 'Flexura D', category: 'Bone & Joint', catKey: 'bone', price: 88, mrp: 105, quantity: 100 },
+        { id: 'bo16', name: 'Renerve Plus', category: 'Bone & Joint', catKey: 'bone', price: 145, mrp: 175, quantity: 100 },
+        { id: 'bo17', name: 'Calnate D3', category: 'Bone & Joint', catKey: 'bone', price: 112, mrp: 135, quantity: 100 },
+        { id: 'bo18', name: 'Rakshak Gold', category: 'Bone & Joint', catKey: 'bone', price: 155, mrp: 185, quantity: 100 },
+        { id: 'bo19', name: 'Ostofen 60mg', category: 'Bone & Joint', catKey: 'bone', price: 245, mrp: 290, quantity: 100 },
+        { id: 'bo20', name: 'Alendronate 70', category: 'Bone & Joint', catKey: 'bone', price: 195, mrp: 230, quantity: 100 },
+      ],
+      cold: [
+        { id: 'cc1', name: 'Benadryl Cough Syrup', category: 'Cold & Cough', catKey: 'cold', price: 110, mrp: 125, quantity: 100, trending: true },
+        { id: 'cc2', name: 'Corex DX Syrup', category: 'Cold & Cough', catKey: 'cold', price: 145, mrp: 165, quantity: 100 },
+        { id: 'cc3', name: 'Ascoril LS Syrup', category: 'Cold & Cough', catKey: 'cold', price: 135, mrp: 155, quantity: 100, trending: true },
+        { id: 'cc4', name: 'Grilinctus Syrup', category: 'Cold & Cough', catKey: 'cold', price: 120, mrp: 140, quantity: 100 },
+        { id: 'cc5', name: 'Phensedyl Syrup', category: 'Cold & Cough', catKey: 'cold', price: 160, mrp: 180, quantity: 100 },
+        { id: 'cc6', name: 'Alex Syrup', category: 'Cold & Cough', catKey: 'cold', price: 130, mrp: 150, quantity: 100 },
+        { id: 'cc7', name: 'TusQ-D Syrup', category: 'Cold & Cough', catKey: 'cold', price: 125, mrp: 140, quantity: 100 },
+        { id: 'cc8', name: 'Zedex Syrup', category: 'Cold & Cough', catKey: 'cold', price: 150, mrp: 170, quantity: 100 },
+        { id: 'cc9', name: 'Cofsils Lozenges', category: 'Cold & Cough', catKey: 'cold', price: 30, mrp: 35, quantity: 100, trending: true },
+        { id: 'cc10', name: 'Vicks Action 500', category: 'Cold & Cough', catKey: 'cold', price: 55, mrp: 60, quantity: 100, trending: true },
+        { id: 'cc11', name: 'Sinarest Tablet', category: 'Cold & Cough', catKey: 'cold', price: 60, mrp: 70, quantity: 100 },
+        { id: 'cc12', name: 'Okacet Tablet', category: 'Cold & Cough', catKey: 'cold', price: 45, mrp: 55, quantity: 100 },
+        { id: 'cc13', name: 'Montair LC', category: 'Cold & Cough', catKey: 'cold', price: 120, mrp: 140, quantity: 100, trending: true },
+        { id: 'cc14', name: 'Alerid Tablet', category: 'Cold & Cough', catKey: 'cold', price: 50, mrp: 60, quantity: 100 },
+        { id: 'cc15', name: 'Levocet Tablet', category: 'Cold & Cough', catKey: 'cold', price: 65, mrp: 75, quantity: 100 },
+        { id: 'cc16', name: 'D-Cold Total', category: 'Cold & Cough', catKey: 'cold', price: 75, mrp: 85, quantity: 100 },
+        { id: 'cc17', name: 'Crocin Cold & Flu', category: 'Cold & Cough', catKey: 'cold', price: 70, mrp: 80, quantity: 100, trending: true },
+        { id: 'cc18', name: 'Cheston Cold', category: 'Cold & Cough', catKey: 'cold', price: 68, mrp: 78, quantity: 100 },
+        { id: 'cc19', name: 'T-Minic Syrup', category: 'Cold & Cough', catKey: 'cold', price: 85, mrp: 95, quantity: 100 },
+        { id: 'cc20', name: 'Koflet Syrup', category: 'Cold & Cough', catKey: 'cold', price: 95, mrp: 110, quantity: 100 },
+      ],
+      bp: [
+        { id: 'bp1', name: 'Amlodipine 5mg', category: 'BP & Heart', catKey: 'bp', price: 35, mrp: 45, quantity: 100, trending: true },
+        { id: 'bp2', name: 'Amlodipine 10mg', category: 'BP & Heart', catKey: 'bp', price: 45, mrp: 55, quantity: 100 },
+        { id: 'bp3', name: 'Telmisartan 20mg', category: 'BP & Heart', catKey: 'bp', price: 65, mrp: 80, quantity: 100 },
+        { id: 'bp4', name: 'Telmisartan 40mg', category: 'BP & Heart', catKey: 'bp', price: 85, mrp: 100, quantity: 100, trending: true },
+        { id: 'bp5', name: 'Telmisartan 80mg', category: 'BP & Heart', catKey: 'bp', price: 110, mrp: 130, quantity: 100 },
+        { id: 'bp6', name: 'Losartan 25mg', category: 'BP & Heart', catKey: 'bp', price: 55, mrp: 70, quantity: 100 },
+        { id: 'bp7', name: 'Losartan 50mg', category: 'BP & Heart', catKey: 'bp', price: 70, mrp: 85, quantity: 100 },
+        { id: 'bp8', name: 'Losartan 100mg', category: 'BP & Heart', catKey: 'bp', price: 95, mrp: 115, quantity: 100 },
+        { id: 'bp9', name: 'Metoprolol 25mg', category: 'BP & Heart', catKey: 'bp', price: 60, mrp: 75, quantity: 100, trending: true },
+        { id: 'bp10', name: 'Metoprolol 50mg', category: 'BP & Heart', catKey: 'bp', price: 75, mrp: 90, quantity: 100 },
+        { id: 'bp11', name: 'Bisoprolol 2.5mg', category: 'BP & Heart', catKey: 'bp', price: 55, mrp: 70, quantity: 100 },
+        { id: 'bp12', name: 'Bisoprolol 5mg', category: 'BP & Heart', catKey: 'bp', price: 65, mrp: 80, quantity: 100 },
+        { id: 'bp13', name: 'Atenolol 25mg', category: 'BP & Heart', catKey: 'bp', price: 35, mrp: 45, quantity: 100 },
+        { id: 'bp14', name: 'Atenolol 50mg', category: 'BP & Heart', catKey: 'bp', price: 40, mrp: 50, quantity: 100 },
+        { id: 'bp15', name: 'Ramipril 2.5mg', category: 'BP & Heart', catKey: 'bp', price: 55, mrp: 70, quantity: 100 },
+        { id: 'bp16', name: 'Ramipril 5mg', category: 'BP & Heart', catKey: 'bp', price: 75, mrp: 90, quantity: 100 },
+        { id: 'bp17', name: 'Enalapril 5mg', category: 'BP & Heart', catKey: 'bp', price: 50, mrp: 60, quantity: 100 },
+        { id: 'bp18', name: 'Perindopril 4mg', category: 'BP & Heart', catKey: 'bp', price: 80, mrp: 95, quantity: 100 },
+        { id: 'bp19', name: 'Hydrochlorothiazide 12.5mg', category: 'BP & Heart', catKey: 'bp', price: 30, mrp: 40, quantity: 100 },
+        { id: 'bp20', name: 'Hydrochlorothiazide 25mg', category: 'BP & Heart', catKey: 'bp', price: 40, mrp: 50, quantity: 100 },
+      ],
+      diabetes: [
+        { id: 'db1', name: 'Metformin 500mg', category: 'Diabetes', catKey: 'diabetes', price: 25, mrp: 35, quantity: 100, trending: true },
+        { id: 'db2', name: 'Metformin 850mg', category: 'Diabetes', catKey: 'diabetes', price: 35, mrp: 45, quantity: 100 },
+        { id: 'db3', name: 'Metformin 1000mg', category: 'Diabetes', catKey: 'diabetes', price: 45, mrp: 55, quantity: 100 },
+        { id: 'db4', name: 'Metformin SR 500mg', category: 'Diabetes', catKey: 'diabetes', price: 40, mrp: 50, quantity: 100 },
+        { id: 'db5', name: 'Metformin SR 1000mg', category: 'Diabetes', catKey: 'diabetes', price: 55, mrp: 70, quantity: 100 },
+        { id: 'db6', name: 'Glimepiride 1mg', category: 'Diabetes', catKey: 'diabetes', price: 55, mrp: 70, quantity: 100, trending: true },
+        { id: 'db7', name: 'Glimepiride 2mg', category: 'Diabetes', catKey: 'diabetes', price: 65, mrp: 80, quantity: 100 },
+        { id: 'db8', name: 'Glimepiride 4mg', category: 'Diabetes', catKey: 'diabetes', price: 85, mrp: 100, quantity: 100 },
+        { id: 'db9', name: 'Gliclazide 30mg', category: 'Diabetes', catKey: 'diabetes', price: 60, mrp: 75, quantity: 100 },
+        { id: 'db10', name: 'Gliclazide 60mg', category: 'Diabetes', catKey: 'diabetes', price: 85, mrp: 100, quantity: 100 },
+        { id: 'db11', name: 'Glipizide 5mg', category: 'Diabetes', catKey: 'diabetes', price: 50, mrp: 65, quantity: 100 },
+        { id: 'db12', name: 'Pioglitazone 15mg', category: 'Diabetes', catKey: 'diabetes', price: 70, mrp: 85, quantity: 100 },
+        { id: 'db13', name: 'Pioglitazone 30mg', category: 'Diabetes', catKey: 'diabetes', price: 95, mrp: 115, quantity: 100 },
+        { id: 'db14', name: 'Sitagliptin 50mg', category: 'Diabetes', catKey: 'diabetes', price: 140, mrp: 170, quantity: 100, trending: true },
+        { id: 'db15', name: 'Sitagliptin 100mg', category: 'Diabetes', catKey: 'diabetes', price: 190, mrp: 220, quantity: 100 },
+        { id: 'db16', name: 'Vildagliptin 50mg', category: 'Diabetes', catKey: 'diabetes', price: 130, mrp: 160, quantity: 100 },
+        { id: 'db17', name: 'Linagliptin 5mg', category: 'Diabetes', catKey: 'diabetes', price: 180, mrp: 210, quantity: 100 },
+        { id: 'db18', name: 'Teneligliptin 20mg', category: 'Diabetes', catKey: 'diabetes', price: 95, mrp: 120, quantity: 100, trending: true },
+        { id: 'db19', name: 'Empagliflozin 10mg', category: 'Diabetes', catKey: 'diabetes', price: 160, mrp: 190, quantity: 100, trending: true },
+        { id: 'db20', name: 'Empagliflozin 25mg', category: 'Diabetes', catKey: 'diabetes', price: 190, mrp: 220, quantity: 100 },
+      ],
+    };
+
+    function migrateStaticToFirebase() {
+
+      if (!window.__adminFirestore) {
+        alert('Firebase abhi load nahi hua. Thoda wait karo aur dobara try karo.');
+        return;
+      }
+      // Reset modal
+      document.getElementById('migrateProgress').style.display = 'none';
+      document.getElementById('migrateDone').style.display = 'none';
+      document.getElementById('migrateContent').querySelector('p').style.display = 'block';
+      document.getElementById('migrateFooter').style.display = 'flex';
+      document.getElementById('migrateConfirmBtn').style.display = '';
+      openModal('migrateModal');
+    }
+
+    async function startMigration() {
+      const btn = document.getElementById('migrateConfirmBtn');
+      btn.style.display = 'none';
+      document.getElementById('migrateContent').querySelector('p').style.display = 'none';
+      document.getElementById('migrateProgress').style.display = 'block';
+      document.getElementById('migrateFooter').style.display = 'none';
+
+      const allMeds = Object.values(STATIC_MEDICINES_FOR_MIGRATION).flat();
+      const total = allMeds.length;
+      let done = 0, failed = 0;
+
+      const bar = document.getElementById('migrateBar');
+      const status = document.getElementById('migrateStatus');
+
+      for (const med of allMeds) {
+        try {
+          await window.__adminFirestore.saveMedicineToFirestore({ ...med, migratedFrom: 'static', createdAt: Date.now() });
+          done++;
+        } catch (e) {
+          failed++;
+        }
+        const pct = Math.round(((done + failed) / total) * 100);
+        bar.style.width = pct + '%';
+        status.textContent = `Uploading... ${done + failed}/${total} medicines`;
+      }
+
+      // Done
+      document.getElementById('migrateProgress').style.display = 'none';
+      document.getElementById('migrateDone').style.display = 'block';
+      document.getElementById('migrateDoneText').textContent =
+        `${done} medicines successfully uploaded to Firebase!` +
+        (failed > 0 ? ` (${failed} failed — dobara try karo)` : ' 🎉');
+      document.getElementById('migrateFooter').style.display = 'flex';
+      document.getElementById('migrateConfirmBtn').style.display = 'none';
+      document.querySelector('#migrateFooter .btn-cancel').textContent = 'Close';
+
+      if (done > 0) {
+        const migrateBtn = document.getElementById('migrateBtn');
+        if (migrateBtn) {
+          migrateBtn.style.display = 'none';
+          localStorage.setItem('mq_migration_done', '1');
+        }
+        if (typeof loadMedicinesFromFirestore === 'function') loadMedicinesFromFirestore();
+      }
+    }
+
+    if (localStorage.getItem('mq_migration_done') === '1') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('migrateBtn');
+        if (btn) btn.style.display = 'none';
+      });
+    }
+  </script>
 
 </body>
 

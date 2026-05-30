@@ -23,9 +23,9 @@
       --text: #1a1a2e;
       --muted: #6b7280;
       --white: #fff;
-      --bg: #f5f7fa;
+      --bg: #f5f8f6;
       --card: #fff;
-      --shadow: 0 2px 16px rgba(0, 0, .08);
+      --shadow: 0 10px 28px rgba(15, 23, 42, .07);
       --radius: 14px;
       --red: #dc2626;
       --orange: #f59e0b;
@@ -33,7 +33,9 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: var(--bg);
+      background:
+        linear-gradient(180deg, rgba(240, 253, 244, .75), rgba(245, 248, 246, 0) 260px),
+        var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -41,11 +43,12 @@
     }
 
     .header {
-      background: var(--white);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 2px 14px rgba(15, 23, 42, .08);
       position: sticky;
       top: 0;
       z-index: 100;
+      backdrop-filter: blur(10px);
     }
 
     .header-inner {
@@ -146,7 +149,7 @@
     .main {
       flex: 1;
       padding: 24px;
-      max-width: 680px;
+      max-width: 760px;
       margin: 0 auto;
       width: 100%;
     }
@@ -155,8 +158,16 @@
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      border: 1px solid rgba(226, 232, 240, .85);
       padding: 22px;
       margin-bottom: 20px;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(134, 239, 172, .85);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, .09);
     }
 
     .card-title {
@@ -278,10 +289,18 @@
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      border: 1px solid rgba(226, 232, 240, .85);
       padding: 18px 20px;
       display: flex;
       align-items: center;
       gap: 14px;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(134, 239, 172, .85);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, .09);
     }
 
     .stat-icon {
@@ -1311,7 +1330,9 @@
   <script type="module">
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    import { getSession, refreshSession, updateCurrentAuthPassword, ensureAuthUser, requireRole } from './auth-session.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -1325,28 +1346,23 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     // browserLocalPersistence (default) — session tab close ke baad bhi rehta hai
-
-
     let session = null;
-    try { session = JSON.parse(localStorage.getItem('mq_db_session')); } catch (e) { }
-
-    // FIX: Check expiry before redirect
-    if (session && session.expiresAt && Date.now() > session.expiresAt) {
-      localStorage.removeItem('mq_db_session');
-      session = null;
-    }
-    if (!session || !session.docId) {
-      window.location.replace('login.html?tab=rider');
+    const riderRoleState = await requireRole('rider', { auth, redirectTo: 'rider-login.html' });
+    if (riderRoleState?.session?.docId) {
+      session = refreshSession('rider', riderRoleState.session);
     }
 
-    // NOTE: Firebase Auth state check removed — app uses localStorage-based custom auth.
-    // onAuthStateChanged gives false negatives and causes unnecessary redirects.
 
-    // Single-device session watch hata diya — multi-tab use allowed hai
-    // (sessionToken mismatch se galat redirect hota tha)
 
 
     let _riderCache = null;
+    let _riderLoadWarned = false;
+
+    function handleRiderLoadMissing() {
+      if (_riderLoadWarned) return;
+      _riderLoadWarned = true;
+      showToast('Could not refresh rider data. Please check your connection.', 'warning');
+    }
 
 
     async function hashPassword(plain) {
@@ -1360,8 +1376,7 @@
     async function getMe() {
       if (_riderCache) return _riderCache;
       try {
-        // FIX: docId se direct getDoc — phone query se zyada reliable hai
-        // (phone-login aur email-login dono ke liye kaam karta hai)
+
         if (session && session.docId) {
           const snap = await getDoc(doc(db, 'riders', session.docId));
           if (snap.exists()) {
@@ -1369,7 +1384,7 @@
             return _riderCache;
           }
         }
-        // Fallback: phone se query (agar docId kisi reason se kaam na kare)
+
         if (session && session.phone) {
           const qSnap = await getDocs(query(collection(db, 'riders'), where('phone', '==', session.phone)));
           if (!qSnap.empty) {
@@ -1379,7 +1394,7 @@
         }
       } catch (e) {
         console.error('getMe error:', e.code || e);
-        // permission-denied = auth not ready, caller should retry
+        
       }
       return null;
     }
@@ -1418,7 +1433,7 @@
 
     async function renderProfile() {
       const me = await getMe();
-      if (!me) { doLogout(); return; }
+      if (!me) { handleRiderLoadMissing(); return; }
       const vMap = { bike: '🏍️ Bike', scooter: '🛵 Scooter', cycle: '🚲 Cycle' };
       document.getElementById('pAvatar').textContent = me.name.charAt(0).toUpperCase();
       document.getElementById('pName').textContent = me.name;
@@ -1490,20 +1505,16 @@
         document.getElementById('e-pincode').classList.add('err');
         valid = false;
       }
-      if (pass && pass.length < 6) {
-        document.getElementById('e-err-pass').classList.add('show');
-        document.getElementById('e-pass').classList.add('err');
-        valid = false;
+      if (pass) {
+        showToast('Use Change Password to update your login password.', 'warning');
+        document.getElementById('e-pass').value = '';
       }
       if (!valid) return;
 
       const updates = { name, phone, vehicle, city, pincode, deliveryRange: range };
-      if (pass) updates.password = pass;
       await saveMeToFirestore(updates);
 
-      session.name = name;
-      session.phone = phone;
-      localStorage.setItem('mq_db_session', JSON.stringify(session));
+      session = refreshSession('rider', { name, phone, vehicle, city, deliveryRange: range });
 
       closeEdit();
       await renderAll();
@@ -1550,7 +1561,7 @@
 
 
     function subscribeActiveOrder() {
-      // FIX: Store unsubscribe to prevent memory leak
+
       if (window._mqUnsub_activeOrder) window._mqUnsub_activeOrder();
       window._mqUnsub_activeOrder = onSnapshot(
         query(collection(db, 'orders'), where('deliveryBoy.phone', '==', session.phone)),
@@ -1610,17 +1621,16 @@
     window.acceptOrder = async function (orderId) {
       const now = Date.now();
 
-      // FIX #2: distanceKm bhi save karo taaki earning sahi calculate ho
+
       let distanceKm = null;
       try {
         const me = await getMe();
         if (me && me.lat && me.lng) {
-          // riderRequests se distanceKm fetch karo
           const reqSnap = await getDoc(doc(db, 'riderRequests', orderId));
           if (reqSnap.exists() && reqSnap.data().distanceKm != null) {
             distanceKm = reqSnap.data().distanceKm;
           } else if (reqSnap.exists() && reqSnap.data().customerLat && reqSnap.data().customerLng) {
-            // Fallback: haversine calculate karo
+            
             const R = 6371;
             const dL = (reqSnap.data().customerLat - me.lat) * Math.PI / 180;
             const dO = (reqSnap.data().customerLng - me.lng) * Math.PI / 180;
@@ -1635,7 +1645,7 @@
           status: 'on_the_way',
           statusUpdatedAt: now,
           riderAcceptedAt: now,
-          distanceKm: distanceKm  // FIX #2: distance save karo
+          distanceKm: distanceKm  
         });
         await deleteDoc(doc(db, 'riderRequests', orderId));
       } catch (e) { console.warn('acceptOrder Firestore error:', e); }
@@ -1654,7 +1664,7 @@
 
     window.markDelivered = async function (orderId) {
       const now = Date.now();
-      // FIXED: update Firestore directly
+      
       try {
         await updateDoc(doc(db, 'orders', orderId), {
           status: 'delivered',
@@ -1687,13 +1697,21 @@
     };
 
     window.doLogout = function () {
-      localStorage.removeItem('mq_db_session');
-      window.location.href = 'login.html?tab=rider';
+      openConfirm(
+        'Logout?',
+        'Are you sure you want to logout from the rider dashboard?',
+        () => {
+          localStorage.removeItem('mq_db_session');
+          window.location.href = 'rider-login.html';
+        },
+        'Yes, Logout'
+      );
     }
 
-    window.openConfirm = function (title, body, cb) {
+    window.openConfirm = function (title, body, cb, okText = 'Confirm') {
       document.getElementById('confirmTitle').textContent = title;
       document.getElementById('confirmBody').textContent = body;
+      document.getElementById('confirmOkBtn').textContent = okText;
       document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); cb(); };
       document.getElementById('confirmModal').classList.add('show');
     }
@@ -1753,11 +1771,7 @@
       let valid = true;
       const me = await getMe();
       if (!me) { showToast('Session expired. Please login again.', 'error'); return; }
-
-
-      const oldHash = await hashPassword(oldPass);
-      const passwordMatch = me.password === oldHash || me.password === oldPass;
-      if (!oldPass || !passwordMatch) {
+      if (!oldPass) {
         document.getElementById('cp-err-old').style.display = 'block';
         valid = false;
       }
@@ -1776,8 +1790,16 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
       try {
-        const newHash = await hashPassword(newPass);
-        await saveMeToFirestore({ password: newHash });
+        const authEmail = me.email || session.email || '';
+        if (authEmail) {
+          const authUser = await ensureAuthUser(auth, authEmail, oldPass);
+          if (authUser) {
+            const credential = EmailAuthProvider.credential(authEmail, oldPass);
+            await reauthenticateWithCredential(authUser, credential);
+            await updateCurrentAuthPassword(auth, newPass);
+          }
+        }
+        await saveMeToFirestore({ updatedAt: Date.now() });
         closeChangePass();
         showToast('✅ Password changed successfully!');
       } catch (e) {
@@ -1795,7 +1817,7 @@
 
     window.renderAll = async function () {
       const me = await getMe();
-      if (!me) { doLogout(); return; }
+      if (!me) { handleRiderLoadMissing(); return; }
       await renderProfile();
       await renderStatus();
       renderStats();
@@ -1844,31 +1866,31 @@
     let _currentRequestId = null;
     let _timerInterval = null;
     let _riderRequestsCache = [];
-    const _rejectedOrderIds = new Set(); // FIX: track locally rejected orders to prevent re-popup
+    const _rejectedOrderIds = new Set(); 
 
 
     async function ensureAuth() {
-      // If already signed in, return immediately
+      
       if (auth.currentUser) return true;
       if (!session || !session.phone) return false;
-      // Wait for onAuthStateChanged to resolve (max 3s)
+      
       return new Promise((resolve) => {
         const unsub = onAuthStateChanged(auth, (user) => {
           unsub();
           resolve(!!user);
         });
-        // Timeout after 3s
+        
         setTimeout(() => resolve(false), 3000);
       });
     }
 
     async function subscribeRiderRequests() {
-      // Ensure Firebase Auth — needed for Firestore rules (riders: read if request.auth != null)
+
       await ensureAuth();
 
       const me = await getMe();
       if (!me) {
-        // Retry after 2s if getMe failed (auth may not be ready)
+
         setTimeout(subscribeRiderRequests, 2000);
         return;
       }
@@ -1882,7 +1904,6 @@
         },
         (err) => {
           console.warn('riderRequests listener error:', err.code);
-          // Retry on permission error after auth resolves
           if (err.code === 'permission-denied') {
             setTimeout(subscribeRiderRequests, 3000);
           }
@@ -1945,7 +1966,6 @@
       } catch (e) { showToast('⚠️ Network error, try again'); return; }
 
 
-      // FIX: Local cache mein bhi acceptedBy set karo taaki snapshot race condition se dobara popup na aaye
       if (req) req.acceptedBy = myDocId;
 
       try {
@@ -1968,7 +1988,6 @@
       const orderId = _currentRequestId;
       const myDocId = (_riderCache && _riderCache.docId) || session.docId;
 
-      // FIX: Immediately mark as rejected locally so snapshot race condition doesn't re-show popup
       _rejectedOrderIds.add(orderId);
 
 
@@ -2052,7 +2071,7 @@
           timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
           timerEl.className = 'req-timer' + (remaining < 30000 ? ' urgent' : '');
         }
-        const pct = (remaining / (10 * 60 * 1000)) * 100; // FIXED: was 2 min, now 10 min
+        const pct = (remaining / (10 * 60 * 1000)) * 100; // 
         const bar = document.getElementById('reqProgressBar');
         if (bar) {
           bar.style.width = pct + '%';
@@ -2068,22 +2087,25 @@
     }
 
 
-    renderAll();
-    updateRiderGps();
-    setInterval(updateRiderGps, 30000);
+    if (session && session.docId) {
+      renderAll();
+      updateRiderGps();
+      setInterval(updateRiderGps, 30000);
 
-    subscribeRiderRequests();
-    subscribeActiveOrder();
+      subscribeRiderRequests();
+      subscribeActiveOrder();
 
-    // FIX: Cleanup all Firestore listeners on page unload
-    window.addEventListener('beforeunload', () => {
-      if (window._mqUnsub_activeOrder) window._mqUnsub_activeOrder();
-      if (window._mqUnsub_riderReqs) window._mqUnsub_riderReqs();
-    }, { once: true });
 
-    setInterval(() => { renderAll(); }, 3000);
+      window.addEventListener('beforeunload', () => {
+        if (window._mqUnsub_activeOrder) window._mqUnsub_activeOrder();
+        if (window._mqUnsub_riderReqs) window._mqUnsub_riderReqs();
+      }, { once: true });
 
-    // ===== EDIT MODAL: PIN se city auto-fetch =====
+      setInterval(() => { renderAll(); }, 3000);
+    }
+
+    // IM_VYADAW
+    
     let _ddPinTimer = null;
     document.getElementById('e-pincode')?.addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 6);
@@ -2100,7 +2122,7 @@
             const po = data[0].PostOffice[0];
             const fetchedCity = po.District || po.Division || po.Name || '';
             const fetchedState = po.State || '';
-            // City field hamesha update karo
+            
             const cityEl = document.getElementById('e-city');
             if (cityEl && fetchedCity) {
               cityEl.value = fetchedCity;
@@ -2124,3 +2146,7 @@
 </body>
 
 </html>
+
+
+
+

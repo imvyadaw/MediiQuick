@@ -350,7 +350,7 @@
       resize: vertical;
       min-height: 80px;
     }
-
+/* // IM_VYADAW */
     .form-select {
       width: 100%;
       padding: 11px 16px;
@@ -555,9 +555,9 @@
       <div class="upload-sub">Or click to browse files</div>
       <button class="upload-btn-file" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i
           class="fas fa-upload"></i> Choose Files</button>
-      <div class="upload-hint">Supported: JPG, PNG, PDF · Max 5MB per file · Up to 5 files</div>
+      <div class="upload-hint">Supported: JPG, PNG, WEBP, PDF · Max 3MB per file · Up to 5 files</div>
     </div>
-    <input type="file" id="fileInput" accept="image/*,.pdf" multiple style="display:none"
+    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none"
       onchange="handleFiles(this.files)">
 
     <!-- Preview -->
@@ -609,7 +609,7 @@
       <i class="fas fa-paper-plane"></i> Submit Prescription
     </button>
 
-    <!-- Past Prescriptions -->
+
     <div class="past-section">
       <div class="past-title">📂 Previous Prescriptions</div>
       <div id="pastRxList">
@@ -622,6 +622,8 @@
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { validatePrescriptionFile } from "./services/uploads.js";
+    import { escapeHTML } from "./utils/sanitize.js";
 
     const cfg = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -657,13 +659,10 @@
     };
 
     window.handleFiles = function (files) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
-
       Array.from(files).forEach(file => {
         if (selectedFiles.length >= 5) { showToast('Maximum 5 files allowed'); return; }
-        if (!validTypes.includes(file.type)) { showToast(`${file.name}: Invalid file type`); return; }
-        if (file.size > maxSize) { showToast(`${file.name}: Too large (max 5MB)`); return; }
+        const result = validatePrescriptionFile(file);
+        if (!result.ok) { showToast(`${file.name}: ${result.message}`); return; }
         selectedFiles.push(file);
       });
 
@@ -687,11 +686,11 @@
         if (file.type.startsWith('image/')) {
           const reader = new FileReader();
           reader.onload = e => {
-            div.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${file.name}</div>`;
+            div.innerHTML = `<img src="${e.target.result}" alt="${escapeHTML(file.name)}"><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${escapeHTML(file.name)}</div>`;
           };
           reader.readAsDataURL(file);
         } else {
-          div.innerHTML = `<div class="pdf-icon">📄</div><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${file.name}</div>`;
+          div.innerHTML = `<div class="pdf-icon">📄</div><button class="remove-img" onclick="removeFile(${idx})">✕</button><div class="file-name">${escapeHTML(file.name)}</div>`;
         }
         grid.appendChild(div);
       });
@@ -708,7 +707,6 @@
       renderPreviews();
     };
 
-    // Convert file to base64 for Firestore storage (small files only, ideally use Firebase Storage)
     function fileToBase64(file) {
       return new Promise((res, rej) => {
         const r = new FileReader();
@@ -732,16 +730,13 @@
       progressWrap.style.display = 'block';
 
       try {
-        // Convert images to base64 (for Firestore - works for small prescriptions)
-        // For production, use Firebase Storage instead
         const attachments = [];
         for (let i = 0; i < selectedFiles.length; i++) {
           progressFill.style.width = `${((i + 0.5) / selectedFiles.length) * 80}%`;
           progressLabel.textContent = `Processing file ${i + 1} of ${selectedFiles.length}...`;
 
           const file = selectedFiles[i];
-          // Store metadata only for PDFs (too large for base64 in Firestore)
-          if (file.type === 'application/pdf' || file.size > 500000) {
+          if (file.type === 'application/pdf' || file.size > 450000) {
             attachments.push({ name: file.name, type: file.type, size: file.size, data: null, note: 'Large file - stored as reference' });
           } else {
             const b64 = await fileToBase64(file);
@@ -816,7 +811,7 @@
           <div class="rx-icon">📋</div>
           <div class="rx-info">
             <div class="rx-name">${rx.fileCount || 1} file${rx.fileCount !== 1 ? 's' : ''} · ${rx.urgency === 'urgent' ? '🚨 Urgent' : 'Normal'}</div>
-            <div class="rx-sub">Submitted ${rx.submittedAt ? new Date(rx.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}${rx.doctorName ? ' · Dr. ' + rx.doctorName : ''}${rx.reviewNotes ? ' · Note: ' + rx.reviewNotes : ''}</div>
+            <div class="rx-sub">Submitted ${rx.submittedAt ? new Date(rx.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}${rx.doctorName ? ' · Dr. ' + escapeHTML(rx.doctorName) : ''}${rx.reviewNotes ? ' · Note: ' + escapeHTML(rx.reviewNotes) : ''}</div>
           </div>
           <div class="rx-status ${cls}">${label}</div>
         </div>`;
@@ -826,7 +821,7 @@
       }
     }
 
-    // Load saved addresses
+
     async function loadAddresses(uid) {
       try {
         const snap = await getDoc(doc(db, 'userAddresses', uid));
@@ -841,24 +836,22 @@
       } catch (e) { }
     }
 
-    // Auth guard — localStorage session based (Firebase Auth nahi — cross-role redirect fix)
     (async () => {
       try {
         const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
-        if (!session || !session.uid) { window.location.href = 'login.html'; return; }
+        if (!session || !session.uid) { window.location.href = 'user-login.html'; return; }
         if (session.expiresAt && Date.now() > session.expiresAt) {
           localStorage.removeItem('mq_user');
-          window.location.href = 'login.html'; return;
+          window.location.href = 'user-login.html'; return;
         }
-        // Session refresh
+        // Session renewal on each visit (sliding expiration)
         session.expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
         localStorage.setItem('mq_user', JSON.stringify(session));
-        // currentUser ko localStorage session se set karo
         currentUser = { uid: session.uid, email: session.email };
         await loadAddresses(session.uid);
         await loadPastPrescriptions();
       } catch (e) {
-        window.location.href = 'login.html';
+        window.location.href = 'user-login.html';
       }
     })();
   </script>
@@ -877,3 +870,4 @@
 </body>
 
 </html>
+

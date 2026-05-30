@@ -309,7 +309,7 @@
       font-size: 0.8rem;
       font-weight: 700;
     }
-
+/* // IM_VYADAW */
     .loading-state {
       text-align: center;
       padding: 80px 20px;
@@ -456,10 +456,8 @@
     function renderInvoice(order, adminData) {
       const items = order.items || [];
       const subtotal = items.reduce((s, i) => s + ((i.med?.price || i.price || 0) * (i.qty || 1)), 0);
-      // deliveryCharge stored in order (0 = free). If field missing, derive from total.
       const delivery = (order.deliveryCharge !== undefined && order.deliveryCharge !== null)
         ? order.deliveryCharge : 0;
-      // codCharge stored directly; fallback: detect from payMethod label
       const cod = order.codCharge ?? ((order.payMethod === 'Cash on Delivery' || order.paymentMethod === 'cod') ? 20 : 0);
       const discount = order.discount || 0;
       const total = order.total || (subtotal + delivery + cod - discount);
@@ -554,16 +552,14 @@
       </div>`;
     }
 
-    // ── Auth Guard: localStorage session check (Firebase Auth nahi) ──
     (async function () {
       let session = null;
       try { session = JSON.parse(localStorage.getItem('mq_user') || 'null'); } catch (e) { }
-      if (!session || !session.uid) { window.location.href = 'login.html'; return; }
+      if (!session || !session.uid) { window.location.href = 'user-login.html'; return; }
       if (session.expiresAt && Date.now() > session.expiresAt) {
         localStorage.removeItem('mq_user');
-        window.location.href = 'login.html'; return;
+        window.location.href = 'user-login.html'; return;
       }
-      // Refresh session expiry — 7 din
       session.expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
       localStorage.setItem('mq_user', JSON.stringify(session));
 

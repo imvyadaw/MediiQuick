@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -714,9 +714,15 @@
                         <div class="form-group">
                             <label><i class="fas fa-city"></i> City *</label>
                             <div class="input-wrapper">
-                                <input type="text" id="city" placeholder="e.g. Lucknow">
+                                <input type="text" id="city" placeholder="Auto-filled from PIN">
                             </div>
                             <div class="error-msg" id="errCity"><i class="fas fa-exclamation-circle"></i> City required
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map"></i> State</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="state" placeholder="Auto-filled from PIN" readonly>
                             </div>
                         </div>
                         <div class="form-group">
@@ -911,13 +917,13 @@
                         <strong id="generatedAdminId" style="font-size:1.2rem;">ADMIN-XXXX</strong>
                     </div>
                     <p style="font-size:0.8rem;color:#6b7280;margin-top:8px;">Redirecting to login in 3 seconds...</p>
-                    <button class="goto-login-btn" onclick="window.location.href='login.html?tab=admin'">Go to Admin
+                    <button class="goto-login-btn" onclick="window.location.href='admin-login.html'">Go to Admin
                         Login →</button>
                 </div>
             </div>
 
             <div class="card-footer" id="cardFooter">
-                <div class="footer-link">Already a partner? <a href="login.html?tab=admin">Sign in to dashboard</a>
+                <div class="footer-link">Already a partner? <a href="admin-login.html">Sign in to dashboard</a>
                     &nbsp;|&nbsp; <a href="index.html">Home</a></div>
             </div>
         </div>
@@ -927,6 +933,7 @@
         import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { saveSession } from './auth-session.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -1030,7 +1037,7 @@
                 const el = document.getElementById(id);
                 const err = document.getElementById(errId || `err${id.charAt(0).toUpperCase() + id.slice(1)}`);
                 if (el) {
-                    const isInvalid = !condition(el.value.trim()); // condition returns true=valid, so negate for isInvalid
+                    const isInvalid = !condition(el.value.trim()); 
                     el.classList.toggle('error-input', isInvalid);
                     if (err) err.classList.toggle('show', isInvalid);
                     if (isInvalid) valid = false;
@@ -1128,17 +1135,11 @@
             setLoading('finalSubmitBtn', true);
 
             try {
-                // Duplicate checks (wrapped — Firestore blocks pre-auth reads without updated rules)
+
                 try {
                     const existingAdmin = await getDocs(query(collection(db, 'admins'), where('email', '==', email)));
                     if (!existingAdmin.empty) {
                         showToast("Email already registered as partner", 'error');
-                        setLoading('finalSubmitBtn', false);
-                        return;
-                    }
-                    const existingUser = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-                    if (!existingUser.empty) {
-                        showToast("Email already used as customer. Please use different email.", 'error');
                         setLoading('finalSubmitBtn', false);
                         return;
                     }
@@ -1149,20 +1150,19 @@
                         return;
                     }
                 } catch (preCheckErr) {
-                    // Rules may block pre-auth reads — skip checks, proceed to registration
                     console.warn('Pre-check skipped:', preCheckErr.code);
                 }
 
                 const adminId = 'ADMIN' + Date.now() + Math.floor(Math.random() * 1000);
                 const servedPinsRaw = document.getElementById('servedPins').value;
                 const servedPins = servedPinsRaw.split(',').map(p => p.trim()).filter(p => /^\d{6}$/.test(p));
-                const hashed = await hashPassword(document.getElementById('password').value);
 
                 const adminPayload = {
                     adminId: adminId,
                     shopName: document.getElementById('shopName').value.trim(),
                     adminName: document.getElementById('ownerName').value.trim(),
                     city: document.getElementById('city').value.trim(),
+                    state: document.getElementById('state')?.value.trim() || '',
                     pin: document.getElementById('pincode').value.trim(),
                     location: document.getElementById('address').value.trim(),
                     gst: document.getElementById('gst').value.trim().toUpperCase(),
@@ -1177,22 +1177,27 @@
                     servedPins: servedPins,
                     lat: geolocationLat,
                     lng: geolocationLng,
-                    password: hashed,
                     registeredAt: new Date().toISOString(),
-                    status: 'active' // Changed from 'pending' to 'active' for immediate access
+                    status: 'active' 
                 };
 
-                // Firebase Auth — create account so Firestore write rules pass
+                let firebaseUid = null;
                 try {
-                    await createUserWithEmailAndPassword(auth, email, document.getElementById('password').value);
+                    const cred = await createUserWithEmailAndPassword(auth, email, document.getElementById('password').value);
+                    firebaseUid = cred.user.uid;
                 } catch (authErr) {
                     if (authErr.code === 'auth/email-already-in-use') {
-                        await signInWithEmailAndPassword(auth, email, document.getElementById('password').value).catch(() => { });
+                        const existingCred = await signInWithEmailAndPassword(auth, email, document.getElementById('password').value).catch(() => null);
+                        firebaseUid = existingCred?.user?.uid || null;
                     }
-                    // other errors — continue
                 }
 
+                if (!firebaseUid) {
+                    throw new Error('Firebase Auth account could not be created or verified for this pharmacy.');
+                }
+                adminPayload.uid = firebaseUid;
                 await setDoc(doc(db, 'admins', adminId), adminPayload);
+                saveSession('admin', { ...adminPayload, uid: firebaseUid, docId: adminId });
 
                 document.getElementById('generatedAdminId').innerText = adminId;
                 document.getElementById('step1Content').classList.remove('active');
@@ -1202,8 +1207,7 @@
                 document.getElementById('cardFooter').style.display = 'none';
 
                 showToast("Registration successful! Redirecting to login...", 'success');
-                // Auto redirect to admin login after 3 seconds
-                setTimeout(() => { window.location.href = 'login.html?tab=admin'; }, 3000);
+                setTimeout(() => { window.location.href = 'admin-login.html'; }, 3000);
             } catch (err) {
                 console.error('Registration error:', err);
                 showToast("Network error, please try again", 'error');
@@ -1212,84 +1216,172 @@
             }
         };
 
-        // Input validation on the fly
         // ===== PIN AUTO-FETCH: city, state, servedPins =====
         let _pinTimer = null;
-        document.getElementById('pincode')?.addEventListener('input', function () {
-            this.value = this.value.replace(/\D/g, '').slice(0, 6);
-            const val = this.value;
+        const pinInput = document.getElementById('pincode');
+
+        // ===== PIN FALLBACK MAP (common Indian PINs) =====
+        const PIN_FALLBACKS = {
+            '110001': { city: 'New Delhi', state: 'Delhi' },
+            '110011': { city: 'New Delhi', state: 'Delhi' },
+            '110019': { city: 'New Delhi', state: 'Delhi' },
+            '110051': { city: 'New Delhi', state: 'Delhi' },
+            '110092': { city: 'New Delhi', state: 'Delhi' },
+            '400001': { city: 'Mumbai', state: 'Maharashtra' },
+            '400051': { city: 'Mumbai', state: 'Maharashtra' },
+            '400076': { city: 'Mumbai', state: 'Maharashtra' },
+            '560001': { city: 'Bengaluru', state: 'Karnataka' },
+            '560034': { city: 'Bengaluru', state: 'Karnataka' },
+            '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+            '600020': { city: 'Chennai', state: 'Tamil Nadu' },
+            '700001': { city: 'Kolkata', state: 'West Bengal' },
+            '500001': { city: 'Hyderabad', state: 'Telangana' },
+            '500034': { city: 'Hyderabad', state: 'Telangana' },
+            '380001': { city: 'Ahmedabad', state: 'Gujarat' },
+            '411001': { city: 'Pune', state: 'Maharashtra' },
+            '302001': { city: 'Jaipur', state: 'Rajasthan' },
+            '226001': { city: 'Lucknow', state: 'Uttar Pradesh' },
+            '201301': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201310': { city: 'Gautam Buddha Nagar', state: 'Uttar Pradesh' },
+            '201316': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201318': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201213': { city: 'Ghaziabad', state: 'Uttar Pradesh' },
+            '201001': { city: 'Ghaziabad', state: 'Uttar Pradesh' },
+            '122001': { city: 'Gurugram', state: 'Haryana' },
+            '121001': { city: 'Faridabad', state: 'Haryana' },
+            '160017': { city: 'Chandigarh', state: 'Chandigarh' },
+            '248001': { city: 'Dehradun', state: 'Uttarakhand' },
+            '462001': { city: 'Bhopal', state: 'Madhya Pradesh' },
+            '492001': { city: 'Raipur', state: 'Chhattisgarh' },
+            '800001': { city: 'Patna', state: 'Bihar' },
+            '845401': { city: 'Motihari', state: 'Bihar' },
+            '834001': { city: 'Ranchi', state: 'Jharkhand' },
+            '751001': { city: 'Bhubaneswar', state: 'Odisha' },
+            '641001': { city: 'Coimbatore', state: 'Tamil Nadu' },
+            '682001': { city: 'Kochi', state: 'Kerala' },
+            '695001': { city: 'Thiruvananthapuram', state: 'Kerala' },
+            '530001': { city: 'Visakhapatnam', state: 'Andhra Pradesh' },
+            '440001': { city: 'Nagpur', state: 'Maharashtra' },
+            '208001': { city: 'Kanpur', state: 'Uttar Pradesh' },
+            '282001': { city: 'Agra', state: 'Uttar Pradesh' },
+            '221001': { city: 'Varanasi', state: 'Uttar Pradesh' },
+            '243001': { city: 'Bareilly', state: 'Uttar Pradesh' },
+            '250001': { city: 'Meerut', state: 'Uttar Pradesh' },
+            '247001': { city: 'Saharanpur', state: 'Uttar Pradesh' },
+            '203001': { city: 'Bulandshahr', state: 'Uttar Pradesh' },
+            '203131': { city: 'Dadri', state: 'Uttar Pradesh' },
+        };
+
+        function applyPinDetails(val, city, state, messagePrefix = 'Auto-filled') {
             const statusEl = document.getElementById('pin-fetch-status');
+            const cityEl = document.getElementById('city');
+            const stateEl = document.getElementById('state');
+
+            if (cityEl && city) {
+                cityEl.value = city;
+                cityEl.classList.remove('error-input');
+                document.getElementById('errCity')?.classList.remove('show');
+            }
+            if (stateEl) stateEl.value = state || '';
+
+            const servedEl = document.getElementById('servedPins');
+            if (servedEl) {
+                const existing = servedEl.value.split(',').map(p => p.trim()).filter(Boolean);
+                if (!existing.includes(val)) {
+                    existing.push(val);
+                    servedEl.value = existing.join(', ');
+                }
+            }
+            // IM_VYADAW
+            if (statusEl) {
+                statusEl.style.display = 'block';
+                statusEl.style.color = '#16a34a';
+                statusEl.textContent = messagePrefix + ': ' + city + (state ? ', ' + state : '');
+            }
+        }
+
+
+        function parseNominatim(addr) {
+            const city = addr.city || addr.town || addr.village || addr.county || addr.district || '';
+            const state = addr.state || '';
+            return { city, state };
+        }
+
+        async function fetchPinDetails() {
+            const statusEl = document.getElementById('pin-fetch-status');
+            const stateEl = document.getElementById('state');
+            const val = (pinInput?.value || '').replace(/\D/g, '').slice(0, 6);
+            if (pinInput) pinInput.value = val;
 
             if (val.length !== 6) {
                 if (statusEl) statusEl.style.display = 'none';
+                if (stateEl) stateEl.value = '';
                 return;
             }
 
             if (statusEl) {
-                statusEl.style.display = 'inline';
+                statusEl.style.display = 'block';
                 statusEl.style.color = '#16a34a';
-                statusEl.textContent = '📍 Fetching city from PIN...';
+                statusEl.textContent = 'Fetching city and state from PIN...';
             }
 
-            clearTimeout(_pinTimer);
-            _pinTimer = setTimeout(async function () {
-                try {
-                    const res = await fetch('https://api.postalpincode.in/pincode/' + val);
-                    const data = await res.json();
-
-                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
-                        const po = data[0].PostOffice[0];
-                        const fetchedCity = po.District || po.Division || po.Name || '';
-                        const fetchedState = po.State || '';
-
-                        // City field — always update
-                        const cityEl = document.getElementById('city');
-                        if (cityEl && fetchedCity) cityEl.value = fetchedCity;
-
-                        // ✅ PIN se lat/lng bhi fetch karo (Nominatim) — admin GPS auto-set
-                        try {
-                            const geoUrl = `https://nominatim.openstreetmap.org/search?postalcode=${val}&countrycodes=in&format=json&limit=1`;
-                            const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'en' } });
-                            const geoData = await geoRes.json();
-                            if (geoData && geoData[0]) {
-                                geolocationLat = parseFloat(geoData[0].lat);
-                                geolocationLng = parseFloat(geoData[0].lon);
-                                console.log('[MQ Signup] PIN', val, '→ lat/lng:', geolocationLat, geolocationLng);
-                            }
-                        } catch (geoErr) { console.warn('[MQ Signup] PIN geocode failed:', geoErr); }
-
-                        // Served PINs — apna PIN automatically add karo agar already nahi hai
-                        const servedEl = document.getElementById('servedPins');
-                        if (servedEl) {
-                            const existing = servedEl.value.split(',').map(p => p.trim()).filter(Boolean);
-                            if (!existing.includes(val)) {
-                                existing.push(val);
-                                servedEl.value = existing.join(', ');
-                            }
-                        }
-
-                        if (statusEl) {
-                            statusEl.style.color = '#16a34a';
-                            statusEl.textContent = '✅ City: ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '') + ' — auto-filled!';
-                            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
-                        }
-                    } else {
-                        if (statusEl) {
-                            statusEl.style.color = '#f59e0b';
-                            statusEl.textContent = '⚠ PIN not found — please enter city manually';
-                            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
-                        }
+            try {
+                const geoUrl = `https://nominatim.openstreetmap.org/search?postalcode=${val}&countrycodes=in&format=json&limit=1&addressdetails=1`;
+                const geoRes = await fetch(geoUrl, {
+                    headers: { 'Accept-Language': 'en', 'User-Agent': 'MediiQuick/1.0' }
+                });
+                const geoData = await geoRes.json();
+                if (geoData && geoData[0]) {
+                    const addr = geoData[0].address || {};
+                    const { city, state } = parseNominatim(addr);
+                    if (city) {
+                        geolocationLat = parseFloat(geoData[0].lat);
+                        geolocationLng = parseFloat(geoData[0].lon);
+                        applyPinDetails(val, city, state);
+                        return;
                     }
-                } catch (e) {
-                    if (statusEl) statusEl.style.display = 'none';
                 }
-            }, 600);
+            } catch (e) { console.warn('[MQ Signup] Nominatim failed:', e); }
+
+            try {
+                const res = await fetch('https://api.postalpincode.in/pincode/' + val, { signal: AbortSignal.timeout(5000) });
+                const data = await res.json();
+                const postOffices = data?.[0]?.PostOffice || [];
+                if (data?.[0]?.Status === 'Success' && postOffices.length > 0) {
+                    const po = postOffices[0];
+                    const fetchedCity = po.District || po.Division || po.Name || '';
+                    const fetchedState = po.State || '';
+                    if (fetchedCity) { applyPinDetails(val, fetchedCity, fetchedState); return; }
+                }
+            } catch (e) { console.warn('[MQ Signup] postalpincode.in failed:', e); }
+
+            const fallback = PIN_FALLBACKS[val];
+            if (fallback) {
+                applyPinDetails(val, fallback.city, fallback.state, 'Auto-filled (offline)');
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.style.display = 'block';
+                statusEl.style.color = '#dc2626';
+                statusEl.textContent = 'Could not fetch city/state. Please enter city manually.';
+            }
+            if (stateEl) stateEl.value = '';
+        }
+
+        pinInput?.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            clearTimeout(_pinTimer);
+            _pinTimer = setTimeout(fetchPinDetails, 350);
+        });
+        pinInput?.addEventListener('change', fetchPinDetails);
+        pinInput?.addEventListener('paste', function () {
+            setTimeout(fetchPinDetails, 0);
         });
         document.getElementById('mobile')?.addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 10); });
         document.getElementById('altMobile')?.addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 10); });
         document.getElementById('gst')?.addEventListener('input', function () { this.value = this.value.toUpperCase(); });
 
-        // Enter key navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && document.getElementById('step3Content').classList.contains('active')) {
                 submitRegistration();

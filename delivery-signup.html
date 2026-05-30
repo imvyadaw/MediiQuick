@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -92,7 +92,7 @@
             font-size: 1.6rem;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-
+        /* // IM_VYADAW */
         .logo-area h1 {
             font-size: 1.5rem;
             font-weight: 800;
@@ -562,7 +562,7 @@
             <div class="logo-icon">⚕️</div>
             <h1>Medii<span>Quick</span></h1>
         </a>
-        <a href="login.html?tab=rider" class="header-link"><i class="fas fa-arrow-right-to-bracket"></i> Rider Login</a>
+        <a href="rider-login.html" class="header-link"><i class="fas fa-arrow-right-to-bracket"></i> Rider Login</a>
     </header>
 
     <div class="main-wrapper">
@@ -706,7 +706,7 @@
                     </button>
 
                     <div class="login-redirect">
-                        Already on MediiQuick? <a href="login.html?tab=rider">Login here →</a>
+                        Already on MediiQuick? <a href="rider-login.html">Login here →</a>
                     </div>
                 </div>
 
@@ -715,7 +715,7 @@
                     <h3 style="color:#0f2a1f;">Welcome, Rider!</h3>
                     <p style="margin: 10px 0 16px;">Your account is active. Start earning with MediiQuick deliveries.
                     </p>
-                    <button class="submit-rider-btn" onclick="window.location.href='login.html?tab=rider'"
+                    <button class="submit-rider-btn" onclick="window.location.href='rider-login.html'"
                         style="background:#15803d; width:auto; padding:10px 28px;">Proceed to Login</button>
                 </div>
             </div>
@@ -726,6 +726,7 @@
         import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { saveSession } from './auth-session.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -855,7 +856,7 @@
             setLoading('signupActionBtn', true);
 
             try {
-                // Phone duplicate check
+
                 try {
                     const q = query(collection(db, 'riders'), where('phone', '==', phone));
                     const snap = await getDocs(q);
@@ -866,7 +867,6 @@
                     }
                 } catch (_) { }
 
-                // Email duplicate check
                 try {
                     const qEmail = query(collection(db, 'riders'), where('email', '==', email));
                     const snapEmail = await getDocs(qEmail);
@@ -879,9 +879,8 @@
                 } catch (_) { }
 
                 const riderId = 'RIDER_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-                const hashed = await hashPassword(password);
 
-                // Get GPS location
+                
                 let lat = null, lng = null;
                 if (navigator.geolocation) {
                     await new Promise((resolve) => {
@@ -893,19 +892,27 @@
                     });
                 }
 
-                // Firebase Auth — real email use karo (password reset ke liye kaam aayega)
+                
                 let firebaseUid = null;
                 try {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     firebaseUid = cred.user.uid;
                 } catch (authErr) {
                     if (authErr.code === 'auth/email-already-in-use') {
-                        showToast('This email is already registered. Please use a different email or login.', 'error');
-                        document.getElementById('errEmail').classList.add('show');
+                        const existingCred = await signInWithEmailAndPassword(auth, email, password).catch(() => null);
+                        if (existingCred?.user) {
+                            firebaseUid = existingCred.user.uid;
+                        } else {
+                            showToast('This email already has a login. Use the same password or choose another email.', 'error');
+                            document.getElementById('errEmail').classList.add('show');
+                            setLoading('signupActionBtn', false);
+                            return;
+                        }
+                    } else {
+                        showToast('Could not create Firebase login. Please try again.', 'error');
                         setLoading('signupActionBtn', false);
                         return;
                     }
-                    // other auth errors — continue with null uid
                 }
 
                 const newRider = {
@@ -914,7 +921,6 @@
                     name: name,
                     phone: phone,
                     email: email,
-                    password: hashed,
                     vehicle: vehicle,
                     city: city,
                     pincode: pincode,
@@ -928,7 +934,19 @@
                     earnings: 0
                 };
 
+                if (!firebaseUid) {
+
+
+                    throw new Error('Firebase Auth account could not be created or verified for this rider.');
+
+
+                }
+
+
                 await setDoc(doc(db, 'riders', riderId), newRider);
+
+
+                saveSession('rider', { ...newRider, uid: firebaseUid, docId: riderId });
 
                 document.getElementById('riderFormContainer').style.display = 'none';
                 document.getElementById('successScreenBox').classList.add('show');
@@ -941,7 +959,44 @@
             }
         };
 
-        // ===== PIN AUTO-FETCH: city auto-fill =====
+        
+        const DS_PIN_FALLBACKS = {
+            '110001': { city: 'New Delhi', state: 'Delhi' },
+            '110011': { city: 'New Delhi', state: 'Delhi' },
+            '110019': { city: 'New Delhi', state: 'Delhi' },
+            '110051': { city: 'New Delhi', state: 'Delhi' },
+            '110092': { city: 'New Delhi', state: 'Delhi' },
+            '400001': { city: 'Mumbai', state: 'Maharashtra' },
+            '400051': { city: 'Mumbai', state: 'Maharashtra' },
+            '560001': { city: 'Bengaluru', state: 'Karnataka' },
+            '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+            '700001': { city: 'Kolkata', state: 'West Bengal' },
+            '500001': { city: 'Hyderabad', state: 'Telangana' },
+            '380001': { city: 'Ahmedabad', state: 'Gujarat' },
+            '411001': { city: 'Pune', state: 'Maharashtra' },
+            '302001': { city: 'Jaipur', state: 'Rajasthan' },
+            '226001': { city: 'Lucknow', state: 'Uttar Pradesh' },
+            '201301': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201310': { city: 'Gautam Buddha Nagar', state: 'Uttar Pradesh' },
+            '201316': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201318': { city: 'Noida', state: 'Uttar Pradesh' },
+            '201213': { city: 'Ghaziabad', state: 'Uttar Pradesh' },
+            '201001': { city: 'Ghaziabad', state: 'Uttar Pradesh' },
+            '122001': { city: 'Gurugram', state: 'Haryana' },
+            '121001': { city: 'Faridabad', state: 'Haryana' },
+            '248001': { city: 'Dehradun', state: 'Uttarakhand' },
+            '462001': { city: 'Bhopal', state: 'Madhya Pradesh' },
+            '800001': { city: 'Patna', state: 'Bihar' },
+            '845401': { city: 'Motihari', state: 'Bihar' },
+            '834001': { city: 'Ranchi', state: 'Jharkhand' },
+            '208001': { city: 'Kanpur', state: 'Uttar Pradesh' },
+            '282001': { city: 'Agra', state: 'Uttar Pradesh' },
+            '221001': { city: 'Varanasi', state: 'Uttar Pradesh' },
+            '250001': { city: 'Meerut', state: 'Uttar Pradesh' },
+            '203001': { city: 'Bulandshahr', state: 'Uttar Pradesh' },
+            '203131': { city: 'Dadri', state: 'Uttar Pradesh' },
+        };
+
         let _dsPinTimer = null;
         document.getElementById('pincodeVal')?.addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
@@ -951,30 +1006,57 @@
             if (statusEl) { statusEl.style.display = 'inline'; statusEl.style.color = '#16a34a'; statusEl.textContent = '📍 Fetching city...'; }
             clearTimeout(_dsPinTimer);
             _dsPinTimer = setTimeout(async function () {
-                try {
-                    const res = await fetch('https://api.postalpincode.in/pincode/' + val);
-                    const data = await res.json();
-                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
-                        const po = data[0].PostOffice[0];
-                        const fetchedCity = po.District || po.Division || po.Name || '';
-                        const fetchedState = po.State || '';
-                        // City always update karo
-                        const cityEl = document.getElementById('cityName');
-                        if (cityEl && fetchedCity) {
-                            cityEl.value = fetchedCity;
-                            // Error class hata do
-                            document.getElementById('errCity')?.classList.remove('show');
-                            cityEl.classList.remove('err');
-                        }
-                        if (statusEl) {
-                            statusEl.style.color = '#16a34a';
-                            statusEl.textContent = '✅ ' + fetchedCity + (fetchedState ? ', ' + fetchedState : '') + ' — auto-fill!';
-                            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
-                        }
-                    } else {
-                        if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ PIN not found — please enter city manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
+                const cityEl = document.getElementById('cityName');
+
+                function applyCity(city, state, source) {
+                    if (cityEl && city) {
+                        cityEl.value = city;
+                        document.getElementById('errCity')?.classList.remove('show');
+                        cityEl.classList.remove('err');
                     }
-                } catch (e) { if (statusEl) statusEl.style.display = 'none'; }
+                    if (statusEl) {
+                        statusEl.style.color = '#16a34a';
+                        statusEl.textContent = '✅ ' + city + (state ? ', ' + state : '') + (source ? ' (' + source + ')' : '') + ' — auto-fill!';
+                        setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+                    }
+                }
+
+                
+                try {
+                    const geoRes = await fetch(
+                        `https://nominatim.openstreetmap.org/search?postalcode=${val}&countrycodes=in&format=json&limit=1&addressdetails=1`,
+                        { headers: { 'Accept-Language': 'en', 'User-Agent': 'MediiQuick/1.0' } }
+                    );
+                    const geoData = await geoRes.json();
+                    if (geoData && geoData[0]) {
+                        const addr = geoData[0].address || {};
+                        const city = addr.city || addr.town || addr.village || addr.county || addr.district || '';
+                        const state = addr.state || '';
+                        if (city) { applyCity(city, state, ''); return; }
+                    }
+                } catch (e) { console.warn('[MQ DS] Nominatim failed:', e); }
+
+
+                try {
+                    const res = await fetch('https://api.postalpincode.in/pincode/' + val, { signal: AbortSignal.timeout(5000) });
+                    const data = await res.json();
+                    if (data?.[0]?.Status === 'Success' && data[0].PostOffice?.length > 0) {
+                        const po = data[0].PostOffice[0];
+                        const city = po.District || po.Division || po.Name || '';
+                        if (city) { applyCity(city, po.State || '', ''); return; }
+                    }
+                } catch (e) { console.warn('[MQ DS] postalpincode.in failed:', e); }
+
+                
+                const fb = DS_PIN_FALLBACKS[val];
+                if (fb) { applyCity(fb.city, fb.state, 'offline'); return; }
+
+
+                if (statusEl) {
+                    statusEl.style.color = '#f59e0b';
+                    statusEl.textContent = '⚠ PIN not found — please enter city manually';
+                    setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+                }
             }, 600);
         });
 

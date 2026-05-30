@@ -1,0 +1,149 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function email() { return request.auth.token.email; }
+    function role() { return request.auth.token.role; }
+    function isAdmin() { return signedIn() && role() == 'admin'; }
+    function isRider() { return signedIn() && role() == 'rider'; }
+    function ownsUid(userId) { return signedIn() && userId == uid(); }
+    function incomingUid() { return signedIn() && request.resource.data.uid == uid(); }
+    function resourceUid() { return signedIn() && resource.data.uid == uid(); }
+    function incomingEmail() { return signedIn() && email() != null && request.resource.data.email == email(); }
+    function resourceEmail() { return signedIn() && email() != null && resource.data.email == email(); }
+
+    function adminOwns(adminId) {
+      return isAdmin() &&
+        exists(/databases/$(database)/documents/admins/$(adminId)) &&
+        get(/databases/$(database)/documents/admins/$(adminId)).data.uid == uid();
+    }
+
+    function pharmacyOwner(pharmacyId) {
+      return isAdmin() && (
+        adminOwns(pharmacyId) ||
+        (exists(/databases/$(database)/documents/pharmacyProfiles/$(pharmacyId)) &&
+          get(/databases/$(database)/documents/pharmacyProfiles/$(pharmacyId)).data.uid == uid())
+      );
+    }
+
+    function participant(data) {
+      return signedIn() && (
+        data.uid == uid() || data.userId == uid() || data.customerUid == uid() ||
+        data.adminUid == uid() || data.pharmacyUid == uid() || data.assignedAdminUid == uid() ||
+        data.riderUid == uid() || data.assignedRiderUid == uid()
+      );
+    }
+
+    function validOrderStatus(status) {
+      return status in ['pending', 'confirmed', 'packing', 'on_the_way', 'delivered', 'cancelled'];
+    }
+
+    match /users/{userId} {
+      allow create: if ownsUid(userId) && incomingUid();
+      allow read, update: if ownsUid(userId);
+      allow delete: if false;
+    }
+
+    match /admins/{adminId} {
+      allow create: if isAdmin() && incomingUid() && incomingEmail();
+      allow read: if adminOwns(adminId) || resourceUid() || resourceEmail();
+      allow update: if adminOwns(adminId) && incomingUid();
+      allow delete: if false;
+      match /medicines/{medicineId} {
+        allow read: if signedIn();
+        allow write: if adminOwns(adminId);
+      }
+    }
+
+    match /riders/{riderId} {
+      allow create: if isRider() && incomingUid() && incomingEmail();
+      allow read: if resourceUid() || resourceEmail() || isAdmin();
+      allow update: if resourceUid() && incomingUid();
+      allow delete: if false;
+    }
+
+    match /orders/{orderId} {
+      allow create: if participant(request.resource.data) && validOrderStatus(request.resource.data.status);
+      allow read: if participant(resource.data) || isAdmin();
+      allow update, delete: if false; // Cloud Function only.
+    }
+
+    match /medicines/{medicineId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /pharmacies/{pharmacyId} {
+      allow read: if signedIn();
+      allow write: if pharmacyOwner(pharmacyId);
+      match /medicines/{medicineId} {
+        allow read: if signedIn();
+        allow write: if pharmacyOwner(pharmacyId);
+      }
+      match /customCategories/{categoryId} {
+        allow read: if signedIn();
+        allow write: if pharmacyOwner(pharmacyId);
+      }
+    }
+
+    match /customCategories/{categoryId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /pharmacyProfiles/{profileId} {
+      allow read: if signedIn();
+      allow create, update: if pharmacyOwner(profileId) || (isAdmin() && incomingUid());
+      allow delete: if false;
+    }
+
+    match /wishlists/{userId} { allow read, write: if ownsUid(userId); }
+    match /carts/{cartId} { allow read, write: if ownsUid(cartId); }
+    match /userAddresses/{userId} { allow read, write: if ownsUid(userId); }
+
+    match /riderRequests/{requestId} {
+      allow create, update, delete: if false; // Cloud Function only.
+      allow read: if participant(resource.data) || isAdmin();
+    }
+
+    match /prescriptions/{prescriptionId} {
+      allow create: if incomingUid() && request.resource.data.fileCount <= 5;
+      allow read, update: if resourceUid() || isAdmin();
+      allow delete: if false;
+    }
+
+    match /riderWithdrawals/{withdrawalId} {
+      allow create, update, delete: if false;
+      allow read: if resourceUid() || isAdmin();
+    }
+
+    match /withdrawalRequests/{requestId} {
+      allow create, update, delete: if false;
+      allow read: if resourceUid() || isAdmin();
+    }
+
+    match /adminPayouts/{payoutId} {
+      allow create, update, delete: if false;
+      allow read: if isAdmin() && (resource.data.adminUid == uid() || resource.data.pharmacyUid == uid());
+    }
+
+    match /supportTickets/{ticketId} {
+      allow create: if incomingUid();
+      allow read, update: if resourceUid() || isAdmin();
+      allow delete: if false;
+      match /messages/{messageId} {
+        allow read: if signedIn();
+        allow create: if incomingUid();
+        allow update, delete: if false;
+      }
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

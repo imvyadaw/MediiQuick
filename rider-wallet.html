@@ -76,7 +76,7 @@
       font-size: 0.82rem;
       font-weight: 600;
     }
-
+/* // IM_VYADAW */
     .dark-btn {
       background: none;
       border: none;
@@ -453,6 +453,8 @@
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    import { getSession } from './auth-session.js';
+
     const cfg = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
       authDomain: "mediiquick-25a65.firebaseapp.com",
@@ -468,32 +470,25 @@
     let riderSession = null;
     let walletData = { totalEarned: 0, withdrawn: 0, pending: 0, transactions: [] };
 
-    try { riderSession = JSON.parse(localStorage.getItem('mq_db_session') || '{}'); } catch (e) { }
-    if (!riderSession?.docId) { window.location.href = 'login.html?tab=rider'; }
+    riderSession = getSession('rider');
+    const hasRiderSession = !!(riderSession && riderSession.docId);
+    if (!hasRiderSession) { window.location.href = 'rider-login.html'; }
 
-    // Single-device session watch hata diya — multi-tab use allowed hai
-    // (sessionToken mismatch se galat redirect hota tha)
-
-    // Earning formula: ₹30 base + ₹4/km + ₹2/item + ₹15 emergency bonus + COD charge (rider ko milega)
     function calcEarning(order) {
       const base = 30;
       const dist = parseFloat(order.distanceKm) || 0;
       const itemCount = (order.items || []).reduce((s, i) => s + (parseInt(i.qty) || 1), 0);
       const emergency = order.isEmergency ? 15 : 0;
-      // FIX #5: COD charge rider ko milti hai — platform fee nahi
-      // codChargeForRider field profile.html mein set hoti hai order place karte waqt
       const codBonus = parseFloat(order.codChargeForRider || order.codCharge || 0);
       return base + Math.round(dist * 4) + (itemCount * 2) + emergency + codBonus;
     }
 
     async function loadWallet() {
       try {
-        // Fetch delivered orders assigned to this rider
         const ordQ = query(collection(db, 'orders'), where('deliveryBoy.docId', '==', riderSession.docId), where('status', '==', 'delivered'));
         const ordSnap = await getDocs(ordQ);
         const deliveredOrders = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Fetch withdrawal requests
         const wdQ = query(collection(db, 'riderWithdrawals'), where('riderId', '==', riderSession.docId));
         let withdrawals = [];
         try {
@@ -520,7 +515,6 @@
     function renderWallet() {
       const { totalEarned, withdrawn, pending, available, deliveredOrders, withdrawals } = walletData;
 
-      // Build transaction timeline
       const txns = [];
       deliveredOrders.forEach(o => {
         const dist = parseFloat(o.distanceKm) || 0;
@@ -595,8 +589,7 @@
         });
         closeWithdraw();
         alert(`✅ Withdrawal of ₹${amount} requested! Processed in 1-2 business days.`);
-        // Sign in anonymously so Firestore rules pass (no real Firebase Auth in this project)
-        loadWallet(); // refresh after withdraw
+        loadWallet(); 
       } catch (e) { alert('Failed. Please try again.'); console.error(e); }
     };
 
@@ -606,8 +599,7 @@
       else { navigator.clipboard.writeText(msg).then(() => alert('Copied to clipboard!')); }
     };
 
-    // Sign in anonymously so Firestore rules pass (no real Firebase Auth in this project)
-    signInAnonymously(auth).catch(() => { }).finally(() => loadWallet());
+    if (hasRiderSession) signInAnonymously(auth).catch(() => { }).finally(() => loadWallet());
   </script>
 
   <script>

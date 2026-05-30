@@ -32,7 +32,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-
+/* // IM_VYADAW */
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
@@ -521,6 +521,8 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    import { getSession } from './auth-session.js';
+
     const cfg = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
       authDomain: "mediiquick-25a65.firebaseapp.com",
@@ -537,23 +539,18 @@
     let adminSession = null;
     let allOrders = [];
 
-    try {
-      adminSession = JSON.parse(localStorage.getItem('mq_admin_session') || '{}');
-    } catch (e) { }
+    adminSession = getSession('admin');
 
     if (!adminSession?.docId) {
-      window.location.href = 'login.html?tab=admin';
+      window.location.href = 'admin-login.html';
+    } else {
+      document.getElementById('shopNameSub').textContent = `${adminSession.shopName || 'Your Pharmacy'} — Earnings & Revenue`;
     }
 
-    document.getElementById('shopNameSub').textContent = `${adminSession.shopName || 'Your Pharmacy'} — Earnings & Revenue`;
-
-    // FIX: sessionToken multi-tab logout hata diya — college demo ke liye multi-tab allowed
 
     let _ordersUnsub = null;
 
     function subscribeOrders() {
-      // FIX: getDocs → onSnapshot for real-time updates
-      // FIX: Both docId and adminId queries run, results merged
       const docId = adminSession.docId || '';
       const adminId = adminSession.adminId || '';
 
@@ -562,12 +559,12 @@
         return;
       }
 
-      // Show loading
+      
       document.getElementById('ordersTableWrap').innerHTML = '<div class="empty" style="padding:40px;"><div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16a34a;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;"></div>Loading orders...</div>';
 
       const q1 = query(collection(db, 'orders'), where('assignedAdminId', '==', docId));
 
-      // Real-time listener on docId query
+      
       if (_ordersUnsub) _ordersUnsub();
       _ordersUnsub = onSnapshot(q1, async (snap1) => {
         const seen = new Set();
@@ -577,7 +574,7 @@
           allOrders.push({ id: d.id, ...d.data() });
         });
 
-        // Also fetch adminId-based orders if different
+
         if (adminId && adminId !== docId) {
           try {
             const q2 = query(collection(db, 'orders'), where('assignedAdminId', '==', adminId));
@@ -598,9 +595,9 @@
       });
     }
 
-    // Auth guard — localStorage session only (Firebase Auth nahi — cross-role redirect fix)
+
     if (!adminSession?.docId) {
-      window.location.href = 'login.html?tab=admin';
+      window.location.href = 'admin-login.html';
     } else {
       subscribeOrders();
     }
@@ -617,7 +614,7 @@
       const delivered = filtered.filter(o => o.status === 'delivered');
       const totalRev = delivered.reduce((s, o) => s + (o.total || 0), 0);
       const avgVal = delivered.length ? Math.round(totalRev / delivered.length) : 0;
-      // 15% platform fee
+
       const balance = Math.round(totalRev * 0.85);
 
       document.getElementById('s-revenue').textContent = '₹' + totalRev.toLocaleString('en-IN');

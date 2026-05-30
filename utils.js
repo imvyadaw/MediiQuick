@@ -109,6 +109,7 @@ function getStatusBadge(status) {
 }
 
 // Session management
+const MQ_SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
 const SessionManager = {
   // Customer
   getCustomer: () => {
@@ -127,7 +128,7 @@ const SessionManager = {
   },
   
   setCustomer: (data) => {
-    data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    data.expiresAt = Date.now() + MQ_SESSION_TTL;
     localStorage.setItem('mq_user', JSON.stringify(data));
   },
   
@@ -148,7 +149,7 @@ const SessionManager = {
   },
   
   setAdmin: (data) => {
-    data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    data.expiresAt = Date.now() + MQ_SESSION_TTL;
     localStorage.setItem('mq_admin_session', JSON.stringify(data));
   },
   
@@ -169,7 +170,7 @@ const SessionManager = {
   },
   
   setRider: (data) => {
-    data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    data.expiresAt = Date.now() + MQ_SESSION_TTL;
     localStorage.setItem('mq_db_session', JSON.stringify(data));
   },
   

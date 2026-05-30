@@ -452,21 +452,21 @@
         showToast(`✓ ${_esc(name)} added to cart!`);
       } catch (e) { showToast('Could not add to cart'); }
     };
-
+  // IM_VYADAW
     // ── Auth guard: localStorage-based (no Firebase Auth) ──
     // Profile.html jaisa — multi-tab clash nahi hoga, session displacement removed
     (function () {
       try {
         const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
-        if (!session || !session.uid) { window.location.href = 'login.html'; return; }
+        if (!session || !session.uid) { window.location.href = 'user-login.html'; return; }
         if (session.expiresAt && Date.now() > session.expiresAt) {
           localStorage.removeItem('mq_user');
-          window.location.href = 'login.html';
+          window.location.href = 'user-login.html';
           return;
         }
         currentUid = session.uid;
       } catch (e) {
-        window.location.href = 'login.html';
+        window.location.href = 'user-login.html';
         return;
       }
 

@@ -681,7 +681,7 @@
           </button>
 
           <div class="login-redirect">
-            Already have an account? <a href="login.html">Sign in →</a>
+            Already have an account? <a href="user-login.html">Sign in →</a>
           </div>
         </div>
 
@@ -699,8 +699,9 @@
 
   <script type="module">
     import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { saveSession } from './auth-session.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyCMuXqTYFjN1r1DMQZyCRkIWPQ529HUdPo",
@@ -800,10 +801,7 @@
     // ============ CHECK IF MOBILE EXISTS ============
     async function checkIfMobileExists(mobile) {
       try {
-        const riderQuery = query(collection(db, 'riders'), where('phone', '==', mobile));
-        const riderSnap = await getDocs(riderQuery);
-        if (!riderSnap.empty) return true;
-
+        // Customer signup — sirf users collection check karo
         const userQuery = query(collection(db, 'users'), where('mobile', '==', mobile));
         const userSnap = await getDocs(userQuery);
         return !userSnap.empty;
@@ -874,11 +872,32 @@
             return;
           }
         } catch (preCheckErr) {
-          // Firestore rules may block pre-auth reads — skip check, proceed
         }
 
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const firebaseUser = userCredential.user;
+        let firebaseUser = null;
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          firebaseUser = userCredential.user;
+        } catch (authErr) {
+          if (authErr.code !== 'auth/email-already-in-use') throw authErr;
+
+          const existingCred = await signInWithEmailAndPassword(auth, email, password).catch(() => null);
+          if (!existingCred?.user) {
+            showToast('This email already has a login. Use the same password or choose another email.', 'error');
+            document.getElementById('emailAddress').classList.add('error-input');
+            setLoading('registerBtn', false);
+            return;
+          }
+
+          const existingUserDoc = await getDoc(doc(db, 'users', existingCred.user.uid)).catch(() => null);
+          if (existingUserDoc?.exists()) {
+            showToast('User account already exists for this email. Please login.', 'error');
+            document.getElementById('emailAddress').classList.add('error-input');
+            setLoading('registerBtn', false);
+            return;
+          }
+          firebaseUser = existingCred.user;
+        }
         const fullName = firstName + " " + lastName;
         await updateProfile(firebaseUser, { displayName: fullName });
 
@@ -908,23 +927,20 @@
         await setDoc(doc(db, 'users', firebaseUser.uid), userData);
 
         // Store session
-        const session = {
+        const session = saveSession('customer', {
           uid: firebaseUser.uid,
           name: fullName,
           email: email,
           mobile: mobile,
           lat: lat,
-          lng: lng,
-          expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
-        };
-        localStorage.setItem('mq_user', JSON.stringify(session));
+          lng: lng
+        });
 
         document.getElementById('signupFormContainer').style.display = 'none';
         document.getElementById('successView').classList.add('show');
 
         showToast('Account created successfully! 🎉', 'success');
 
-        // FIX: profile.html pe redirect — user already Firebase Auth se logged in hai
         setTimeout(() => {
           window.location.href = 'profile.html';
         }, 2200);
@@ -941,7 +957,7 @@
         }
       }
     };
-
+  // IM_VYADAW
     document.getElementById('registerBtn').addEventListener('click', createUserAccount);
     document.addEventListener('keydown', (e) => { if (e.key === 'Enter') createUserAccount(); });
   </script>

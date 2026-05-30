@@ -503,6 +503,10 @@
             background: #f0fdf4;
         }
 
+        #custom-cat-cards {
+            display: contents;
+        }
+
         .cat-icon {
             width: 52px;
             height: 52px;
@@ -2732,18 +2736,20 @@
     <!-- Firebase Module Script -->
     <script type="module">
         import { db as _db } from './firebase-config.js';
-        import { collection, doc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { collection, doc, setDoc, getDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         async function saveOrderToFirestore(orderData) {
             try {
                 await setDoc(doc(_db, 'orders', orderData.orderId), orderData);
-                // ✅ FIX #12: Deduct stock from medicines collection on order placement
-                if (orderData.assignedAdminId && orderData.items && orderData.items.length > 0) {
+                
+                return;
+
+                if (false && orderData.assignedAdminId && orderData.items && orderData.items.length > 0) {
                     const { runTransaction } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
                     for (const item of orderData.items) {
                         const medId = (item.med?.id || '').replace(/^adm_/, '');
                         if (!medId) continue;
-                        const medRef = doc(_db, 'admins', orderData.assignedAdminId, 'medicines', medId);
+                        const medRef = doc(_db, 'pharmacies', orderData.assignedAdminId, 'medicines', medId);
                         try {
                             await runTransaction(_db, async (tx) => {
                                 const snap = await tx.get(medRef);
@@ -2758,13 +2764,12 @@
             } catch (e) { console.warn('Order Firestore save failed:', e); }
         }
 
-        // --- Admin Assignment: Zepto/Blinkit style — PIN+City, then City+Distance, then GPS fallback ---
+
         async function findAdminForOrder(deliveryPin, deliveryCity, deliveryLat, deliveryLng) {
             try {
                 const snap = await getDocs(collection(_db, 'pharmacyProfiles'));
-                // FIX: Return object with status — 3 cases
-                // { status: 'found', adminId } | { status: 'offline' } | { status: 'not_registered' }
-                if (snap.empty) return { status: 'not_registered' };
+                const adminsSnap = await getDocs(collection(_db, 'admins')).catch(() => null);
+                if (snap.empty && (!adminsSnap || adminsSnap.empty)) return { status: 'not_registered' };
 
                 const pin = (deliveryPin || '').toString().trim();
                 const city = (deliveryCity || '').toLowerCase().trim();
@@ -2779,9 +2784,7 @@
                     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 }
 
-                // ✅ FIX: Real PIN → City validation using India Post API
-                // Delivery PIN ka actual city fetch karo aur verify karo
-                let realPinCity = null; // PIN se actual city
+                let realPinCity = null; 
                 let realPinDistrict = null;
                 if (pin && pin.length === 6) {
                     try {
@@ -2801,8 +2804,6 @@
                     }
                 }
 
-                // Jo city use karni hai verify ke liye: real PIN city preferred
-                // Agar PIN API kaam na kare toh user-entered city use karo
                 const verifiedCity = realPinCity || city;
                 const verifiedDistrict = realPinDistrict || '';
 
@@ -2812,11 +2813,9 @@
                     const b = orderCity.toLowerCase().trim();
                     const d = (orderDistrict || '').toLowerCase().trim();
 
-                    // Exact match
                     if (a === b) return true;
                     if (d && a === d) return true;
 
-                    // Common prefix/suffix clean (e.g., "new delhi" vs "delhi")
                     const clean = s => s.replace(/^(new |greater |old |east |west |north |south |navi )/i, '').trim();
                     if (clean(a) === clean(b)) return true;
                     if (d && clean(a) === clean(d)) return true;
@@ -2824,13 +2823,22 @@
                     return false;
                 }
 
-                const admins = snap.docs.map(d => ({ adminId: d.id, ...d.data() }));
-
-                // ✅ STRICT MATCHING: PIN + City dono sahi hone chahiye
-                // ✅ ONLINE CHECK: Sirf wahi admin match hoga jo currently logged in hai
+                const adminMap = new Map();
+                if (adminsSnap && !adminsSnap.empty) {
+                    adminsSnap.docs.forEach(d => {
+                        const data = d.data() || {};
+                        const id = data.adminId || d.id;
+                        adminMap.set(id, { ...data, profileId: d.id, legacyAdminId: data.adminId || '', adminId: id, uid: data.uid || data.adminUid || '' });
+                    });
+                }
+                snap.docs.forEach(d => {
+                    const data = d.data() || {};
+                    const id = d.id;
+                    adminMap.set(id, { ...(adminMap.get(id) || {}), ...data, profileId: d.id, legacyAdminId: data.adminId || '', adminId: id, uid: data.uid || data.adminUid || '' });
+                });
+                const admins = [...adminMap.values()];
                 for (const a of admins) {
-                    // ❌ Admin logged out hai — skip karo, order nahi jaayega
-                    if (!a.isOnline) {
+                    if (a.isOnline === false) {
                         console.log('[MQ] Admin', a.adminId, 'is offline/not logged in — skipping');
                         continue;
                     }
@@ -2843,43 +2851,36 @@
                     const pinInAdminList = pin && servedPins.includes(pin);
                     const cityMatches = _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
 
-                    // ✅ FIXED: PIN match aur REAL city match dono zaruri hain
-                    // Agar PIN Greater Noida ka hai aur admin Delhi ka, toh cityMatches = false → skip
+                    
                     if (pinInAdminList && cityMatches) {
                         console.log('[MQ] Matched admin', a.adminId, 'via PIN+City');
-                        return { status: 'found', adminId: a.adminId };
+                        return { status: 'found', adminId: a.adminId, adminUid: a.uid || '', pharmacyUid: a.uid || '' };
                     }
-
-                    // ❌ PIN match kiya lekin city alag → yeh order is admin ka NAHI hai
-                    // (Yahi tha asli bug — pehle yahan bhi match ho jaata tha)
                     if (pinInAdminList && !cityMatches) {
                         console.warn('[MQ] PIN', pin, 'matched admin', a.adminId, 'but city mismatch:', pharmCity, 'vs', verifiedCity, '— SKIPPING');
                         continue;
                     }
 
-                    // Only city match (no PIN list set) — GPS refine karo
                     if (!servedPins.length && cityMatches) {
                         if (pharmLat && pharmLng && deliveryLat && deliveryLng) {
                             const dist = _haversineKm(pharmLat, pharmLng, deliveryLat, deliveryLng);
                             if (dist <= radius) {
                                 console.log('[MQ] Matched admin', a.adminId, 'via city+GPS dist:', dist.toFixed(1), 'km');
-                                return { status: 'found', adminId: a.adminId }; // FIX: was returning plain string
+                                return { status: 'found', adminId: a.adminId, adminUid: a.uid || '', pharmacyUid: a.uid || '' }; // FIX: was returning plain string
                             }
                         } else {
-                            // No GPS, city match kafi hai
                             console.log('[MQ] Matched admin', a.adminId, 'via city (no GPS)');
-                            return { status: 'found', adminId: a.adminId }; // FIX: was returning plain string
+                            return { status: 'found', adminId: a.adminId, adminUid: a.uid || '', pharmacyUid: a.uid || '' }; // FIX: was returning plain string
                         }
                     }
                 }
 
-                // GPS-only fallback — sirf tab jab verified city bhi match ho
                 if (deliveryLat && deliveryLng) {
                     const gpsFallback = admins.find(a => {
-                        if (!a.isOnline) return false; // ✅ Offline admin ko skip karo
+                        if (a.isOnline === false) return false; // explicit offline admin ko skip karo
                         if (!a.lat || !a.lng) return false;
                         const pharmCity = (a.city || '').toLowerCase().trim();
-                        // GPS fallback bhi city-aware hona chahiye
+
                         const cityOk = !pharmCity || _cityMatch(pharmCity, verifiedCity, verifiedDistrict);
                         if (!cityOk) return false;
                         const radius = parseFloat(a.deliveryRadius || 5);
@@ -2887,13 +2888,11 @@
                     });
                     if (gpsFallback) {
                         console.log('[MQ] Matched admin', gpsFallback.adminId, 'via GPS fallback');
-                        return { status: 'found', adminId: gpsFallback.adminId };
+                        return { status: 'found', adminId: gpsFallback.adminId, adminUid: gpsFallback.uid || '', pharmacyUid: gpsFallback.uid || '' };
                     }
                 }
 
-                // No online admin found — check if any admin is registered but offline
-                const anyRegistered = snap.docs.some(d => {
-                    const a = d.data();
+                const anyRegistered = admins.some(a => {
                     const servedPins = (a.servedPins || []).map(p => p.toString().trim());
                     const pharmCity = (a.city || '').toLowerCase().trim();
                     const pinMatch = pin && servedPins.includes(pin);
@@ -2901,9 +2900,9 @@
                     return pinMatch || (!servedPins.length && cityMatch);
                 });
                 if (anyRegistered) {
-                    return { status: 'offline' }; // Registered but currently offline
+                    return { status: 'offline' }; 
                 }
-                return { status: 'not_registered' }; // No pharmacy in this area
+                return { status: 'not_registered' }; 
             } catch (e) {
                 console.warn('[MQ] Admin lookup failed:', e);
                 return { status: 'not_registered' };
@@ -2944,27 +2943,192 @@
             } catch (e) { console.warn('Addresses save failed:', e); }
         }
 
+        async function getAdminCatalogIds() {
+            const ids = new Set();
+            try {
+                const pharmaciesSnap = await getDocs(collection(_db, 'pharmacies'));
+                pharmaciesSnap.docs.forEach(d => ids.add(d.id));
+            } catch (e) { console.warn('[MQ] Pharmacy catalog lookup failed:', e); }
+            try {
+                const adminsSnap = await getDocs(collection(_db, 'admins'));
+                adminsSnap.docs.forEach(d => {
+                    const data = d.data() || {};
+                    ids.add(data.adminId || d.id);
+                    ids.add(data.docId || d.id);
+                });
+            } catch (e) { console.warn('[MQ] Admin catalog lookup failed:', e); }
+            try {
+                const profilesSnap = await getDocs(collection(_db, 'pharmacyProfiles'));
+                profilesSnap.docs.forEach(d => ids.add(d.id));
+            } catch (e) { console.warn('[MQ] Pharmacy profile lookup failed:', e); }
+            (window._mqMedCache || []).forEach(m => {
+                if (m.adminId) ids.add(m.adminId);
+            });
+            return [...ids].filter(Boolean);
+        }
+
         async function syncAdminMedicinesFromFirestore() {
             try {
-                const snap = await getDocs(collection(_db, 'medicines'));
-                if (snap.empty) return;
-                const meds = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                const adminIds = await getAdminCatalogIds();
+                if (!adminIds.length) {
+                    console.warn('[MQ] No pharmacies found');
+                    return;
+                }
 
-                window._mqMedCache = meds;
+                const allMeds = [];
+
+                
+                for (const adminId of adminIds) {
+                    const medSnaps = await Promise.all([
+                        getDocs(collection(_db, 'pharmacies', adminId, 'medicines')).catch(() => null),
+                        getDocs(collection(_db, 'admins', adminId, 'medicines')).catch(() => null)
+                    ]);
+
+                    medSnaps.filter(Boolean).forEach(medsSnap => {
+                        if (medsSnap.empty) return;
+                        medsSnap.docs.forEach(medDoc => {
+                            allMeds.push({
+                                id: medDoc.id,
+                                adminId: adminId,  
+                                ...medDoc.data()
+                            });
+                        });
+                    });
+                }
+
+                window._mqMedCache = allMeds;
                 window._mqMedUpdated = Date.now();
-                // Medicines load hone ke baad custom categories bhi refresh karo
+                console.log('[MQ] Loaded', allMeds.length, 'medicines from', adminIds.length, 'pharmacies');
+
+                
                 if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
-            } catch (e) { console.warn('Medicine sync failed:', e); }
+
+                
+                await subscribeToAllAdminMedicines();
+            } catch (e) {
+                console.warn('[MQ] Medicine sync failed:', e);
+            }
+        }
+
+        
+        async function subscribeToAllAdminMedicines() {
+            try {
+                const adminIds = await getAdminCatalogIds();
+                if (!adminIds.length) return;
+
+                
+                if (window._mqMedUnsubs) {
+                    window._mqMedUnsubs.forEach(unsub => unsub());
+                }
+                window._mqMedUnsubs = [];
+
+
+                for (const adminId of adminIds) {
+                    const medsPath = collection(_db, 'pharmacies', adminId, 'medicines');
+
+                    const unsub = onSnapshot(medsPath, (snap) => {
+                        
+                        const adminMeds = snap.docs.map(d => ({
+                            id: d.id,
+                            adminId: adminId,
+                            ...d.data()
+                        }));
+
+                        
+                        const existingMeds = window._mqMedCache || [];
+                        const otherMeds = existingMeds.filter(m => m.adminId !== adminId);
+
+                        window._mqMedCache = [...otherMeds, ...adminMeds];
+                        console.log('[MQ] Medicines updated real-time from admin:', adminId);
+
+                        
+                        if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
+                        if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
+                    });
+
+                    window._mqMedUnsubs.push(unsub);
+                }
+            } catch (e) {
+                console.error('[MQ] Failed to subscribe to medicines:', e);
+            }
         }
 
         async function syncCustomCatsFromFirestore() {
             try {
-                const snap = await getDocs(collection(_db, 'customCategories'));
-                const cats = snap.empty ? [] : snap.docs.map(d => ({ key: d.id, ...d.data() }));
-                window._mqCatCache = cats;
+                
+                const adminIds = await getAdminCatalogIds();
+                if (!adminIds.length) {
+                    console.warn('[MQ] No pharmacies found for categories');
+                    return;
+                }
+
+                const allCats = [];
+
+                
+                for (const adminId of adminIds) {
+                    const catsSnap = await getDocs(
+                        collection(_db, 'pharmacies', adminId, 'customCategories')
+                    );
+
+                    if (!catsSnap.empty) {
+                        catsSnap.docs.forEach(catDoc => {
+                            allCats.push({
+                                key: catDoc.id,
+                                adminId: adminId,
+                                ...catDoc.data()
+                            });
+                        });
+                    }
+                }
+
+                window._mqCatCache = allCats;
+                console.log('[MQ] Loaded', allCats.length, 'categories from', adminIds.length, 'pharmacies');
+
+                
+                await subscribeToAllAdminCategories();
             } catch (e) {
-                // Firestore fail hone par, koi bhi cached data use karo
-                console.warn('Custom cats sync failed:', e);
+                console.warn('[MQ] Custom cats sync failed:', e);
+            }
+        }
+
+        
+        async function subscribeToAllAdminCategories() {
+            try {
+                const adminIds = await getAdminCatalogIds();
+                if (!adminIds.length) return;
+
+                
+                if (window._mqCatUnsubs) {
+                    window._mqCatUnsubs.forEach(unsub => unsub());
+                }
+                window._mqCatUnsubs = [];
+
+
+                for (const adminId of adminIds) {
+                    const catsPath = collection(_db, 'pharmacies', adminId, 'customCategories');
+
+                    const unsub = onSnapshot(catsPath, (snap) => {
+                        
+                        const adminCats = snap.docs.map(d => ({
+                            key: d.id,
+                            adminId: adminId,
+                            ...d.data()
+                        }));
+
+                        const existingCats = window._mqCatCache || [];
+                        const otherCats = existingCats.filter(c => c.adminId !== adminId);
+
+                        window._mqCatCache = [...otherCats, ...adminCats];
+                        console.log('[MQ] Categories updated real-time from admin:', adminId);
+
+                        if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
+                    });
+
+                    window._mqCatUnsubs.push(unsub);
+                }
+            } catch (e) {
+                console.error('[MQ] Failed to subscribe to categories:', e);
             }
         }
 
@@ -3005,7 +3169,7 @@
                 window._mqPendingOrders = [];
             }
 
-            // Firestore sync complete hone ke baad categories aur medicines refresh karo
+            
             if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
             if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
         }).catch(() => {
@@ -3016,7 +3180,6 @@
                 pending.forEach(order => saveOrderToFirestore(order));
                 window._mqPendingOrders = [];
             }
-            // Fallback: still try to render whatever is cached
             if (typeof syncAdminMedicines === 'function') syncAdminMedicines();
             if (typeof loadCustomCatCards === 'function') loadCustomCatCards();
         });
@@ -3026,45 +3189,39 @@
 
         // Auth guard — Firebase Auth based
         (function () {
-            // ── FIX: Firebase Auth ki jagah sirf localStorage se session check ──
-            // Problem: Ek browser mein sirf ek Firebase Auth user hota hai.
-            // Jab Admin/Rider login karta hai doosre tab mein, Firebase Auth
-            // User ko kick out kar deta tha — onAuthStateChanged null fire karta tha — logout ho jaata tha.
-            // Solution: User session sirf mq_user localStorage se verify karo. Firebase Auth ki zaroorat nahi.
+
 
             function checkUserSession() {
                 try {
                     const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
                     if (!session || !session.uid) {
-                        window.location.href = 'login.html';
+                        window.location.href = 'user-login.html';
                         return false;
                     }
-                    // Session expiry check — 7 din ka session
+                    // Session expiry check — 7 days of inactivity allowed
                     if (session.expiresAt && Date.now() > session.expiresAt) {
                         localStorage.removeItem('mq_user');
-                        window.location.href = 'login.html';
+                        window.location.href = 'user-login.html';
                         return false;
                     }
-                    // ✅ Har page load pe expiresAt refresh karo — bar bar logout nahi hoga
                     session.expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
                     localStorage.setItem('mq_user', JSON.stringify(session));
                     return true;
                 } catch (e) {
-                    window.location.href = 'login.html';
+                    window.location.href = 'user-login.html';
                     return false;
                 }
             }
 
-            // Page load par check karo
             if (!checkUserSession()) return;
 
-            // Logout function
+            
             window._profileSignOut = function () {
                 localStorage.removeItem('mq_user');
-                window.location.href = 'login.html';
+                window.location.href = 'user-login.html';
             };
 
-            // Firestore se user data sync karo (background mein — logout nahi karega)
+
             import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp, getApp }) => {
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc, updateDoc }) => {
                     let _app;
@@ -3080,7 +3237,7 @@
                     }
                     const _db = getFirestore(_app);
 
-                    // Background mein Firestore se latest data fetch karo
+
                     try {
                         const session = JSON.parse(localStorage.getItem('mq_user') || 'null');
                         if (session && session.uid) {
@@ -3092,7 +3249,7 @@
                                 }
                             }).catch(() => { });
 
-                            // GPS update to Firestore
+                            
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(function (pos) {
                                     const lat = pos.coords.latitude, lng = pos.coords.longitude;
@@ -3377,7 +3534,7 @@
 
         function loadCart() {
             try {
-                // If user came via Reorder button, load those items into cart
+                
                 const reorderRaw = localStorage.getItem('mq_reorder_cart');
                 if (reorderRaw) {
                     const reorderItems = JSON.parse(reorderRaw);
@@ -3455,7 +3612,7 @@
                 const countSpan = document.getElementById('cart-item-count');
                 if (badge) badge.textContent = totalQty;
                 if (countSpan) countSpan.textContent = totalQty;
-                // Sync cart to Firestore
+
                 try {
                     const user = JSON.parse(localStorage.getItem('mq_user') || '{}');
                     if (user.uid && window.__mqFirestore) {
@@ -3541,16 +3698,32 @@
             changeQty(id, delta);
         }
 
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderCard(med) {
             const off = med.mrp ? Math.round((1 - med.price / med.mrp) * 100) : 0;
             const imgSrc = getMedImg(med);
             const qty = getCartQty(med.id);
             const isOutOfStock = med.outOfStock === true;
+            const safeId = escapeHTML(med.id);
+            const safeName = escapeHTML(med.name);
+            const safeSub = escapeHTML(med.sub);
+            const safeImg = escapeHTML(imgSrc);
+            const safePrice = escapeHTML(med.price);
+            const safeMrp = escapeHTML(med.mrp);
 
             return `
-    <div class="med-card${isOutOfStock ? ' med-card-oos' : ''}" data-med-id="${med.id}">
+    <div class="med-card${isOutOfStock ? ' med-card-oos' : ''}" data-med-id="${safeId}">
       <div class="med-img-wrap">
-        <img src="${imgSrc}" alt="${med.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
+        <img src="${safeImg}" alt="${safeName}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140/f0fdf4/16a34a?text=💊'">
         ${isOutOfStock
                     ? '<span class="badge-out-of-stock">OUT OF STOCK</span>'
                     : '<span class="badge-30min">30 min</span>'
@@ -3558,23 +3731,23 @@
         ${med.trending && !isOutOfStock ? '<span class="badge-trending">TRENDING</span>' : ''}
       </div>
       <div class="med-info">
-        <div class="med-name" title="${med.name}">${med.name}</div>
-        <div class="med-sub" title="${med.sub}">${med.sub}</div>
+        <div class="med-name" title="${safeName}">${safeName}</div>
+        <div class="med-sub" title="${safeSub}">${safeSub}</div>
         <div class="med-price-row">
           <div>
-            <span class="med-price">₹${med.price}</span>
-            ${med.mrp ? `<span class="med-mrp">₹${med.mrp}</span>` : ''}
+            <span class="med-price">₹${safePrice}</span>
+            ${med.mrp ? `<span class="med-mrp">₹${safeMrp}</span>` : ''}
           </div>
           ${off > 0 ? `<span class="med-off">${off}% OFF</span>` : ''}
         </div>
         <div class="med-actions">
           ${isOutOfStock
                     ? `<button class="add-btn add-btn-disabled" disabled>Out of Stock</button>`
-                    : `<button class="add-btn" data-action="add" data-id="${med.id}"${qty > 0 ? ' style="display:none"' : ''}>Add to Cart</button>
+                    : `<button class="add-btn" data-action="add" data-id="${safeId}"${qty > 0 ? ' style="display:none"' : ''}>Add to Cart</button>
                <div class="qty-controls ${qty > 0 ? 'show' : ''}">
-                 <button class="qty-btn" data-action="minus" data-id="${med.id}">−</button>
+                 <button class="qty-btn" data-action="minus" data-id="${safeId}">−</button>
                  <span class="qty-val">${qty > 0 ? qty : 1}</span>
-                 <button class="qty-btn" data-action="plus" data-id="${med.id}">+</button>
+                 <button class="qty-btn" data-action="plus" data-id="${safeId}">+</button>
                </div>`
                 }
         </div>
@@ -3595,42 +3768,47 @@
             const wrap = document.getElementById('custom-cat-cards');
             if (!wrap) return;
 
-            // Sirf un custom categories ko dikhao jinmein actually medicines hain
-            const catsWithMeds = custom.filter(cat =>
-                adminMeds.some(m =>
+            
+            const catsWithInfo = custom.map(cat => {
+                const medsCount = adminMeds.filter(m =>
                     (m.catKey === cat.key || m.category === cat.label) &&
                     m.price > 0 && m.quantity > 0
-                )
-            );
+                ).length;
+                return { ...cat, medsCount };
+            });
 
-            if (catsWithMeds.length === 0) {
+            if (catsWithInfo.length === 0) {
                 wrap.innerHTML = '';
                 return;
             }
 
-            wrap.innerHTML = catsWithMeds.map(cat => `
-                <div class="cat-card" onclick="showCustomCategory('${cat.key}')" id="cat-${cat.key}">
-                    <div class="cat-icon" style="background:${cat.color || '#f0fdf4'};font-size:22px;display:flex;align-items:center;justify-content:center;">${cat.icon}</div>
-                    <div class="cat-name">${cat.label}</div>
+            wrap.innerHTML = catsWithInfo.map(cat => `
+                <div class="cat-card" onclick='showCustomCategory(${JSON.stringify(cat.adminId || '')}, ${JSON.stringify(cat.key)})' id="cat-${escapeHTML(cat.adminId || 'global')}-${escapeHTML(cat.key)}">
+                    <div class="cat-icon" style="background:${escapeHTML(cat.color || '#f0fdf4')};font-size:22px;display:flex;align-items:center;justify-content:center;">${escapeHTML(cat.icon)}</div>
+                    <div class="cat-name">${escapeHTML(cat.label)}</div>
                 </div>`).join('');
         }
 
-        function showCustomCategory(key) {
+        function showCustomCategory(adminId, key) {
             const adminMeds = window._mqMedCache || [];
             const custom = window._mqCatCache || [];
-            const cat = custom.find(c => c.key === key);
+            const cat = custom.find(c => c.key === key && (!adminId || c.adminId === adminId)) || custom.find(c => c.key === key);
             if (!cat) return;
-            const meds = adminMeds.filter(m => (m.catKey === key || m.category === cat.label) && m.price > 0 && m.quantity >= 0);
+            const meds = adminMeds.filter(m =>
+                (!cat.adminId || m.adminId === cat.adminId) &&
+                (m.catKey === key || m.category === cat.label) &&
+                m.price > 0 && m.quantity >= 0
+            );
             activeCategory = key;
             document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
-            const el = document.getElementById('cat-' + key);
+            const el = document.getElementById('cat-' + (cat.adminId || 'global') + '-' + key);
             if (el) el.classList.add('active');
             document.getElementById('cat-title-text').textContent = cat.icon + ' ' + cat.label + ' (' + meds.length + ' medicines)';
-            document.getElementById('category-medicines-grid').innerHTML = meds.map(m => {
+            document.getElementById('category-medicines-grid').innerHTML = meds.length ? meds.map(m => {
                 const med = { id: 'adm_' + m.id, name: m.name, sub: m.category || cat.label, price: m.price, mrp: Math.round(m.price * 1.15), outOfStock: m.quantity === 0, trending: false };
                 MEDICINES_FLAT[med.id] = med;
                 return renderCard(med);
-            }).join('');
+            }).join('') : '<div class="empty-state">No medicines added in this category yet.</div>';
             document.getElementById('category-section').style.display = 'block';
             document.getElementById('category-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -3665,7 +3843,7 @@
                     });
                 });
 
-                // Load custom category cards
+
                 loadCustomCatCards();
 
 
@@ -4050,6 +4228,38 @@
         }
 
         let _pinFetchTimer = null;
+        function _applyPinCityState(city, state, statusEl) {
+            if (city) {
+                const cityEl = document.getElementById('addr-city');
+                if (cityEl) cityEl.value = city;
+            }
+            if (state) {
+                const stateEl = document.getElementById('addr-state');
+                if (stateEl) {
+                    const apiState = state.toLowerCase().trim();
+                    const opts = Array.from(stateEl.options);
+                    const match = opts.find(o => {
+                        const optVal = (o.value || o.text || '').toLowerCase().trim();
+                        if (!optVal || optVal === 'select state') return false;
+                        return optVal === apiState || optVal.includes(apiState) || apiState.includes(optVal);
+                    });
+                    if (match) {
+                        stateEl.value = match.value || match.text;
+                    } else {
+                        const prev = stateEl.querySelector('[data-auto="true"]');
+                        if (prev) prev.remove();
+                        const newOpt = document.createElement('option');
+                        newOpt.value = state; newOpt.text = state;
+                        newOpt.setAttribute('data-auto', 'true');
+                        const otherOpt = opts.find(o => (o.value || o.text || '').toLowerCase() === 'other');
+                        stateEl.insertBefore(newOpt, otherOpt || null);
+                        stateEl.value = state;
+                    }
+                }
+            }
+            if (statusEl) { statusEl.textContent = '✅ City & State auto-filled!'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 2000); }
+        }
+
         function onPinInput(val) {
             if (val.length !== 6 || !/^\d{6}$/.test(val)) return;
             const statusEl = document.getElementById('pin-fetch-status');
@@ -4057,57 +4267,26 @@
             clearTimeout(_pinFetchTimer);
             _pinFetchTimer = setTimeout(async function () {
                 try {
-                    const res = await fetch('https://api.postalpincode.in/pincode/' + val);
+                    const url = `https://nominatim.openstreetmap.org/search?postalcode=${val}&countrycodes=in&format=json&addressdetails=1&limit=1`;
+                    const res = await Promise.race([
+                        fetch(url, { headers: { 'Accept-Language': 'en' } }),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))
+                    ]);
                     const data = await res.json();
-                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
-                        const po = data[0].PostOffice[0];
-                        const city = po.District || po.Division || po.Name || '';
-                        const state = po.State || '';
-                        if (city) {
-                            const cityEl = document.getElementById('addr-city');
-                            if (cityEl) {
-
-                                cityEl.value = city;
-                            }
+                    if (data && data[0] && data[0].address) {
+                        const addr = data[0].address;
+                        const city = addr.city || addr.town || addr.county || addr.district || addr.suburb || '';
+                        const state = addr.state || '';
+                        if (city || state) {
+                            _applyPinCityState(city, state, statusEl);
+                        } else {
+                            if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ PIN not found, enter city manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
                         }
-                        if (state) {
-                            const stateEl = document.getElementById('addr-state');
-                            if (stateEl) {
-                                const apiState = state.toLowerCase().trim();
-                                const opts = Array.from(stateEl.options);
-
-                                const match = opts.find(o => {
-                                    const optVal = (o.value || o.text || '').toLowerCase().trim();
-                                    if (!optVal || optVal === 'select state') return false;
-                                    return optVal === apiState ||
-                                        optVal.includes(apiState) ||
-                                        apiState.includes(optVal);
-                                });
-                                if (match) {
-                                    stateEl.value = match.value || match.text;
-                                } else {
-
-                                    const otherOpt = opts.find(o => (o.value || o.text || '').toLowerCase() === 'other');
-                                    if (otherOpt) stateEl.value = otherOpt.value || otherOpt.text;
-
-                                    const newOpt = document.createElement('option');
-                                    newOpt.value = state;
-                                    newOpt.text = state;
-                                    newOpt.setAttribute('data-auto', 'true');
-                                    // Pehle se added auto option hata do
-                                    const prev = stateEl.querySelector('[data-auto="true"]');
-                                    if (prev) prev.remove();
-                                    stateEl.insertBefore(newOpt, otherOpt || null);
-                                    stateEl.value = state;
-                                }
-                            }
-                        }
-                        if (statusEl) { statusEl.textContent = '✅ City & State auto-filled!'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 2000); }
                     } else {
-                        if (statusEl) { statusEl.textContent = '⚠ PIN not found, please enter city manually'; statusEl.style.color = '#f59e0b'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
+                        if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ PIN not found, enter city manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
                     }
                 } catch (e) {
-                    if (statusEl) statusEl.style.display = 'none';
+                    if (statusEl) { statusEl.style.color = '#f59e0b'; statusEl.textContent = '⚠ City fetch failed, enter manually'; setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000); }
                 }
             }, 600);
         }
@@ -4217,6 +4396,7 @@
                 }
 
                 assignedAdminId = _adminResult.adminId;
+                const assignedAdminUid = _adminResult.adminUid || _adminResult.pharmacyUid || '';
 
 
                 const orderId = 'MQ' + Date.now().toString().slice(-8);
@@ -4236,6 +4416,8 @@
                     customerName: currentUser.name || addrName,
                     customerEmail: (currentUser.email || '').toLowerCase().trim(),
                     userId: currentUser.uid || '',
+                    uid: currentUser.uid || '',
+                    customerUid: currentUser.uid || '',
                     customerLat: currentUser.lat || null,
                     customerLng: currentUser.lng || null,
                     customerPin: pin,
@@ -4255,11 +4437,24 @@
                     placedAt: Date.now(),
                     status: 'pending',
                     assignedAdminId: assignedAdminId,
+                    adminId: assignedAdminId,
+                    assignedAdminUid: assignedAdminUid,
+                    adminUid: assignedAdminUid,
+                    pharmacyUid: assignedAdminUid,
                     deliveryAddr: { name: addrName, phone: addrPhone, street: addrStreet, city: city, state: state, pin: pin, type: type, landmark: landmark, lat: _deliveryLat, lng: _deliveryLng }
                 };
 
 
                 window._mqOrderCache = [orderData, ...(window._mqOrderCache || [])];
+                try {
+                    const allOrders = JSON.parse(localStorage.getItem('mq_orders') || '[]').filter(o => o.orderId !== orderData.orderId);
+                    localStorage.setItem('mq_orders', JSON.stringify([orderData, ...allOrders]));
+                    if (orderData.customerEmail) {
+                        const userKey = 'mq_orders_' + orderData.customerEmail;
+                        const userOrders = JSON.parse(localStorage.getItem(userKey) || '[]').filter(o => o.orderId !== orderData.orderId);
+                        localStorage.setItem(userKey, JSON.stringify([orderData, ...userOrders]));
+                    }
+                } catch (e) { console.warn('[MQ] Local order cache save failed:', e); }
 
 
                 window.__mqFirestore.saveOrderToFirestore(orderData);
@@ -4296,7 +4491,7 @@
         function doLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('mq_user');
-                window.location.href = 'login.html';
+                window.location.href = 'user-login.html';
             }
         }
 
@@ -4332,7 +4527,6 @@
                     const lng = pos.coords.longitude;
                     loader.style.display = 'none';
                     text.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-                    // Update Firestore (Firebase Auth user)
                     if (window._profileAuth) {
                         const user = window._profileAuth.currentUser;
                         if (user) {
@@ -4343,7 +4537,7 @@
                             });
                         }
                     }
-                    // Keep localStorage in sync
+
                     try { const cu = JSON.parse(localStorage.getItem('mq_user') || '{}'); cu.lat = lat; cu.lng = lng; localStorage.setItem('mq_user', JSON.stringify(cu)); } catch (e) { }
                 } catch (e) { loader.style.display = 'none'; }
             }, function () {
@@ -4358,7 +4552,7 @@
                 } catch (e) { text.innerHTML = '⚠️ GPS off — please allow in browser settings'; }
             }, { enableHighAccuracy: true, timeout: 10000 });
         }
-
+    // IM_VYADAW
         document.getElementById('medicine-search').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') searchMedicines();
         });
@@ -4428,14 +4622,12 @@
     </script>
 
     <script>
-        // ── Dark Mode ──
         window.toggleDarkMode = function () {
             const isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('mq_dark_mode', isDark ? '1' : '0');
             const btn = document.getElementById('dmToggleBtn');
             if (btn) btn.textContent = isDark ? '☀️' : '🌙';
         };
-        // Apply on load
         (function () {
             if (localStorage.getItem('mq_dark_mode') === '1') {
                 document.body.classList.add('dark-mode');
