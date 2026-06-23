@@ -231,7 +231,7 @@ This is a college project but PRs are welcome! If you find a bug or want to add 
 Built with ❤️ as a college diploma project in Computer Science Engineering.  
 Greater Noida, India.
 
-By-VYADAW (Vishal yadaw)
+By-VYADAW (Vishal yadaw) & Yuvraj Dixit
 
 ---
 
